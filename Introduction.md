@@ -224,18 +224,20 @@ Zaman serisi analizi, geçmiş verilerdeki kalıpları anlayarak geleceği öng�
 
         ```mermaid
         graph TD
-            A[Veri Toplama ve Görselleştirme] --> B{"Seri Durağan mı?"};
-            B -- "Hayır" --> C[Fark Alma (Differencing)];
-            C --> D[ACF/PACF ile Model Belirleme (p,q)];
-            B -- "Evet" --> D;
-            D --> E[Model Parametrelerini Tahmin Etme];
-            E --> F{"Model Tanısal Kontrolleri (Artıklar Beyaz Gürültü mü?)"};
-            F -- "Evet" --> G[Tahmin (Forecasting)];
-            F -- "Hayır" --> D;
-            subgraph "Box-Jenkins Metodolojisi"
+            A["Data Collection & Visualization"] --> B["Is Series Stationary?"]
+            B -- "No" --> C["Differencing"]
+            C --> D["ACF/PACF Model Selection (p,q)"]
+            B -- "Yes" --> D
+            D --> E["Estimate Model Parameters"]
+            E --> F["Diagnostic Checks (Residuals White Noise?)"]
+            F -- "Yes" --> G["Forecasting"]
+            F -- "No" --> D
+            subgraph BoxJenkinsMethodology
                 direction LR
-                D -- "p,d,q" --> E -- "Model" --> F
+                D -- "p,d,q" --> E
+                E -- "Model" --> F
             end
+        ```
         ```
 
 #### Zaman Serisi Analizinde Görselleştirme
@@ -243,7 +245,197 @@ Zaman serisi analizi, geçmiş verilerdeki kalıpları anlayarak geleceği öng�
 Görselleştirme, veri içindeki desenleri, anormallikleri, trendleri ve mevsimselliği insan gözüyle hızlıca tespit etmenin en etkili yoludur.
 
 -   **Zaman Serisi Grafiği:** Verinin zamana karşı çizilmesi. Örneğin, bir şehrin saatlik elektrik tüketim grafiği, gün içindeki (sabah ve akşam) ve hafta sonundaki talep düşüşlerini net bir şekilde gösterir.
--   **ACF ve PACF Grafikleri:** Model belirleme aşamasında kritik öneme sahiptir. Örneğin, bir ACF grafiğinde yavaşça azalan çubuklar trendin varlığına işaret ederken, her 12 ayda bir tekrar eden belirgin bir çubuk yıllık mevsimselliği gösterir.
+
+    **Python ile Airlines Veri Seti Görselleştirme Örneği:**
+    ```python
+    import pandas as pd
+    import matplotlib.pyplot as plt
+
+    # Airlines veri setini yükle (örnek: 'AirPassengers.csv')
+    df = pd.read_csv('AirPassengers.csv')
+    # 'Month' sütununu datetime tipine çevir
+    df['Month'] = pd.to_datetime(df['Month'])
+    # Zaman serisi grafiği
+    plt.figure(figsize=(10, 5))
+    plt.plot(df['Month'], df['Passengers'], marker='o')
+    plt.title('Aylık Yolcu Sayısı (Airlines Veri Seti)')
+    plt.xlabel('Ay')
+    plt.ylabel('Yolcu Sayısı')
+    plt.grid(True)
+    plt.show()
+    ```
+
+    **R ile Airlines Veri Seti Görselleştirme Örneği:**
+    ```r
+    # AirPassengers veri seti R'da gömülüdür
+    data("AirPassengers")
+    # Zaman serisi grafiği
+    plot(AirPassengers,
+         main = "Aylık Yolcu Sayısı (Airlines Veri Seti)",
+         xlab = "Yıl",
+         ylab = "Yolcu Sayısı",
+         col = "blue",
+         lwd = 2)
+    grid()
+    ```
+
+    Python'da pandas ve matplotlib, R'da ise gömülü AirPassengers veri seti ve plot fonksiyonu kullanılmıştır.
+    
+**Zaman Serisi Formatına Dönüştürülmüş Veri Örneği**
+
+Zaman serisi analizi için her veri başlangıçta uygun formatta olmayabilir. Örneğin, bir e-ticaret sitesinin ham işlem kayıtları (transaction logs) genellikle "işlem zamanı", "müşteri ID", "ürün" gibi sütunlar içerir ve zaman serisi formatında değildir. Ancak bu veriler, belirli bir zaman aralığına (örneğin günlük) göre gruplanarak zaman serisi haline getirilebilir.
+
+**Python ile Ham Veriden Zaman Serisi Oluşturma ve Görselleştirme:**
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Örnek ham veri: işlem kayıtları
+data = {
+    'islem_zamani': [
+        '2024-06-01 10:15', '2024-06-01 12:30', '2024-06-02 09:45',
+        '2024-06-02 14:10', '2024-06-03 11:00', '2024-06-03 16:20'
+    ],
+    'musteri_id': [101, 102, 103, 104, 105, 106],
+    'urun': ['A', 'B', 'A', 'C', 'B', 'A']
+}
+df = pd.DataFrame(data)
+df['islem_zamani'] = pd.to_datetime(df['islem_zamani'])
+
+# Günlük işlem sayısını grupla
+daily_counts = df.groupby(df['islem_zamani'].dt.date).size()
+
+# Zaman serisi grafiği
+plt.figure(figsize=(6, 4))
+plt.plot(daily_counts.index, daily_counts.values, marker='o')
+plt.title('Günlük İşlem Sayısı (Ham Veriden Zaman Serisi)')
+plt.xlabel('Tarih')
+plt.ylabel('İşlem Sayısı')
+plt.grid(True)
+plt.show()
+```
+**R ile Ham Veriden Zaman Serisi Oluşturma ve Görselleştirme:**
+```r
+# Örnek ham veri: işlem kayıtları
+data <- data.frame(
+    islem_zamani = c(
+        "2024-06-01 10:15", "2024-06-01 12:30", "2024-06-02 09:45",
+        "2024-06-02 14:10", "2024-06-03 11:00", "2024-06-03 16:20"
+    ),
+    musteri_id = c(101, 102, 103, 104, 105, 106),
+    urun = c("A", "B", "A", "C", "B", "A")
+)
+data$islem_zamani <- as.POSIXct(data$islem_zamani)
+
+# Günlük işlem sayısını grupla
+library(dplyr)
+library(ggplot2)
+daily_counts <- data %>%
+    mutate(tarih = as.Date(islem_zamani)) %>%
+    group_by(tarih) %>%
+    summarise(islem_sayisi = n())
+
+# Zaman serisi grafiği
+ggplot(daily_counts, aes(x = tarih, y = islem_sayisi)) +
+    geom_line() +
+    geom_point() +
+    labs(title = "Günlük İşlem Sayısı (Ham Veriden Zaman Serisi)",
+             x = "Tarih", y = "İşlem Sayısı") +
+    theme_minimal()
+```
+
+Bu örnekte, ham işlem kayıtları günlük bazda gruplanarak zaman serisi formatına dönüştürülmüş ve görselleştirilmiştir. Böylece veri, zaman serisi analizine uygun hale getirilmiştir.
+
+-   **ACF (Autocorrelation Function - Otokorelasyon Fonksiyonu) ve PACF (Partial Autocorrelation Function - Kısmi Otokorelasyon Fonksiyonu) Grafikleri:** Model belirleme aşamasında kritik öneme sahiptir.  
+    - **ACF Notasyonu:** $\rho_k$ ile gösterilir ve bir zaman serisinin kendi gecikmeli (lagged) değerleriyle olan korelasyonunu ölçer.  
+    - **PACF Notasyonu:** $\phi_{kk}$ ile gösterilir ve iki zaman noktası arasındaki doğrudan ilişkiyi, aradaki diğer gecikmelerin etkisini ortadan kaldırarak ölçer.  
+
+    **Örnek Hesaplama:**
+    Diyelim ki elimizde 5 günlük sıcaklık verisi var: $x = [20, 22, 21, 23, 24]$
+
+    - **ACF (Lag-1) Hesabı:**
+        1. Ortalama: $\bar{x} = (20 + 22 + 21 + 23 + 24)/5 = 22$
+        2. $\rho_1 = \frac{\sum_{t=2}^{5} (x_t - \bar{x})(x_{t-1} - \bar{x})}{\sum_{t=1}^{5} (x_t - \bar{x})^2}$
+        3. Hesaplanan değerler:
+            - $(22-22)(20-22) = 0$
+            - $(21-22)(22-22) = -1 \times 0 = 0$
+            - $(23-22)(21-22) = 1 \times -1 = -1$
+            - $(24-22)(23-22) = 2 \times 1 = 2$
+            - Toplam: $0 + 0 + (-1) + 2 = 1$
+        4. Payda: $(20-22)^2 + (22-22)^2 + (21-22)^2 + (23-22)^2 + (24-22)^2 = 4 + 0 + 1 + 1 + 4 = 10$
+        5. $\rho_1 = 1 / 10 = 0.1$
+
+    - **PACF Hesabı:** PACF, örneğin lag-2 için, $x_t$ ile $x_{t-2}$ arasındaki doğrudan ilişkiyi, $x_{t-1}$'in etkisini çıkararak ölçer. Küçük veri setlerinde genellikle istatistiksel paketler ile hesaplanır.
+
+        **Örnek Hesaplama:**
+        Diyelim ki elimizde 5 günlük sıcaklık verisi var: $x = [20, 22, 21, 23, 24]$
+
+        - **PACF (Lag-2) Hesabı:**
+            1. $x_t$ ile $x_{t-2}$ arasındaki korelasyonu, $x_{t-1}$'in etkisini ortadan kaldırarak bulmak gerekir.
+            2. Bu işlem, genellikle regresyon ile yapılır: $x_t = a_1 x_{t-1} + a_2 x_{t-2} + \epsilon_t$
+            3. $a_2$ katsayısı, lag-2 PACF değerini verir.
+            4. Küçük veri setlerinde elle hesaplamak zordur, ancak istatistiksel paketler (örneğin Python'da `statsmodels` veya R'da `pacf` fonksiyonu) ile kolayca bulunabilir.
+
+        **Python ile PACF Hesabı Örneği:**
+        ```python
+        import numpy as np
+        from statsmodels.tsa.stattools import pacf
+
+        x = np.array([20, 22, 21, 23, 24])
+        pacf_values = pacf(x, nlags=2)
+        print("Lag-2 PACF:", pacf_values[2])
+        ```
+
+        **R ile PACF Hesabı Örneği:**
+        ```r
+        x <- c(20, 22, 21, 23, 24)
+        pacf_result <- pacf(x, plot = FALSE)
+        cat("Lag-2 PACF:", pacf_result$acf[2], "\n")
+        ```
+
+        **PACF Kavramsal Gösterimi:**
+
+        ```mermaid
+            graph TD
+                subgraph "PACF Hesabı"
+                X_t_2["x_{t-2}"] -->|Doğrudan Etki| X_t["x_t"]
+                X_t_1["x_{t-1}"] -.->|Dolaylı Etki| X_t
+                end
+                X_t_2 -.->|Dolaylı Etki| X_t_1
+        ```
+
+        **Açıklama:**  
+        PACF (Kısmi Otokorelasyon Fonksiyonu), bir zaman serisinde iki nokta arasındaki doğrudan ilişkiyi ölçer ve aradaki diğer gecikmelerin etkisini ortadan kaldırır. Yukarıdaki şekilde, $x_{t-2}$'nin $x_t$ üzerindeki doğrudan etkisi (solid arrow) ve dolaylı etkisi ($x_{t-1}$ üzerinden, dashed arrow) gösterilmiştir. PACF, sadece doğrudan etkiyi ölçer.
+
+        **Hesaplama Örneği:**  
+        Diyelim ki elimizde 5 günlük sıcaklık verisi var: $x = [20, 22, 21, 23, 24]$
+
+        - PACF (Lag-2) değerini bulmak için $x_t$'yi hem $x_{t-1}$ hem de $x_{t-2}$'ye karşı regresyon ile modelleyin:  
+          $x_t = a_1 x_{t-1} + a_2 x_{t-2} + \epsilon_t$  
+          Burada $a_2$ katsayısı, lag-2 PACF değerini verir.
+
+        **Python ile PACF Hesabı:**
+        ```python
+        import numpy as np
+        from statsmodels.tsa.stattools import pacf
+
+        x = np.array([20, 22, 21, 23, 24])
+        pacf_values = pacf(x, nlags=2)
+        print("Lag-2 PACF:", pacf_values[2])
+        ```
+
+        **R ile PACF Hesabı:**
+        ```r
+        x <- c(20, 22, 21, 23, 24)
+        pacf_result <- pacf(x, plot = FALSE)
+        cat("Lag-2 PACF:", pacf_result$acf[2], "\n")
+        ```
+
+        - **Yorum:** PACF grafiğinde, belirli bir gecikme için çubuğun yüksek olması, o gecikmenin seride doğrudan etkili olduğunu gösterir.
+
+    - **Yorum:** ACF grafiğinde çubukların yavaşça azalması trendin varlığına, belirli aralıklarda tekrar eden yüksek çubuklar ise mevsimselliğe işaret eder.
+
+
 -   **Mevsimsel Ayrıştırma Grafiği (Seasonal Decomposition Plot):** Seriyi bileşenlerine ayırarak görselleştirir: Trend, Mevsimsellik ve Artıklar (Rastgele Gürültü). Bu, bir e-ticaret sitesinin satış verilerinde uzun vadeli büyüme trendini, tatil dönemlerindeki mevsimsel artışlardan ve beklenmedik satış dalgalanmalarından ayırmayı sağlar.
 
     ```mermaid
