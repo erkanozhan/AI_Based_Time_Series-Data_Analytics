@@ -602,10 +602,37 @@ Görselleştirme, veri içindeki desenleri, anormallikleri, trendleri ve mevsims
         theme_minimal()
     ```
     Bu örnekte, ham işlem kayıtları günlük bazda gruplanarak zaman serisi formatına dönüştürülmüş ve görselleştirilmiştir.
+    -   **ACF (Autocorrelation Function - Otokorelasyon Fonksiyonu) ve PACF (Partial Autocorrelation Function - Kısmi Otokorelasyon Fonksiyonu) Grafikleri:** Model belirleme aşamasında kritik öneme sahiptir.
 
--   **ACF (Autocorrelation Function - Otokorelasyon Fonksiyonu) ve PACF (Partial Autocorrelation Function - Kısmi Otokorelasyon Fonksiyonu) Grafikleri:** Model belirleme aşamasında kritik öneme sahiptir.
-    -   **ACF Notasyonu:** $\rho_k$ ile gösterilir ve bir zaman serisinin kendi gecikmeli (lagged) değerleriyle olan korelasyonunu ölçer. ACF grafiğinde çubukların yavaşça azalması trendin varlığına, belirli aralıklarda tekrar eden yüksek çubuklar ise mevsimselliğe işaret eder.
-        *   **Formül:**
+        -   **ACF Notasyonu:** $\rho_k$ ile gösterilir ve bir zaman serisinin kendi gecikmeli (lagged) değerleriyle olan korelasyonunu ölçer. ACF grafiğinde çubukların yavaşça azalması trendin varlığına, belirli aralıklarda tekrar eden yüksek çubuklar ise mevsimselliğe işaret eder.
+
+            *   **Formül:**
+                $$
+                \rho_k = \frac{\text{Cov}(x_t, x_{t-k})}{\text{Var}(x_t)} = \frac{\sum_{t=k+1}^{T} (x_t - \bar{x})(x_{t-k} - \bar{x})}{\sum_{t=1}^{T} (x_t - \bar{x})^2}
+                $$
+
+            *   **Python ile ACF Hesabı:**
+                ```python
+                from statsmodels.tsa.stattools import acf
+                import numpy as np
+
+                # Örnek veri
+                data = np.array([20, 22, 21, 23, 24])
+                
+                # ACF hesapla
+                acf_values = acf(data, nlags=2)
+                print("Lag-1 ACF:", acf_values[1])
+                ```
+
+            *   **R ile ACF Hesabı:**
+                ```r
+                # Örnek veri
+                data <- c(20, 22, 21, 23, 24)
+                
+                # ACF hesapla
+                acf_result <- acf(data, plot = FALSE)
+                print(paste("Lag-1 ACF:", acf_result$acf[2]))
+                ```  *   **Formül:**
             $$
             \rho_k = \frac{\text{Cov}(x_t, x_{t-k})}{\text{Var}(x_t)} = \frac{\sum_{t=k+1}^{T} (x_t - \bar{x})(x_{t-k} - \bar{x})}{\sum_{t=1}^{T} (x_t - \bar{x})^2}
             $$
@@ -622,50 +649,59 @@ Görselleştirme, veri içindeki desenleri, anormallikleri, trendleri ve mevsims
                 - $(20-22)^2 + (22-22)^2 + (21-22)^2 + (23-22)^2 + (24-22)^2 = (-2)^2 + 0^2 + (-1)^2 + 1^2 + 2^2 = 4 + 0 + 1 + 1 + 4 = 10$
             4. $\rho_1 = 1 / 10 = 0.1$
 
+
+Örneklerle ACF Yorumlama:
     -   **PACF Notasyonu:** $\phi_{kk}$ ile gösterilir ve iki zaman noktası arasındaki doğrudan ilişkiyi, aradaki diğer gecikmelerin etkisini ortadan kaldırarak ölçer. PACF grafiğinde, belirli bir gecikme için çubuğun yüksek olması, o gecikmenin seride doğrudan etkili olduğunu gösterir. ACF ve PACF, Box-Jenkins metodolojisinde ARIMA modellerinin mertebelerini (p, q) belirlemek için birlikte kullanılır (Box & Jenkins, 1970).
+    
+    **PACF (Kısmi Otokorelasyon) Kavramsal Gösterimi:**
+                        ```mermaid
+                        graph TD
+                                subgraph "PACF Hesabı"
+                                        direction LR
+                                        X_t_2["x_t-2"] -->|"Doğrudan İlişki"| X_t["x_t"]
+                                        X_t_1["x_t-1"] -.->|"Dolaylı Etki"| X_t
+                                        X_t_2 -.->|"Dolaylı Etki"| X_t_1
+                                end
+                        ```
 
-        *   **PACF Kavramsal Gösterimi:**
-            ```mermaid
-                graph TD
-                    subgraph "PACF Hesabı"
-                    X_t_2["x_{t-2}"] -->|Doğrudan Etki| X_t["x_t"]
-                    X_t_1["x_{t-1}"] -.->|Dolaylı Etki| X_t
-                    end
-                    X_t_2 -.->|Dolaylı Etki| X_t_1
-            ```
-            **Açıklama:** PACF, bir zaman serisinde iki nokta arasındaki doğrudan ilişkiyi ölçer ve aradaki diğer gecikmelerin etkisini ortadan kaldırır. Yukarıdaki şekilde, $x_{t-2}$'nin $x_t$ üzerindeki doğrudan etkisi (düz ok) ve $x_{t-1}$ üzerinden olan dolaylı etkisi (kesik çizgi ok) gösterilmiştir. PACF, sadece doğrudan etkiyi ölçer.
+                        **PACF'nin Önemi:**
+                        - İki zaman noktası arasındaki doğrudan ilişkiyi ölçer
+                        - Aradaki noktaların etkisini filtreler
+                        - ARIMA modellerinde AR teriminin derecesini belirlemede kullanılır
 
-        *   **Örnek Hesaplama (PACF):** PACF'nin elle hesaplanması küçük veri setlerinde bile karmaşıktır ve genellikle regresyon modelleri veya istatistiksel paketler aracılığıyla yapılır. Örneğin, lag-2 PACF değerini bulmak için $x_t$'yi hem $x_{t-1}$ hem de $x_{t-2}$'ye karşı regresyon ile modellemek gerekir: $x_t = a_1 x_{t-1} + a_2 x_{t-2} + \epsilon_t$. Burada $a_2$ katsayısı, lag-2 PACF değerini verir.
+                        **PACF Hesaplama:**
+                        1. Lag-1 için: $x_t = \phi_{11}x_{t-1} + \epsilon_t$
+                        2. Lag-2 için: $x_t = \phi_{21}x_{t-1} + \phi_{22}x_{t-2} + \epsilon_t$
+                        3. Lag-k için: $x_t = \sum_{i=1}^k \phi_{ki}x_{t-i} + \epsilon_t$
 
-            **Python ile PACF Hesabı Örneği:**
-            ```python
-            import numpy as np
-            from statsmodels.tsa.stattools import pacf
+                        **Kod Örnekleri:**
+                        ```python
+                        # Python ile PACF
+                        from statsmodels.tsa.stattools import pacf
+                        import numpy as np
 
-            x = np.array([20, 22, 21, 23, 24])
-            pacf_values = pacf(x, nlags=2)
-            print("Lag-2 PACF:", pacf_values[2])
-            ```
+                        data = np.array([20, 22, 21, 23, 24])
+                        pacf_values = pacf(data, nlags=2)
+                        print(f"Lag-2 PACF: {pacf_values[2]:.3f}")
+                        ```
 
-            **R ile PACF Hesabı Örneği:**
-            ```r
-            x <- c(20, 22, 21, 23, 24)
-            pacf_result <- pacf(x, plot = FALSE)
-            cat("Lag-2 PACF:", pacf_result$acf[2], "\n")
-            ```
+                        ```r
+                        # R ile PACF
+                        data <- c(20, 22, 21, 23, 24)
+                        pacf_result <- pacf(data, plot = FALSE)
+                        cat("Lag-2 PACF:", round(pacf_result$acf[2], 3))
+                        ```
 
 -   **Mevsimsel Ayrıştırma Grafiği (Seasonal Decomposition Plot):** Seriyi bileşenlerine ayırarak görselleştirir: Trend, Mevsimsellik ve Artıklar (Rastgele Gürültü). Bu, bir e-ticaret sitesinin satış verilerinde uzun vadeli büyüme trendini, tatil dönemlerindeki mevsimsel artışlardan ve beklenmedik satış dalgalanmalarından ayırmayı sağlar.
 
-    ```mermaid
-    graph TD
-        subgraph "Zaman Serisi Ayrıştırması"
-            A(Orijinal Seri: x_t) --> B(Trend: T_t);
-            A --> C(Mevsimsellik: S_t);
-            A --> D(Artıklar/Gürültü: I_t);
-        end
-    ```
-
----
+        ```mermaid
+        graph TD
+                subgraph "Zaman Serisi Ayrıştırması"
+                        A(Orijinal Seri: x_t) --> B(Trend: T_t);
+                        A --> C(Mevsimsellik: S_t);
+                        A --> D(Artıklar/Gürültü: I_t);
+                end
+        ```
 
 ### R'da Zaman Serisi Veri Manipülasyonu ve Ayrıştırma
 
