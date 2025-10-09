@@ -650,58 +650,58 @@ Görselleştirme, veri içindeki desenleri, anormallikleri, trendleri ve mevsims
             4. $\rho_1 = 1 / 10 = 0.1$
 
 
-ACF Yorumlama:
-    -   **PACF Notasyonu:** $\phi_{kk}$ ile gösterilir ve iki zaman noktası arasındaki doğrudan ilişkiyi, aradaki diğer gecikmelerin etkisini ortadan kaldırarak ölçer. PACF grafiğinde, belirli bir gecikme için çubuğun yüksek olması, o gecikmenin seride doğrudan etkili olduğunu gösterir. ACF ve PACF, Box-Jenkins metodolojisinde ARIMA modellerinin mertebelerini (p, q) belirlemek için birlikte kullanılır (Box & Jenkins, 1970).
-     
-    ** PACF (Kısmi Otokorelasyon) Kavramsal Gösterimi:**
-                    ```mermaid
-                    graph TD
-                        subgraph "PACF Hesabı"
-                        direction LR
-                        X_t_2["x_t-2"] -->|"Doğrudan İlişki"| X_t["x_t"]
-                        X_t_1["x_t-1"] -.->|"Dolaylı Etki"| X_t
-                        X_t_2 -.->|"Dolaylı Etki"| X_t_1
-                        end
-                    ```
-          
-                *   **PACF'nin Önemi:**
-                    -   İki zaman noktası arasındaki doğrudan ilişkiyi ölçer
-                    -   Aradaki noktaların etkisini filtreler
-                    -   ARIMA modellerinde AR teriminin derecesini belirlemede kullanılır
-          
-                *   **PACF Hesaplama:**
-                    1.  Lag-1 için: $$x_t = \phi_{11}x_{t-1} + \epsilon_t$$
-                    2.  Lag-2 için: $$x_t = \phi_{21}x_{t-1} + \phi_{22}x_{t-2} + \epsilon_t$$
-                    3.  Lag-k için: $$x_t = \sum_{i=1}^k \phi_{ki}x_{t-i} + \epsilon_t$$
-          
-                *   **Kod Örnekleri:**
-                    ```python
-                    # Python ile PACF
-                    from statsmodels.tsa.stattools import pacf
-                    import numpy as np
-                    
-                    data = np.array([20, 22, 21, 23, 24])
-                    pacf_values = pacf(data, nlags=2)
-                    print(f"Lag-2 PACF: {pacf_values[2]:.3f}")
-                    ```
-          
-                    ```r
-                    # R ile PACF
-                    data <- c(20, 22, 21, 23, 24)
-                    pacf_result <- pacf(data, plot = FALSE)
-                    cat("Lag-2 PACF:", round(pacf_result$acf[2], 3))
-                    ```
-          
-            -   **Mevsimsel Ayrıştırma Grafiği (Seasonal Decomposition Plot):** Seriyi bileşenlerine ayırarak görselleştirir: Trend, Mevsimsellik ve Artıklar (Rastgele Gürültü). Bu, bir e-ticaret sitesinin satış verilerinde uzun vadeli büyüme trendini, tatil dönemlerindeki mevsimsel artışlardan ve beklenmedik satış dalgalanmalarından ayırmayı sağlar.
-          
-                ```mermaid
-                graph TD
-                    subgraph "Zaman Serisi Ayrıştırması"
-                    A[Orijinal Seri: x_t] --> B[Trend: T_t];
-                    A --> C[Mevsimsellik: S_t];
-                    A --> D[Artıklar/Gürültü: I_t];
-                    end
-                ```
+-   **PACF (Partial Autocorrelation Function - Kısmi Otokorelasyon Fonksiyonu):** ACF, bir serinin geçmişiyle olan genel ilişkisini gösterirken, PACF daha incelikli bir analiz sunar. İki zaman noktası arasındaki *doğrudan* ilişkiyi, aradaki diğer noktaların dolaylı etkisini ortadan kaldırarak ölçer.
+    -   **Kavramsal Anlatım:** Şöyle düşünelim: Dünkü hava sıcaklığı ($x_{t-2}$) bugünkü sıcaklığı ($x_{t-1}$) etkiler, bugünkü sıcaklık da yarınki sıcaklığı ($x_t$) etkiler. Bu bir zincirleme reaksiyon gibidir. ACF, bu zincir nedeniyle $x_{t-2}$ ve $x_t$ arasında bir ilişki bulacaktır. PACF ise bu zincirin aracı halkasını (yani $x_{t-1}$'in etkisini) matematiksel olarak hesaptan çıkarır ve sorar: "$x_{t-2}$'nin, $x_t$ üzerinde doğrudan, saf bir etkisi var mı?" Bu, bir olayın kök nedenini aramak gibidir.
+    -   **Kavramsal Gösterim:**
+    ```mermaid
+    graph TD
+    subgraph "PACF Hesabı (k=2 için kavramsal gösterim)"
+    direction LR
+    X_t_2["x_t-2"] -->|"Doğrudan İlişki (PACF'in Ölçtüğü)"| X_t["x_t"]
+    X_t_1["x_t-1"] -.->|"Dolaylı Etki (Filtrelenir)"| X_t
+    X_t_2 -.->|"Dolaylı Etki (Filtrelenir)"| X_t_1
+    end
+    ```
+    -   **PACF Notasyonu:** $\phi_{kk}$ ile gösterilir.
+
+    *   **Önemi:** İki zaman noktası arasındaki doğrudan ilişkiyi ölçtüğü için ARIMA modellerinde AR teriminin derecesini (p) belirlemede kullanılır.
+    *   **Hesaplama:** PACF, bir dizi otoregresif modelin son katsayısı ($\phi_{kk}$) olarak hesaplanır:
+        $$
+        x_t = \sum_{i=1}^k \phi_{ki}x_{t-i} + \epsilon_t
+        $$
+    *   **Kod Örnekleri:**
+        *   **Python ile PACF:**
+        ```python
+        from statsmodels.tsa.stattools import pacf
+        import numpy as np
+        
+        data = np.array([20, 22, 21, 23, 24])
+        pacf_values = pacf(data, nlags=2)
+        print(f"Lag-2 PACF: {pacf_values[2]:.3f}")
+        ```
+        
+        *   **R ile PACF:**
+        ```r
+        data <- c(20, 22, 21, 23, 24)
+        pacf_result <- pacf(data, plot = FALSE)
+        cat("Lag-2 PACF:", round(pacf_result$acf[2], 3))
+        -   **Mevsimsel Ayrıştırma Grafiği (Seasonal Decomposition Plot):** Şimdi, bir zaman serisine baktığımızda gördüğümüz o karmaşık dalgalanmaların aslında birkaç temel parçanın birleşimi olduğunu hayal edelim. Tıpkı bir yemeğin içindeki ana malzemeleri, baharatları ve o anlık eklenen bir tutam tuzu ayırmak gibi, zaman serisini de bileşenlerine ayırabiliriz. İşte bu noktada **Mevsimsel Ayrıştırma Grafiği** devreye giriyor. Bu grafik, seriyi üç ana unsura ayırarak bize sunar:
+            * **Trend:** Verinin uzun vadedeki genel yönüdür. Örneğin, bir şirketin yıllar içindeki sabit artışı gibi. Bu, verinin ana yapısını temsil eder.
+            * **Mevsimsellik (Döngü):** Belirli aralıklarla tekrar eden kalıplardır. Dondurma satışlarının yaz aylarında artması veya tatil dönemlerindeki alışveriş artışları bu tür örneklerdir.
+            * **Artıklar (Rastgele Dalgalanmalar):** Trend ve mevsimsellikten çıkarıldığında kalan, tahmin edilemeyen değişkenlerdir. Bu, verideki rastgele şoklar veya ölçüm hatalarını temsil eder.
+
+            Aşağıdaki diyagram, bu üç bileşenin nasıl bir araya getirildiğini göstertmektedir:
+
+    ```mermaid
+            graph TD
+                subgraph "Zaman Serisi Ayrıştırması"
+                A[Orijinal Seri: x_t] --> B[Trend: T_t];
+                A --> C[Mevsimsellik: S_t];
+                A --> D[Artıklar: I_t];
+    end
+    ```
+
+            Bu ayrıştırma, verinin altında yatan yapıları anlayarak daha iyi analizler yapmamıza olanak tanır. Örneğin, trendi anlayarak uzun vadedeki yönleri tahmin edebiliriz, mevsimsellikten arındırılarak dönemsel etkilerden kurtulabiliriz, artıklar ise rastgele değişkenlikleri temsil eder. Bu süreç, veri analizinde temel bir adım olur.
 
 ### R'da Zaman Serisi Veri Manipülasyonu ve Ayrıştırma
 
