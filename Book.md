@@ -652,9 +652,8 @@ Görselleştirme, veri içindeki desenleri, anormallikleri, trendleri ve mevsims
 
 ACF Yorumlama:
     -   **PACF Notasyonu:** $\phi_{kk}$ ile gösterilir ve iki zaman noktası arasındaki doğrudan ilişkiyi, aradaki diğer gecikmelerin etkisini ortadan kaldırarak ölçer. PACF grafiğinde, belirli bir gecikme için çubuğun yüksek olması, o gecikmenin seride doğrudan etkili olduğunu gösterir. ACF ve PACF, Box-Jenkins metodolojisinde ARIMA modellerinin mertebelerini (p, q) belirlemek için birlikte kullanılır (Box & Jenkins, 1970).
-
-          
-          *   **PACF (Kısmi Otokorelasyon) Kavramsal Gösterimi:**
+     
+    ** PACF (Kısmi Otokorelasyon) Kavramsal Gösterimi:**
                     ```mermaid
                     graph TD
                         subgraph "PACF Hesabı"
