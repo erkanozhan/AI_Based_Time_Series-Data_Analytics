@@ -64,12 +64,27 @@ Matematiksel işlemler basit:
 
 ```r
 # Temel aritmetik
-10 + 5    # 15
-10 - 5    # 5
-10 * 5    # 50
-10 / 5    # 2
-10 ^ 2    # 100
-10 %% 3   # 1 (mod, kalan)
+# Aritmetik işlemler
+x <- 10
+y <- 2
+
+# Toplama
+x + y  # 12
+
+# Çıkarma
+x - y  # 8
+
+# Çarpma
+x * y  # 20
+
+# Bölme
+x / y  # 5
+
+# Üs alma
+x ^ 2  # 100
+
+# Mod alma
+x %% 3  # 1
 ```
 
 Karşılaştırmalar:
@@ -86,9 +101,29 @@ Mantıksal operatörler (bunlar çok kullanacaksınız):
 TRUE & FALSE   # FALSE (VE)
 TRUE | FALSE   # TRUE (VEYA)
 !TRUE          # FALSE (DEĞİL)
+a <- 5
+b <- 7
+
+# Eşitlik kontrolü
+a == b  # FALSE
+
+# Eşit değil
+a != b  # TRUE
+
+# Büyüktür
+a > b   # FALSE
+
+# Küçüktür
+a < b   # TRUE
+
+# Büyük eşit
+a >= 5  # TRUE
+
+# Küçük eşit
+b <= 7  # TRUE
 ```
 
-Şimdi gerçekçi bir örnek:
+#### Şimdi bir örnek:
 
 ```r
 sinav_notu <- 65
@@ -251,6 +286,7 @@ R'ın gücü paketlerinden gelir. Temel R (base R) bile güçlü ama gerçek iş
 ```r
 install.packages("forecast")
 install.packages("dplyr")
+packageversion("forecast")  # Versiyon kontrolü
 ```
 
 **Paketi yükleme (her oturum için):**
@@ -285,6 +321,15 @@ Paket versiyonunu kontrol edin:
 ```r
 packageVersion("forecast")  # Versiyon önemli, bazı fonksiyonlar eski versiyonlarda yok
 ```
+Özetle:
+Önemli Paketler (Zaman Serisi Analizi için):
+
+- **stats**: R'ın temel istatistik paketi
+- **forecast**: Tahmin modelleri için
+- **TSstudio**: Zaman serisi görselleştirme
+- **lubridate**: Tarih ve zaman işlemleri
+- **dplyr**: Veri manipülasyonu
+- **ggplot2**: Gelişmiş görselleştirme
 
 ### Veri İçe Aktarma
 
@@ -316,6 +361,8 @@ veriler <- read_excel(file.choose())
 ```r
 library(TSstudio)
 data(USgas)  # Paket içinden yükler
+data("AirPassengers")  # Base R'dan
+data("Iris")         # Base R'dan
 ```
 
 ### Örnek:
