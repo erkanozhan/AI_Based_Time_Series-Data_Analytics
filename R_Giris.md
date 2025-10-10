@@ -384,6 +384,7 @@ names(satis_verisi) <- c("tarih", "satis")
 
 Bir veri yüklediniz, şimdi ne yapacaksınız?
 
+
 ```r
 # Özet istatistikler
 summary(veriler)
@@ -403,6 +404,29 @@ range(veriler$satis)     # Min ve Max
 quantile(veriler$satis)  # Yüzdelikler
 ```
 
+### Başka Bir Örnek veri
+```r
+notlar <- c(65, 78, 82, 91, 55, 88, 76, 94, 69, 85)
+
+# Temel istatistikler
+ortalama <- mean(notlar)
+medyan <- median(notlar)
+std_sapma <- sd(notlar)
+varyans <- var(notlar)
+minimum <- min(notlar)
+maksimum <- max(notlar)
+
+# Sonuçları yazdırma
+cat("Ortalama:", ortalama, "\n")
+cat("Medyan:", medyan, "\n")
+cat("Standart Sapma:", std_sapma, "\n")
+cat("Minimum:", minimum, "\n")
+cat("Maksimum:", maksimum, "\n")
+
+# Özet istatistikler
+summary(notlar)
+```
+
 Eksik veri varsa:
 
 ```r
@@ -411,25 +435,54 @@ mean(veriler$satis, na.rm = TRUE)  # NA'ları çıkar
 
 ### Basic Görselleştirme
 
+R'da görselleştirme, veriyi anlamanın en hızlı yoludur. Karmaşık tablolar yerine bir grafiğe bakarak trendleri, aykırı değerleri ve dağılımı anında görebilirsiniz. İşte temel R fonksiyonlarıyla yapabileceğiniz birkaç basit ama güçlü görselleştirme:
+
+### Histogram: Veri Dağılımını Anlamak
+
+Histogram, sayısal bir değişkenin dağılımını gösterir. Verilerin en çok hangi aralıkta yoğunlaştığını, simetrik olup olmadığını veya çarpıklık içerip içermediğini görmenizi sağlar.
+
 ```r
-# Histogram
+# Satış verisinin histogramı
 hist(veriler$satis, 
-     main = "Satış Dağılımı",
-     xlab = "Satış Miktarı",
-     col = "lightblue")
-
-# Kutu grafiği
-boxplot(veriler$satis,
-        main = "Satış Kutu Grafiği")
-
-# Zaman serisi grafiği
-plot(veriler$satis, type = "l",
-     main = "Zaman İçinde Satış",
-     ylab = "Satış",
-     xlab = "Gözlem")
+     main = "Satış Miktarlarının Dağılımı", # Grafiğin başlığı
+     xlab = "Satış Miktarı",               # X ekseni etiketi
+     ylab = "Frekans (Gözlem Sayısı)",      # Y ekseni etiketi
+     col = "lightblue",                    # Sütunların rengi
+     border = "darkblue")                  # Sütunların kenarlık rengi
 ```
 
----
+Bu grafik, örneğin satışların çoğunlukla belirli bir aralıkta toplanıp toplanmadığını veya birden fazla tepe noktası olup olmadığını (bimodal dağılım) gösterir.
+
+### Kutu Grafiği (Boxplot): Aykırı Değerleri Tespit Etmek
+
+Kutu grafiği, verinin medyanını, çeyrekliklerini (quartiles) ve potansiyel aykırı değerleri tek bir grafikte özetler. Özellikle farklı kategorileri karşılaştırırken çok kullanışlıdır.
+
+```r
+# Satış verisinin kutu grafiği
+boxplot(veriler$satis,
+        main = "Satış Verisinin Kutu Grafiği", # Grafiğin başlığı
+        ylab = "Satış Miktarı",               # Y ekseni etiketi
+        col = "lightgreen",                   # Kutu rengi
+        notch = TRUE)                         # Medyan etrafında güven aralığı çentiği
+```
+Grafikteki kutu, verilerin orta %50'sini temsil eder. Kutunun dışındaki noktalar genellikle aykırı değer olarak kabul edilir ve incelenmesi gerekir.
+
+### Çizgi Grafiği: Zaman İçindeki Değişimi Görmek
+
+Zaman serisi analizinin temel taşıdır. Verinin zaman içindeki seyrini, trendleri, mevsimselliği ve döngüsel hareketleri görmek için kullanılır.
+
+```r
+# Zaman serisi grafiği (verinin sırasına göre)
+plot(veriler$satis, 
+     type = "l",                           # 'l' çizgi grafiği anlamına gelir
+     main = "Zaman İçinde Satışların Değişimi", # Grafiğin başlığı
+     ylab = "Satış Miktarı",                 # Y ekseni etiketi
+     xlab = "Zaman (Gözlem Sırası)",         # X ekseni etiketi
+     col = "darkred",                        # Çizgi rengi
+     lwd = 2)                              # Çizgi kalınlığı
+```
+Bu grafik, satışlarda artan bir trend mi var, yoksa belirli dönemlerde tekrarlayan düşüşler/yükselişler (mevsimsellik) mi var gibi sorulara ilk bakışta cevap vermenizi sağlar.
+```
 
 ## Ödev ve Pratik
 
