@@ -13,6 +13,14 @@ Bazılarınız "Python'u biliyorum, R'ı da öğrenmem gerekir mi?" diye soruyor
 
 R açık kaynak kodlu. Yani ücretsiz. Peki bu ne demek? Herkes kod yazabiliyor, paket geliştirebiliyor. Şu an 13,500'den fazla paket var. Karşılaştırma yapalım: 10 yıl önce 3,000 civarıydı. Üstel bir büyüme var.
 
+### R'ın Avantajları:
+
+- Açık kaynak kodlu ve ücretsiz
+- Geniş paket ekosistemi
+- Güçlü görselleştirme araçları
+- Aktif kullanıcı topluluğu
+- Zaman serisi analizi için özel araçlar
+
 **Önemli:** R'ı ve RStudio'yu mutlaka kurun. CRAN sitesinden R'ı, sonra RStudio'yu indirin. RStudio bir IDE - yani gelişmiş bir editör. R konsolu da var ama RStudio kullanmak hayatınızı kolaylaştırır.
 
 ### İlk Adımlar
@@ -208,7 +216,7 @@ yuksek_notlar <- ogrenciler[ogrenciler$not > 85, ]
 print(yuksek_notlar)
 ```
 
-### Gerçekçi Örnek
+### Örnek
 
 ```r
 # Aylık satış verisi
@@ -232,7 +240,7 @@ print(satis)
 
 ---
 
-## 3. Hafta: Paketler ve Veri İçe Aktarma
+## Paketler ve Veri İçe Aktarma
 
 ### R Paketleri
 
@@ -298,6 +306,9 @@ veriler <- read.csv(url, stringsAsFactors = FALSE)
 ```r
 library(readxl)
 veriler <- read_excel("veri.xlsx")
+# Veya yolu seçin
+veriler <- read_excel(file.choose())
+# file.choose() ile dosya seçme penceresi açılır. Ben bunu çok kullanıyorum.    
 ```
 
 **Paket dataseti:**
@@ -307,7 +318,7 @@ library(TSstudio)
 data(USgas)  # Paket içinden yükler
 ```
 
-Gerçek örnek:
+### Örnek:
 
 ```r
 # İnternetten satış verisi çekelim
@@ -333,6 +344,15 @@ mean(veriler$satis)
 median(veriler$satis)
 sd(veriler$satis)        # Standart sapma
 var(veriler$satis)       # Varyans
+# Varyans = (standart sapma)^2
+# Standart sapma = sqrt(varyans)
+# Varyans: Bir dağılımın ne kadar geniş olduğunu gösterir.
+# Şöyle ki, varyans büyükse veriler ortalamadan çok sapıyor demektir. Varyans şöyle hesaplanır:
+# 1. Her bir veri noktasının ortalamadan farkını bulun.
+# 2. Bu farkların karesini alın.
+# 3. Karesi alınan farkların ortalamasını bulun. İşte bu varyanstır.
+# Standart sapma ise varyansın kareköküdür. Yani varyansın birimi verinin biriminin karesi iken, standart sapma verinin birimi ile aynıdır. Bu yüzden standart sapma daha yorumlanabilirdir.  
+range(veriler$satis)     # Min ve Max
 quantile(veriler$satis)  # Yüzdelikler
 ```
 
@@ -342,7 +362,7 @@ Eksik veri varsa:
 mean(veriler$satis, na.rm = TRUE)  # NA'ları çıkar
 ```
 
-### Basit Görselleştirme
+### Basic Görselleştirme
 
 ```r
 # Histogram
@@ -415,4 +435,3 @@ as.Date("2024-01-01")
 
 **Son not:** R öğrenmek pratikle olur. Her gün en az 30 dakika kod yazın. Okumak yetmez.
 
-Sorularınız olursa ofis saatlerinde gelin veya email atın.
