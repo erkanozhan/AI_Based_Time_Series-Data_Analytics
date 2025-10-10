@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Hafta: R'a Giriş ve Temel Yapılar
+## R'a Giriş ve Temel Yapılar
 
 ### Neden R Öğreniyoruz?
 
@@ -111,7 +111,7 @@ print(paste("Toplam:", toplam, "TL"))
 
 ---
 
-## 2. Hafta: Veri Yapıları
+## R'da Veri Yapıları
 
 ### Vektörler - R'ın Temeli
 
