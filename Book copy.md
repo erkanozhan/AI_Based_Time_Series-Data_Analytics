@@ -205,11 +205,11 @@ Frekans, bir zaman döngüsünde kaç gözlem olduğunu belirtir. Bu parametreyi
 -   **Yıllık veri:** `frequency = 1`
 -   **Günlük veri:** `frequency = 365` (veya 365.25)
 -   **Haftalık veri:** `frequency = 52`
-
 ### `ts` Nesnesi Oluşturma ve İnceleme
 
 ```r
-# Örnek: 2024 yılına ait aylık satış verisi
+# Örnek 1: Manuel Veri ile ts Nesnesi Oluşturma
+# 2024 yılına ait aylık satış verisi
 veri <- c(100, 105, 98, 112, 108, 115, 120, 118, 125, 130, 128, 135)
 
 # ts nesnesi oluşturalım: 2024'ün 1. ayından başlıyor, frekansı 12
@@ -219,7 +219,7 @@ print(satis_ts)
 #>      Jan  Feb  Mar  Apr  May  Jun  Jul  Aug  Sep  Oct  Nov  Dec
 #> 2024 100  105   98  112  108  115  120  118  125  130  128  135
 
-# Gerçek bir veri seti üzerinde inceleme
+# Örnek 2: Paketten Gelen Veri Seti (USgas)
 # install.packages("TSstudio") # Yüklü değilse
 library(TSstudio)
 data(USgas) # ABD aylık doğal gaz tüketimi verisi
@@ -234,7 +234,32 @@ ts_info(USgas)
 start(USgas)     # Başlangıç zamanı
 end(USgas)       # Bitiş zamanı
 frequency(USgas) # Frekans
+
+# Örnek 3: R'ın Dahili Veri Seti (AirPassengers)
+# Bu veri seti, 1949-1960 yılları arasındaki aylık uluslararası havayolu yolcu sayılarını içerir.
+data(AirPassengers)
+
+# Veriyi ve yapısını inceleyelim
+print(AirPassengers)
+class(AirPassengers) # Zaten 'ts' formatında olduğunu görebiliriz
+
+# ts nesnesinin özelliklerini kontrol edelim
+start(AirPassengers)     # Başlangıç: [1] 1949    1
+end(AirPassengers)       # Bitiş:   [1] 1960   12
+frequency(AirPassengers) # Frekans: [1] 12 (aylık veri)
+cycle(AirPassengers)     # Her bir gözlemin döngüdeki yerini gösterir (1'den 12'ye kadar)
+
+# AirPassengers veri setini görselleştirelim
+# Grafikte hem artan bir trend (yıllar içinde yolcu sayısının artması)
+# hem de belirgin bir mevsimsellik (her yıl yaz aylarında zirve yapması) görüyoruz.
+plot(AirPassengers,
+    main = "Aylık Uluslararası Havayolu Yolcu Sayıları (1949-1960)",
+    ylab = "Yolcu Sayısı (Bin)",
+    xlab = "Yıl",
+    col = "darkblue")
+grid()
 ```
+
 
 ### Veri Alt Kümesi Alma: `window()`
 
@@ -275,7 +300,9 @@ grid()
 USgas_yillik <- aggregate(USgas, nfrequency = 1, FUN = sum)
 ```
 
-- **`lag()`:** Bir serinin gecikmeli (geçmiş) değerlerini oluşturur. Bu, modellerde "bir önceki dönemin değeri" gibi özellikleri kullanmamızı sağlar.
+- **`lag()`:** Şimdi, zaman serisi analizinin en temel fikirlerinden birine gelelim: gecikmeli değerler. Şöyle düşünelim: Bugünkü hava sıcaklığını tahmin etmeye çalışırken, aklınıza ilk gelen verilerden biri dünkü sıcaklık olmaz mıydı? Ya da bu ayki satışları değerlendirirken, geçen ayın satışlarıyla veya daha da önemlisi, geçen yılın aynı ayındaki satışlarla karşılaştırmak istemez miydiniz? İşte bu "bir önceki değer" veya "geçen yılki değer" kavramı, analizdeki en güçlü araçlarımızdan biridir. Biz buna **gecikmeli değer (lagged value)** diyoruz.
+
+`lag()` fonksiyonu, seriyi zamanda geriye kaydırarak bu geçmiş değerleri bugünkü değerlerle aynı hizaya getirmemizi sağlar. Amacımız ne? Geçmişin, bugünü nasıl etkilediğini görmek ve bu bilgiyi modelimize bir girdi, yani bir **özellik (feature)** olarak sunmak. Örneğin, 12. aydaki satışları tahmin etmek için 11. aydaki satışları (lag-1) veya bir önceki yılın 12. ayındaki satışları (lag-12) kullanabiliriz. Bu, özellikle mevsimsel etkileri yakalamak için hayati öneme sahiptir. `stats::lag()` fonksiyonunda `k` parametresinin negatif olduğuna dikkat edin; `k = -1` bir dönem geriye, `k = -12` ise on iki dönem geriye gitmek anlamına gelir.
 
 ```r
 # 1 ay önceki değeri (lag-1) ve 12 ay önceki değeri (lag-12) oluşturalım
@@ -283,7 +310,23 @@ USgas_lag1 <- stats::lag(USgas, k = -1)
 USgas_lag12 <- stats::lag(USgas, k = -12)
 ```
 
-- **`decompose()`:** `decompose()` fonksiyonu, seriyi bileşenlerine ayırarak size büyük resmi gösterir. Trend mi var? Mevsimsellik belirgin mi? Gürültü ne kadar? Bu soruların cevabını bu grafiklerde arayacaksınız.
+- **`decompose()`:** Şimdi, bir serinin iç yapısını, adeta bir motorun parçalarını ayırır gibi incelememizi sağlayan `decompose()` fonksiyonuna bakalım. Bu fonksiyon, bir zaman serisini üç temel bileşenine ayırır: trend, mevsimsellik ve geriye kalan rastgele gürültü. Bu ayrıştırma, serinin hangi dinamiklerden etkilendiğini anlamak için kritik bir adımdır.
+
+Örneğin, `USgas` veri setini ele alalım. Bu seride hem yıllar içinde artan bir tüketim (trend) hem de her yıl kış aylarında zirve yapan bir dalgalanma (mevsimsellik) olduğunu gözlemlemiştik. `decompose()` fonksiyonu bu gözlemlerimizi matematiksel olarak doğrular ve görselleştirir.
+
+```r
+# USgas serisini bileşenlerine ayıralım
+USgas_ayristir <- decompose(USgas)
+
+# Sonuçları çizdirelim
+plot(USgas_ayristir)
+```
+
+Bu komutu çalıştırdığınızda karşınıza dört parçadan oluşan bir grafik çıkar:
+-   **Observed:** Orijinal verinin kendisi.
+-   **Trend:** Serideki uzun vadeli artış veya azalış eğilimi. Grafikte bu, yumuşatılmış bir çizgi olarak görünür.
+-   **Seasonal:** Her yıl tekrar eden sabit döngü. Doğal gaz verisinde bu, kışın zirve yapıp yazın düşen dalgadır.
+-   **Random:** Trend ve mevsimsellik çıkarıldıktan sonra geriye kalan, açıklanamayan kısım. İdeal bir modelde bu kısmın rastgele bir gürültüye benzemesini bekleriz.
 
 ```r
 USgas_ayristir <- decompose(USgas)
@@ -291,72 +334,124 @@ plot(USgas_ayristir)
 ```
 Bu komut size dört grafik sunar: orijinal veri, tahmin edilen trend, tahmin edilen mevsimsel etki ve geriye kalan rastgele gürültü.
 
-### Keşifsel Analiz Grafikleri: ACF ve PACF
+### Keşifsel Analiz Grafikleri: Serinin Hafızasını Okumak (ACF ve PACF)
 
-Model seçimi aşamasına geldiğimizde, iki temel grafiğe bakarak karar vereceğiz: Otokorelasyon (ACF) ve Kısmi Otokorelasyon (PACF). Bu grafikler, serinin 'hafızasını' gösterir ve doğru ARIMA modelini seçmemize yardımcı olur.
+Evet gençler, verimizi hazırladık, grafiğini çizdik ve genel yapısını anladık. Şimdi dedektiflik zamanı. Elimizdeki serinin içinde gizlenen matematiksel yapıyı nasıl ortaya çıkarırız? Hangi modelin ona en uygun olacağına nasıl karar veririz? İşte bu noktada iki temel aracımız devreye giriyor: ACF ve PACF. Bu iki grafik, serinin adeta bir röntgenini çekerek onun 'hafızasını' ve içsel dinamiklerini bize gösterir.
 
--   **ACF (Autocorrelation Function - Otokorelasyon Fonksiyonu):** $\rho_k$ ile gösterilir ve bir zaman serisinin kendi gecikmeli (lagged) değerleriyle olan korelasyonunu ölçer. ACF grafiğinde çubukların yavaşça azalması trendin varlığına, belirli aralıklarda tekrar eden yüksek çubuklar ise mevsimselliğe işaret eder.
+#### ACF (Autocorrelation Function - Otokorelasyon Fonksiyonu)
 
-    *   **Formül:**
+Önce ACF'ye bakalım. Adı karmaşık gelebilir ama mantığı çok basit. Bir serinin bugünkü değeri, dünkü değerine ne kadar benziyor? Peki ya geçen haftaki değerine? Veya tam bir yıl önceki değerine? ACF, işte bu soruların cevabını verir. Serinin kendi geçmişiyle olan korelasyonunu, yani 'bağını' ölçer.
+
+ACF grafiğini okumak oldukça sezgiseldir. Grafikteki her bir dikey çizgi, belirli bir zaman gecikmesindeki (lag) korelasyonu temsil eder. Eğer bir çizgi, grafiğin üstündeki ve altındaki mavi kesikli çizgilerin dışına taşıyorsa, bu 'istatistiksel olarak anlamlı' bir ilişki demektir. Yani, o gecikmedeki benzerlik tesadüf değildir.
+
+Peki bu bize ne anlatır?
+-   Eğer çubuklar yavaş yavaş sıfıra doğru azalıyorsa, bu seride güçlü bir **trend** olduğunun habercisidir. Seri, geçmişini kolay kolay unutmuyor demektir.
+-   Eğer çubuklar belirli aralıklarla (örneğin her 12. ayda bir) tekrar tekrar yükseliyorsa, bu da bariz bir **mevsimsellik** işaretidir.
+
+Şimdi biraz daha derine inelim. ACF'nin ($\rho_k$) matematiksel tanımı, bir serinin $k$ dönem önceki haliyle ($x_{t-k}$) olan kovaryansının, serinin kendi varyansına bölünmesidir. Bu, bildiğimiz standart korelasyon hesabından başka bir şey değildir.
+
+*   **Formül:**
+    $$
+    \rho_k = \frac{\text{Cov}(x_t, x_{t-k})}{\text{Var}(x_t)} = \frac{\sum_{t=k+1}^{T} (x_t - \bar{x})(x_{t-k} - \bar{x})}{\sum_{t=1}^{T} (x_t - \bar{x})^2}
+    $$
+
+Şimdi, bu ACF'nin nasıl hesaplandığını basit bir örnekle görelim. Bu, aslında bildiğiniz korelasyon hesabının bir benzeri. Elimizde beş günlük sıcaklık verisi olsun: $x = [10, 12, 15, 11, 17]$. Sorumuz şu: Dünkü sıcaklık ile bugünkü sıcaklık arasında bir ilişki var mı? Yani, lag-1 otokorelasyonu nedir?
+
+*   **Örnek Hesaplama (ACF Lag-1):**
+    1.  **Ortalamayı Bul:** Serinin ortalaması, yani referans noktamız:
+        $$ \bar{x} = (10 + 12 + 15 + 11 + 17) / 5 = 13 $$
+    2.  **Hesaplama Tablosu:** İşlemleri adım adım görelim. Amacımız, bugünkü değerin ortalamadan sapması ile dünkü değerin ortalamadan sapması arasındaki ilişkiyi ölçmektir.
+
+        | Zaman (t) | $x_t$ (Bugün) | $x_{t-1}$ (Dün) | Bugünün Sapması <br> $(x_t - \bar{x})$ | Dünün Sapması <br> $(x_{t-1} - \bar{x})$ | **Pay İçin Çarpım** <br> $(x_t - \bar{x})(x_{t-1} - \bar{x})$ | **Payda İçin Kare** <br> $(x_t - \bar{x})^2$ |
+        |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+        | 1 | 10 | - | -3 | - | - | 9 |
+        | 2 | 12 | 10 | -1 | -3 | $(-1) \times (-3) = 3$ | 1 |
+        | 3 | 15 | 12 | 2 | -1 | $2 \times (-1) = -2$ | 4 |
+        | 4 | 11 | 15 | -2 | 2 | $(-2) \times 2 = -4$ | 4 |
+        | 5 | 17 | 11 | 4 | -2 | $4 \times (-2) = -8$ | 16 |
+        | **Toplam** | | | | | **-11 (Pay)** | **34 (Payda)** |
+
+    3.  **Sonucu Bul:** Formülün pay ve payda kısımlarını tablodan alıp bölelim.
+
         $$
-        \rho_k = \frac{\text{Cov}(x_t, x_{t-k})}{\text{Var}(x_t)} = \frac{\sum_{t=k+1}^{T} (x_t - \bar{x})(x_{t-k} - \bar{x})}{\sum_{t=1}^{T} (x_t - \bar{x})^2}
+        \begin{align*}
+        \rho_1 &= \frac{\sum_{t=2}^{5} (x_t - \bar{x})(x_{t-1} - \bar{x})}{\sum_{t=1}^{5} (x_t - \bar{x})^2} \\
+               &= \frac{-11}{34} \\
+               &\approx -0.324
+        \end{align*}
         $$
 
-    *   **Python ile ACF Hesabı:**
+**Peki, bu `-0.324` ne anlama geliyor?**
+<p align="justify">
+Bu sonuç, dünkü ve bugünkü sıcaklıklar arasında zayıf, <strong>negatif bir ilişki</strong> olduğunu gösterir. Yani, sıcaklık bir gün ortalamanın üzerine çıktığında, ertesi gün ortalamanın altına düşme eğilimindedir. Bu durum, seride bir tür <strong>salınım</strong> veya dengeye geri dönme (mean-reverting) davranışı olduğunu ima eder.
+</p>
+<p align="justify">
+Bu bulgu, modelleme için kritik bir ipucudur çünkü serinin "hafızası" hakkında bilgi verir. Negatif korelasyon, serinin bir önceki adıma ters tepki verdiğini, yani kendi kendini düzenleyen bir yapısı olabileceğini düşündürür. Elbette bu, sadece bir adım geriye (lag-1) baktığımızdaki ilişkidir. Serinin tam dinamik yapısını anlamak için tüm ACF grafiğini incelemek gerekir.
+</p>
+
+*   **Kod Örnekleri ve Yorumlanması:**
+
+    Aşağıda, hem Python hem de R dillerinde, `[20, 22, 21, 23, 24]` gibi basit bir veri seti için 1. gecikme (lag-1) otokorelasyonunun nasıl hesaplandığını göreceğiz.
+
+    *   **Python ile ACF:**
         ```python
-        from statsmodels.tsa.stattools import acf
-        import numpy as np
-
-        # Örnek veri
-        data = np.array([20, 22, 21, 23, 24])
+        from statsmodels.tsa.stattools import acf # ACF fonksiyonunu içeri aktar
+        import numpy as np # Numpy kütüphanesini içeri aktar
         
-        # ACF hesapla
-        acf_values = acf(data, nlags=2)
-        print("Lag-1 ACF:", acf_values[1])
+        data = np.array([20, 22, 21, 23, 24]) # Örnek bir zaman serisi verisi oluştur
+        acf_values = acf(data, nlags=2) # 2 gecikmeye kadar ACF değerlerini hesapla
+        print(f"Lag-1 ACF: {acf_values[1]:.3f}") # 1. gecikmedeki (lag-1) ACF değerini yazdır
+        ```
+        **Çıktı:**
+        ```
+        Lag-1 ACF: 0.100
         ```
 
-    *   **R ile ACF Hesabı:**
+    *   **R ile ACF:**
         ```r
-        # Örnek veri
-        data <- c(20, 22, 21, 23, 24)
-        
-        # ACF hesapla
-        acf_result <- acf(data, plot = FALSE)
-        print(paste("Lag-1 ACF:", acf_result$acf[2]))
+        data <- c(20, 22, 21, 23, 24) # Örnek bir zaman serisi vektörü oluştur
+        acf_result <- acf(data, plot = FALSE) # Grafik çizmeden ACF değerlerini hesapla
+        # Not: R'da acf() çıktısının ilk elemanı lag-0'dır, bu yüzden lag-1 için 2. elemanı alırız.
+        cat("Lag-1 ACF:", round(acf_result$acf[2], 3)) # 1. gecikmedeki (lag-1) ACF değerini yazdır
         ```
-    *   **Örnek Hesaplama (ACF Lag-1):**
-        Diyelim ki elimizde 5 günlük sıcaklık verisi var: $x = [20, 22, 21, 23, 24]$.
-        1.  Ortalama: $\bar{x} = (20 + 22 + 21 + 23 + 24)/5 = 22$
-        2.  Pay (kovaryans):
-            - $(22-22)(20-22) = 0 \times -2 = 0$
-            - $(21-22)(22-22) = -1 \times 0 = 0$
-            - $(23-22)(21-22) = 1 \times -1 = -1$
-            - $(24-22)(23-22) = 2 \times 1 = 2$
-            - Toplam pay: $0 + 0 + (-1) + 2 = 1$
-        3.  Payda (varyans):
-            - $(20-22)^2 + (22-22)^2 + (21-22)^2 + (23-22)^2 + (24-22)^2 = (-2)^2 + 0^2 + (-1)^2 + 1^2 + 2^2 = 4 + 0 + 1 + 1 + 4 = 10$
-        4.  $\rho_1 = 1 / 10 = 0.1$
+        **Çıktı:**
+        ```
+        Lag-1 ACF: 0.1
+        ```
+
+    *   **Sonuçların Görselleştirilmesi ve Yorumu:**
+
+        ```mermaid
+        xychart-beta
+            title "Örnek Veri için ACF Değerleri"
+            x-axis ["Lag 0", "Lag 1"]
+            y-axis "Korelasyon"
+            bar [1.00, 0.10]
+        ```
+        <p align="justify">
+        Her iki dilde de hesaplanan <strong>Lag-1 ACF değeri 0.1</strong>'dir. Bu sonuç, serinin bir önceki değeri ile bugünkü değeri arasında çok zayıf, pozitif bir doğrusal ilişki olduğunu gösterir. Değerin 1'e değil de 0'a çok yakın olması, dünkü değerin bugünkü değeri tahmin etmede neredeyse hiç bilgi taşımadığı anlamına gelir. Bu kadar küçük bir veri setinde, bu zayıf korelasyonun istatistiksel olarak anlamsız ve büyük olasılıkla rastgele gürültüden kaynaklandığını söyleyebiliriz.
+        </p>
 
 
--   **PACF (Partial Autocorrelation Function - Kısmi Otokorelasyon Fonksiyonu):** ACF, bir serinin geçmişiyle olan genel ilişkisini gösterirken, PACF daha incelikli bir analiz sunar. İki zaman noktası arasındaki *doğrudan* ilişkiyi, aradaki diğer noktaların dolaylı etkisini ortadan kaldırarak ölçer.
-    -   **Kavramsal Anlatım:** Şöyle düşünelim: Dünkü hava sıcaklığı ($x_{t-2}$) bugünkü sıcaklığı ($x_{t-1}$) etkiler, bugünkü sıcaklık da yarınki sıcaklığı ($x_t$) etkiler. Bu bir zincirleme reaksiyon gibidir. ACF, bu zincir nedeniyle $x_{t-2}$ ve $x_t$ arasında bir ilişki bulacaktır. PACF ise bu zincirin aracı halkasını (yani $x_{t-1}$'in etkisini) matematiksel olarak hesaptan çıkarır ve sorar: "$x_{t-2}$'nin, $x_t$ üzerinde doğrudan, saf bir etkisi var mı?" Bu, bir olayın kök nedenini aramak gibidir.
-    -   **Kavramsal Gösterim:**
-    ```mermaid
-    graph TD
-    subgraph "PACF Hesabı (k=2 için kavramsal gösterim)"
+#### PACF (Partial Autocorrelation Function - Kısmi Otokorelasyon Fonksiyonu)
+
+Şimdi gelelim PACF'ye. ACF bize genel ilişkiyi gösterirken, PACF daha incelikli bir iş yapar: **doğrudan etkiyi** ölçer.
+
+Şöyle bir senaryo düşünün: Dünkü yağmur toprağı ıslattı, ıslak toprak da bugünkü havanın nemli olmasına neden oldu. Bu bir zincirleme reaksiyondur. ACF, 'dünkü yağmur' ile 'bugünkü nem' arasında bir ilişki bulacaktır, çünkü arada bir bağlantı var. PACF ise aradaki 'ıslak toprak' etkisini matematiksel olarak devreden çıkarır ve şu can alıcı soruyu sorar: "Peki, dünkü yağmurun, bugünkü nem üzerinde *doğrudan*, başka hiçbir şeyin aracılığı olmadan bir etkisi oldu mu?" İşte bu, bir etkinin kök nedenini bulmaya benzer.
+
+```mermaid
+graph TD
+    subgraph "PACF'in Mantığı (k=2 için)"
     direction LR
-    X_t_2["x_t-2"] -->|"Doğrudan İlişki (PACF'in Ölçtüğü)"| X_t["x_t"]
-    X_t_1["x_t-1"] -.->|"Dolaylı Etki (Filtrelenir)"| X_t
+    X_t_2["x_t-2 (Dünkü Yağmur)"] -->|"Doğrudan Etki (PACF'in Ölçtüğü)"| X_t["x_t (Bugünkü Nem)"]
+    X_t_1["x_t-1 (Islak Toprak)"] -.->|"Dolaylı Etki (Filtrelenir)"| X_t
     X_t_2 -.->|"Dolaylı Etki (Filtrelenir)"| X_t_1
     end
-    ```
-    -   **PACF Notasyonu:** $\phi_{kk}$ ile gösterilir.
+```
 
-    *   **Önemi:** İki zaman noktası arasındaki doğrudan ilişkiyi ölçtüğü için ARIMA modellerinde AR teriminin derecesini (p) belirlemede kullanılır.
-    *   **Hesaplama:** PACF, bir dizi otoregresif modelin son katsayısı ($\phi_{kk}$) olarak hesaplanır:
-        $$
-        x_t = \sum_{i=1}^k \phi_{ki}x_{t-i} + \epsilon_t
-        $$
+Bu ayrım, modelleme için hayati önem taşır. Çünkü bir seriyi modellerken, bir değerin geleceği ne kadar *doğrudan* etkilediğini bilmek isteriz. PACF grafiği, ARIMA gibi modellerin 'AR' kısmının, yani otoregresif terimin derecesini (p) belirlememizde bize yol gösterir. Eğer PACF grafiğindeki çubuklar, örneğin 2. gecikmeden sonra aniden kesilip anlamsız hale geliyorsa, bu bize serinin hafızasının sadece iki dönem geriye, doğrudan gittiğini söyler.
+
+Teknik olarak PACF ($\phi_{kk}$), $x_t$ ve $x_{t-k}$ arasındaki korelasyonu, aradaki $x_{t-1}, x_{t-2}, ..., x_{t-k+1}$ değerlerinin etkisinden arındırarak hesaplar. Bu, bir dizi otoregresif modelin son katsayısı olarak bulunur.
     *   **Kod Örnekleri:**
         *   **Python ile PACF:**
         ```python
