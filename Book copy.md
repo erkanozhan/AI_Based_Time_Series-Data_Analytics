@@ -259,7 +259,132 @@ plot(AirPassengers,
     col = "darkblue")
 grid()
 ```
+### `ts` Nesnesinin Ötesi: `xts` ile Gerçek Dünya Verileri
 
+Gençler, şimdiye kadar gördüğümüz `ts` nesnesi, ders kitaplarındaki gibi düzenli aralıklı veriler (aylık, yıllık) için harikadır. Ancak gerçek dünya verileri nadiren bu kadar düzenlidir. Hafta sonları işlem görmeyen borsa verilerini veya bazen kesintiye uğrayan saniyelik sensör kayıtlarını düşünün. `ts` nesnesinin sabit frekans yapısı bu gibi durumlarda yetersiz kalır.
+
+İşte bu noktada, R'ın zaman serisi analizindeki en güçlü paketlerinden biri olan `xts` (eXtensible Time Series) devreye giriyor. `xts`, `zoo` paketi üzerine inşa edilmiştir ve her bir gözlemi kendi hassas zaman damgasıyla eşleştirir. Bu sayede düzensiz ve yüksek frekanslı verilerle çalışmak son derece kolaylaşır.
+
+`xts`'in temel gücü, bir zaman indeksine sahip bir matris olmasıdır. Bu yapı, onu hem çok hızlı yapar hem de veriyi zaman bazlı olarak filtreleme ve manipüle etme konusunda inanılmaz bir esneklik sunar.
+
+```r
+# Gerekli paketleri yükleyelim ve çağıralım
+# install.packages("xts") # Yüklü değilse
+library(xts)
+
+# Düzensiz aralıklı bir veri oluşturalım (hafta sonları atlanmış)
+degerler <- c(101, 103, 102, 105, 104)
+tarihler <- as.Date(c("2024-01-22", "2024-01-23", "2024-01-24", "2024-01-25", "2024-01-26"))
+
+# xts nesnesi oluşturalım
+veri_xts <- xts(x = degerler, order.by = tarihler)
+
+print(veri_xts)
+#>            [,1]
+#> 2024-01-22  101
+#> 2024-01-23  103
+#> 2024-01-24  102
+#> 2024-01-25  105
+#> 2024-01-26  104
+```
+
+#### `xts`'in Gücü: Sezgisel Filtreleme ve Manipülasyon
+
+`xts`'in en büyük avantajlarından biri, tarih bazlı alt kümelemenin çok kolay olmasıdır. ISO 8601 formatında (`YYYY-MM-DD`) metinler kullanarak verinin istediğiniz bölümünü rahatça seçebilirsiniz.
+
+```r
+# Belirli bir tarih aralığını seçmek
+veri_xts["2024-01-23/2024-01-25"]
+
+# Sadece belirli bir ayı veya yılı seçmek
+# veri_xts["2024-01"] # Ocak ayının tamamı
+# veri_xts["2024"]    # 2024 yılının tamamı
+```
+
+`xts`'in bir diğer güçlü özelliği ise veriyi farklı zaman periyotlarına kolayca dönüştürebilmesidir. Örneğin, günlük veriden haftalık veya aylık özetler çıkarmak son derece basittir.
+
+```r
+# Günlük veriden haftalık verilere geçelim
+# to.period() fonksiyonu, açılış, en yüksek, en düşük ve kapanış (OHLC) değerlerini otomatik olarak hesaplar
+haftalik_veri <- to.period(veri_xts, period = "weeks")
+print(haftalik_veri)
+#>            veri_xts.Open veri_xts.High veri_xts.Low veri_xts.Close
+#> 2024-01-26           101           105          101            104
+
+# Aylık ortalamaları hesaplayalım
+aylik_ortalama <- apply.monthly(veri_xts, FUN = mean)
+print(aylik_ortalama)
+#>            [,1]
+#> 2024-01-26  103
+```
+
+Özetle, elinizdeki veri düzenli aralıklı ve klasik bir zaman serisi ise `ts` nesnesi işinizi görecektir. Ancak düzensiz, yüksek frekanslı veya üzerinde karmaşık tarih/saat manipülasyonları yapmanız gereken bir veriyle çalışıyorsanız, `xts` sizin için doğru ve daha güçlü bir araçtır.
+
+### Pratik `lubridate` Örnekleri
+
+`lubridate` paketinin gücünü birkaç pratik örnekle görelim.
+
+#### Örnek 1: Kaç Gündür Hayattasınız?
+
+Örneğin  (`2021-06-29`) tarihini sembolik olarak kullanabiliriz. Bu tarih ile bugün arasındaki farkı hesaplayarak kaç gün geçtiğini ve kaç kış gördüğümüzü bulalım.
+
+```r
+library(lubridate)
+
+# Sembolik doğum günü ve bugün
+ben_dogum <- ymd("2021-06-29")
+bugun <- today()
+
+# Kaç gün geçti?
+yasanan_gun_sayisi <- bugun - ben_dogum
+cat("Bent", as.numeric(yasanan_gun_sayisi), "gündür hayatta.\n")
+
+# Kaç kış gördü? (Yaşı yıl olarak hesaplayarak basit bir yaklaşım)
+yas_araligi <- interval(ben_dogum, bugun)
+gorulen_kis_sayisi <- yas_araligi %/% years(1)
+cat("Ben", gorulen_kis_sayisi, "kış gördüm.\n")
+```
+
+#### Örnek 2: Atatürk Kaç Gün Yaşadı ve Hangi Gün Vefat Etti?
+
+Tarihi kişiliklerin yaşam sürelerini ve önemli günlerini `lubridate` ile kolayca analiz edebiliriz. Atatürk'ün doğum günü olarak 19 Mayıs 1881'i kabul edelim.
+
+```r
+library(lubridate)
+
+# Atatürk'ün doğum ve vefat tarihleri
+ataturk_dogum <- ymd("1881-05-19")
+ataturk_vefat <- ymd("1938-11-10")
+
+# Toplam yaşadığı gün sayısı
+yasadigi_gun <- ataturk_vefat - ataturk_dogum
+cat("Mustafa Kemal Atatürk", as.numeric(yasadigi_gun), "gün yaşamıştır.\n")
+
+# Vefat ettiği günün adı
+# Not: Sistemin dil ayarlarına göre sonuç değişebilir.
+vefat_gunu <- wday(ataturk_vefat, label = TRUE, abbr = FALSE)
+cat("Vefat ettiği gün:", as.character(vefat_gunu), "\n")
+```
+
+#### Örnek 3: Toplam Kaç Saat Yaşadınız?
+
+Daha hassas hesaplamalar için tarihle birlikte saati de kullanmamız gerekir. `ymd_hms()` fonksiyonu ile `POSIXct` türünde bir nesne oluşturup şimdiki zamandan çıkararak toplam yaşanılan saati bulabiliriz.
+
+```r
+library(lubridate)
+
+# Örnek bir doğum tarihi ve saati
+dogum_zamani <- ymd_hms("1995-04-23 14:30:00")
+
+# Şimdiki zaman
+simdi <- now()
+
+# İki zaman arasındaki farkı saat cinsinden hesaplama
+yasanan_saat <- as.numeric(simdi - dogum_zamani, units = "hours")
+
+cat("1995-04-23 14:30'da doğan bir kişi, yaklaşık olarak",
+    round(yasanan_saat), "saattir hayattadır.\n")
+```
 
 ### Veri Alt Kümesi Alma: `window()`
 
