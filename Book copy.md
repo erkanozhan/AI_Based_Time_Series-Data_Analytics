@@ -467,11 +467,111 @@ Evet gençler, verimizi hazırladık, grafiğini çizdik ve genel yapısını an
 
 Önce ACF'ye bakalım. Adı karmaşık gelebilir ama mantığı çok basit. Bir serinin bugünkü değeri, dünkü değerine ne kadar benziyor? Peki ya geçen haftaki değerine? Veya tam bir yıl önceki değerine? ACF, işte bu soruların cevabını verir. Serinin kendi geçmişiyle olan korelasyonunu, yani 'bağını' ölçer.
 
-ACF grafiğini okumak oldukça sezgiseldir. Grafikteki her bir dikey çizgi, belirli bir zaman gecikmesindeki (lag) korelasyonu temsil eder. Eğer bir çizgi, grafiğin üstündeki ve altındaki mavi kesikli çizgilerin dışına taşıyorsa, bu 'istatistiksel olarak anlamlı' bir ilişki demektir. Yani, o gecikmedeki benzerlik tesadüf değildir.
+ACF grafiğini okumak sezgiseldir. Grafikteki her dikey çubuk, belirli bir gecikmedeki (lag) otokorelasyonu gösterir. Mavi kesikli yatay çizgiler güven aralığını (yaklaşık ±1.96 / sqrt(N)) temsil eder; bir çubuk bu bantların dışına çıkarsa o gecikme istatistiksel olarak anlamlıdır — yani gözlenen korelasyon tesadüf değildir.
+
+Kısa yorum rehberi:
+- Pozitif çubuklar geçmiş değerlerin aynı işaretli etkisini, negatif çubuklar ters etkiyi gösterir.
+- Çubuklar yavaşça azalıyor ise güçlü bir trend olabilir.
+- Belirli aralıklarda (ör. lag-12, lag-24) tepe görmek mevsimselliğe işaret eder.
+
+Aşağıdaki SVG, tipik bir ACF örneğini görselleştirir: ilk lags'te azalan çubuklar (trend), 12. lags çevresinde mevsimsel zirve ve mavi kesikli güven aralığı:
+
+<div align="center">
+
+<svg width="600" height="240" viewBox="0 0 600 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ACF örneği: trend ve mevsimsellik">
+    <!-- Arka ve eksenler -->
+    <rect width="100%" height="100%" fill="#fff"/>
+    <line x1="60" y1="200" x2="540" y2="200" stroke="#333" stroke-width="1.5"/>
+    <line x1="60" y1="40" x2="60" y2="200" stroke="#333" stroke-width="1.5"/>
+    <!-- Sıfır çizgisi -->
+    <line x1="60" y1="120" x2="540" y2="120" stroke="#888" stroke-dasharray="4,4"/>
+    <!-- Güven aralıkları -->
+    <line x1="60" y1="80" x2="540" y2="80" stroke="#0074D9" stroke-dasharray="6,4" stroke-width="1.5"/>
+    <line x1="60" y1="160" x2="540" y2="160" stroke="#0074D9" stroke-dasharray="6,4" stroke-width="1.5"/>
+    <!-- Lag çubukları: trend (azalan) -->
+    <rect x="90"  y="60" width="18" height="140" fill="#39CCCC"/>
+    <rect x="120" y="80" width="18" height="120" fill="#39CCCC"/>
+    <rect x="150" y="95" width="18" height="105" fill="#39CCCC"/>
+    <rect x="180" y="110" width="18" height="90" fill="#39CCCC"/>
+    <rect x="210" y="125" width="18" height="75" fill="#39CCCC"/>
+    <!-- küçük negatif örnek -->
+    <rect x="240" y="130" width="18" height="70" fill="#FF4136" transform="translate(0,0)"/>
+    <!-- Mevsimsellik (lag 12 civarı) -->
+    <rect x="360" y="60" width="18" height="140" fill="#FF851B"/>
+    <rect x="390" y="110" width="18" height="90" fill="#FF851B"/>
+    <rect x="420" y="60" width="18" height="140" fill="#FF851B"/>
+    <!-- Lag etiketleri -->
+    <text x="99"  y="216" font-size="12" text-anchor="middle" fill="#333">1</text>
+    <text x="129" y="216" font-size="12" text-anchor="middle" fill="#333">2</text>
+    <text x="159" y="216" font-size="12" text-anchor="middle" fill="#333">3</text>
+    <text x="189" y="216" font-size="12" text-anchor="middle" fill="#333">4</text>
+    <text x="219" y="216" font-size="12" text-anchor="middle" fill="#333">5</text>
+    <text x="369" y="216" font-size="12" text-anchor="middle" fill="#333">12</text>
+    <text x="423" y="216" font-size="12" text-anchor="middle" fill="#333">24</text>
+    <!-- Açıklamalar -->
+    <text x="300" y="30" font-size="14" text-anchor="middle" fill="#222" font-weight="bold">ACF Örneği: Trend ve Mevsimsellik</text>
+    <text x="300" y="44" font-size="11" text-anchor="middle" fill="#555">Mavi kesikli çizgiler ~ %95 güven aralığıdır; dışarı çıkan çubuklar anlamlıdır.</text>
+    <rect x="72" y="46" width="12" height="8" fill="#39CCCC"/><text x="90" y="52" font-size="11" fill="#333">Trend (azalan çubuklar)</text>
+    <rect x="72" y="62" width="12" height="8" fill="#FF851B"/><text x="90" y="68" font-size="11" fill="#333">Mevsimsellik (lag ≈ 12)</text>
+</svg>
+
+</div>
 
 Peki bu bize ne anlatır?
 -   Eğer çubuklar yavaş yavaş sıfıra doğru azalıyorsa, bu seride güçlü bir **trend** olduğunun habercisidir. Seri, geçmişini kolay kolay unutmuyor demektir.
 -   Eğer çubuklar belirli aralıklarla (örneğin her 12. ayda bir) tekrar tekrar yükseliyorsa, bu da bariz bir **mevsimsellik** işaretidir.
+
+<!-- ACF grafiğinin tipik görünümünü ve yorumunu anlatan bir SVG çizim -->
+<div align="center">
+
+<svg width="480" height="220" viewBox="0 0 480 220" xmlns="http://www.w3.org/2000/svg">
+    <!-- Eksenler -->
+    <line x1="40" y1="180" x2="440" y2="180" stroke="#333" stroke-width="2"/>
+    <line x1="60" y1="40" x2="60" y2="200" stroke="#333" stroke-width="2"/>
+    <!-- Sıfır çizgisi -->
+    <line x1="60" y1="110" x2="440" y2="110" stroke="#888" stroke-dasharray="4,3"/>
+    <!-- Güven aralığı (mavi kesikli çizgiler) -->
+    <line x1="60" y1="70" x2="440" y2="70" stroke="#0074D9" stroke-dasharray="6,4" stroke-width="2"/>
+    <line x1="60" y1="150" x2="440" y2="150" stroke="#0074D9" stroke-dasharray="6,4" stroke-width="2"/>
+    <!-- Lag çubukları (örnek: trend ve mevsimsellik) -->
+    <!-- Trend: Yavaşça azalan çubuklar -->
+    <rect x="80" y="60" width="16" height="120" fill="#39CCCC"/>
+    <rect x="110" y="80" width="16" height="100" fill="#39CCCC"/>
+    <rect x="140" y="100" width="16" height="80" fill="#39CCCC"/>
+    <rect x="170" y="120" width="16" height="60" fill="#39CCCC"/>
+    <rect x="200" y="135" width="16" height="45" fill="#39CCCC"/>
+    <!-- Mevsimsellik: 12. lag'da tekrar yükselen çubuk -->
+    <rect x="260" y="60" width="16" height="120" fill="#FF851B"/>
+    <rect x="290" y="140" width="16" height="40" fill="#FF851B"/>
+    <rect x="320" y="150" width="16" height="30" fill="#FF851B"/>
+    <rect x="350" y="60" width="16" height="120" fill="#FF851B"/>
+    <!-- Lag etiketleri -->
+    <text x="80" y="200" font-size="12" text-anchor="middle" fill="#333">1</text>
+    <text x="110" y="200" font-size="12" text-anchor="middle" fill="#333">2</text>
+    <text x="140" y="200" font-size="12" text-anchor="middle" fill="#333">3</text>
+    <text x="170" y="200" font-size="12" text-anchor="middle" fill="#333">4</text>
+    <text x="200" y="200" font-size="12" text-anchor="middle" fill="#333">5</text>
+    <text x="260" y="200" font-size="12" text-anchor="middle" fill="#333">12</text>
+    <text x="350" y="200" font-size="12" text-anchor="middle" fill="#333">24</text>
+    <!-- Y ekseni etiketleri -->
+    <text x="45" y="115" font-size="12" text-anchor="end" fill="#333">0</text>
+    <text x="45" y="75" font-size="12" text-anchor="end" fill="#333">+0.5</text>
+    <text x="45" y="155" font-size="12" text-anchor="end" fill="#333">-0.5</text>
+    <!-- Açıklamalar -->
+    <text x="120" y="50" font-size="13" fill="#39CCCC">Trend: Yavaş azalan çubuklar</text>
+    <text x="270" y="50" font-size="13" fill="#FF851B">Mevsimsellik: 12. lagda tepe</text>
+    <!-- Başlık -->
+    <text x="240" y="25" font-size="16" text-anchor="middle" fill="#222" font-weight="bold">
+        ACF Grafiği: Trend ve Mevsimsellik Örneği
+    </text>
+</svg>
+
+</div>
+
+<p align="center" style="color:#555;font-size:13px;">
+Yukarıdaki örnek ACF grafiğinde, ilk çubuklar yavaşça azalarak güçlü bir trendi, 12. ve 24. laglarda tekrar yükselen çubuklar ise belirgin bir mevsimselliği gösteriyor.<br>
+Mavi kesikli çizgiler ise istatistiksel anlamlılık sınırlarını temsil eder.
+</p>
 
 Şimdi biraz daha derine inelim. ACF'nin ($\rho_k$) matematiksel tanımı, bir serinin $k$ dönem önceki haliyle ($x_{t-k}$) olan kovaryansının, serinin kendi varyansına bölünmesidir. Bu, bildiğimiz standart korelasyon hesabından başka bir şey değildir.
 
@@ -602,6 +702,96 @@ acf(USgas, main = "Otokorelasyon Fonksiyonu (ACF)")
 pacf(USgas, main = "Kısmi Otokorelasyon Fonksiyonu (PACF)")
 ```
 
+### AR ve MA Modelleri için ACF ve PACF Yorumlama
+Gençler,
+
+Kısa ve açık şekilde: ACF grafiğinde ilk q gecikmeye kadar anlamlı çubuklar görülüp hemen ardından çubuklar güven aralığına giriyorsa bu MA(q) modeline işaret eder. PACF grafiğinde ise ilk p gecikmeye kadar anlamlı çubuklar olup hemen sonra sıfıra yakınlaşıyorsa bu AR(p) modeline işaret eder.
+
+
+- ACF: Eğer korelasyonlar birkaç gecikme sonra ansızın kayboluyorsa (cut‑off) bu hareketli ortalamaya (MA) işaret eder. Kaç gecikmeden sonra kaybolduysa o q değeridir.
+- PACF: Eğer kısmi korelasyonlar birkaç gecikme sonra ansızın kayboluyorsa bu otoregresyona (AR) işaret eder. Kaç gecikmeden sonra kaybolduysa o p değeridir.
+- Pratik kural: ACF cut‑off → MA(q). PACF cut‑off → AR(p). Cut‑off demek, çubukların güven aralığına girip kaybolmasıdır.
+
+
+- Neden böyle? Bir MA(q) süreci, hata terimlerinin son q adımıyla sınırlı olduğundan ACF q'ya kadar anlamlı olabilir ama daha ileride korelasyon göstermez; PACF ise genellikle geometrik veya yavaş bir azalma gösterir. Bir AR(p) sürecinde tersine, PACF doğrudan etkileri filtreleyince p'den sonra kesilir; ACF ise genellikle yavaşça azalır veya sönümlenir.
+- Uygulamada gözlem sayısı ve güven aralıkları önemli: küçük veri setlerinde kesilme net olmayabilir; ayrıca mevsimsellik gibi diğer yapılar kafa karıştırır. Kesin model seçimi için ACF/PACF gözlemi + bilgi kriterleri (AIC/BIC) + kalıntı testi (residuals white noise) kombinasyonu en güvenlisidir.
+
+Görsel olarak nasıl görünür?
+
+ACF: MA(q) için cut‑off (örnek q = 3)
+<div align="center">
+<svg width="540" height="200" viewBox="0 0 540 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ACF MA q cutoff örneği">
+    <rect width="100%" height="100%" fill="#fff"/>
+    <!-- Eksen -->
+    <line x1="40" y1="160" x2="500" y2="160" stroke="#333" stroke-width="1.5"/>
+    <line x1="60" y1="20" x2="60" y2="160" stroke="#333" stroke-width="1.5"/>
+    <!-- Güven aralığı -->
+    <line x1="60" y1="46" x2="500" y2="46" stroke="#0074D9" stroke-dasharray="6,4" stroke-width="1.2"/>
+    <line x1="60" y1="134" x2="500" y2="134" stroke="#0074D9" stroke-dasharray="6,4" stroke-width="1.2"/>
+    <!-- Lag çubukları: 1..8 -->
+    <!-- anlamlı ilk 3 lag -->
+    <rect x="90"  y="50" width="24" height="110" fill="#FF851B"/><!-- lag1 -->
+    <rect x="130" y="70" width="24" height="90"  fill="#FF851B"/><!-- lag2 -->
+    <rect x="170" y="90" width="24" height="70"  fill="#FF851B"/><!-- lag3 -->
+    <!-- sonrası anlamlı değil -->
+    <rect x="210" y="120" width="24" height="40" fill="#CCCCCC"/><!-- lag4 -->
+    <rect x="250" y="125" width="24" height="35" fill="#CCCCCC"/><!-- lag5 -->
+    <rect x="290" y="128" width="24" height="32" fill="#CCCCCC"/><!-- lag6 -->
+    <rect x="330" y="130" width="24" height="30" fill="#CCCCCC"/><!-- lag7 -->
+    <rect x="370" y="132" width="24" height="28" fill="#CCCCCC"/><!-- lag8 -->
+    <!-- Etiketler -->
+    <text x="102" y="176" font-size="12" text-anchor="middle" fill="#333">1</text>
+    <text x="142" y="176" font-size="12" text-anchor="middle" fill="#333">2</text>
+    <text x="182" y="176" font-size="12" text-anchor="middle" fill="#333">3</text>
+    <text x="222" y="176" font-size="12" text-anchor="middle" fill="#333">4</text>
+    <text x="262" y="176" font-size="12" text-anchor="middle" fill="#333">5</text>
+    <text x="302" y="176" font-size="12" text-anchor="middle" fill="#333">6</text>
+    <text x="342" y="176" font-size="12" text-anchor="middle" fill="#333">7</text>
+    <text x="382" y="176" font-size="12" text-anchor="middle" fill="#333">8</text>
+    <text x="280" y="16" font-size="14" text-anchor="middle" fill="#222" font-weight="bold">ACF: MA(q) kesilme örneği (q = 3)</text>
+    <text x="100" y="36" font-size="11" fill="#333">İlk 3 lag anlamlı → MA(3) ipucu</text>
+</svg>
+</div>
+
+PACF: AR(p) için cut‑off (örnek p = 2)
+<div align="center">
+<svg width="540" height="200" viewBox="0 0 540 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="PACF AR p cutoff örneği">
+    <rect width="100%" height="100%" fill="#fff"/>
+    <!-- Eksen -->
+    <line x1="40" y1="160" x2="500" y2="160" stroke="#333" stroke-width="1.5"/>
+    <line x1="60" y1="20" x2="60" y2="160" stroke="#333" stroke-width="1.5"/>
+    <!-- Güven aralığı -->
+    <line x1="60" y1="46" x2="500" y2="46" stroke="#0074D9" stroke-dasharray="6,4" stroke-width="1.2"/>
+    <line x1="60" y1="134" x2="500" y2="134" stroke="#0074D9" stroke-dasharray="6,4" stroke-width="1.2"/>
+    <!-- Lag çubukları: 1..8 -->
+    <!-- anlamlı ilk 2 lag -->
+    <rect x="90"  y="50" width="24" height="110" fill="#39CCCC"/><!-- lag1 -->
+    <rect x="130" y="70" width="24" height="90"  fill="#39CCCC"/><!-- lag2 -->
+    <!-- sonrası cut-off -->
+    <rect x="170" y="126" width="24" height="34" fill="#CCCCCC"/><!-- lag3 -->
+    <rect x="210" y="128" width="24" height="32" fill="#CCCCCC"/><!-- lag4 -->
+    <rect x="250" y="130" width="24" height="30" fill="#CCCCCC"/><!-- lag5 -->
+    <rect x="290" y="131" width="24" height="29" fill="#CCCCCC"/><!-- lag6 -->
+    <rect x="330" y="132" width="24" height="28" fill="#CCCCCC"/><!-- lag7 -->
+    <rect x="370" y="133" width="24" height="27" fill="#CCCCCC"/><!-- lag8 -->
+    <!-- Etiketler -->
+    <text x="102" y="176" font-size="12" text-anchor="middle" fill="#333">1</text>
+    <text x="142" y="176" font-size="12" text-anchor="middle" fill="#333">2</text>
+    <text x="182" y="176" font-size="12" text-anchor="middle" fill="#333">3</text>
+    <text x="222" y="176" font-size="12" text-anchor="middle" fill="#333">4</text>
+    <text x="262" y="176" font-size="12" text-anchor="middle" fill="#333">5</text>
+    <text x="302" y="176" font-size="12" text-anchor="middle" fill="#333">6</text>
+    <text x="342" y="176" font-size="12" text-anchor="middle" fill="#333">7</text>
+    <text x="382" y="176" font-size="12" text-anchor="middle" fill="#333">8</text>
+    <text x="280" y="16" font-size="14" text-anchor="middle" fill="#222" font-weight="bold">PACF: AR(p) kesilme örneği (p = 2)</text>
+    <text x="120" y="36" font-size="11" fill="#333">İlk 2 lag anlamlı → AR(2) ipucu</text>
+</svg>
+</div>
+
+Kısa not: Bu gözlemler model seçiminde rehberdir; kesin parametre belirlemek için model tahmini, bilgi kriterleri ve artıkların beyaz gürültü testi uygulanmalıdır.
+
+
+
 ### R'da Zaman Serisi Veri Manipülasyonu ve Ayrıştırma
 
 R, zaman serisi verilerini işlemek, dönüştürmek ve ayrıştırmak için güçlü fonksiyonlar sunar.
@@ -699,31 +889,250 @@ Verimizi anladıktan, temizledikten ve görselleştirdikten sonra modelleme aşa
 
 ### 1. Klasik İstatistiksel Modeller
 
-Bu modeller genellikle serinin durağan olmasını gerektirir ve istatistiksel varsayımlara dayanır.
+Gençler, şimdi zaman serisi analizinin temelini oluşturan klasik istatistiksel modellere giriş yapacağız. Bu modeller, verinin kendi içindeki dinamiklerini kullanarak geleceğe dair öngörülerde bulunmamızı sağlar. Konuyu önce temel mantığıyla, ardından teknik detaylarıyla ele alacağız.
 
--   **Hareketli Ortalama (Moving Average - MA):** Serideki rastgele gürültüyü veya kısa vadeli dalgalanmaları yumuşatarak ana eğilimi (trendi) daha net görmeyi sağlar. **Üstel Ağırlıklı Hareketli Ortalama (Exponential Moving Average - EMA)** yakın geçmişteki verilere daha fazla ağırlık vererek yeni bilgilere daha hızlı adapte olur.
-    $$
-    \text{EMA}_t = \alpha \cdot x_t + (1 - \alpha) \cdot \text{EMA}_{t-1}
-    $$
--   **ARIMA (Autoregressive Integrated Moving Average) Modeli:** Durağan olmayan zaman serilerini modellemek için en yaygın kullanılan istatistiksel yöntemlerden biridir.
-    -   **AR (Autoregressive - p):** Model, değişkenin geçmiş değerlerine bağlıdır.
-    -   **I (Integrated - d):** Seriyi durağan hale getirmek için fark alma (differencing) işlemi sayısıdır.
-    -   **MA (Moving Average - q):** Model, geçmiş tahmin hatalarına bağlıdır.
-    -   Mevsimsellik içeren seriler için **SARIMA** (Mevsimsel ARIMA) kullanılır.
+#### Temel Yaklaşım ve Mantık
 
-```mermaid
-graph TD
-    subgraph Box-Jenkins Metodolojisi
-        A["Veriyi Hazırla ve Görselleştir"] --> B{"Seri Durağan mı?"}
-        B -- "Hayır" --> C["Fark Alma (Differencing)"]
-        C --> D["ACF/PACF ile Model Belirle (p,d,q)"]
-        B -- "Evet" --> D
-        D --> E["Model Parametrelerini Tahmin Et"]
-        E --> F{"Kalıntılar Beyaz Gürültü mü?"}
-        F -- "Evet" --> G["Tahmin Yap (Forecasting)"]
-        F -- "Hayır" --> D
-    end
+En basit haliyle amaç, bir serinin geçmiş değerlerine bakarak bir sonraki adımı tahmin etmektir. Bunu yaparken serinin kendi geçmişinden ve geçmişte yapılan tahmin hatalarından faydalanırız. Bu sürecin üç temel yapı taşı vardır:
+
+*   **AR (Otoregresyon):** Bugünkü değerin, dünkü veya önceki dönemlerdeki değerlerin bir fonksiyonu olduğu varsayımına dayanır. Yani, "geçmiş, geleceği tahmin eder."
+*   **MA (Hareketli Ortalama):** Bugünkü değerin, geçmişteki tahmin hatalarının bir fonksiyonu olduğunu varsayar. Yani, "geçmiş hatalarımızdan ders çıkararak geleceği tahmin ederiz."
+*   **I (Entegrasyon / Fark Alma):** Birçok zaman serisi durağan değildir; yani ortalaması veya varyansı zamanla değişir (örneğin sürekli artan bir trend). Fark alma işlemi, seriyi durağan hale getirerek modellemeye uygun bir forma sokar. Örneğin, bugünkü değerden dünkü değeri çıkarırız.
+
+Bu üç bileşen bir araya gelerek **ARIMA (p, d, q)** modelini oluşturur. Buradaki `p` AR terimlerinin sayısını, `d` fark alma işleminin derecesini ve `q` MA terimlerinin sayısını belirtir.
+
+Bu süreci bir yol haritası gibi düşünebiliriz:
+
+<div align="center">
+<svg width="800" height="200" viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ARIMA Modelleme Süreci Akış Şeması">
+    <defs>
+        <style>
+            .box { fill: #f9f9f9; stroke: #333; stroke-width: 1.5; rx: 5; }
+            .arrow { fill: #333; }
+            .text { font-family: sans-serif; font-size: 14px; text-anchor: middle; fill: #222; }
+            .title { font-size: 16px; font-weight: bold; }
+        </style>
+    </defs>
+    <text x="400" y="25" class="text title">ARIMA Modelleme Süreci</text>
+    <!-- Adım 1: Görselleştirme -->
+    <rect x="20" y="60" width="120" height="60" class="box"/>
+    <text x="80" y="95" class="text">1. Görselleştir</text>
+    <!-- Ok 1 -->
+    <path d="M 145 90 L 175 90" stroke="#333" stroke-width="2" fill="none"/>
+    <polygon points="175,85 185,90 175,95" class="arrow"/>
+    <!-- Adım 2: Durağanlaştır -->
+    <rect x="190" y="60" width="120" height="60" class="box"/>
+    <text x="250" y="88" class="text">2. Durağanlaştır</text>
+    <text x="250" y="105" class="text">(Fark Al)</text>
+    <!-- Ok 2 -->
+    <path d="M 315 90 L 345 90" stroke="#333" stroke-width="2" fill="none"/>
+    <polygon points="345,85 355,90 345,95" class="arrow"/>
+    <!-- Adım 3: Model Belirle -->
+    <rect x="360" y="60" width="120" height="60" class="box"/>
+    <text x="420" y="88" class="text">3. Model Belirle</text>
+    <text x="420" y="105" class="text">(ACF/PACF)</text>
+    <!-- Ok 3 -->
+    <path d="M 485 90 L 515 90" stroke="#333" stroke-width="2" fill="none"/>
+    <polygon points="515,85 525,90 515,95" class="arrow"/>
+    <!-- Adım 4: Model Kur ve Doğrula -->
+    <rect x="530" y="60" width="120" height="60" class="box"/>
+    <text x="590" y="88" class="text">4. Model Kur &</text>
+    <text x="590" y="105" class="text">Doğrula</text>
+    <!-- Ok 4 -->
+    <path d="M 655 90 L 685 90" stroke="#333" stroke-width="2" fill="none"/>
+    <polygon points="685,85 695,90 685,95" class="arrow"/>
+    <!-- Adım 5: Tahmin -->
+    <rect x="700" y="60" width="80" height="60" class="box"/>
+    <text x="740" y="95" class="text">5. Tahmin</text>
+</svg>
+</div>
+
+#### R Uygulaması
+
+Şimdi bu adımları daha derinlemesine inceleyelim ve R üzerinde `AirPassengers` veri setiyle uygulayalım. Bu veri seti, belirgin bir trend ve mevsimsellik içerdiği için harika bir örnektir.
+
+**1. Veriyi Görselleştirme ve Durağanlık Kontrolü**
+
+Klasik modellerin çoğu, serinin **durağan** olmasını, yani ortalama ve varyans gibi istatistiksel özelliklerinin zamanla değişmemesini varsayar. `AirPassengers` verisi açıkça durağan değildir; hem yolcu sayısı zamanla artmakta (trend) hem de dalgalanmaların boyutu büyümektedir (varyans artışı).
+
+```r
+# Gerekli paketler
+# install.packages(c("forecast", "tseries"))
+library(forecast)
+library(tseries)
+
+# Veriyi yükle ve çiz
+data(AirPassengers)
+plot(AirPassengers, main="AirPassengers Verisi: Trend ve Artan Varyans",
+     ylab="Yolcu Sayısı", xlab="Yıl", col="darkblue")
 ```
+
+Durağanlığı test etmek için **Augmented Dickey-Fuller (ADF)** testini kullanabiliriz. Bu testin sıfır hipotezi, serinin durağan *olmadığıdır*. Eğer p-değeri 0.05'ten büyükse, serinin durağan olmadığını kabul ederiz.
+
+```r
+adf.test(AirPassengers)
+#>  Augmented Dickey-Fuller Test
+#> data:  AirPassengers
+#> Dickey-Fuller = -1.9819, Lag order = 5, p-value = 0.5841
+#> alternative hypothesis: stationary
+```
+p-değeri (0.58) yüksek olduğu için seri durağan değildir.
+
+**2. Seriyi Durağanlaştırma**
+
+Durağanlığı sağlamak için iki yaygın işlem yapılır:
+1.  **Logaritmik Dönüşüm:** Artan varyansı stabilize etmek için kullanılır.
+2.  **Fark Alma:** Trendi ve mevsimselliği ortadan kaldırmak için kullanılır.
+
+```r
+# Önce log dönüşümü, sonra mevsimsel (lag=12) ve normal fark alma
+AP_stationary <- diff(log(AirPassengers), lag = 12) %>% diff()
+
+# Durağanlaşmış seriyi çizelim
+plot(AP_stationary, main="Dönüştürülmüş AirPassengers Serisi",
+     ylab="Fark Değerleri", col="darkblue")
+grid()
+
+# Tekrar ADF testi
+adf.test(AP_stationary)
+#>  Augmented Dickey-Fuller Test
+#> data:  AP_stationary
+#> Dickey-Fuller = -9.2551, Lag order = 5, p-value = 0.01
+#> alternative hypothesis: stationary
+```
+Artık p-değeri (0.01) düşük olduğuna göre serimiz durağandır ve modellemeye hazırdır.
+
+**3. Model Belirleme (ACF ve PACF)**
+
+Durağan serinin ACF ve PACF grafiklerini inceleyerek ARIMA modelinin `p` ve `q` parametreleri için ipuçları ararız. Eğer veride mevsimsellik varsa, **SARIMA (Mevsimsel ARIMA)** modeli kullanılır. Bu model, normal ARIMA(p,d,q) bileşenlerine ek olarak mevsimsel (P,D,Q) bileşenlerini de içerir.
+
+```r
+# Durağan serinin ACF ve PACF grafiklerini çiz
+par(mfrow=c(1,2)) # Grafikleri yan yana göster
+acf(AP_stationary, main="ACF")
+pacf(AP_stationary, main="PACF")
+```
+Bu grafikler, modelin AR ve MA terimlerinin derecelerini belirlemede bize yol gösterir. Ancak bu süreç deneyim gerektirebilir. Neyse ki, R'daki `auto.arima()` fonksiyonu bu işi bizim için otomatik olarak yapar.
+
+**4. Model Kurma ve Doğrulama**
+
+`auto.arima()` fonksiyonu, en iyi SARIMA modelini **AIC (Akaike Information Criterion)** gibi bilgi kriterlerine göre otomatik olarak seçer.
+
+Gençler, `auto.arima()` fonksiyonu, en iyi SARIMA modelini AIC (Akaike Information Criterion) gibi bilgi kriterlerine göre otomatik olarak seçer. Bu kriterler, veriyi iyi açıklayan (yüksek olabilirlik) ancak gereksiz yere karmaşık olmayan (düşük parametre sayısı) bir denge kurar.
+
+```r
+# auto.arima ile en iyi modeli bul
+fit <- auto.arima(log(AirPassengers), seasonal = TRUE)
+print(fit)
+#> Series: log(AirPassengers) 
+#> ARIMA(0,1,1)(0,1,1)[12] 
+#> 
+#> Coefficients:
+#>           ma1     sma1
+#>       -0.4018  -0.5569
+#> s.e.   0.0896   0.0731
+#> 
+#> sigma^2 estimated as 0.001348:  log likelihood=244.7
+#> AIC=-483.4   AICc=-483.21   BIC=-474.77
+```
+
+Fonksiyonun bizim için seçtiği `ARIMA(0,1,1)(0,1,1)[12]` modelini yorumlayalım. Bu, aslında bir Mevsimsel ARIMA, yani SARIMA modelidir.
+
+*   **`(0,1,1)` (Mevsimsel Olmayan Kısım):**
+    *   `d=1`: Serideki genel artış trendini ortadan kaldırmak için bir kez farkının alındığını gösterir ($Y'_t = Y_t - Y_{t-1}$).
+    *   `q=1`: Modelin, bir önceki aydaki tahmin hatasını (`ma1` katsayısıyla) hesaba kattığını belirtir. Bu, kısa vadeli şokların etkisini modellemeye yarar.
+
+*   **`(0,1,1)[12]` (Mevsimsel Kısım):**
+    *   `[12]`: Veride 12 aylık bir döngü, yani yıllık bir mevsimsellik olduğunu belirtir.
+    *   `D=1`: Bu yıllık mevsimsel deseni ortadan kaldırmak için serinin 12 ay önceki değerinden farkının alındığını gösterir ($Y''_t = Y'_t - Y'_{t-12}$).
+    *   `Q=1`: Modelin, geçen yılın aynı ayında yapılan tahmin hatasını (`sma1` katsayısıyla) hesaba kattığını belirtir. Bu sayede her yıl tekrarlayan mevsimsel etkiler daha iyi yakalanır.
+
+Özetle, `auto.arima` bizim için oldukça mantıklı bir model buldu: Seri, hem genel trendden hem de yıllık mevsimsel etkiden arındırılıyor. Ardından, hem bir ay önceki hem de geçen yılın aynı ayındaki hatalardan ders çıkararak tahmin yapıyor. Şimdi bu modelin gerçekten işe yarayıp yaramadığını kontrol etmeliyiz.
+
+Gençler, şimdi modelleme sürecinin en kritik aşamasına geldik: kurduğumuz modelin gerçekten işe yarayıp yaramadığını nasıl anlarız?
+
+Kurduğumuz modeli, verideki hikayeyi açıklamaya çalışan bir dedektif gibi düşünün. Modelin açıklayamadığı, geride bıraktığı kırıntılara ise **artıklar (residuals)** diyoruz. Eğer bu artıklar arasında bir desen varsa, örneğin her pazartesi hata artıyorsa, bu demektir ki dedektifimiz önemli bir ipucunu, yani verideki sistematik bir yapıyı gözden kaçırmış. Bizim amacımız, artıkların tamamen rastgele, öngörülemez bir gürültüden ibaret olmasıdır. Tıpkı bir radyonun boş kanaldaki cızırtısı gibi... İşte bu ideal duruma istatistikte **beyaz gürültü (white noise)** diyoruz.
+
+Şimdi bu fikri biraz daha teknik bir dille ifade edelim. İyi bir model, verideki tüm sistematik bilgiyi, yani trendi, mevsimselliği ve diğer otokorelasyon yapılarını yakalamalıdır. Geriye kalan artıklar, modelin açıklayamadığı saf, rastgele şokları temsil etmelidir. Bu 'beyaz gürültü' dediğimiz artıkların üç temel özelliği olmalıdır:
+
+1.  **Ortalaması Sıfır Olmalı:** Modelimiz sistematik olarak ne yukarı ne de aşağı yönde hata yapmalı. Pozitif ve negatif hatalar birbirini dengelemelidir.
+2.  **Sabit Varyansa Sahip Olmalı:** Hataların büyüklüğü zaman içinde değişmemelidir. Eğer modelin hataları zamanla büyüyorsa, geleceğe yönelik tahminlerine olan güvenimiz azalır.
+3.  **Otokorelasyon İçermemeli:** Bu en önemlisi. Bir dönemdeki hata, bir sonraki dönemdeki hatayı tahmin etmemize yardımcı olmamalıdır. Eğer artıklar arasında bir korelasyon varsa, bu, modelimizin yakalayamadığı ve tahminlerimizi iyileştirmek için kullanabileceğimiz değerli bir bilgi olduğu anlamına gelir.
+
+Bu özellikleri kontrol etmek için `checkresiduals()` gibi fonksiyonlar kullanırız. Bu fonksiyon bize birkaç önemli grafik sunar:
+
+-   **Artıkların Zaman Grafiği:** Herhangi bir belirgin desen veya trend olmamalıdır.
+-   **Artıkların ACF Grafiği:** Bu en kritik grafiktir. Neredeyse tüm korelasyon çubukları, istatistiksel anlamsızlığı gösteren mavi güven aralığının içinde kalmalıdır.
+-   **Ljung-Box Testi:** Bu, artıkların genel olarak otokorelasyon içerip içermediğini test eden formel bir istatistiksel testtir. Sıfır hipotezi, 'artıklar arasında otokorelasyon yoktur' der. Bizim istediğimiz de budur. Dolayısıyla, bu testten yüksek bir p-değeri (genellikle 0.05'ten büyük) almayı hedefleriz. Yüksek p-değeri, modelimizin verideki yapıyı başarıyla yakaladığına dair güçlü bir kanıttır.
+
+<div align="center">
+<svg width="600" height="200" viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="İyi Model Artıklarının Özellikleri">
+    <text x="300" y="20" font-size="16" font-weight="bold" text-anchor="middle">İyi Bir Modelin Artıkları Nasıl Olmalı?</text>
+    <!-- Panel 1: ACF -->
+    <rect x="20" y="40" width="180" height="140" fill="#f9f9f9" stroke="#ccc"/>
+    <text x="110" y="60" font-size="12" text-anchor="middle">Artıkların ACF'si</text>
+    <line x1="30" y1="150" x2="190" y2="150" stroke="#333"/>
+    <line x1="30" y1="110" x2="190" y2="110" stroke="#0074D9" stroke-dasharray="4,3"/>
+    <line x1="30" y1="70" x2="190" y2="70" stroke="#0074D9" stroke-dasharray="4,3"/>
+    <text x="110" y="170" font-size="11" text-anchor="middle">Anlamlı çubuk olmamalı</text>
+    <!-- Panel 2: Histogram -->
+    <rect x="210" y="40" width="180" height="140" fill="#f9f9f9" stroke="#ccc"/>
+    <text x="300" y="60" font-size="12" text-anchor="middle">Artıkların Dağılımı</text>
+    <path d="M 230 150 C 260 150, 270 80, 300 80 S 340 150, 370 150 Z" fill="#39CCCC" stroke="none"/>
+    <text x="300" y="170" font-size="11" text-anchor="middle">Normal dağılıma benzemeli</text>
+    <!-- Panel 3: Zaman Grafiği -->
+    <rect x="400" y="40" width="180" height="140" fill="#f9f9f9" stroke="#ccc"/>
+    <text x="490" y="60" font-size="12" text-anchor="middle">Artıkların Zaman Grafiği</text>
+    <polyline points="410,110 425,90 440,120 455,100 470,130 485,80 500,115 515,95 530,125 545,105 560,110" stroke="#FF4136" fill="none" stroke-width="1.5"/>
+    <line x1="410" y1="110" x2="570" y2="110" stroke="#333" stroke-dasharray="3,3"/>
+    <text x="490" y="170" font-size="11" text-anchor="middle">Belirgin bir desen olmamalı</text>
+</svg>
+</div>
+
+```r
+# Artıkları kontrol et
+checkresiduals(fit)
+```
+`checkresiduals()` fonksiyonu bize bu grafikleri ve **Ljung-Box** testini sunar. Ljung-Box testinin p-değeri yüksekse (genellikle > 0.05), artıkların beyaz gürültüden farksız olduğu, yani modelin verideki yapıyı başarıyla yakaladığı sonucuna varırız.
+
+**5. Tahmin Yapma**
+
+Modelimiz doğrulandıktan sonra, geleceğe yönelik tahminler yapmak için `forecast()` fonksiyonunu kullanabiliriz. Şimdi, bu tahminlerin görselleştirilmesini bir kod ve grafikle açıklayalım.
+
+```r
+# Gelecek 24 ay için tahmin yap
+fc <- forecast(fit, h = 24)
+
+# Tahminleri çizdir
+plot(fc, main="Gelecek 24 Ay için Yolcu Sayısı Tahmini")
+grid()
+```
+
+Bu tahmin grafiğini basit bir şekilde görselleştirelim. Grafik, nokta tahminlerini (mavi çizgi) ve %80 ile %95'lik güven aralıklarını (gri gölgeli alanlar) temsil eder.
+
+<div align="center">
+<svg width="600" height="300" viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Gelecek 24 Ay için Yolcu Sayısı Tahmini">
+    <!-- Arka plan -->
+    <rect width="100%" height="100%" fill="#fff"/>
+    <!-- Eksenler -->
+    <line x1="50" y1="250" x2="550" y2="250" stroke="#333" stroke-width="1.5"/>
+    <line x1="50" y1="50" x2="50" y2="250" stroke="#333" stroke-width="1.5"/>
+    <!-- Güven aralıkları -->
+    <polygon points="50,200 100,180 150,160 200,140 250,130 300,120 350,130 400,140 450,160 500,180 550,200 550,220 500,210 450,190 400,170 350,160 300,150 250,160 200,180 150,200 100,220 50,240" fill="#d3d3d3" stroke="none"/>
+    <polygon points="50,190 100,170 150,150 200,130 250,120 300,110 350,120 400,130 450,150 500,170 550,190 550,210 500,200 450,180 400,160 350,150 300,140 250,150 200,170 150,190 100,210 50,230" fill="#b0b0b0" stroke="none"/>
+    <!-- Nokta tahminleri -->
+    <polyline points="50,190 100,170 150,150 200,130 250,120 300,110 350,120 400,130 450,150 500,170 550,190" stroke="#0074D9" stroke-width="2" fill="none"/>
+    <!-- Etiketler -->
+    <text x="300" y="280" font-size="14" text-anchor="middle" fill="#333">Zaman (Aylar)</text>
+    <text x="20" y="150" font-size="14" text-anchor="middle" fill="#333" transform="rotate(-90,20,150)">Yolcu Sayısı</text>
+    <text x="300" y="30" font-size="16" font-weight="bold" text-anchor="middle" fill="#222">Gelecek 24 Ay için Yolcu Sayısı Tahmini</text>
+    <text x="300" y="50" font-size="12" text-anchor="middle" fill="#555">Mavi çizgi: Nokta tahminleri, Gri alanlar: Güven aralıkları</text>
+</svg>
+</div>
+
+Bu grafik, modelin gelecekteki yolcu sayısını nasıl tahmin ettiğini görselleştirir. Mavi çizgi, tahmin edilen değerleri temsil ederken, gri alanlar tahminlerin güven aralıklarını gösterir. Güven aralıkları, tahminlerin ne kadar belirsiz olduğunu anlamamıza yardımcı olur. Gri alanların genişliği, belirsizliğin zamanla arttığını gösterir. Bu, modelin uzun vadeli tahminlerde daha az kesin olduğunu ifade eder.
+
+Tahminler, modelin geçmiş verilerde öğrendiği trend ve mevsimsellik gibi yapıları geleceğe taşıyarak yapılır. Ancak, bu tür modellerin doğrusal varsayımlara dayandığını ve karmaşık, doğrusal olmayan ilişkileri modellemede yetersiz kalabileceğini unutmamak gerekir. Bu gibi durumlarda, yapay zeka tabanlı yöntemler daha etkili olabilir.
 
 ### 2. Yapay Zeka ile Zaman Serisi Analizi
 
