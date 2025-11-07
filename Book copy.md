@@ -676,8 +676,8 @@ graph TD
 
 Bu ayrım, modelleme için hayati önem taşır. Çünkü bir seriyi modellerken, bir değerin geleceği ne kadar *doğrudan* etkilediğini bilmek isteriz. PACF grafiği, ARIMA gibi modellerin 'AR' kısmının, yani otoregresif terimin derecesini (p) belirlememizde bize yol gösterir. Eğer PACF grafiğindeki çubuklar, örneğin 2. gecikmeden sonra aniden kesilip anlamsız hale geliyorsa, bu bize serinin hafızasının sadece iki dönem geriye, doğrudan gittiğini söyler.
 
-Teknik olarak PACF ($\phi_{kk}$), $x_t$ ve $x_{t-k}$ arasındaki korelasyonu, aradaki $x_{t-1}, x_{t-2}, ..., x_{t-k+1}$ değerlerinin etkisinden arındırarak hesaplar. Bu, bir dizi otoregresif modelin son katsayısı olarak bulunur.
-    *   **Kod Örnekleri:**
+PACF ($\phi_{kk}$), $x_t$ ve $x_{t-k}$ arasındaki korelasyonu, aradaki $x_{t-1}, x_{t-2}, ..., x_{t-k+1}$ değerlerinin etkisinden arındırarak hesaplar. Bu, bir dizi otoregresif modelin son katsayısı olarak bulunur.
+ *   **Kod Örnekleri:**
         *   **Python ile PACF:**
         ```python
         from statsmodels.tsa.stattools import pacf
@@ -705,11 +705,95 @@ pacf(USgas, main = "Kısmi Otokorelasyon Fonksiyonu (PACF)")
 ### AR ve MA Modelleri için ACF ve PACF Yorumlama
 Gençler,
 
-Kısa ve açık şekilde: ACF grafiğinde ilk q gecikmeye kadar anlamlı çubuklar görülüp hemen ardından çubuklar güven aralığına giriyorsa bu MA(q) modeline işaret eder. PACF grafiğinde ise ilk p gecikmeye kadar anlamlı çubuklar olup hemen sonra sıfıra yakınlaşıyorsa bu AR(p) modeline işaret eder.
+şimdi bu iki grafiği kullanarak model tipini nasıl belirleyeceğimize bakalım. Bu, durağan bir seri için doğru ARIMA modelinin 'p' ve 'q' parametrelerini seçerken en temel adımlardan biridir.
 
+#### MA(q) Süreci ve ACF İmzası
 
-- ACF: Eğer korelasyonlar birkaç gecikme sonra ansızın kayboluyorsa (cut‑off) bu hareketli ortalamaya (MA) işaret eder. Kaç gecikmeden sonra kaybolduysa o q değeridir.
-- PACF: Eğer kısmi korelasyonlar birkaç gecikme sonra ansızın kayboluyorsa bu otoregresyona (AR) işaret eder. Kaç gecikmeden sonra kaybolduysa o p değeridir.
+Önce basit olanla başlayalım: **Hareketli Ortalama (MA)** süreci. Bir MA(q) sürecini, hafızası kısa olan bir sistem gibi düşünebilirsiniz. Bu sistem, sadece son 'q' adet rastgele şoktan (yani geçmiş hatalardan) etkilenir. 'q' adımdan daha eski bir şokun bugünkü değer üzerinde hiçbir etkisi yoktur.
+
+Bu durum, ACF grafiğine çok net bir şekilde yansır. Serinin kendi geçmişiyle olan toplam korelasyonu, tam olarak 'q' gecikmeye kadar anlamlıdır ve sonra aniden kesilerek sıfıra düşer. Çünkü 'q' adımdan sonra, geçmişle bugünü bağlayan ortak bir şok kalmamıştır.
+
+-   **Kural:** Eğer ACF grafiği 'q' gecikmeden sonra aniden kesiliyorsa (çubuklar güven aralığının içine düşüyorsa), bu bir **MA(q)** modeline işaret eder. PACF grafiği ise genellikle yavaşça sönümlenir.
+
+Aşağıdaki çizim, tipik bir MA(2) sürecinin ACF grafiğini göstermektedir. İlk iki çubuk anlamlıdır, üçüncüsü ve sonrakiler anlamsızdır.
+
+<div align="center">
+<svg width="540" height="220" viewBox="0 0 540 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MA(2) süreci için tipik ACF grafiği">
+    <rect width="100%" height="100%" fill="#fff"/>
+    <text x="270" y="25" font-size="16" text-anchor="middle" fill="#222" font-weight="bold">ACF Grafiği: MA(2) Süreci Örneği</text>
+    <!-- Eksenler -->
+    <line x1="40" y1="180" x2="500" y2="180" stroke="#333" stroke-width="1.5"/>
+    <line x1="60" y1="40" x2="60" y2="180" stroke="#333" stroke-width="1.5"/>
+    <!-- Güven aralığı -->
+    <line x1="60" y1="70" x2="500" y2="70" stroke="#0074D9" stroke-dasharray="6,4" stroke-width="1.5"/>
+    <line x1="60" y1="150" x2="500" y2="150" stroke="#0074D9" stroke-dasharray="6,4" stroke-width="1.5"/>
+    <!-- Lag çubukları -->
+    <rect x="90"  y="60" width="20" height="120" fill="#FF851B"/> <!-- lag 1 -->
+    <rect x="130" y="80" width="20" height="100" fill="#FF851B"/> <!-- lag 2 -->
+    <!-- Kesilme (Cut-off) -->
+    <rect x="170" y="130" width="20" height="50" fill="#aaa"/> <!-- lag 3 -->
+    <rect x="210" y="140" width="20" height="40" fill="#aaa"/> <!-- lag 4 -->
+    <rect x="250" y="135" width="20" height="45" fill="#aaa"/> <!-- lag 5 -->
+    <text x="190" y="55" font-size="12" fill="#d9534f" font-weight="bold">Kesilme (Cut-off)</text>
+    <path d="M 180 65 L 180 100" stroke="#d9534f" stroke-width="2" marker-end="url(#arrow)"/>
+    <defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#d9534f"/></marker></defs>
+    <!-- Etiketler -->
+    <text x="100" y="195" font-size="12" text-anchor="middle">1</text>
+    <text x="140" y="195" font-size="12" text-anchor="middle">2</text>
+    <text x="180" y="195" font-size="12" text-anchor="middle">3</text>
+    <text x="220" y="195" font-size="12" text-anchor="middle">4</text>
+</svg>
+</div>
+
+#### AR(p) Süreci ve PACF İmzası
+
+Şimdi **Otoregresif (AR)** sürecine bakalım. Bir AR(p) süreci, kendi geçmiş 'p' değerine *doğrudan* bağlıdır. Geçmiş bir değerin etkisi, bir dalga gibi zamanla azalarak sönümlenir ama teorik olarak asla tam sıfır olmaz. Bu yüzden ACF grafiği genellikle yavaşça azalır ve bize net bir kesilme noktası vermez.
+
+İşte burada PACF devreye girer. PACF, aradaki dolaylı etkileri filtreleyerek sadece *doğrudan* etkiyi ölçer. Bir AR(p) sürecinde, bugünkü değer sadece 'p' adım geriye kadar olan değerlerden doğrudan etkilendiği için, PACF grafiği tam olarak 'p' gecikmeden sonra aniden kesilir.
+
+-   **Kural:** Eğer PACF grafiği 'p' gecikmeden sonra aniden kesiliyorsa, bu bir **AR(p)** modeline işaret eder. ACF grafiği ise genellikle yavaşça sönümlenir veya sinüs dalgası gibi salınır.
+
+Aşağıdaki çizim, tipik bir AR(2) sürecinin PACF grafiğini göstermektedir. İlk iki çubuk anlamlıdır, sonrası anlamsızdır.
+
+<div align="center">
+<svg width="540" height="220" viewBox="0 0 540 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AR(2) süreci için tipik PACF grafiği">
+    <rect width="100%" height="100%" fill="#fff"/>
+    <text x="270" y="25" font-size="16" text-anchor="middle" fill="#222" font-weight="bold">PACF Grafiği: AR(2) Süreci Örneği</text>
+    <!-- Eksenler -->
+    <line x1="40" y1="180" x2="500" y2="180" stroke="#333" stroke-width="1.5"/>
+    <line x1="60" y1="40" x2="60" y2="180" stroke="#333" stroke-width="1.5"/>
+    <!-- Güven aralığı -->
+    <line x1="60" y1="70" x2="500" y2="70" stroke="#0074D9" stroke-dasharray="6,4" stroke-width="1.5"/>
+    <line x1="60" y1="150" x2="500" y2="150" stroke="#0074D9" stroke-dasharray="6,4" stroke-width="1.5"/>
+    <!-- Lag çubukları -->
+    <rect x="90"  y="60" width="20" height="120" fill="#39CCCC"/> <!-- lag 1 -->
+    <rect x="130" y="80" width="20" height="100" fill="#39CCCC"/> <!-- lag 2 -->
+    <!-- Kesilme (Cut-off) -->
+    <rect x="170" y="130" width="20" height="50" fill="#aaa"/> <!-- lag 3 -->
+    <rect x="210" y="140" width="20" height="40" fill="#aaa"/> <!-- lag 4 -->
+    <rect x="250" y="135" width="20" height="45" fill="#aaa"/> <!-- lag 5 -->
+    <text x="190" y="55" font-size="12" fill="#d9534f" font-weight="bold">Kesilme (Cut-off)</text>
+    <path d="M 180 65 L 180 100" stroke="#d9534f" stroke-width="2" marker-end="url(#arrow2)"/>
+    <defs><marker id="arrow2" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#d9534f"/></marker></defs>
+    <!-- Etiketler -->
+    <text x="100" y="195" font-size="12" text-anchor="middle">1</text>
+    <text x="140" y="195" font-size="12" text-anchor="middle">2</text>
+    <text x="180" y="195" font-size="12" text-anchor="middle">3</text>
+    <text x="220" y="195" font-size="12" text-anchor="middle">4</text>
+</svg>
+</div>
+
+#### Özet Tablo
+
+Bu iki temel kuralı aşağıdaki gibi özetleyebiliriz:
+
+| Model | ACF Grafiği | PACF Grafiği |
+| :--- | :--- | :--- |
+| **AR(p)** | Yavaşça sönümlenir | **p** gecikmeden sonra **kesilir** |
+| **MA(q)** | **q** gecikmeden sonra **kesilir** | Yavaşça sönümlenir |
+| **ARMA(p,q)**| Yavaşça sönümlenir | Yavaşça sönümlenir |
+
+Bu gözlemler, model seçim sürecinde bize güçlü bir başlangıç noktası sunar. Ancak unutmayın, gerçek dünya verileri nadiren bu kadar temiz desenler gösterir. Bu nedenle ACF/PACF analizi bir rehberdir ve en iyi modeli bulmak için genellikle `auto.arima` gibi otomatik araçlar ve AIC/BIC gibi bilgi kriterleri ile birlikte kullanılır.
 - Pratik kural: ACF cut‑off → MA(q). PACF cut‑off → AR(p). Cut‑off demek, çubukların güven aralığına girip kaybolmasıdır.
 
 
