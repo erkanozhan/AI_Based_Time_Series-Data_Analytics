@@ -427,12 +427,54 @@ USgas_yillik <- aggregate(USgas, nfrequency = 1, FUN = sum)
 
 - **`lag()`:** Şimdi, zaman serisi analizinin en temel fikirlerinden birine gelelim: gecikmeli değerler. Şöyle düşünelim: Bugünkü hava sıcaklığını tahmin etmeye çalışırken, aklınıza ilk gelen verilerden biri dünkü sıcaklık olmaz mıydı? Ya da bu ayki satışları değerlendirirken, geçen ayın satışlarıyla veya daha da önemlisi, geçen yılın aynı ayındaki satışlarla karşılaştırmak istemez miydiniz? İşte bu "bir önceki değer" veya "geçen yılki değer" kavramı, analizdeki en güçlü araçlarımızdan biridir. Biz buna **gecikmeli değer (lagged value)** diyoruz.
 
-`lag()` fonksiyonu, seriyi zamanda geriye kaydırarak bu geçmiş değerleri bugünkü değerlerle aynı hizaya getirmemizi sağlar. Amacımız ne? Geçmişin, bugünü nasıl etkilediğini görmek ve bu bilgiyi modelimize bir girdi, yani bir **özellik (feature)** olarak sunmak. Örneğin, 12. aydaki satışları tahmin etmek için 11. aydaki satışları (lag-1) veya bir önceki yılın 12. ayındaki satışları (lag-12) kullanabiliriz. Bu, özellikle mevsimsel etkileri yakalamak için hayati öneme sahiptir. `stats::lag()` fonksiyonunda `k` parametresinin negatif olduğuna dikkat edin; `k = -1` bir dönem geriye, `k = -12` ise on iki dönem geriye gitmek anlamına gelir.
+Gençler, bu "lag" kelimesi üzerinde biraz duralım, çünkü ne yaptığını anlamanın en iyi yolu kelimenin kendisinden geçer.
+
+Kelimenin kökeni İngilizcedir ve İskandinav dillerine, Eski Nors dilindeki "lagga" fiiline dayanır. Anlamı, "geri kalmak, yavaş hareket etmek" demektir. Yani kelimenin özünde bir gecikme, bir geride kalma fikri yatar. Günlük hayatta "jet lag" veya "time lag" gibi ifadelerde de bu anlamı görürüz.
+
+İşte `lag()` fonksiyonu da tam olarak bunu yapıyor: seriyi zamanda geriye kaydırarak bu geçmiş değerleri bugünkü değerlerle aynı hizaya getirmemizi sağlar. Amacımız ne? Geçmişin, bugünü nasıl etkilediğini görmek ve bu bilgiyi modelimize bir girdi, yani bir **özellik (feature)** olarak sunmak. Örneğin, 12. aydaki satışları tahmin etmek için 11. aydaki satışları (lag-1) veya bir önceki yılın 12. ayındaki satışları (lag-12) kullanabiliriz. Bu, özellikle mevsimsel etkileri yakalamak için hayati öneme sahiptir. `stats::lag()` fonksiyonunda `k` parametresinin negatif olduğuna dikkat edin; `k = -1` bir dönem geriye, `k = -12` ise on iki dönem geriye gitmek anlamına gelir.
 
 ```r
 # 1 ay önceki değeri (lag-1) ve 12 ay önceki değeri (lag-12) oluşturalım
 USgas_lag1 <- stats::lag(USgas, k = -1)
 USgas_lag12 <- stats::lag(USgas, k = -12)
+
+# Orijinal seri ile gecikmeli değerleri karşılaştıralım
+# head() ile ilk 15 satıra bakarak kaydırmayı net bir şekilde görebiliriz
+comparison_df <- cbind(
+    Original = USgas,
+    Lag1 = USgas_lag1,
+    Lag12 = USgas_lag12
+)
+head(comparison_df, 15)
+```
+
+**Çıktı ve Yorum:**
+
+```
+#>              Original     Lag1    Lag12
+#> Jan 2000     2561.034       NA       NA
+#> Feb 2000     2339.293 2561.034       NA
+#> Mar 2000     2257.024 2339.293       NA
+#> Apr 2000     1864.603 2257.024       NA
+#> May 2000     1621.621 1864.603       NA
+#> Jun 2000     1510.289 1621.621       NA
+#> Jul 2000     1557.589 1510.289       NA
+#> Aug 2000     1538.031 1557.589       NA
+#> Sep 2000     1452.925 1538.031       NA
+#> Oct 2000     1658.710 1452.925       NA
+#> Nov 2000     1934.255 1658.710       NA
+#> Dec 2000     2395.034 1934.255       NA
+#> Jan 2001     2649.260 2395.034 2561.034
+#> Feb 2001     2308.922 2649.260 2339.293
+#> Mar 2001     2245.748 2308.922 2257.024
+```
+
+Yukarıdaki çıktı, `lag()` fonksiyonunun seriyi zamanda nasıl kaydırdığını açıkça göstermektedir:
+-   **`Lag1` Sütunu:** Herhangi bir aydaki `Lag1` değeri, bir önceki ayın `Original` değeridir. Örneğin, Şubat 2000'deki `Lag1` değeri (2561.034), Ocak 2000'in `Original` değeridir.
+-   **`Lag12` Sütunu:** Bu sütun, 12 ay (1 yıl) önceki değeri gösterir. Ocak 2001'deki `Lag12` değeri (2561.034), tam olarak bir yıl önceki Ocak 2000'in `Original` değeridir. Bu, mevsimsel etkileri modellemek için çok önemlidir.
+-   **`NA` Değerleri:** Serinin başındaki `NA` (Not Available) değerleri normaldir. Çünkü Ocak 2000 için bir önceki ay (`Lag1`) veya bir önceki yıl (`Lag12`) verisi mevcut değildir.
+
+Bu gecikmeli değerler, "geçen ayki tüketim" veya "geçen yılın aynı ayındaki tüketim" gibi bilgileri modelimize birer özellik olarak eklememizi sağlar.
 ```
 
 - **`decompose()`:** Şimdi, bir serinin iç yapısını, adeta bir motorun parçalarını ayırır gibi incelememizi sağlayan `decompose()` fonksiyonuna bakalım. Bu fonksiyon, bir zaman serisini üç temel bileşenine ayırır: trend, mevsimsellik ve geriye kalan rastgele gürültü. Bu ayrıştırma, serinin hangi dinamiklerden etkilendiğini anlamak için kritik bir adımdır.
@@ -644,16 +686,7 @@ Bu bulgu, modelleme için kritik bir ipucudur çünkü serinin "hafızası" hakk
         Lag-1 ACF: 0.1
         ```
 
-    *   **Sonuçların Görselleştirilmesi ve Yorumu:**
-
-        ```mermaid
-        xychart-beta
-            title "Örnek Veri için ACF Değerleri"
-            x-axis ["Lag 0", "Lag 1"]
-            y-axis "Korelasyon"
-            bar [1.00, 0.10]
-        ```
-        <p align="justify">
+       <p align="justify">
         Her iki dilde de hesaplanan <strong>Lag-1 ACF değeri 0.1</strong>'dir. Bu sonuç, serinin bir önceki değeri ile bugünkü değeri arasında çok zayıf, pozitif bir doğrusal ilişki olduğunu gösterir. Değerin 1'e değil de 0'a çok yakın olması, dünkü değerin bugünkü değeri tahmin etmede neredeyse hiç bilgi taşımadığı anlamına gelir. Bu kadar küçük bir veri setinde, bu zayıf korelasyonun istatistiksel olarak anlamsız ve büyük olasılıkla rastgele gürültüden kaynaklandığını söyleyebiliriz.
         </p>
 
@@ -876,71 +909,6 @@ Kısa not: Bu gözlemler model seçiminde rehberdir; kesin parametre belirlemek 
 
 
 
-### R'da Zaman Serisi Veri Manipülasyonu ve Ayrıştırma
-
-R, zaman serisi verilerini işlemek, dönüştürmek ve ayrıştırmak için güçlü fonksiyonlar sunar.
-
-#### `aggregate()` - Zaman Serisini Toparlama
-
-Aylık, günlük gibi yüksek frekanslı verileri daha düşük frekanslı verilere (çeyreklik, yıllık) dönüştürmek için `aggregate()` fonksiyonu kullanılır.
-
-```r
-# Aylık veriyi yıllığa çevir ve toplamını al
-USgas_yillik <- aggregate(USgas,
-                          nfrequency = 1,
-                          FUN = sum)
-print(USgas_yillik)
-```
-
-#### `lag()` - Gecikmeli Değerler
-
-Zaman serisi analizinde bir önceki zaman dilimindeki değerler (gecikmeli değerler - lagged values) önemli bir rol oynar. `stats::lag()` fonksiyonu bu değerleri hesaplamak için kullanılır.
-
-```r
-# 12. lag (1 yıl önceki değer, aylık veri için)
-USgas_lag12 <- stats::lag(USgas, k = -12)
-
-# Orijinal seri ile gecikmeli değerleri karşılaştırma
-head(cbind(USgas, USgas_lag12), 15)
-```
-
-#### `decompose()` - Zaman Serisini Ayrıştırma
-
-`decompose()` fonksiyonu, bir zaman serisini trend, mevsimsellik ve rastgele bileşenlerine ayırmak için kullanılır. Bu ayrıştırma, verinin altında yatan yapıları anlayarak daha iyi analizler yapmamıza olanak tanır.
-
-```r
-# USgas serisini ayrıştır
-USgas_ayristir <- decompose(USgas)
-
-# Ayrıştırılmış bileşenleri görselleştir
-plot(USgas_ayristir)
-```
-
-#### `dplyr` ile Veri İşleme
-
-Gerçek dünya verileri genellikle `data.frame` formatında gelir ve zaman serisi analizi öncesinde düzenleme gerektirebilir. `dplyr` ve `lubridate` paketleri bu konuda oldukça yardımcıdır.
-
-```r
-library(dplyr)
-library(lubridate)
-
-# Günlük satış verisi oluşturma
-df <- data.frame(
-  tarih = seq.Date(as.Date("2023-01-01"), by = "day", length.out = 365),
-  satis = rnorm(365, 1000, 100)
-)
-
-# Günlük veriyi aylık toplam satışa dönüştürme
-aylik_satis <- df %>%
-  mutate(ay = floor_date(tarih, "month")) %>% # Her tarihi ayın başına yuvarla
-  group_by(ay) %>% # Ay bazında grupla
-  summarise(
-    toplam_satis = sum(satis)
-  )
-
-print(aylik_satis)
-```
-
 #### Gelişmiş Görselleştirme (`ggplot2`)
 
 `ggplot2` paketi, R'da profesyonel ve özelleştirilebilir zaman serisi grafikleri oluşturmak için kullanılır. `ts` nesnelerini `ggplot2` ile kullanmak için önce `data.frame` formatına çevirmek gerekir.
@@ -973,19 +941,55 @@ Verimizi anladıktan, temizledikten ve görselleştirdikten sonra modelleme aşa
 
 ### 1. Klasik İstatistiksel Modeller
 
-Gençler, şimdi zaman serisi analizinin temelini oluşturan klasik istatistiksel modellere giriş yapacağız. Bu modeller, verinin kendi içindeki dinamiklerini kullanarak geleceğe dair öngörülerde bulunmamızı sağlar. Konuyu önce temel mantığıyla, ardından teknik detaylarıyla ele alacağız.
+Zaman serisi analizinin temelini oluşturan klasik istatistiksel modellere giriş yapacağız. Bu modeller, verinin kendi içindeki dinamiklerini, yani kendi geçmişini kullanarak geleceğe dair öngörülerde bulunmamızı sağlar.
 
-#### Temel Yaklaşım ve Mantık
+En temel düzeyde amaç, bir serinin geçmiş değerlerine bakarak bir sonraki adımı tahmin etmektir. Bunu yaparken serinin kendi geçmişinden ve geçmişte yapılan tahmin hatalarından faydalanırız. Bu yaklaşımın üç temel yapı taşı vardır:
 
-En basit haliyle amaç, bir serinin geçmiş değerlerine bakarak bir sonraki adımı tahmin etmektir. Bunu yaparken serinin kendi geçmişinden ve geçmişte yapılan tahmin hatalarından faydalanırız. Bu sürecin üç temel yapı taşı vardır:
+*   **AR (Otoregresyon - Autoregression):** Gençler, şimdi zaman serisi analizinin temel taşlarından birine, Otoregresyon'a bakalım. Adı karmaşık görünebilir ama arkasındaki fikir son derece sezgiseldir. Bu fikir, bir serinin bugünkü değerinin, dünkü veya daha önceki değerlerine bağlı olduğu varsayımına dayanır. Tıpkı bugünkü hava sıcaklığının dünkü sıcaklıktan etkilenmesi gibi.
 
-*   **AR (Otoregresyon):** Bugünkü değerin, dünkü veya önceki dönemlerdeki değerlerin bir fonksiyonu olduğu varsayımına dayanır. Yani, "geçmiş, geleceği tahmin eder."
-*   **MA (Hareketli Ortalama):** Bugünkü değerin, geçmişteki tahmin hatalarının bir fonksiyonu olduğunu varsayar. Yani, "geçmiş hatalarımızdan ders çıkararak geleceği tahmin ederiz."
-*   **I (Entegrasyon / Fark Alma):** Birçok zaman serisi durağan değildir; yani ortalaması veya varyansı zamanla değişir (örneğin sürekli artan bir trend). Fark alma işlemi, seriyi durağan hale getirerek modellemeye uygun bir forma sokar. Örneğin, bugünkü değerden dünkü değeri çıkarırız.
+    Burada "regresyon" kelimesi üzerinde biraz durmakta fayda var. Bu kelime, Latince "regressus" kelimesinden gelir, ki bu da "geri adım atmak" veya "geri dönmek" anlamına gelir. Terimi istatistikte ilk kullananlardan biri Francis Galton'dır. Galton, ebeveynlerin ve çocuklarının boylarını incelerken ilginç bir şey fark etti: çok uzun boylu ebeveynlerin çocukları da genellikle uzun oluyordu, ancak ebeveynleri kadar aşırı uzun değil, ortalamaya daha yakın olma eğilimindeydiler. Galton bu duruma "ortalamaya geri dönüş" yani "regression toward the mean" adını verdi.
 
-Bu üç bileşen bir araya gelerek **ARIMA (p, d, q)** modelini oluşturur. Buradaki `p` AR terimlerinin sayısını, `d` fark alma işleminin derecesini ve `q` MA terimlerinin sayısını belirtir.
+    İşte biz de zaman serisi analizinde benzer bir "geri adım atma" eylemi yapıyoruz. Bugünkü değeri anlamak için zamanda "geri adım atarak" geçmiş değerlere bakıyoruz. Bu yüzden bu yönteme "oto-regresyon" diyoruz. "Oto" kelimesi Yunanca "kendi" demektir. Yani, seri kendi geçmişi üzerine bir regresyon modeli kuruyor. Kısacası, "geçmiş, geleceği tahmin eder" fikrini matematiksel bir çerçeveye oturtuyoruz.
 
-Bu süreci bir yol haritası gibi düşünebiliriz:
+    Bu fikri biraz daha formel hale getirelim. Bir AR(p) modeli, bugünkü değerin ($x_t$), geçmişteki 'p' adet değerin ağırlıklı bir toplamı artı bir miktar rastgele gürültüden oluştuğunu söyler. Matematiksel olarak şöyle ifade edilir:
+    $x_t = c + \phi_1 x_{t-1} + \phi_2 x_{t-2} + ... + \phi_p x_{t-p} + \epsilon_t$
+
+    Burada:
+    -   $x_t$ tahmin etmeye çalıştığımız bugünkü değerdir.
+    -   $x_{t-1}, x_{t-2}, ...$ serinin geçmiş değerleridir.
+    -   $\phi_1, \phi_2, ...$ bu geçmiş değerlerin bugünkü değeri ne kadar etkilediğini gösteren ağırlık katsayılarıdır.
+    -   $c$ serinin ortalamasıyla ilişkili bir sabittir.
+    -   $\epsilon_t$ ise modelin açıklayamadığı, öngörülemeyen rastgele bir şok veya hatadır (beyaz gürültü).
+
+    'p' değeri, modelin "hafızasının" ne kadar geriye gittiğini, yani kaç tane geçmiş değeri dikkate aldığını belirtir. Örneğin bir AR(1) modeli, sadece dünkü değerin bugünü etkilediğini varsayar.
+
+*   **MA (Hareketli Ortalama - Moving Average):** Gençler, şimdi "Hareketli Ortalama" terimine gelelim. Bu isimlendirme ilk başta biraz kafa karıştırıcı olabilir, çünkü genellikle veriyi düzleştirmek için kullandığımız basit hareketli ortalama ile karıştırılır. Ancak buradaki anlamı tamamen farklıdır.
+
+    Şöyle düşünelim: Bir hedefe ok atıyorsunuz. İlk atışınız hedefin biraz sağına gitti. Bu bir hatadır, bir sapmadır. İkinci atışınızda bu hatayı dikkate alarak nişanınızı hafifçe sola kaydırırsınız. İşte MA modeli de tam olarak bunu yapar. Modelin bir önceki adımdaki tahmin hatasını, yani öngöremediği o rastgele "şoku" bir sonraki tahminini düzeltmek için kullanır. Yani model, geçmişteki hatalarından ders çıkarır. Bu, serinin bugünkü değerinin, geçmişte yaşanan beklenmedik olaylardan veya hatalardan etkilendiği fikrine dayanır.
+
+    Daha teknik bir ifadeyle, MA süreci serinin kendisini değil, modelin hata terimini modeller. Bir MA(q) süreci, bugünkü değerin ($x_t$), serinin ortalaması ($\mu$), bugünkü rastgele şok ($\epsilon_t$) ve geçmişteki 'q' adet rastgele şokun ($\epsilon_{t-1}, ..., \epsilon_{t-q}$) ağırlıklı bir ortalamasının toplamı olduğunu söyler.
+
+    Matematiksel olarak şöyle ifade edilir:
+    $x_t = \mu + \epsilon_t + \theta_1 \epsilon_{t-1} + \theta_2 \epsilon_{t-2} + ... + \theta_q \epsilon_{t-q}$
+
+    Buradaki $\theta$ katsayıları, geçmiş hataların bugünkü değeri ne kadar etkilediğini belirler. İsimlendirme de işte bu formülden gelir: model, geçmiş hata terimlerinin "hareket eden" bir ortalamasını kullanır. Bu, serinin kısa süreli hafızasını modellemek için çok güçlü bir yöntemdir, çünkü bir şokun etkisinin birkaç dönem sonra kaybolduğunu varsayar.
+
+*   **I (Entegrasyon / Fark Alma - Integrated):** Gençler, şimdi ARIMA'nın ortasındaki 'I' harfine, yani bu modelin belki de en zekice kısmına gelelim. Birçok zaman serisi, özellikle ekonomi ve finansta, durağan değildir. Ne demek bu? Şöyle bir örnek düşünün: Yıllar içinde sürekli büyüyen bir şirketin satış verileri. Bu verinin grafiğini çizdiğinizde, zamanla yukarı doğru giden bir eğim, yani bir trend görürsünüz. Bu serinin ortalaması sabit değildir, sürekli artmaktadır.
+
+    Bu durum, modelleme için bir sorundur. Çünkü AR ve MA gibi modeller, serinin istatistiksel özelliklerinin zamanla değişmediği, yani durağan olduğu varsayımı üzerine kuruludur. Sürekli değişen bir hedefi vurmaya çalışmak gibi düşünün; çok daha zordur.
+
+    İşte "fark alma" (differencing) burada devreye giriyor. Madem serinin kendisini modellemek zor, o zaman serideki *değişimi* modelleyelim diyoruz. Yani, bugünkü satış rakamını tahmin etmek yerine, bugünkü satış ile dünkü satış arasındaki *farkı* tahmin etmeye çalışıyoruz. Bu işlem, genellikle serideki trendi ortadan kaldırır. Sürekli artan satışlar yerine, günlük artış veya azalışları incelediğimizde, genellikle ortalaması sıfır civarında dalgalanan, çok daha stabil ve durağan bir seri elde ederiz.
+
+    Bu işlemi matematiksel olarak ifade edersek, $x_t$ orijinal serimiz ise, birinci farkı alınmış seri $y_t = x_t - x_{t-1}$ olur. Eğer bu yeni $y_t$ serisi hala durağan değilse, işlemi bir kez daha uygulayabiliriz ($z_t = y_t - y_{t-1}$). Bir seriyi durağan hale getirmek için kaç kez fark alma işlemi uyguladığımız, ARIMA(p,d,q) modelindeki 'd' parametresini belirler.
+
+    "Integrated" (Entegre) terimi ise bu işlemin tersini ifade eder. Modelimiz, farkı alınmış seri için bir tahmin ürettikten sonra, bu tahmini tekrar orijinal serinin ölçeğine geri döndürmek, yani "entegre etmek" zorundayız. Kısacası, fark alma işlemiyle seriyi analiz edilebilir bir forma sokarız, modelleme yaparız ve sonra sonucu tekrar orijinal bağlamına entegre ederiz.
+
+Bu üç bileşen bir araya gelerek **ARIMA (p, d, q)** modelini oluşturur. Bu gösterimdeki harflerin teknik anlamları şöyledir:
+*   **p:** Otoregresif terim sayısı. Modelin ne kadar geçmişe bakacağını belirler.
+*   **d:** Fark alma işleminin derecesi. Seriyi durağan hale getirmek için kaç kez farkının alındığını gösterir.
+*   **q:** Hareketli ortalama terim sayısı. Modelin geçmişteki kaç adet tahmin hatasını dikkate alacağını belirtir.
+
+Bu süreci, verinin yapısını anlamak ve geleceği öngörmek için izlenen bir yol haritası olarak düşünebiliriz:
 
 <div align="center">
 <svg width="800" height="200" viewBox="0 0 800 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ARIMA Modelleme Süreci Akış Şeması">
@@ -1037,7 +1041,13 @@ Bu süreci bir yol haritası gibi düşünebiliriz:
 
 **1. Veriyi Görselleştirme ve Durağanlık Kontrolü**
 
-Klasik modellerin çoğu, serinin **durağan** olmasını, yani ortalama ve varyans gibi istatistiksel özelliklerinin zamanla değişmemesini varsayar. `AirPassengers` verisi açıkça durağan değildir; hem yolcu sayısı zamanla artmakta (trend) hem de dalgalanmaların boyutu büyümektedir (varyans artışı).
+Bir zaman serisi analizine başlarken ilk ve en önemli adım, veriyi görselleştirmektir. Veriyi bir grafik üzerinde görmek, onun genel yapısını, içerdiği desenleri ve potansiyel sorunları anlamanın en doğrudan yoludur. Tıpkı bir haritaya bakarak bir bölgeyi tanımak gibi, zaman serisi grafiği de bize verinin zaman içindeki davranışına dair ilk ipuçlarını verir. Bu sayede, seride bir artış veya azalış eğilimi (trend) olup olmadığını, belirli dönemlerde tekrar eden dalgalanmaların (mevsimsellik) bulunup bulunmadığını veya verinin değişkenliğinin zamanla değişip değişmediğini gözlemleyebiliriz.
+
+Görselleştirme sırasında dikkat ettiğimiz temel özelliklerden biri de serinin **durağan** olup olmadığıdır. Durağanlık, bir zaman serisinin istatistiksel özelliklerinin (ortalama, varyans ve otokorelasyon yapısı gibi) zamanla değişmemesi durumudur. Basitçe ifade etmek gerekirse, durağan bir seri, zamanın herhangi bir noktasında benzer davranışlar sergiler; gelecekteki davranışları geçmişteki davranışlarına benzer.
+
+Peki, neden durağanlık bu kadar önemlidir? Çünkü klasik istatistiksel zaman serisi modellerinin çoğu, serinin durağan olduğu varsayımı üzerine kuruludur. Eğer bir seri durağan değilse, bu modellerden elde edeceğimiz sonuçlar yanıltıcı olabilir veya modeller doğru bir şekilde uygulanamaz. Durağan olmayan bir seriyi modellemeye çalışmak, sürekli değişen bir hedefi vurmaya çalışmak gibidir; modelin öğrenmesi ve genellemesi çok daha zorlaşır.
+
+`AirPassengers` veri setini ele aldığımızda, bu serinin grafiği bize açıkça durağan olmadığını gösterir. Grafiğe baktığımızda, yıllar içinde havayolu yolcu sayısının sürekli bir artış eğilimi gösterdiğini, yani bir **trend** içerdiğini görürüz. Bununla birlikte, yolcu sayısındaki dalgalanmaların boyutu da zamanla büyümektedir; bu da serinin **varyansının zamanla arttığına** işaret eder. Bu tür bir davranış, serinin istatistiksel özelliklerinin zamanla değiştiğini ve dolayısıyla durağan olmadığını ortaya koyar. Bu gözlemler, modelleme öncesinde seriyi durağan hale getirmek için belirli dönüşümler yapmamız gerektiğini bize söyler.
 
 ```r
 # Gerekli paketler
@@ -1120,18 +1130,27 @@ print(fit)
 #> AIC=-483.4   AICc=-483.21   BIC=-474.77
 ```
 
-Fonksiyonun bizim için seçtiği `ARIMA(0,1,1)(0,1,1)[12]` modelini yorumlayalım. Bu, aslında bir Mevsimsel ARIMA, yani SARIMA modelidir.
+`auto.arima()` fonksiyonu, gençler, bizim için `ARIMA(0,1,1)(0,1,1)[12]` modelini seçti. Bu gösterim, zaman serimizin genel davranışını ve mevsimsel özelliklerini açıklayan bir tür matematiksel tariftir. Bu, aslında bir Mevsimsel ARIMA, yani SARIMA modelidir ve iki ana bölümden oluşur: biri serinin genel, mevsimsel olmayan değişimlerini, diğeri ise düzenli olarak tekrar eden mevsimsel kalıplarını ele alır.
 
-*   **`(0,1,1)` (Mevsimsel Olmayan Kısım):**
-    *   `d=1`: Serideki genel artış trendini ortadan kaldırmak için bir kez farkının alındığını gösterir ($Y'_t = Y_t - Y_{t-1}$).
-    *   `q=1`: Modelin, bir önceki aydaki tahmin hatasını (`ma1` katsayısıyla) hesaba kattığını belirtir. Bu, kısa vadeli şokların etkisini modellemeye yarar.
+Şimdi bu modelin her bir parçasını adım adım inceleyelim:
 
-*   **`(0,1,1)[12]` (Mevsimsel Kısım):**
-    *   `[12]`: Veride 12 aylık bir döngü, yani yıllık bir mevsimsellik olduğunu belirtir.
-    *   `D=1`: Bu yıllık mevsimsel deseni ortadan kaldırmak için serinin 12 ay önceki değerinden farkının alındığını gösterir ($Y''_t = Y'_t - Y'_{t-12}$).
-    *   `Q=1`: Modelin, geçen yılın aynı ayında yapılan tahmin hatasını (`sma1` katsayısıyla) hesaba kattığını belirtir. Bu sayede her yıl tekrarlayan mevsimsel etkiler daha iyi yakalanır.
+### Mevsimsel Olmayan Kısım: `(0,1,1)`
 
-Özetle, `auto.arima` bizim için oldukça mantıklı bir model buldu: Seri, hem genel trendden hem de yıllık mevsimsel etkiden arındırılıyor. Ardından, hem bir ay önceki hem de geçen yılın aynı ayındaki hatalardan ders çıkararak tahmin yapıyor. Şimdi bu modelin gerçekten işe yarayıp yaramadığını kontrol etmeliyiz.
+Bu ilk üç sayı, serinin genel, yıl boyunca devam eden eğilimlerini ve kısa vadeli ilişkilerini açıklar.
+
+*   **`d=1` (Fark Alma Derecesi):** Buradaki '1' değeri, modelin serideki genel artış veya azalış eğilimini (trend) ortadan kaldırmak için bir kez fark alma işlemi uyguladığını gösterir. Örneğin, yolcu sayısının kendisini doğrudan tahmin etmek yerine, model bir aydan diğerine olan *değişimi* tahmin etmeye odaklanır. Bu, seriyi daha durağan hale getirerek, yani istatistiksel özelliklerini zamanla daha sabit kılarak modellemeyi kolaylaştırır.
+*   **`q=1` (Hareketli Ortalama Derecesi):** İkinci '1' ise, modelin bir hareketli ortalama (MA) bileşeni içerdiğini belirtir. Bu, modelin bir önceki aydaki tahmin hatasını (yani modelin öngöremediği rastgele şoku) kullanarak mevcut tahmini düzeltmesi anlamına gelir. Basitçe ifade etmek gerekirse, model geçmişteki hatalarından ders çıkarır ve bu bilgiyi gelecekteki tahminlerini iyileştirmek için kullanır.
+*   **`p=0` (Otoregresif Derece):** İlk '0' değeri, modelin mevsimsel olmayan otoregresif (AR) bir bileşeni olmadığını gösterir. Bu, genel trend ve geçmiş tahmin hataları hesaba katıldıktan sonra, serinin mevcut değerinin doğrudan iki veya daha fazla ay önceki kendi değerlerine bağlı olmadığı anlamına gelir.
+
+### Mevsimsel Kısım: `(0,1,1)[12]`
+
+Bu ikinci üç sayı ve köşeli parantez içindeki sayı, serinin yıllık mevsimsel kalıplarını ele alır. Köşeli parantez içindeki `[12]` değeri, mevsimsel döngünün 12 aylık olduğunu, yani her yıl tekrar ettiğini gösterir.
+
+*   **`D=1` (Mevsimsel Fark Alma Derecesi):** Buradaki '1' değeri, modelin yıllık mevsimsel deseni ortadan kaldırmak için bir kez mevsimsel fark alma işlemi uyguladığını belirtir. Bu, örneğin bu Ocak ayındaki yolcu sayısını doğrudan geçen aykiyle değil, *geçen yılın Ocak ayındaki* yolcu sayısıyla karşılaştırarak mevsimsel trendi temizler. Bu işlem, her yıl tekrarlayan yaz yoğunluğu gibi kalıpları modelden ayırır.
+*   **`Q=1` (Mevsimsel Hareketli Ortalama Derecesi):** Bu '1' değeri, modelin mevsimsel hareketli ortalama (SMA) bileşeni içerdiğini gösterir. Bu, modelin geçen yılın aynı ayında yaptığı tahmin hatasını kullanarak mevcut mevsimsel tahmini düzeltmesi anlamına gelir. Örneğin, eğer model geçen yılın Temmuz ayında yolcu sayısını yanlış tahmin ettiyse, bu bilgiyi bu yılın Temmuz ayı tahminini daha doğru yapmak için kullanır.
+*   **`P=0` (Mevsimsel Otoregresif Derece):** Buradaki '0' değeri, modelin mevsimsel otoregresif bir bileşeni olmadığını gösterir. Bu, mevsimsel fark alma ve mevsimsel hareketli ortalama hataları hesaba katıldıktan sonra, serinin mevcut mevsimsel değerinin doğrudan iki veya daha fazla yıl önceki aynı ayın değerlerine bağlı olmadığı anlamına gelir.
+
+Özetle, `auto.arima` fonksiyonu bizim için oldukça mantıklı bir model seçmiştir. Bu model, hem serinin genel artış eğilimini hem de yıllık mevsimsel dalgalanmalarını fark alma işlemleriyle durağanlaştırır. Ardından, hem bir ay önceki hem de geçen yılın aynı ayındaki tahmin hatalarından ders çıkararak geleceğe yönelik tahminler yapar. Bu yaklaşım, `AirPassengers` gibi hem trend hem de belirgin mevsimsellik içeren serileri anlamak ve tahmin etmek için oldukça etkilidir. Şimdi bu modelin gerçekten işe yarayıp yaramadığını kontrol etmeliyiz.
 
 Gençler, şimdi modelleme sürecinin en kritik aşamasına geldik: kurduğumuz modelin gerçekten işe yarayıp yaramadığını nasıl anlarız?
 
@@ -1215,6 +1234,122 @@ Bu tahmin grafiğini basit bir şekilde görselleştirelim. Grafik, nokta tahmin
 </div>
 
 Bu grafik, modelin gelecekteki yolcu sayısını nasıl tahmin ettiğini görselleştirir. Mavi çizgi, tahmin edilen değerleri temsil ederken, gri alanlar tahminlerin güven aralıklarını gösterir. Güven aralıkları, tahminlerin ne kadar belirsiz olduğunu anlamamıza yardımcı olur. Gri alanların genişliği, belirsizliğin zamanla arttığını gösterir. Bu, modelin uzun vadeli tahminlerde daha az kesin olduğunu ifade eder.
+
+### Model Doğrulama: Eğitim ve Test Setleri ile AirPassengers Tahmini
+
+Gençler, bir zaman serisi modeli kurmak kadar, o modelin gerçek dünya performansını anlamak da hayati önem taşır. Bir modelin gerçekten başarılı olup olmadığını anlamanın en güvenilir yolu, onu daha önce hiç görmediği veriler üzerinde test etmektir. Tıpkı bir öğrencinin sadece çalıştığı soruları değil, hiç görmediği yeni soruları da çözebilmesi gibi, modelimizin de "bilmediği" geleceği ne kadar doğru tahmin edebildiğini görmeliyiz. Bu sürece **model doğrulama (model validation)** diyoruz.
+
+Bunu yapmak için, elimizdeki tüm veri setini ikiye ayırırız:
+1.  **Eğitim Seti (Training Set):** Modelimizi bu veri üzerinde "eğitiriz", yani geçmişteki desenleri, trendleri ve mevsimsel ilişkileri bu veriden öğrenmesini sağlarız. Modelin parametreleri bu set kullanılarak optimize edilir.
+2.  **Test Seti (Test Set):** Modelimiz eğitimini tamamladıktan sonra, bu seti kullanarak modelin geleceği ne kadar iyi tahmin edebildiğini ölçeriz. Bu, modelin genelleme yeteneğini, yani yeni ve bilinmeyen verilere ne kadar uyum sağlayabildiğini gösterir. Test seti, modelin performansını tarafsız bir şekilde değerlendirmemizi sağlar ve aşırı uyum (overfitting) riskini anlamamıza yardımcı olur.
+
+`AirPassengers` veri setimiz için bu ayrımı şöyle yapabiliriz:
+
+```r
+%%R
+# 'forecast' paketini yükle
+install.packages("forecast")
+# 'forecast' paketini yükle
+library(forecast)
+print("'forecast' paketi başarıyla yüklendi.")
+
+# 'ggplot2' paketini yükle
+install.packages("ggplot2")
+# 'ggplot2' paketini yükle
+library(ggplot2)
+print("'ggplot2' paketi başarıyla yüklendi.")
+
+# Veriyi eğitim ve test setlerine bölelim.
+# 1959 yılının sonuna kadar olan veriyi eğitim için kullanalım.
+# Unutmayın, daha önce logaritmik dönüşüm yapmıştık, bu yüzden burada da logaritmik seriyi kullanıyoruz.
+train <- window(log(AirPassengers), end=c(1959,12))
+
+# 1960 yılının başından itibaren olan veriyi ise test için ayıralım.
+test <- window(log(AirPassengers), start=c(1960,1))
+
+# Şimdi, modelimizi sadece eğitim setini kullanarak kuralım.
+# auto.arima fonksiyonu, en uygun SARIMA modelini otomatik olarak bulacaktır.
+# Bu adımda, modelin test setindeki verileri "görmediğinden" emin oluruz.
+fit_train <- auto.arima(train, seasonal=TRUE)
+
+# Modelimiz eğitimini tamamladıktan sonra, test setindeki dönemler için tahmin yapalım.
+# h parametresi, kaç adım ileriye tahmin yapacağımızı belirtir.
+# Burada, test setinin uzunluğu kadar (12 ay) ileriye tahmin yapıyoruz.
+fc_test <- forecast(fit_train, h=length(test))
+
+# Tahminlerimizi logaritmik ölçekte yapmıştık.
+# Gerçek değerlerle karşılaştırabilmek için tahminleri orijinal ölçeğe geri döndürmemiz gerekiyor.
+# Bunun için logaritmanın tersi olan üstel (exp) fonksiyonunu kullanırız.
+fc_test_exp <- exp(fc_test$mean)
+
+# Gerçek (test setindeki) değerler ile modelimizin tahmin ettiği değerleri yan yana görelim.
+# Test setindeki gerçek değerleri de orijinal ölçeğe geri döndürmeyi unutmayalım.
+comparison <- data.frame(Actual=exp(test), Predicted=fc_test_exp)
+print(comparison)
+
+# Modelimizin tahminlerinin ne kadar doğru olduğunu ölçmek için yaygın bir metrik olan
+# Kök Ortalama Kare Hatası'nı (RMSE - Root Mean Square Error) hesaplayalım.
+# RMSE, tahminlerimizin gerçek değerlerden ortalama ne kadar saptığını gösterir.
+# Değer ne kadar küçükse, tahminlerimiz o kadar iyidir.
+rmse <- sqrt(mean((comparison$Actual - comparison.Predicted)^2))
+cat("Test Seti RMSE:", rmse, "\n")
+
+png(filename="arima_forecast_comparison.png", width=800, height=600)
+plot(fc_test, main="Air Passengers Forecast (1960)", ylab="Air Passengers (log scale)", xlab="Year")
+lines(test, col='red')
+lines(fc_test$mean, col='blue', lty=2)
+legend("topleft", legend=c("Actual (log)", "Forecast Mean (log)"), col=c("red", "blue"), lty=c(1,2), cex=0.8)
+dev.off()
+
+# Orijinal ölçek karşılaştırması için ggplot2 kullanarak da bir grafik oluşturalım.
+
+# ts nesnesinin özelliklerinden tarih sırasını almak için yardımcı fonksiyon
+get_dates_from_ts <- function(ts_obj) {
+  start_date_str <- paste(start(ts_obj)[1], start(ts_obj)[2], "01", sep="-")
+  seq.Date(from = as.Date(start_date_str), by = "month", length.out = length(ts_obj))
+}
+
+# İlk olarak, tahmin edilen değerler için bir zaman serisi nesnesi oluşturalım (orijinal ölçek).
+predicted_ts <- ts(fc_test_exp, start=start(test), frequency=frequency(test))
+
+# ggplot için veri çerçeveleri oluşturalım
+full_actual_df <- data.frame(
+  Time = get_dates_from_ts(AirPassengers),
+  Value = as.numeric(AirPassengers),
+  Type = 'Actual'
+)
+
+test_actual_df_for_plot <- data.frame(
+  Time = get_dates_from_ts(test), # Gerçek test değerleri için tarihler
+  Value = as.numeric(exp(test)), # Orijinal ölçek gerçek test değerleri
+  Type = 'Actual Test'
+)
+
+predicted_df_for_plot <- data.frame(
+  Time = get_dates_from_ts(predicted_ts), # Tahminler için tarihler
+  Value = as.numeric(predicted_ts), # Orijinal ölçek tahmin edilen değerler
+  Type = 'Predicted'
+)
+
+# Tüm veri çerçevelerini birleştirelim
+plot_data <- rbind(full_actual_df, test_actual_df_for_plot, predicted_df_for_plot)
+
+ggplot(plot_data, aes(x = Time, y = Value, color = Type)) +
+  geom_line() +
+  labs(title = "Air Passengers: Gerçek ve Tahminler (Orijinal Ölçek)",
+       y = "Yolcu Sayısı",
+       x = "Yıl") +
+  theme_minimal() +
+  scale_color_manual(values = c("Actual" = "black", "Actual Test" = "red", "Predicted" = "blue"))
+
+ggsave("arima_forecast_original_scale.png", width = 10, height = 6, dpi = 300)
+
+print("Tahmin grafikleri arima_forecast_comparison.png ve arima_forecast_original_scale.png olarak kaydedildi.")
+```
+
+Bu adımlarla, modelimizin daha önce hiç görmediği 1960 yılındaki yolcu sayılarını ne kadar başarılı bir şekilde tahmin edebildiğini sayısal olarak görmüş oluruz. Elde ettiğimiz RMSE değeri, modelimizin bu "yeni" veriler üzerindeki ortalama tahmin hatasını, orijinal yolcu sayısı birimi cinsinden bize söyler. Örneğin, RMSE değeri 20 ise, modelimizin ortalama olarak gerçek değerlerden 20 yolcu saptığını anlayabiliriz. Bu, modelimizin gerçek dünya performansına dair önemli bir göstergedir.
+
+![ARIMA Forecast Comparison](images/airpassenger.png)
 
 Tahminler, modelin geçmiş verilerde öğrendiği trend ve mevsimsellik gibi yapıları geleceğe taşıyarak yapılır. Ancak, bu tür modellerin doğrusal varsayımlara dayandığını ve karmaşık, doğrusal olmayan ilişkileri modellemede yetersiz kalabileceğini unutmamak gerekir. Bu gibi durumlarda, yapay zeka tabanlı yöntemler daha etkili olabilir.
 
