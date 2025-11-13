@@ -1213,25 +1213,7 @@ grid()
 
 Bu tahmin grafiğini basit bir şekilde görselleştirelim. Grafik, nokta tahminlerini (mavi çizgi) ve %80 ile %95'lik güven aralıklarını (gri gölgeli alanlar) temsil eder.
 
-<div align="center">
-<svg width="600" height="300" viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Gelecek 24 Ay için Yolcu Sayısı Tahmini">
-    <!-- Arka plan -->
-    <rect width="100%" height="100%" fill="#fff"/>
-    <!-- Eksenler -->
-    <line x1="50" y1="250" x2="550" y2="250" stroke="#333" stroke-width="1.5"/>
-    <line x1="50" y1="50" x2="50" y2="250" stroke="#333" stroke-width="1.5"/>
-    <!-- Güven aralıkları -->
-    <polygon points="50,200 100,180 150,160 200,140 250,130 300,120 350,130 400,140 450,160 500,180 550,200 550,220 500,210 450,190 400,170 350,160 300,150 250,160 200,180 150,200 100,220 50,240" fill="#d3d3d3" stroke="none"/>
-    <polygon points="50,190 100,170 150,150 200,130 250,120 300,110 350,120 400,130 450,150 500,170 550,190 550,210 500,200 450,180 400,160 350,150 300,140 250,150 200,170 150,190 100,210 50,230" fill="#b0b0b0" stroke="none"/>
-    <!-- Nokta tahminleri -->
-    <polyline points="50,190 100,170 150,150 200,130 250,120 300,110 350,120 400,130 450,150 500,170 550,190" stroke="#0074D9" stroke-width="2" fill="none"/>
-    <!-- Etiketler -->
-    <text x="300" y="280" font-size="14" text-anchor="middle" fill="#333">Zaman (Aylar)</text>
-    <text x="20" y="150" font-size="14" text-anchor="middle" fill="#333" transform="rotate(-90,20,150)">Yolcu Sayısı</text>
-    <text x="300" y="30" font-size="16" font-weight="bold" text-anchor="middle" fill="#222">Gelecek 24 Ay için Yolcu Sayısı Tahmini</text>
-    <text x="300" y="50" font-size="12" text-anchor="middle" fill="#555">Mavi çizgi: Nokta tahminleri, Gri alanlar: Güven aralıkları</text>
-</svg>
-</div>
+
 
 Bu grafik, modelin gelecekteki yolcu sayısını nasıl tahmin ettiğini görselleştirir. Mavi çizgi, tahmin edilen değerleri temsil ederken, gri alanlar tahminlerin güven aralıklarını gösterir. Güven aralıkları, tahminlerin ne kadar belirsiz olduğunu anlamamıza yardımcı olur. Gri alanların genişliği, belirsizliğin zamanla arttığını gösterir. Bu, modelin uzun vadeli tahminlerde daha az kesin olduğunu ifade eder.
 
@@ -1355,38 +1337,308 @@ Tahminler, modelin geçmiş verilerde öğrendiği trend ve mevsimsellik gibi ya
 
 ### 2. Yapay Zeka ile Zaman Serisi Analizi
 
-Klasik istatistiksel modellerin varsayımlarını karşılamayan karmaşık ve doğrusal olmayan ilişkileri modellemek için yapay zeka yöntemleri giderek daha fazla kullanılmaktadır.
+Gençler, şimdiye kadar gördüğümüz ARIMA gibi klasik modeller, verideki doğrusal yapıları ve düzenli kalıpları yakalamada oldukça başarılıdır. Ancak gerçek dünya verileri her zaman bu kadar öngörülebilir değildir. Bazen serinin içindeki ilişkiler o kadar karmaşık ve doğrusal değildir ki, bu istatistiksel modeller yetersiz kalır. İşte bu noktada, daha esnek ve güçlü araçlara, yani yapay zeka tabanlı modellere yöneliyoruz.
 
--   **Makine Öğrenmesi (Machine Learning):**
-    *   **Yaklaşım:** Zaman serisi problemi, denetimli bir öğrenme problemine dönüştürülür. Geçmiş değerler (örn: $x_{t-1}, x_{t-2}, ...$) girdi (özellik), gelecekteki değer ($x_t$) ise çıktı (hedef) olarak kullanılır.
-    *   **Örnek:** Bir mağazanın günlük müşteri sayısını tahmin etmek için Gradient Boosting veya Random Forest gibi modeller kullanılabilir. Girdi özellikleri olarak geçmiş müşteri sayıları (lag features), haftanın günü, ay, tatil olup olmadığı gibi takvim özellikleri ve promosyon bilgileri verilebilir.
--   **Derin Öğrenme (Deep Learning):**
-    *   **LSTM (Long Short-Term Memory) ve GRU (Gated Recurrent Unit):** Bu tekrarlayan sinir ağı (RNN) mimarileri, zaman serilerindeki uzun vadeli bağımlılıkları öğrenmek için tasarlanmıştır. Standart RNN'lerin karşılaştığı "kaybolan gradyan" (vanishing gradient) sorununu, "kapı" (gate) mekanizmaları sayesinde aşarlar (Hochreiter & Schmidhuber, 1997).
-    *   **Transformer Modelleri:** Başlangıçta doğal dil işleme için geliştirilen "dikkat mekanizması" (attention mechanism) tabanlı bu modeller, zaman serisi tahmininde de son derece başarılı sonuçlar vermektedir. Özellikle çok uzun serilerdeki bağımlılıkları yakalamada LSTM'den daha etkili olabilirler.
+#### Makine Öğrenmesi Yaklaşımı: Problemi Yeniden Çerçevelemek
 
-    **LSTM Hücresinin Kavramsal Çalışması:**
-    ```mermaid
-    graph TD
-        subgraph "LSTM Hücresi"
-            direction LR
-            C_prev[Önceki Hücre Durumu c_t-1] --> ForgetGate{Unutma Kapısı};
-            Input[Girdi x_t] --> ForgetGate;
-            H_prev[Önceki Gizli Durum h_t-1] --> ForgetGate;
+Bu yaklaşımın temelinde zekice bir fikir yatar: Zaman serisi problemini, bildiğimiz bir **denetimli öğrenme (supervised learning)** problemine dönüştürmek.
 
-            Input --> InputGate{Giriş Kapısı};
-            H_prev --> InputGate;
+Normalde bir zaman serisi tek bir sütundan oluşur: zaman ve değer. Denetimli öğrenme ise birden çok girdi özelliği (`X`) ve bir çıktı hedefi (`y`) gerektirir. Peki bu dönüşümü nasıl yaparız? Cevap, **özellik mühendisliği (feature engineering)** ile geçmişi geleceği tahmin etmek için birer ipucu olarak kullanmaktır.
 
-            ForgetGate -- Karar: Neyi Unut? --> CellStateUpdate(Hücre Durumunu Güncelle);
-            InputGate -- Karar: Neyi Ekle? --> CellStateUpdate;
-            CellStateUpdate --> C_next[Yeni Hücre Durumu c_t];
+*   **Yaklaşım:** "Bugünkü değeri" tahmin etmek için, "dünkü değer", "geçen haftanın aynı günündeki değer" gibi geçmiş bilgileri modelimize birer **özellik (feature)** olarak sunarız. Tahmin etmeye çalıştığımız "bugünkü değer" ise **hedef (target)** olur.
 
-            C_next --> OutputGate{Çıkış Kapısı};
-            Input --> OutputGate;
-            H_prev --> OutputGate;
-            OutputGate -- Karar: Neyi Çıktı Ver? --> H_next[Yeni Gizli Durum h_t];
-        end
-        C_prev --> C_next;
-    ```
+Matematiksel olarak ifade edersek, $x_t$ değerini tahmin etmek için şöyle bir fonksiyon öğrenmeye çalışırız:
+
+$$
+x_t = f(x_{t-1}, x_{t-2}, ..., \text{haftanın günü}, \text{ay}, \text{tatil mi?}, ...)
+$$
+
+Bu dönüşümü yaptıktan sonra, Gradient Boosting, Random Forest veya XGBoost gibi güçlü makine öğrenmesi algoritmalarını kullanarak bu fonksiyonu ($f$) modelleyebiliriz. Bu yöntem, özellikle takvim etkileri (hafta sonları, tatiller) veya promosyon gibi dışsal faktörlerin önemli olduğu durumlarda çok etkilidir.
+
+#### Derin Öğrenme Yaklaşımı: Serinin Hafızasını Modellemek
+
+Şimdi, zaman serisi analizinin daha derinlerine inelim ve özellikle sıralı verilerdeki karmaşık bağımlılıkları öğrenmek için tasarlanmış özel sinir ağı mimarilerine bakalım.
+
+*   **LSTM (Long Short-Term Memory):**
+    Tekrarlayan Sinir Ağları (RNN), en temel haliyle bir "hafızaya" sahip ağlardır. Bir adımdaki hesaplamadan elde ettikleri bilgiyi bir sonraki adıma aktarırlar. Ancak bu temel hafıza, ne yazık ki biraz zayıftır. Uzun bir cümledeki ilk kelimeyi, cümlenin sonuna geldiğinde unutabilir. Buna teknik olarak **kaybolan gradyan (vanishing gradient)** sorunu diyoruz.
+
+    İşte bu sorunu çözmek için LSTM mimarisi geliştirilmiştir. LSTM'in sırrı, **kapı (gate)** adını verdiğimiz akıllı kontrol mekanizmalarındadır. Bu kapılar, hücrenin hafızasına hangi bilginin girip, hangisinin kalıp, hangisinin de çıkacağına karar verir. Bu yapı, ağın hangi bilgiyi uzun süre saklayacağını ve hangisini unutacağını öğrenmesini sağlar.
+
+    Bir LSTM hücresinin üç temel kapısı vardır:
+    1.  **Unutma Kapısı (Forget Gate):** Geçmiş hafızadan hangi bilgilerin artık gereksiz olduğuna karar verir ve onları siler.
+    2.  **Giriş Kapısı (Input Gate):** Yeni gelen bilgiden hangi kısımların önemli olduğuna karar verir ve bunları hafızaya ekler.
+    3.  **Çıkış Kapısı (Output Gate):** Mevcut hafızaya ve yeni girdiye bakarak, bu zaman adımı için ne tür bir çıktı üreteceğine karar verir.
+
+    Aşağıdaki şema, bir LSTM hücresinin bu içsel çalışma mekanizmasını kavramsal olarak göstermektedir. Hücre durumu ($C_t$), bilgiyi uzun süre taşıyan bir "hafıza bandı" gibidir ve kapılar bu bant üzerindeki bilgi akışını kontrol eder.
+
+![LSTM Hücresi Şeması](/images/lstm.svg)
+
+*   **Transformer Modelleri:**
+    Başlangıçta doğal dil işleme (NLP) alanında devrim yaratmak için geliştirilen Transformer mimarisi, zaman serisi tahmininde de son derece başarılı sonuçlar vermektedir. LSTM'in aksine, veriyi adım adım sıralı bir şekilde işlemez. Bunun yerine, **dikkat mekanizması (attention mechanism)** adı verilen bir yapı sayesinde serinin tamamına aynı anda "bakar" ve geleceği tahmin etmek için geçmişteki hangi zaman noktalarının daha önemli olduğuna kendisi karar verir. Bu, özellikle çok uzun serilerdeki uzak ama önemli ilişkileri yakalamada Transformer'ı LSTM'den daha etkili kılabilir.
+
+## Zaman Serisi Analizi: ARIMA ve LSTM Modelleri ile Tahmin
+
+Bugünkü dersimizde popüler bir veri seti olan "AirPassengers" verisini kullanarak geleceğe yönelik tahminler yapmaya çalışacağız. Bu süreçte iki önemli modeli, ARIMA ve LSTM'i, adım adım nasıl kodlayacağımızı ve sonuçlarını nasıl yorumlayacağımızı öğreneceğiz.
+
 
 ---
 
+### Bölüm 1: Veri Setinin Yüklenmesi ve Hazırlanması
+
+Öncelikle gerekli kütüphaneleri projemize dahil ederek ve veri setimizi yükleyerek işe koyulalım.
+
+```python
+# Gerekli kütüphaneleri içe aktarıyoruz.
+import pandas as pd  # Veri manipülasyonu ve analizi için temel kütüphane.
+import numpy as np  # Sayısal hesaplamalar için temel kütüphane.
+import matplotlib.pyplot as plt  # Veri görselleştirme için kullanılır.
+from statsmodels.tsa.seasonal import seasonal_decompose  # Zaman serisi bileşenlerini ayrıştırmak için.
+from pmdarima.datasets import load_airpassengers  # AirPassengers veri setini yüklemek için.
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf # ACF ve PACF grafikleri için
+from pmdarima import auto_arima # En uygun ARIMA modelini bulmak için
+from sklearn.preprocessing import MinMaxScaler # Veriyi belirli bir aralığa ölçeklemek için
+from tensorflow.keras.models import Sequential # Katmanları sıralı bir şekilde ekleyebileceğimiz model türü
+from tensorflow.keras.layers import LSTM, Dense # LSTM katmanı ve tam bağlantılı katman
+from sklearn.metrics import mean_squared_error # Hata metriklerinden Ortalama Kare Hata
+```
+
+Şimdi veri setimizi yükleyelim ve bir göz atalım.
+
+```python
+# AirPassengers veri setini pmdarima kütüphanesi yardımıyla yüklüyoruz.
+# as_series=True parametresi ile veriyi bir Pandas Serisi olarak alıyoruz.
+data = load_airpassengers(as_series=True)
+
+# Verinin ilk beş satırını görüntüleyelim.
+print(data.head())
+
+# Veriyi görselleştirelim.
+plt.figure(figsize=(12, 6))
+plt.plot(data)
+plt.title('Aylık Hava Yolu Yolcu Sayıları (1949-1960)')
+plt.xlabel('Yıl')
+plt.ylabel('Yolcu Sayısı')
+plt.show()
+```
+
+Grafikten de görebileceğiniz gibi, zamanla yolcu sayısında genel bir artış trendi ve her yıl tekrar eden döngüsel hareketler yani mevsimsellik bulunmaktadır.
+
+### Bölüm 2: ARIMA Modeli ile Tahmin
+
+ARIMA (Autoregressive Integrated Moving Average), zaman serisi tahminleri için yaygın olarak kullanılan istatistiksel bir modeldir. Geçmiş değerlere ve geçmiş tahmin hatalarına dayanır.
+
+
+```python
+# ACF ve PACF grafiklerini çizdirelim
+fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(12, 8))
+
+# Orijinal veri için ACF grafiği
+plot_acf(data, ax=ax1, lags=40)
+ax1.set_title('Otorelasyon Fonksiyonu (ACF)')
+
+# Orijinal veri için PACF grafiği
+plot_pacf(data, ax=ax2, lags=40)
+ax2.set_title('Kısmi Otorelasyon Fonksiyonu (PACF)')
+
+plt.tight_layout()
+plt.show()
+```
+
+ACF grafiğinin yavaşça azalması, serinin durağan olmadığının bir göstergesidir. Bu, trendin varlığını teyit eder.
+
+#### 2.3. Veriyi Eğitim ve Test Olarak Ayırma
+
+Modelimizin performansını ölçmek için verinin son 5 yılını (60 ay) test seti, geri kalanını ise eğitim seti olarak ayıralım.
+
+```python
+# Veri setini eğitim ve test olarak ayırıyoruz. Son 60 ay test verisi olacak.
+train_data = data[:-60]
+test_data = data[-60:]
+```
+
+#### 2.4. `auto_arima` ile En Uygun Modeli Bulma
+
+ARIMA modelinin (p, d, q) ve mevsimsel (P, D, Q, m) parametrelerini manuel olarak belirlemek yerine, bu işi bizim için otomatik olarak yapan `auto_arima` fonksiyonunu kullanabiliriz. Bu fonksiyon, farklı parametre kombinasyonlarını deneyerek en düşük AIC (Akaike Information Criterion) değerine sahip modeli bulur. Düşük AIC değeri, modelin verilere daha iyi uyum sağladığını gösterir.
+
+```python
+# auto_arima fonksiyonunu kullanarak en uygun ARIMA modelini buluyoruz.
+# seasonal=True, veride mevsimsellik olduğunu belirtir.
+# m=12, mevsimsel döngünün 12 ay olduğunu (yıllık) ifade eder.
+# stepwise=True, daha hızlı bir arama algoritması kullanır.
+auto_model = auto_arima(train_data,
+                        seasonal=True,
+                        m=12,
+                        stepwise=True,
+                        suppress_warnings=True,
+                        trace=True)
+
+# Bulunan en iyi modelin özetini yazdırıyoruz.
+print(auto_model.summary())
+```
+`auto_arima`'nın çıktısı, en uygun modelin parametrelerini (örneğin, SARIMAX(p,d,q)(P,D,Q)m) ve diğer istatistiksel bilgileri bize verecektir.
+
+#### 2.5. Tahmin ve Değerlendirme
+
+Şimdi, bulduğumuz en iyi modeli kullanarak test verimiz için tahminler yapalım ve gerçek değerlerle karşılaştıralım.
+
+```python
+# Test seti için tahminler yapıyoruz. n_periods, tahmin edilecek dönem sayısını belirtir.
+predictions_arima = auto_model.predict(n_periods=len(test_data))
+
+# Tahminleri, test verisi ile aynı indekse sahip bir Pandas Serisine dönüştürelim.
+predictions_arima = pd.Series(predictions_arima, index=test_data.index)
+
+# Gerçek değerler ve tahminleri görselleştirelim.
+plt.figure(figsize=(12, 6))
+plt.plot(train_data, label='Eğitim Verisi')
+plt.plot(test_data, label='Gerçek Değerler (Test)', color='orange')
+plt.plot(predictions_arima, label='ARIMA Tahminleri', color='green')
+plt.title('ARIMA Modeli ile Yolcu Sayısı Tahmini')
+plt.xlabel('Yıl')
+plt.ylabel('Yolcu Sayısı')
+plt.legend()
+plt.show()
+
+# Modelin performansını Ortalama Kare Hata (RMSE) ile ölçelim.
+rmse_arima = np.sqrt(mean_squared_error(test_data, predictions_arima))
+print(f'ARIMA Modeli RMSE Değeri: {rmse_arima}')
+```
+
+---
+
+### Bölüm 3: LSTM Modeli ile Tahmin
+
+LSTM (Long Short-Term Memory), özellikle sıralı veriler ve zaman serileri için çok uygun olan bir tür tekrarlayan sinir ağıdır (RNN). Geçmişteki uzun süreli bağımlılıkları öğrenebilme yeteneği sayesinde karmaşık zaman serisi desenlerini yakalayabilir.
+
+#### 3.1. Veri Ön İşleme
+
+Sinir ağları, genellikle 0 ile 1 veya -1 ile 1 arasında ölçeklendirilmiş verilerle daha iyi çalışır. Bu nedenle, `MinMaxScaler` kullanarak verimizi 0-1 aralığına ölçekleyeceğiz.
+
+```python
+# Veriyi bir numpy dizisine dönüştürüp yeniden şekillendiriyoruz.
+# Çünkü scaler 2 boyutlu bir dizi bekler.
+dataset = data.values.reshape(-1, 1)
+dataset = dataset.astype('float32') # Veri tipini float yapıyoruz.
+
+# Veriyi 0-1 aralığına ölçekliyoruz.
+scaler = MinMaxScaler(feature_range=(0, 1))
+dataset_scaled = scaler.fit_transform(dataset)
+```
+
+#### 3.2. Eğitim ve Test Verisini Oluşturma
+
+LSTM modeli için de veriyi eğitim ve test olarak ayırmamız gerekiyor. ARIMA'da olduğu gibi son 60 ayı test için kullanacağız.
+
+```python
+# Ölçeklenmiş veriyi eğitim ve test olarak ayırıyoruz.
+train_size = len(dataset_scaled) - 60
+test_size = len(dataset_scaled) - train_size
+train_scaled, test_scaled = dataset_scaled[0:train_size,:], dataset_scaled[train_size:len(dataset_scaled),:]
+```
+
+LSTM, bir dizi geçmiş adıma bakarak bir sonraki adımı tahmin etmeyi öğrenir. Bu nedenle, verimizi "girdi dizileri (X)" ve "çıktı değerleri (y)" formatına dönüştüren bir fonksiyon yazmamız gerekiyor. Örneğin, son 12 ayın yolcu sayısına bakarak bir sonraki ayı tahmin etmeyi öğretebiliriz.
+
+```python
+# Belirli bir geçmişe bakarak geleceği tahmin edecek şekilde veri seti oluşturan fonksiyon.
+def create_dataset(dataset, look_back=1):
+    dataX, dataY = [], []
+    for i in range(len(dataset)-look_back-1):
+        a = dataset[i:(i+look_back), 0]
+        dataX.append(a)
+        dataY.append(dataset[i + look_back, 0])
+    return np.array(dataX), np.array(dataY)
+
+# look_back değeri, bir sonraki adımı tahmin etmek için kaç önceki zaman adımının kullanılacağını belirtir.
+# Genellikle mevsimsellik periyodu (bizim durumumuzda 12 ay) iyi bir başlangıç noktasıdır.
+look_back = 12
+trainX, trainY = create_dataset(train_scaled, look_back)
+testX, testY = create_dataset(test_scaled, look_back)
+
+# LSTM katmanı [örneklem sayısı, zaman adımı sayısı, özellik sayısı] formatında girdi bekler.
+# Bu yüzden X verilerini yeniden şekillendiriyoruz.
+trainX = np.reshape(trainX, (trainX.shape[0], trainX.shape[1], 1))
+testX = np.reshape(testX, (testX.shape[0], testX.shape[1], 1))
+```
+
+#### 3.3. LSTM Modelini Oluşturma ve Eğitme
+
+Şimdi Keras kütüphanesini kullanarak basit bir LSTM modeli oluşturalım. Modelimiz bir LSTM katmanı ve bir çıktı katmanından (Dense) oluşacak.
+
+```python
+# LSTM modelini oluşturuyoruz.
+model_lstm = Sequential()
+# LSTM katmanını ekliyoruz. 50, katmandaki nöron (veya hafıza birimi) sayısını belirtir.
+# input_shape, girdi verisinin boyutunu belirtir (zaman adımı sayısı, özellik sayısı).
+model_lstm.add(LSTM(50, input_shape=(look_back, 1)))
+# Çıktı katmanını ekliyoruz. 1 nöron, tek bir değer tahmini yapacağımızı gösterir.
+model_lstm.add(Dense(1))
+
+# Modeli derliyoruz. Kayıp fonksiyonu olarak 'mean_squared_error' ve
+# optimizasyon algoritması olarak 'adam' kullanıyoruz.
+model_lstm.compile(loss='mean_squared_error', optimizer='adam')
+
+# Modeli eğitiyoruz.
+# epochs, tüm eğitim verisinin model üzerinden kaç kez geçirileceğini belirtir.
+# batch_size, bir iterasyonda modelin göreceği örneklem sayısını belirtir.
+# verbose=2, eğitim sürecini daha az detaylı gösterir.
+model_lstm.fit(trainX, trainY, epochs=100, batch_size=1, verbose=2)
+```
+
+#### 3.4. Tahmin ve Değerlendirme
+
+Modeli eğittikten sonra, hem eğitim hem de test verileri üzerinde tahminler yapalım ve sonuçları orijinal ölçeğe geri dönüştürelim.
+
+```python
+# Eğitim ve test verileri için tahminler yapıyoruz.
+train_predict = model_lstm.predict(trainX)
+test_predict = model_lstm.predict(testX)
+
+# Tahminleri orijinal ölçeğe geri dönüştürüyoruz.
+train_predict = scaler.inverse_transform(train_predict)
+trainY_inv = scaler.inverse_transform([trainY])
+test_predict = scaler.inverse_transform(test_predict)
+testY_inv = scaler.inverse_transform([testY])
+
+# Modelin performansını Ortalama Kare Hata (RMSE) ile ölçelim.
+rmse_lstm = np.sqrt(mean_squared_error(testY_inv[0], test_predict[:,0]))
+print(f'LSTM Modeli RMSE Değeri: {rmse_lstm}')
+
+# Tahminleri görselleştirelim.
+plt.figure(figsize=(15, 7))
+
+# Eğitim verisi tahminlerini çizmek için bir zaman ekseni oluşturuyoruz.
+train_predict_plot = np.empty_like(dataset)
+train_predict_plot[:, :] = np.nan
+train_predict_plot[look_back:len(train_predict)+look_back, :] = train_predict
+
+# Test verisi tahminlerini çizmek için bir zaman ekseni oluşturuyoruz.
+test_predict_plot = np.empty_like(dataset)
+test_predict_plot[:, :] = np.nan
+# Test tahminlerinin başlangıç noktasını doğru hesaplamak önemli.
+test_start_index = len(train_predict) + (look_back * 2) + 1
+test_predict_plot[test_start_index:len(dataset)-1, :] = test_predict
+
+# Grafikleri çizdiriyoruz.
+plt.plot(scaler.inverse_transform(dataset_scaled), label='Orijinal Veri')
+plt.plot(train_predict_plot, label='Eğitim Tahminleri (LSTM)')
+plt.plot(test_predict_plot, label='Test Tahminleri (LSTM)', color='orange')
+plt.title('LSTM Modeli ile Yolcu Sayısı Tahmini')
+plt.xlabel('Zaman Adımı')
+plt.ylabel('Yolcu Sayısı')
+plt.legend()
+plt.show()
+
+```
+### Sonuçların Karşılaştırılması
+
+Artık her iki modelin de test seti üzerindeki performansını (RMSE değerlerini) karşılaştırabiliriz.
+
+```python
+print(f'ARIMA Modeli RMSE Değeri: {rmse_arima}')
+print(f'LSTM Modeli RMSE Değeri: {rmse_lstm}')
+```
+
+
+Genellikle, bu tür klasik zaman serilerinde iyi ayarlanmış bir ARIMA modeli oldukça başarılı sonuçlar verir. LSTM gibi derin öğrenme modelleri ise daha fazla veriye sahip, daha karmaşık ve doğrusal olmayan desenler içeren problemlerde gerçekten parlar.
+
+Not: Her problemin kendine özgü dinamikleri vardır ve en iyi modeli bulmak için denemeler yapmak ve sonuçları dikkatle analiz etmek önemlidir.
