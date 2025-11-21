@@ -2003,3 +2003,53 @@ Gençler, bu noktada "Hocam, neden LSTM varken bunu kullanalım?" diye düşüne
 3.  **Karma Kullanım:** Modern araştırmalarda sıkça **CNN-LSTM** hibrit modelleri görürsünüz. Önce CNN ile verideki önemli şekiller ve özellikler çıkarılır, sonra bu özellikler LSTM'e verilerek zamansal ilişki kurulur. Bu, her iki dünyanın da en iyi yanlarını almak demektir.
 
 Bu örnekle birlikte çantanızda dört güçlü araç oldu: İstatistiksel (ARIMA), Sinir Ağı (LSTM), Ağaç Tabanlı (XGBoost) ve Desen Tabanlı (CNN). Veri bilimci olarak ustalığınız, verinin yapısına bakıp "Burada CNN daha iyi çalışır çünkü tekrarlayan kısa desenler var" veya "Burada Prophet kullanmalıyım çünkü bayram tatilleri veriyi bozuyor" diyebilmektir.
+
+## Gretl ile Zaman Serisi Analizi
+Gençler, Python ve R gibi dillerde kod yazarak veriyi ilmek ilmek işledik. Bu yöntemler, modelin her parçasına hükmetmemizi sağlar ve esneklikleri sınırsızdır. Ancak akademik ve endüstriyel çalışmalarda bazen tekerleği yeniden icat etmeden, standart istatistiksel testleri hızlıca uygulamak ve sonuçları görsel arayüz üzerinden yorumlamak isteriz. İşte bu noktada, "Açık Kaynaklı Ekonometri Yazılımı" olan **Gretl** devreye girer.
+
+Gretl, yapay zeka veya derin öğrenme (Deep Learning) odaklı bir araç değildir. Daha çok klasik ekonometrik analizler, yani ARIMA gibi istatistiksel temelli modeller için tasarlanmıştır. Ancak bir veri bilimci için Gretl, kod yazmaya başlamadan önce veriyi "tanıma" ve "teşhis koyma" aşamasında çok güçlü bir laboratuvardır.
+
+### Gretl ile Analiz Süreci
+
+AirPassengers verisini Gretl'da incelemek, kod satırları arasında kaybolmadan verinin matematiğini görmemizi sağlar. Adım adım ilerleyelim.
+
+**1. Veri Aktarımı ve Tanımlama**
+Python'da veriyi yükleyip tarih formatını `pd.to_datetime` ile biz ayarlıyorduk. Gretl'da ise süreç bir "sihirbaz" (wizard) yardımıyla ilerler.
+*   Gretl’ı açıp `File -> Open Data -> Import -> CSV` yolunu izleyerek AirPassengers dosyasını seçersiniz.
+*   Program size hemen sorar: "Bu veriyi içe aktardım ama yapısı nedir?"
+*   Seçmeniz gereken şudur: **Time Series (Zaman Serisi)**.
+*   Daha sonra frekansı sorar. Verimiz aylık olduğu için **Monthly** seçeneğini işaretleriz. Başlangıç tarihi olarak da **1949-01** gireriz.
+
+Bu işlem bittiğinde, Gretl artık bu sütunun sadece sayılardan ibaret olmadığını, aylık periyotlarla ilerleyen bir zaman serisi olduğunu bilir.
+
+**2. Görselleştirme ve Durağanlık**
+Python'da durağanlık için ADF (Augmented Dickey-Fuller) testi kodunu kütüphaneden çağırıyorduk. Gretl'da bu işlem menülerde hazırdır.
+*   Değişkenin üzerine sağ tıklayıp `Time series plot` dediğinizde trendi ve mevsimselliği net bir şekilde gösteren grafiği açar.
+*   Daha önemlisi, `Variable -> Unit root tests -> Augmented Dickey-Fuller` yolunu izlediğinizde, size saniyeler içinde o karmaşık istatistiksel raporu sunar. P-değerine (p-value) bakarak serinin durağan olup olmadığına (fark alıp almamamız gerektiğine) karar veririz.
+
+**3. ARIMA Modellemesi (X-12-ARIMA)**
+Hatırlarsanız Python'da `(p,d,q)` değerlerini bulmak için döngüler kuruyor veya ACF/PACF grafiklerini yorumluyorduk. Gretl bu süreci oldukça şeffaflaştırır.
+
+*   Menüden `Model -> Time series -> ARIMA` seçeneğine gidin.
+*   Karşınıza çıkan pencere, kod yazarken parametre girdiğimiz yerin görsel halidir.
+    *   **Dependent Variable:** Yolcu sayısı (#Passengers).
+    *   **Non-seasonal:** Burada `p` (AR), `d` (Fark) ve `q` (MA) değerlerini gireriz.
+    *   **Seasonal:** AirPassengers verisi mevsimsel olduğu için burası kritiktir. Mevsimsel fark (Seasonal Difference - D) kısmını 1 yaparız. Mevsimsel AR ve MA terimlerini de buradan ekleriz.
+
+Modeli çalıştırdığınızda (OK tuşuna bastığınızda), Gretl size Python'daki `summary()` çıktısına benzer ama çok daha detaylı bir "Model Tablosu" sunar.
+
+### Gretl Çıktısının Yorumlanması
+
+Burada odaklanmanız gereken şey, yapay zeka algoritmalarındaki gibi sadece "tahmin başarısı" (RMSE) değildir. Gretl bize modelin **istatistiksel güvenilirliğini** söyler.
+
+1.  **Katsayıların Anlamlılığı:** Tabloda her parametrenin yanında yıldızlar (*) veya p-değerleri görürsünüz. Eğer bir parametrenin p-değeri 0.05'ten büyükse, Gretl bize "Gençler, bu parametreyi modele eklediniz ama aslında sonuca bir katkısı yok, bunu çıkarın" demektedir. LSTM veya XGBoost bunu size doğrudan söylemez, sadece sonucu verir.
+2.  **Bilgi Kriterleri (AIC ve BIC):** Tablonun altında bu iki değeri görürsünüz. Farklı ARIMA modelleri denediğinizde (örneğin (1,1,1) yerine (2,1,2) denediğinizde), bu değerler hangisinde daha düşükse o model matematiksel olarak daha verimlidir.
+3.  **Hata Analizi:** Gretl, `Graphs -> Residual plot` seçeneği ile hataların grafiğini çizer. Eğer bu grafik rastgele gürültüden (white noise) farklı bir desen içeriyorsa, modeliniz verideki tüm bilgiyi emememiş demektir.
+
+### Neden Gretl Kullanıyoruz?
+
+Yapay zeka algoritmaları (LSTM, CNN) genellikle "kara kutu" (black box) olarak çalışır; girdi verirsiniz, çıktı alırsınız, aradaki nöronların ne yaptığını tam olarak bilemeyebilirsiniz. Gretl ve temsil ettiği ekonometrik yaklaşım ise **nedensellik** ve **yapısal analiz** üzerine kuruludur.
+
+Bir projeye başlarken benim önerim şudur: Önce veriyi Gretl gibi bir araçla hızlıca analiz edin. Mevsimsellik var mı, trend nasıl, yapısal bir kırılma (örneğin 1960'ta veride ani bir kopuş) var mı? Bu teşhisi koyduktan sonra, Python'a geçip LSTM veya Prophet ile "ince ayar" yapılmış yüksek başarılı tahmin modelleri kurmak çok daha bilinçli bir yöntemdir.
+
+Özetle Gretl, bize "neyi" modellediğimizi gösterirken; Python ve R'daki yapay zeka algoritmaları "nasıl" daha iyi tahmin edeceğimize odaklanır. Veri bilimci olarak her iki yaklaşıma da hakim olmanız gerekir.
