@@ -1,4 +1,3 @@
-from pmdarima.datasets import load_airpassengers
 import pandas as pd
 from prophet import Prophet
 
@@ -6,7 +5,7 @@ import pandas as pd
 from prophet import Prophet
 
 # Veriyi yükle
-df = pd.read_csv('AirPassengers.csv')
+df = pd.read_csv('data/AirPassengers.csv')
 
 # Prophet formatına uygun isimlendirme
 df.columns = ['ds', 'y']
