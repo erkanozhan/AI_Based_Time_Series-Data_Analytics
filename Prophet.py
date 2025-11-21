@@ -27,3 +27,8 @@ forecast = m.predict(future)
 
 # Sonuçları incele (ds, yhat, yhat_lower, yhat_upper)
 print(forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail())
+
+
+
+# İlk satırlarda NaN (boş) değerler oluşacaktır, onları atıyoruz
+df = df.dropna()
