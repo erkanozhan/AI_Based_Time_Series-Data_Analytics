@@ -1682,50 +1682,83 @@ AirPassengers verisinde her yıl yaz aylarında yolcu sayısının arttığını
 
 Prophet, veriyi belirli bir formatta ister. Tarih sütununun adı `ds`, tahmin edilecek değerin adı `y` olmalıdır.
 
-**Veri Hazırlığı**
 
-Önce `prophet` kütüphanesini yüklemeniz gerekir. Pandas ile veriyi okuduktan sonra sütun isimlerini değiştiririz.
+Gençler, şimdi Prophet algoritmasına bakalım. Facebook tarafından geliştirilen bu araç, zaman serisi analizini oldukça sezgisel bir yaklaşımla ele alır. Temel fikir, karmaşık görünen bir zaman serisi grafiğini, tıpkı bir motoru parçalarına ayırır gibi, anlaşılması kolay bileşenlere ayırmaktır. Bu bileşenler şunlardır:
+
+*   **Trend:** Serinin uzun vadedeki genel yönü. Yolcu sayısının yıllar içinde sürekli artması gibi.
+*   **Mevsimsellik:** Belirli periyotlarda kendini tekrar eden düzenli dalgalanmalar. Örneğin, her yaz yolcu sayısının tepe yapması.
+*   **Tatiller:** Bayramlar gibi belirli günlerde yaşanan ve seriyi etkileyen özel olaylar.
+
+Bu ayrıştırma işlemi aslında matematiksel bir temele dayanır. Prophet, bu bileşenleri bir araya getiren bir toplamsal model (additive model) kullanır. Trendi, zaman içinde eğimi değişebilen parçalı doğrusal (piecewise linear) bir fonksiyonla modeller. Bu, serideki ani yön değişikliklerini yakalamasını sağlar. Mevsimsellik gibi periyodik etkileri ise Fourier serileri kullanarak esnek bir şekilde modeller. Bu sayede, basit sinüs dalgalarının ötesinde, daha karmaşık mevsimsel desenleri de yakalayabilir. Tatil etkilerini ise kullanıcı tarafından tanımlanan özel günler için modele eklenen basit regresörler olarak ele alır. Sonuç olarak model,
+
+`tahmin = trend + mevsimsellik + tatil etkisi + hata` 
+
+şeklinde basitçe ifade edilebilir. Bu yapı, modelin hangi bileşenin tahmini ne kadar etkilediğini görmemizi sağladığı için oldukça yorumlanabilir bir modeldir.
+
+Prophet'ı kullanmanın ilk adımı, veriyi onun anladığı formata getirmektir.
+Bu, aslında en önemli kurallarından biridir.
+Tarih sütununun adının 'ds' (datestamp), tahmin edilecek değer sütununun adının ise 'y' olması gerekir.
 
 ```python
 import pandas as pd
 from prophet import Prophet
+import matplotlib.pyplot as plt
 
-# Veriyi yükle
+# Veri setini yükleyelim. Orijinal CSV dosyasında sütun isimleri 'Month' ve '#Passengers'.
 df = pd.read_csv('data/AirPassengers.csv')
 
-# Prophet formatına uygun isimlendirme
+# Prophet'ın gerektirdiği şekilde sütun isimlerini 'ds' ve 'y' olarak değiştirelim.
 df.columns = ['ds', 'y']
 
-# Tarih formatını datetime objesine çevirme
+# Prophet, 'ds' sütununun tarih-zaman nesneleri içerdiğinden emin olmak ister.
+# Bu yüzden pandas'ın to_datetime fonksiyonu ile bu dönüşümü yapıyoruz.
 df['ds'] = pd.to_datetime(df['ds'])
-```
 
-**Modelin Kurulması**
-
-```python
-# Modeli başlat
+# Şimdi modelimizi oluşturalım.
+# AirPassengers verisi aylık olduğu ve yıllık bir döngüye sahip olduğu için
+# yearly_seasonality=True parametresini kullanıyoruz.
+# Haftalık veya günlük bir döngü beklemediğimiz için diğer mevsimsellikleri kapatabiliriz.
 m = Prophet(yearly_seasonality=True, daily_seasonality=False)
 
-# Modeli veriye uydur
+# fit() metodu ile modelimizi hazırladığımız veri setine eğitiyoruz.
+# Bu aşamada Prophet, veriden trendi ve mevsimsel desenleri öğrenir.
 m.fit(df)
-```
 
-**Geleceğe Yönelik Tahmin**
+# Tahmin yapabilmek için gelecekteki tarihleri içeren bir veri çerçevesine ihtiyacımız var.
+# Prophet bu işlemi make_future_dataframe metodu ile bizim için kolaylaştırır.
+# periods=12 ile 12 dönem (ay) ileriye, freq='MS' ile de her ayın başına
+# denk gelecek şekilde tarihler oluşturmasını söylüyoruz.
+future = m.make_future_dataframe(periods=12, freq='MS')
 
-Prophet, gelecekteki tarihleri içeren boş bir veri çerçevesini kendisi oluşturabilir. Sonraki 12 ayı tahmin edelim.
-
-```python
-# Gelecek 12 ay için boş tarih satırları oluştur
-future = m.make_future_dataframe(periods=12, freq='MS') # MS: Month Start
-
-# Tahmin yap
+# predict() metodu, oluşturduğumuz bu gelecek tarihleri alır ve her bir tarih için
+# bir tahmin üretir.
 forecast = m.predict(future)
 
-# Sonuçları incele
-print(forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail())
-```
+# Tahmin sonuçları oldukça detaylı bir veri çerçevesi olarak döner.
+# Bizi en çok ilgilendiren sütunlar şunlardır:
+# 'ds': Tarih
+# 'yhat': Modelin yaptığı tahmin
+# 'yhat_lower' ve 'yhat_upper': Tahminin belirsizlik aralığı. Model, gerçek değerin
+# büyük olasılıkla bu iki sınır arasında olacağını öngörür.
+print("--- Tahmin Sonuçları (Son 12 Ay) ---")
+print(forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail(12))
 
-Burada `yhat` tahmin edilen değerdir. `yhat_lower` ve `yhat_upper` ise güven aralığıdır. Model bu iki değer arasında olma ihtimalinin yüksek olduğunu söyler.
+# Prophet'ın en güzel yanlarından biri, sonuçları görselleştirmek için
+# kendi içerisinde hazır fonksiyonlar sunmasıdır.
+# plot() fonksiyonu, geçmiş verileri, tahminleri ve belirsizlik aralığını çizer.
+fig1 = m.plot(forecast)
+plt.title('Prophet ile Yolcu Sayısı Tahmini')
+plt.xlabel('Tarih')
+plt.ylabel('Yolcu Sayısı')
+plt.show()
+
+# plot_components() fonksiyonu ise modelin öğrendiği bileşenleri ayrı ayrı görmemizi sağlar.
+# Bu, serinin yapısını anlamak için çok değerlidir.
+# Trend grafiği, yolcu sayısındaki genel artışı gösterir.
+# Yıllık mevsimsellik grafiği ise hangi aylarda artış, hangilerinde azalış olduğunu net bir şekilde ortaya koyar.
+fig2 = m.plot_components(forecast)
+plt.show()
+```
 
 ### XGBoost (Extreme Gradient Boosting)
 
@@ -1805,13 +1838,52 @@ plt.show()
 
 Kod yazmadan bu mantığı görmek isterseniz Weka da kullanılabilir. Ancak Weka standart haliyle zaman serisi analizi yapmaz, bunun için "Package Manager" üzerinden `timeseriesForecasting` paketini kurmanız gerekir.
 
-**Veri Yükleme:** AirPassengers verisini CSV olarak Weka'ya yükleyin.
+Gençler, Weka ile çalışmaya başlayalım. Kod yazmadan analiz yapmanın nasıl bir his olduğunu görmek için güzel bir fırsat. İlk adımımız, elbette, veriyi Weka'ya tanıtmak.
 
-**Dönüşüm:** XGBoost mantığını Weka'da uygulamak için "Filters" sekmesinden `Supervised -> Attribute -> Lag` filtresini seçmelisiniz. Bu filtre, Python'da yazdığımız `shift` kodunun aynısını yapar; veriyi kaydırarak geçmiş değerleri sütun haline getirir.
+**Veri Yükleme:**
 
-**Sınıflandırma/Regresyon:** `Classify` sekmesine geçip algoritma olarak `SMOreg` veya `RandomForest` seçebilirsiniz. Weka'da zaman değişkenini hedef olmaktan çıkarıp yolcu sayısını hedef olarak belirlemeniz gerekir.
+Öncelikle AirPassengers veri setini bilgisayarımıza indirmemiz gerekiyor. Size verdiğim adrese gidin: `https://github.com/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/data/AirPassengers.csv`.
 
-**Analiz:** Weka size sonucu grafik olarak değil, istatistiksel hata oranları ve korelasyon katsayıları ile verir.
+Bu sayfada, dosya içeriğinin sağ üst köşesinde "Raw" yazan bir düğme göreceksiniz. Bu düğmeye sağ tıklayıp "Farklı Kaydet" (Save As) seçeneği ile dosyayı `AirPassengers.csv` olarak bilgisayarınızın kolay bulabileceğiniz bir yerine, örneğin Masaüstü'ne kaydedin.
+
+Şimdi Weka'yı açın ve "Explorer" arayüzünü başlatın. Karşınıza gelen `Preprocess` sekmesinde, sol üstte `Open file...` düğmesi bulunur. Buraya tıklayın ve az önce kaydettiğiniz `AirPassengers.csv` dosyasını seçin. Bu kadar. Veri setiniz artık Weka'da incelenmeye hazır.
+
+Daha pratik bir yol daha var. Dosyayı bilgisayarınıza indirmeden, doğrudan internet üzerinden Weka'ya çektirebiliriz. Bunun için yine az önceki GitHub sayfasına gidin ve "Raw" düğmesine tıklayın. Bu sefer tarayıcınız sizi verinin ham, yani saf metin halinin olduğu bir sayfaya yönlendirecek. Adres çubuğundaki bu yeni URL'yi kopyalayın. Bu URL `raw.githubusercontent.com` ile başlamalıdır.
+
+Weka'ya dönün. `Open file...` yerine hemen altındaki `Open URL...` düğmesine tıklayın. Açılan küçük pencereye kopyaladığınız bu ham veri URL'sini yapıştırın ve "OK" deyin. Weka veriyi doğrudan internetten çekecektir. Bu yöntem, özellikle veriler güncellendiğinde veya farklı veri setlerini hızla denemek istediğinizde size zaman kazandırır.
+
+**Dönüşüm:** 
+
+Gençler, XGBoost mantığını Weka'da uygulamak için önce veriyi hazırlamamız gerekir. Bu işlem için `Preprocess` sekmesindeki `Filter` bölümünü kullanacağız. `Choose` düğmesine tıkladıktan sonra `weka.filters.supervised.attribute` altında `TSLagMaker` aracını bulacaksınız. Bu, Python'da yazdığımız `shift()` kodunun görsel arayüzdeki karşılığıdır.
+
+Filtreyi seçtikten sonra, üzerine tıklayarak ayar penceresini açın. Burası, Weka'ya ne istediğimizi tam olarak söylediğimiz yerdir. Karşınıza birkaç önemli seçenek çıkacak:
+
+- **`lag_max`**: Bu parametre, "ne kadar geriye bakayım?" diye sorar. Eğer buraya `2` yazarsanız, Weka sizin için iki yeni sütun oluşturur: bir önceki değeri (`t-1`) ve iki önceki değeri (`t-2`) içeren sütunlar. Bu, bir önceki ve iki önceki ayın yolcu sayılarını ayrı birer özellik olarak ekler.
+- **`skip_first_instances`**: Bu kutucuğu işaretlemek önemlidir. Gecikme oluşturulduğunda ilk satırlarda oluşan boş değerleri (`NaN`) otomatik olarak siler. Hatırlarsanız, Python'da bunun için `.dropna()` kullanmıştık. Weka bu adımı bizim için kolaylaştırıyor.
+- **`add_month_of_year`**: Bu seçeneği `True` yaparsanız, Weka her bir satır için ay bilgisini (1'den 12'ye kadar) içeren yeni bir sütun ekler. Tıpkı XGBoost için `month_index` oluşturmamız gibi.
+
+Bu ayarları yapıp `Apply` düğmesine bastığınızda, Weka veri setinizi dönüştürür. Artık tek bir yolcu sayısı sütunu yerine, geçmiş değerleri ve ay bilgisini içeren, standart bir regresyon modelinin anlayabileceği bir tabloya sahipsiniz.
+
+Gençler, şimdi yaptığımız işlemin sonucunu düşünelim. Veri setimiz artık tek bir sütundan oluşan bir zaman dizisi değil. Aksine, 'bir önceki ayın yolcu sayısı', 'iki önceki ayın yolcu sayısı' ve 'ilgili ay' gibi girdi sütunları ile 'şimdiki yolcu sayısı' gibi bir hedef sütunu olan standart bir tabloya dönüştü.
+
+Bu dönüşüm, zaman serisi analizini bildiğimiz bir tahmin problemine indirger. Elimizdeki soru artık "sırada ne var?" değil, "bu girdilere göre çıktı ne olmalı?" sorusudur. Bu yeni yapıyla, Weka'nın regresyon yeteneklerini kullanabiliriz.
+
+Bunun için `Classify` sekmesine geçiyoruz. Burası, Weka'nın makine öğrenmesi modellerini çalıştırdığı yerdir.
+
+`Choose` düğmesine tıklayarak farklı algoritmalar deneyebilirsiniz. Örneğin, `trees` klasörü altındaki `RandomForest`, yüzlerce karar ağacı kurarak kolektif bir tahminde bulunur. `functions` altındaki `SMOreg` ise destek vektör makineleri prensibiyle, verideki doğrusal olmayan ilişkileri yakalamaya çalışır. `RandomForest` ile başlayalım.
+
+En kritik adım, Weka'ya neyi tahmin etmesi gerektiğini söylemektir. Sekmenin üst kısmındaki açılır menüden, hedef değişken olarak orijinal yolcu sayısı sütununu (örneğin, `#Passengers`) seçtiğinizden emin olun. Diğer `lag` ve `month` sütunları bizim girdilerimiz, yani 'X' değişkenlerimizdir. Hedefimiz ise 'y' değişkenidir.
+
+Modeli çalıştırmak için `Start` düğmesine basmadan önce, `Test options` bölümünü inceleyelim. `Use training set` seçeneği, modelin eğitim verisindeki başarısını gösterir ama bu biraz iyimser bir sonuç verebilir. Daha gerçekçi bir performans ölçümü için `Percentage split` seçeneğini kullanıp verinin, örneğin, %80'ini eğitime ayırabilirsiniz. Weka, modeli bu %80'lik kısımda eğitir ve kalan %20 üzerinde test ederek size tarafsız bir sonuç sunar.
+
+`Start` düğmesine bastığınızda, sağ taraftaki `Classifier output` penceresinde sonuçlar belirir. Burada bir zaman grafiği görmeyeceksiniz. Bunun yerine, modelin performansını özetleyen istatistiksel bir rapor alırsınız.
+
+Bu raporda dikkat etmeniz gereken birkaç temel metrik var:
+- **Correlation coefficient:** Tahmin edilen değerlerle gerçek değerler arasındaki uyumu gösterir. 1'e ne kadar yakınsa, model o kadar başarılıdır.
+- **Mean absolute error (MAE):** Modelin ortalama olarak ne kadar yanıldığını, yolcu sayısı cinsinden ifade eder.
+- **Root mean squared error (RMSE):** Büyük hataları daha ağır cezalandıran bir metriktir. Bu iki hata metriğini karşılaştırarak modelinizin tekil büyük hatalar yapıp yapmadığı hakkında bir fikir edinebilirsiniz.
+
+Özetle, Weka'da zaman serisi verisini önce özellik mühendisliği ile bir regresyon problemine dönüştürdük, sonra da bu probleme standart makine öğrenmesi algoritmalarını uyguladık. Bu yaklaşım, kod yazmadan farklı model ailelerinin performansını hızlıca karşılaştırmak için oldukça etkilidir.
 
 ---
 
