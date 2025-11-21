@@ -1,8 +1,10 @@
-## XGBoost İle Tahmin
 import pandas as pd
 import xgboost as xgb
-from sklearn.metrics import root_mean_squared_error
+from sklearn.metrics import mean_squared_error
+import matplotlib.pyplot as plt
+import numpy as np
 
+# Veriyi yükle
 df = pd.read_csv('data/AirPassengers.csv')
 df['Month'] = pd.to_datetime(df['Month'])
 df.set_index('Month', inplace=True)
@@ -14,7 +16,7 @@ df['lag_2'] = df['Passengers'].shift(2)
 # Ay bilgisini sayısal özellik olarak ekle
 df['month_index'] = df.index.month
 
-# NaN değerleri olan satırları temizle
+# NaN (boş) değerleri at (Lag özellikleri oluştururken ilk satırlar boş kalır)
 df = df.dropna()
 
 # X: Girdiler, y: Hedef
@@ -29,11 +31,24 @@ y_train, y_test = y.iloc[:split_point], y.iloc[split_point:]
 # XGBoost Regresyon modeli
 reg = xgb.XGBRegressor(n_estimators=1000, learning_rate=0.01, random_state=42)
 
+# Modeli eğit
 reg.fit(X_train, y_train,
         eval_set=[(X_train, y_train), (X_test, y_test)],
         verbose=False)
 
-# Tahmin ve hata hesaplama
+# Tahmin yapma
 y_pred = reg.predict(X_test)
-rmse = root_mean_squared_error(y_test, y_pred)
-print(f'Test RMSE: {rmse:.2f}')
+
+# Hata hesaplama (RMSE)
+rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+print(f"RMSE Değeri: {rmse:.2f}")
+
+# Sonuçları görselleştirme
+plt.figure(figsize=(10, 6))
+plt.plot(y_test.index, y_test, label='Gerçek Değerler')
+plt.plot(y_test.index, y_pred, label='Tahminler', linestyle='--', color='red')
+plt.title('XGBoost ile AirPassengers Tahmini')
+plt.xlabel('Tarih')
+plt.ylabel('Yolcu Sayısı')
+plt.legend()
+plt.show()

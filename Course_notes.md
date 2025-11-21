@@ -1745,7 +1745,7 @@ AirPassengers verisinde her satır bir ayı temsil eder. Bir sütun ekleyip bir 
 
 ```python
 import pandas as pd
-import xgboost as xgb
+import xgboost_airpassengers as xgb
 from sklearn.metrics import mean_squared_error
 
 df = pd.read_csv('AirPassengers.csv')
