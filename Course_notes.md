@@ -1674,382 +1674,378 @@ Gençler, ARIMA ve LSTM karşılaştırmasını tamamladığımıza göre, veri 
 
 ### Facebook Prophet Algoritması
 
-Prophet, özellikle mevsimsellik ve tatil etkilerinin baskın olduğu serilerde çok etkilidir. LSTM gibi bir "kara kutu" değildir, ARIMA gibi katı varsayımları da yoktur. Mantığı aslında basittir: Bir zaman serisini üç ana parçaya böler; trend (genel gidişat), mevsimsellik (yıllık/haftalık tekrarlar) ve tatiller.
+Prophet, mevsimsellik ve tatil etkilerinin belirgin olduğu zaman serilerinde etkili sonuçlar verir. LSTM gibi içyapısı kapalı bir algoritma değildir, ARIMA gibi katı varsayımları da yoktur. Bir zaman serisini üç bileşene ayırır: trend (genel gidişat), mevsimsellik (yıllık/haftalık tekrarlar) ve tatiller.
 
-AirPassengers verisine baktığınızda her yıl yaz aylarında yolcu sayısının arttığını, kışın düştüğünü görürsünüz. Prophet bunu otomatik algılar. Sanki elinizde bir takvim var ve "Temmuz geldi, sayıları artır" diyorsunuz. Arka planda ise bu algoritma, Fourier serileri kullanarak bu dalgalanmaları matematiksel bir eğriye oturtur.
+AirPassengers verisinde her yıl yaz aylarında yolcu sayısının arttığını, kışın düştüğünü görürüz. Prophet bunu otomatik algılar. Arka planda Fourier serileri kullanarak bu dalgalanmaları matematiksel bir eğriye oturtur.
 
-**Python ile Uygulama Adımları:**
+**Python ile Uygulama**
 
-Prophet’in en belirgin özelliği, veriyi çok spesifik bir formatta istemesidir. Tarih sütununun adı mutlaka `ds`, tahmin edilecek değerin adı `y` olmalıdır.
+Prophet, veriyi belirli bir formatta ister. Tarih sütununun adı `ds`, tahmin edilecek değerin adı `y` olmalıdır.
 
-1.  **Kütüphanelerin Kurulumu ve Veri Hazırlığı:**
-    Önce `prophet` kütüphanesini yüklemeniz gerekir. Pandas ile veriyi okuduktan sonra sütun isimlerini değiştirmeliyiz.
+**Veri Hazırlığı**
 
-    ```python
-    import pandas as pd
-    from prophet import Prophet
+Önce `prophet` kütüphanesini yüklemeniz gerekir. Pandas ile veriyi okuduktan sonra sütun isimlerini değiştiririz.
 
-    # Veriyi yükle
-    df = pd.read_csv('AirPassengers.csv')
+```python
+import pandas as pd
+from prophet import Prophet
 
-    # Prophet formatına uygun isimlendirme
-    df.columns = ['ds', 'y']
-    
-    # Tarih formatını datetime objesine çevirme
-    df['ds'] = pd.to_datetime(df['ds'])
-    ```
+# Veriyi yükle
+df = pd.read_csv('AirPassengers.csv')
 
-2.  **Modelin Kurulması:**
-    Burada LSTM'deki gibi katman sayısı, nöron sayısı gibi karmaşık hiperparametrelerle uğraşmanıza başlangıç aşamasında gerek yoktur.
+# Prophet formatına uygun isimlendirme
+df.columns = ['ds', 'y']
 
-    ```python
-    # Modeli başlat
-    m = Prophet(yearly_seasonality=True, daily_seasonality=False)
-    
-    # Modeli veriye uydur (Eğitim)
-    m.fit(df)
-    ```
+# Tarih formatını datetime objesine çevirme
+df['ds'] = pd.to_datetime(df['ds'])
+```
 
-3.  **Geleceğe Yönelik Tahmin:**
-    Prophet'in güzel yanı, gelecekteki tarihleri içeren boş bir veri çerçevesini kendisinin oluşturabilmesidir. Örneğin, sonraki 12 ayı tahmin edelim.
+**Modelin Kurulması**
 
-    ```python
-    # Gelecek 12 ay için boş tarih satırları oluştur
-    future = m.make_future_dataframe(periods=12, freq='MS') # MS: Month Start
-    
-    # Tahmin yap
-    forecast = m.predict(future)
-    
-    # Sonuçları incele (ds, yhat, yhat_lower, yhat_upper)
-    print(forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail())
-    ```
-    Burada `yhat` tahmin edilen değerdir. `lower` ve `upper` ise güven aralığıdır. Yani model diyor ki: "Tam değer bu olabilir ama şu iki değer arasında olma ihtimali de yüksek."
+```python
+# Modeli başlat
+m = Prophet(yearly_seasonality=True, daily_seasonality=False)
+
+# Modeli veriye uydur
+m.fit(df)
+```
+
+**Geleceğe Yönelik Tahmin**
+
+Prophet, gelecekteki tarihleri içeren boş bir veri çerçevesini kendisi oluşturabilir. Sonraki 12 ayı tahmin edelim.
+
+```python
+# Gelecek 12 ay için boş tarih satırları oluştur
+future = m.make_future_dataframe(periods=12, freq='MS') # MS: Month Start
+
+# Tahmin yap
+forecast = m.predict(future)
+
+# Sonuçları incele
+print(forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail())
+```
+
+Burada `yhat` tahmin edilen değerdir. `yhat_lower` ve `yhat_upper` ise güven aralığıdır. Model bu iki değer arasında olma ihtimalinin yüksek olduğunu söyler.
 
 ### XGBoost (Extreme Gradient Boosting)
 
-Şimdi bakış açımızı değiştirelim. LSTM bir sinir ağıydı, zamanı bir akış olarak görüyordu. XGBoost ise bir karar ağacı algoritmasıdır. Karar ağaçları, veriyi "Evet/Hayır" sorularıyla böler.
+XGBoost bir karar ağacı algoritmasıdır. Karar ağaçları veriyi "Evet/Hayır" sorularıyla böler.
 
-Mantığını şöyle kurabilirsiniz: Bir yolcu sayısını tahmin etmek için, model geçmişe bakar ve kurallar koyar. "Önceki ay yolcu sayısı 300'den fazlaysa ve ay Temmuz ise, sonuç yüksek ihtimalle 350 olacaktır" gibi binlerce kuralı (ağacı) oluşturur. Bu ağaçların her biri zayıf bir tahmincidir ama binlercesi bir araya gelip birbirinin hatasını düzelttiğinde (boosting), ortaya çok güçlü bir model çıkar.
+Bir yolcu sayısını tahmin etmek için model geçmişe bakar ve kurallar oluşturur. "Önceki ay yolcu sayısı 300'den fazlaysa ve ay Temmuz ise, sonuç büyük olasılıkla 350 olacaktır" gibi binlerce kuralı (ağacı) oluşturur. Bu ağaçların her biri zayıf bir tahmin yapar ama binlercesi bir araya gelip birbirinin hatasını düzelttiğinde ortaya güçlü bir model çıkar.
 
-Ancak XGBoost zamanın "akışını" kendiliğinden anlamaz. Veriyi ona uygun hale getirmemiz, yani "Gözetimli Öğrenme" (Supervised Learning) formatına çevirmemiz gerekir.
+XGBoost zamanın akışını kendiliğinden anlamaz. Veriyi ona uygun hale getirmemiz, yani gözetimli öğrenme formatına çevirmemiz gerekir.
 
-**Python ile Uygulama Adımları:**
+**Python ile Uygulama**
 
-Buradaki kilit nokta "Gecikme" (Lag) oluşturmaktır. Yani `t` anını tahmin etmek için `t-1`, `t-2` gibi değerleri girdi (feature) olarak kullanacağız.
+Kilit nokta "gecikme" (lag) oluşturmaktır. Yani `t` anını tahmin etmek için `t-1`, `t-2` gibi değerleri girdi olarak kullanacağız.
 
-1.  **Veriyi Dönüştürme (Feature Engineering):**
-    AirPassengers verisinde her satır bir ayı temsil eder. Bir sütun ekleyip, bir önceki ayın değerini o satıra yazacağız.
+**Veriyi Dönüştürme**
 
-    ```python
-    import pandas as pd
-    import xgboost as xgb
-    from sklearn.model_selection import train_test_split
-    from sklearn.metrics import mean_squared_error
+AirPassengers verisinde her satır bir ayı temsil eder. Bir sütun ekleyip bir önceki ayın değerini o satıra yazacağız.
 
-    df = pd.read_csv('AirPassengers.csv')
-    df['Month'] = pd.to_datetime(df['Month'])
-    df.set_index('Month', inplace=True)
+```python
+import pandas as pd
+import xgboost as xgb
+from sklearn.metrics import mean_squared_error
 
-    # Gecikme (Lag) özelliği oluşturma
-    # Bir önceki ayın (t-1) verisini yan sütuna taşıyoruz
-    df['lag_1'] = df['#Passengers'].shift(1)
-    df['lag_2'] = df['#Passengers'].shift(2) # İki ay öncesi
-    
-    # Ayrıca Ay bilgisini sayısal bir özellik olarak ekleyelim (Ocak=1, Şubat=2...)
-    df['month_index'] = df.index.month
-    
-    # İlk satırlarda NaN (boş) değerler oluşacaktır, onları atıyoruz
-    df = df.dropna()
-    ```
+df = pd.read_csv('AirPassengers.csv')
+df['Month'] = pd.to_datetime(df['Month'])
+df.set_index('Month', inplace=True)
 
-2.  **Eğitim ve Test Ayrımı:**
-    Zaman serilerinde veriyi rastgele karıştıramayız (Shuffle yapamayız). Geçmişe bakıp geleceği tahmin ettiğimiz için sıralı bölmeliyiz.
+# Gecikme (Lag) özelliği oluşturma
+df['lag_1'] = df['#Passengers'].shift(1)
+df['lag_2'] = df['#Passengers'].shift(2)
 
-    ```python
-    # X: Girdiler (t-1, t-2 ve ay bilgisi), y: Hedef (t anındaki yolcu sayısı)
-    X = df[['lag_1', 'lag_2', 'month_index']]
-    y = df['#Passengers']
+# Ay bilgisini sayısal özellik olarak ekle
+df['month_index'] = df.index.month
 
-    # Son 12 ayı test olarak ayıralım
-    split_point = len(df) - 12
-    X_train, X_test = X.iloc[:split_point], X.iloc[split_point:]
-    y_train, y_test = y.iloc[:split_point], y.iloc[split_point:]
-    ```
+# NaN değerleri at
+df = df.dropna()
+```
 
-3.  **Model Eğitimi:**
-    
-    ```python
-    # XGBoost Regresyon modelini çağırma
-    reg = xgb.XGBRegressor(n_estimators=1000, learning_rate=0.01)
-    
-    reg.fit(X_train, y_train,
-            eval_set=[(X_train, y_train), (X_test, y_test)],
-            early_stopping_rounds=50, # İyileşme durursa eğitimi kes
-            verbose=False)
-    ```
+**Eğitim ve Test Ayrımı**
 
-4.  **Tahmin:**
-    
-    ```python
-    preds = reg.predict(X_test)
-    print(f"Hata Oranı (RMSE): {mean_squared_error(y_test, preds, squared=False)}")
-    ```
+Zaman serilerinde veriyi rastgele karıştıramayız. Geçmişe bakıp geleceği tahmin ettiğimiz için sıralı bölmeliyiz.
 
-### Weka ile Yaklaşım
+```python
+# X: Girdiler, y: Hedef
+X = df[['lag_1', 'lag_2', 'month_index']]
+y = df['#Passengers']
 
-Gençler, kod yazmadan bu mantığı görmek isterseniz Weka da güçlü bir araçtır. Ancak Weka standart haliyle zaman serisi analizi yapmaz, bunun için "Package Manager" üzerinden `timeseriesForecasting` paketini kurmanız gerekir.
+# Son 12 ayı test olarak ayır
+split_point = len(df) - 12
+X_train, X_test = X.iloc[:split_point], X.iloc[split_point:]
+y_train, y_test = y.iloc[:split_point], y.iloc[split_point:]
+```
 
-1.  **Veri Yükleme:** AirPassengers verisini CSV olarak Weka'ya yükleyin.
-2.  **Dönüşüm:** XGBoost mantığını Weka'da uygulamak için "Filters" sekmesinden `Supervised -> Attribute -> Lag` filtresini seçmelisiniz. Bu filtre, Python'da yazdığımız `shift` kodunun aynısını yapar; veriyi kaydırarak geçmiş değerleri sütun haline getirir.
-3.  **Sınıflandırma/Regresyon:** `Classify` sekmesine geçip algoritma olarak `SMOreg` (Destek Vektör Makineleri - SVM) veya `RandomForest` seçebilirsiniz. Weka'da zaman değişkenini "hedef" (class) olmaktan çıkarıp, yolcu sayısını hedef olarak belirlemeniz gerekir.
-4.  **Analiz:** Weka size sonucu grafik olarak değil, istatistiksel hata oranları ve korelasyon katsayıları ile verecektir.
+**Model Eğitimi**
 
-**Toparlayacak olursak;**
+```python
+# XGBoost Regresyon modeli
+reg = xgb.XGBRegressor(n_estimators=1000, learning_rate=0.01, random_state=42)
 
-ARIMA ile verinin istatistiksel yapısını (durağanlık) zorlayarak modelledik. LSTM ile veriyi bir sinyal gibi işleyip karmaşık yapısını öğrendik. Prophet ile takvim etkisini ve trendleri ayrıştırarak daha "insani" bir tahmin yaptık. XGBoost ile de veriyi bir tabloya dönüştürüp "geçmişte şu olduysa şimdi bu olur" kurallarıyla sonuca gittik.
+reg.fit(X_train, y_train,
+        eval_set=[(X_train, y_train), (X_test, y_test)],
+        verbose=False)
+```
 
-Hangisinin daha iyi olduğu verinin karakterine bağlıdır. Verinizde mevsimsellik çok netse Prophet, veri çok büyük ve karmaşıksa LSTM veya XGBoost, veri az ve düzenliyse ARIMA daha iyi sonuç verebilir. Bir veri bilimci olarak göreviniz, tek bir yönteme bağlanmak değil, bu araç çantasından soruna en uygun olanı seçip kullanmaktır.
+**Tahmin**
 
-Gençler, modelleri kurduk, tahminleri ürettik. Ancak bir modelin "iyi" çalışıp çalışmadığına sadece grafiklere bakarak karar veremeyiz. Göz yanıltıcıdır. Bilimsel bir kıyaslama için elimizde somut, sayısal kanıtlar olmalıdır. İşte burada Hata Metrikleri devreye girer.
+```python
+preds = reg.predict(X_test)
+rmse = mean_squared_error(y_test, preds, squared=False)
+print(f"Hata Oranı (RMSE): {rmse:.2f}")
+```
 
-Zaman serisi analizinde en sık kullandığımız iki metrik MAE ve RMSE'dir. Bunların arasındaki farkı anlamanız, hangi durumda hangisine güveneceğinizi bilmeniz açısından kritiktir.
+### Weka ile Uygulama
 
-### 1. MAE (Mean Absolute Error - Ortalama Mutlak Hata)
+Kod yazmadan bu mantığı görmek isterseniz Weka da kullanılabilir. Ancak Weka standart haliyle zaman serisi analizi yapmaz, bunun için "Package Manager" üzerinden `timeseriesForecasting` paketini kurmanız gerekir.
 
-Bu, anlaşılması en kolay metriktir. Tahmin ettiğimiz değer ile gerçek değer arasındaki farkın (negatifliğine bakmaksızın) ortalamasını alır.
+**Veri Yükleme:** AirPassengers verisini CSV olarak Weka'ya yükleyin.
 
-*   **Mantığı:** Modelim ortalama olarak kaç yolcu yanılıyor?
-*   **Yorumu:** Eğer MAE değeriniz 20 ise, modeliniz gerçek değerden ortalama +/- 20 yolcu sapıyor demektir.
-*   **Avantajı:** İşletmecilere veya teknik olmayan kişilere anlatması çok kolaydır.
-*   **Dezavantajı:** Büyük hataları, küçük hatalardan ayırt etmez. 1 birimlik 10 hata yapmakla, 10 birimlik 1 hata yapmayı aynı kefeye koyar.
+**Dönüşüm:** XGBoost mantığını Weka'da uygulamak için "Filters" sekmesinden `Supervised -> Attribute -> Lag` filtresini seçmelisiniz. Bu filtre, Python'da yazdığımız `shift` kodunun aynısını yapar; veriyi kaydırarak geçmiş değerleri sütun haline getirir.
 
-### 2. RMSE (Root Mean Squared Error - Kök Ortalama Kare Hata)
+**Sınıflandırma/Regresyon:** `Classify` sekmesine geçip algoritma olarak `SMOreg` veya `RandomForest` seçebilirsiniz. Weka'da zaman değişkenini hedef olmaktan çıkarıp yolcu sayısını hedef olarak belirlemeniz gerekir.
 
-Bu metrik biraz daha disiplinlidir. Hataların karesini alarak ortalamasını bulur ve sonra karekökünü alır. Hataların karesini aldığı için, büyük hataları orantısız bir şekilde büyütür.
+**Analiz:** Weka size sonucu grafik olarak değil, istatistiksel hata oranları ve korelasyon katsayıları ile verir.
 
-*   **Mantığı:** Modelim büyük çuvallamalar yapıyor mu?
-*   **Yorumu:** RMSE, MAE'den her zaman büyük veya ona eşittir. Eğer RMSE ile MAE arasındaki fark çok açıksa, modeliniz bazı noktalarda çok büyük hatalar (outlier) yapıyor demektir.
-*   **Avantajı:** Büyük hataları "cezalandırır". Eğer tahminin çok uzak olması sistemde bir felakete yol açacaksa (örneğin borsa tahmininde tüm parayı kaybetmek gibi), RMSE daha güvenilir bir göstergedir.
+---
+
+ARIMA ile verinin istatistiksel yapısını modelledik. LSTM ile veriyi bir sinyal gibi işleyip karmaşık yapısını öğrendik. Prophet ile takvim etkisini ve trendleri ayrıştırarak tahmin yaptık. XGBoost ile de veriyi bir tabloya dönüştürüp geçmiş değerlere dayalı kurallarla sonuca gittik.
+
+Hangisinin daha iyi olduğu verinin karakterine bağlıdır. Verinizde mevsimsellik belirginse Prophet, veri büyük ve karmaşıksa LSTM veya XGBoost, veri az ve düzenliyse ARIMA daha iyi sonuç verebilir. Bir veri bilimci olarak göreviniz, bu araç çantasından soruna en uygun olanı seçmektir.
+
+---
+
+Modelleri kurduk, tahminleri ürettik. Ancak bir modelin iyi çalışıp çalışmadığına sadece grafiklere bakarak karar veremeyiz. Göz yanıltıcı olabilir. Bilimsel bir kıyaslama için somut, sayısal kanıtlar olmalıdır. Burada hata metrikleri devreye girer.
+
+Zaman serisi analizinde en sık kullandığımız iki metrik MAE ve RMSE'dir. Bunların arasındaki farkı anlamak, hangi durumda hangisine güveneceğinizi bilmeniz açısından önemlidir.
+
+### MAE (Mean Absolute Error - Ortalama Mutlak Hata)
+
+Tahmin ettiğimiz değer ile gerçek değer arasındaki farkın (işaretine bakmaksızın) ortalamasını alır.
+
+**Mantığı:** Model ortalama olarak kaç yolcu yanılıyor?
+
+**Yorumu:** MAE değeriniz 20 ise, modeliniz gerçek değerden ortalama ±20 yolcu sapıyor demektir.
+
+**Avantajı:** Anlatması kolaydır.
+
+**Dezavantajı:** Büyük hataları küçük hatalardan ayırt etmez. 1 birimlik 10 hata yapmakla 10 birimlik 1 hata yapmayı aynı kefeye koyar.
+
+### RMSE (Root Mean Squared Error - Kök Ortalama Kare Hata)
+
+Hataların karesini alarak ortalamasını bulur ve sonra karekökünü alır. Hataların karesini aldığı için büyük hataları orantısız biçimde büyütür.
+
+**Mantığı:** Model büyük hatalar yapıyor mu?
+
+**Yorumu:** RMSE, MAE'den her zaman büyük veya ona eşittir. RMSE ile MAE arasındaki fark çok açıksa, modeliniz bazı noktalarda çok büyük hatalar yapıyor demektir.
+
+**Avantajı:** Büyük hataları cezalandırır. Tahminin çok uzak olması sistem için felakete yol açacaksa RMSE daha güvenilir bir göstergedir.
 
 ### Uygulama ve Kodlama
 
-Şimdi bu teorik bilgiyi Python üzerinde, Prophet ve XGBoost modellerimizin çıktılarını kullanarak somutlaştıralım. Bunun için `scikit-learn` kütüphanesinin metrik modüllerini kullanacağız.
+Bu bilgiyi Python üzerinde Prophet ve XGBoost modellerinin çıktılarını kullanarak somutlaştıralım. Bunun için `scikit-learn` kütüphanesinin metrik modüllerini kullanacağız.
 
-Kodları yazarken, verinin test seti (gerçek değerler) ile modelin ürettiği tahminlerin aynı uzunlukta ve aynı sırada olduğundan emin olmalıyız.
-
-#### Python Kodu
-
-Aşağıdaki kod bloğu, önceki derste anlattığımız Prophet ve XGBoost modellerinin sonuçlarını `y_test` (gerçekler) ve `y_pred` (tahminler) olarak elde ettiğimizi varsayarak hesaplamayı gösterir.
+Verinin test seti (gerçek değerler) ile modelin ürettiği tahminlerin aynı uzunlukta ve aynı sırada olduğundan emin olmalıyız.
 
 ```python
 import numpy as np
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
-# Fonksiyon tanımlayalım ki her model için tekrar tekrar yazmayalım
+# Fonksiyon tanımlayalım
 def performans_hesapla(y_gercek, y_tahmin, model_ismi):
-    # MAE Hesaplaması
     mae = mean_absolute_error(y_gercek, y_tahmin)
-    
-    # RMSE Hesaplaması (squared=False parametresi karekök almayı sağlar)
     rmse = mean_squared_error(y_gercek, y_tahmin, squared=False)
     
     print(f"--- {model_ismi} Performans Sonuçları ---")
-    print(f"MAE (Ortalama Mutlak Hata): {mae:.2f}")
-    print(f"RMSE (Kök Ortalama Kare Hata): {rmse:.2f}")
+    print(f"MAE: {mae:.2f}")
+    print(f"RMSE: {rmse:.2f}")
     print("-" * 30)
 
-# --- 1. PROPHET Modeli İçin Hesaplama ---
-# Prophet örneğinde son 12 ayı tahmin etmiştik.
-# df['y'] gerçek değerleri, forecast['yhat'] ise tahminleri tutuyordu.
-
-# Gerçek verinin son 12 ayı (Test seti)
+# Prophet Modeli İçin
 y_true_prophet = df['y'].iloc[-12:].values
-
-# Prophet'in son 12 ay tahmini
 y_pred_prophet = forecast['yhat'].iloc[-12:].values
-
 performans_hesapla(y_true_prophet, y_pred_prophet, "Facebook Prophet")
 
-
-# --- 2. XGBoost Modeli İçin Hesaplama ---
-# XGBoost örneğinde zaten y_test ve preds değişkenlerini oluşturmuştuk.
-
-# y_test: Test için ayırdığımız gerçek değerler
-# preds: Modelin ürettiği tahminler
-
+# XGBoost Modeli İçin
 performans_hesapla(y_test, preds, "XGBoost")
 ```
 
 ### Sonuçların Değerlendirilmesi
 
-Bu kodları çalıştırdığınızda karşınıza iki farklı tablo çıkacaktır.
+Bu kodları çalıştırdığınızda iki farklı tablo çıkacaktır.
 
-*   Eğer **XGBoost**'un RMSE değeri **Prophet**'ten düşükse; XGBoost verideki ani iniş çıkışları daha iyi yakalamış, büyük hatalardan kaçınmış demektir.
-*   Eğer **MAE** değerleri birbirine yakın ama **RMSE** değerleri arasında uçurum varsa; RMSE'si yüksek olan model, genel trendi tutturmuş olsa da bazı aylarda (belki kriz dönemlerinde veya verinin sıradışı olduğu noktalarda) çok ciddi sapmalar yapmıştır.
+XGBoost'un RMSE değeri Prophet'ten düşükse; XGBoost verideki ani değişimleri daha iyi yakalamış, büyük hatalardan kaçınmış demektir.
 
-Hangi modeli seçeceğiz? Eğer amacımız stok yönetimi gibi "ortalama" bir doğruluksa MAE'si düşük olanı; eğer amacımız yoğun bakım ünitesindeki hasta takibi gibi "kritik hata yapmama" üzerine kuruluysa RMSE'si düşük olanı tercih etmeliyiz. AirPassengers verisi için genellikle her iki metrik de birbirine paralel hareket eder, ancak mevsimselliğin çok keskin olduğu yıllarda Prophet'in RMSE konusunda daha stabil olduğunu gözlemleyebilirsiniz.
+MAE değerleri birbirine yakın ama RMSE değerleri arasında fark varsa; RMSE'si yüksek olan model genel trendi tutturmuş olsa da bazı aylarda ciddi sapmalar yapmıştır.
 
+Hangi modeli seçeceğiz? Amacımız stok yönetimi gibi ortalama bir doğruluksa MAE'si düşük olanı; amacımız kritik hata yapmama üzerine kuruluysa RMSE'si düşük olanı tercih etmeliyiz. AirPassengers verisi için genellikle her iki metrik de birbirine paralel hareket eder, ancak mevsimselliğin keskin olduğu yıllarda Prophet'in RMSE konusunda daha tutarlı olduğu gözlemlenebilir.
 
-Gençler, şimdiye kadar zaman serilerine yaklaşırken iki temel felsefeyi benimsedik: Biri geçmişi hatırlamak (LSTM), diğeri kurallar bütünü oluşturmak (XGBoost/Prophet). Ancak yapay zeka literatüründe, genellikle görüntü işleme ile özdeşleşmiş olsa da zaman serilerinde şaşırtıcı derecede başarılı sonuçlar veren bir yöntem daha var: **1D-CNN (Bir Boyutlu Evrişimli Sinir Ağları)**.
+---
 
-Normalde CNN algoritmalarını "bu resimde kedi var mı?" sorusunu cevaplarken duyarız. Orada algoritma, resmin üzerinde küçük pencereler gezdirerek kenarları, köşeleri, yuvarlak hatları öğrenir. Zaman serisinde de mantık tamamen aynıdır. AirPassengers verisinin grafiğini gözünüzün önüne getirin. Veriyi bir bütün olarak ezberlemek yerine, üzerinde kayan bir pencere (filtre) gezdiriyoruz. Bu filtreler, verinin içindeki "yükseliş trendini", "ani düşüşü" veya "tepe noktasını" birer şekil olarak tanımayı öğreniyor.
+Şimdiye kadar zaman serilerine iki temel felsefeyle yaklaştık: Geçmişi hatırlamak (LSTM), kurallar oluşturmak (XGBoost/Prophet). Ancak yapay zeka literatüründe, genellikle görüntü işleme ile özdeşleşmiş olsa da zaman serilerinde başarılı sonuçlar veren bir yöntem daha var: **1D-CNN (Bir Boyutlu Evrişimli Sinir Ağları)**.
 
-LSTM veriyi bir hikaye gibi baştan sona okuyup aklında tutmaya çalışırken, CNN veriye daha çok bir desen taraması gibi yaklaşır. "Geçen ay ne oldu?" sorusundan ziyade, "Son üç aydaki hareketin şekli, daha önceki yıllarda gördüğüm hangi şekle benziyor?" sorusuna odaklanır. Bu özellik, verideki gürültüyü filtrelemede ve yerel (kısa vadeli) desenleri yakalamada oldukça etkilidir. Ayrıca LSTM'e göre hesaplama maliyeti daha düşüktür, yani daha hızlı eğitilir.
+CNN algoritmalarını "bu resimde kedi var mı?" sorusunu cevaplarken duyarız. Orada algoritma resmin üzerinde küçük pencereler gezdirerek kenarları, köşeleri öğrenir. Zaman serisinde de mantık aynıdır. AirPassengers verisinin grafiğini düşünün. Veriyi bir bütün olarak ezberlemek yerine üzerinde kayan bir pencere gezdiriyoruz. Bu filtreler verinin içindeki yükseliş trendini, ani düşüşü veya tepe noktasını birer desen olarak tanımayı öğreniyor.
+
+LSTM veriyi bir hikaye gibi baştan sona okuyup aklında tutmaya çalışırken CNN veriye desen taraması gibi yaklaşır. "Geçen ay ne oldu?" sorusundan ziyade "Son üç aydaki hareketin şekli, daha önceki yıllarda hangi şekle benziyor?" sorusuna odaklanır. Bu özellik verideki gürültüyü filtrelemede ve kısa vadeli desenleri yakalamada etkilidir. Ayrıca LSTM'e göre hesaplama maliyeti daha düşüktür, yani daha hızlı eğitilir.
 
 ### Python ile 1D-CNN Uygulaması
 
-Bu algoritmayı uygularken veriyi hazırlama biçimimiz LSTM ile oldukça benzerdir. Veriyi yine [Örnek Sayısı, Zaman Adımı, Özellik Sayısı] formatında 3 boyutlu bir yapıya sokmamız gerekir.
+Bu algoritmayı uygularken veriyi hazırlama biçimimiz LSTM ile oldukça benzerdir. Veriyi [Örnek Sayısı, Zaman Adımı, Özellik Sayısı] formatında 3 boyutlu bir yapıya sokmamız gerekir.
 
-1.  **Kütüphaneler ve Veri Hazırlığı:**
-    Veriyi daha önce yaptığımız gibi `t-1`, `t-2`... şeklinde gecikmeli (lag) hale getirip, sonra bunu CNN'in anlayacağı 3 boyutlu tensör formatına çevireceğiz.
+**Veri Hazırlığı**
 
-    ```python
-    import numpy as np
-    import pandas as pd
-    from tensorflow.keras.models import Sequential
-    from tensorflow.keras.layers import Dense, Flatten, Conv1D, MaxPooling1D
-    from sklearn.preprocessing import MinMaxScaler
-    from sklearn.metrics import mean_squared_error
+Veriyi gecikmeli (lag) hale getirip CNN'in anlayacağı 3 boyutlu tensör formatına çevireceğiz.
 
-    # Veriyi yükleyip işleyelim
-    df = pd.read_csv('AirPassengers.csv')
-    data = df['#Passengers'].values.astype('float32').reshape(-1, 1)
+```python
+import numpy as np
+import pandas as pd
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Flatten, Conv1D, MaxPooling1D
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import mean_squared_error
 
-    # Normalizasyon (Sinir ağları için kritiktir)
-    scaler = MinMaxScaler(feature_range=(0, 1))
-    data_scaled = scaler.fit_transform(data)
+# Veriyi yükle
+df = pd.read_csv('AirPassengers.csv')
+data = df['#Passengers'].values.astype('float32').reshape(-1, 1)
 
-    # Veriyi pencereleme (Sliding Window) yöntemiyle hazırlama
-    # LSTM dersinde yazdığımız fonksiyonun aynısını kullanabiliriz
-    def create_dataset(dataset, look_back=1):
-        X, Y = [], []
-        for i in range(len(dataset)-look_back-1):
-            a = dataset[i:(i+look_back), 0]
-            X.append(a)
-            Y.append(dataset[i + look_back, 0])
-        return np.array(X), np.array(Y)
+# Normalizasyon
+scaler = MinMaxScaler(feature_range=(0, 1))
+data_scaled = scaler.fit_transform(data)
 
-    look_back = 12  # Son 12 aya bakarak 13. ayı tahmin etsin
-    X, y = create_dataset(data_scaled, look_back)
+# Pencereleme yöntemiyle hazırlama
+def create_dataset(dataset, look_back=1):
+    X, Y = [], []
+    for i in range(len(dataset)-look_back-1):
+        a = dataset[i:(i+look_back), 0]
+        X.append(a)
+        Y.append(dataset[i + look_back, 0])
+    return np.array(X), np.array(Y)
 
-    # Veriyi [Örnek, Zaman Adımı, Özellik] formatına getirme (Reshape)
-    # CNN girdi olarak bunu bekler: (Satır Sayısı, 12, 1)
-    X = X.reshape(X.shape[0], X.shape[1], 1)
+look_back = 12
+X, y = create_dataset(data_scaled, look_back)
 
-    # Eğitim ve Test ayrımı
-    train_size = int(len(X) * 0.67)
-    test_size = len(X) - train_size
-    X_train, X_test = X[0:train_size], X[train_size:len(X)]
-    y_train, y_test = y[0:train_size], y[train_size:len(y)]
-    ```
+# Reshape
+X = X.reshape(X.shape[0], X.shape[1], 1)
 
-2.  **Modelin Kurulması (Mimari):**
-    Burada `Conv1D` katmanı işin mutfağıdır. Filtreler verinin üzerinde gezinir. `MaxPooling` ise en belirgin özellikleri öne çıkarır, gereksiz detayları atar.
+# Eğitim ve Test ayrımı
+train_size = int(len(X) * 0.67)
+X_train, X_test = X[0:train_size], X[train_size:len(X)]
+y_train, y_test = y[0:train_size], y[train_size:len(y)]
+```
 
-    ```python
-    model = Sequential()
-    
-    # Conv1D Katmanı:
-    # filters=64: 64 farklı deseni (feature map) öğrenmeye çalışacak.
-    # kernel_size=2: Her seferinde 2 adımlık (2 aylık) bloklara bakacak.
-    model.add(Conv1D(filters=64, kernel_size=2, activation='relu', input_shape=(look_back, 1)))
-    
-    # Pooling Katmanı:
-    # Veriyi özetler, en baskın değeri alır. Boyutu yarıya indirir.
-    model.add(MaxPooling1D(pool_size=2))
-    
-    # Flatten:
-    # 3 boyutlu veriyi düzleştirip normal nöronlara (Dense) verir.
-    model.add(Flatten())
-    
-    # Klasik Sinir Ağı Katmanı
-    model.add(Dense(50, activation='relu'))
-    
-    # Çıktı Katmanı (Tek bir değer tahmin ediyoruz)
-    model.add(Dense(1))
-    
-    model.compile(optimizer='adam', loss='mse')
-    
-    # Modeli Eğitme
-    model.fit(X_train, y_train, epochs=200, batch_size=1, verbose=0)
-    ```
+**Modelin Kurulması**
 
-3.  **Tahmin ve Hata Analizi:**
-    Eğitim bittikten sonra tahminleri geri dönüştürüp (inverse transform) gerçek ölçekte hatamıza bakmalıyız.
+`Conv1D` katmanı işin temeldir. Filtreler verinin üzerinde gezinir. `MaxPooling` ise en belirgin özellikleri öne çıkarır.
 
-    ```python
-    # Tahmin yap
-    train_predict = model.predict(X_train)
-    test_predict = model.predict(X_test)
+```python
+model = Sequential()
 
-    # Normalizasyonu geri al (Gerçek yolcu sayılarına dön)
-    train_predict = scaler.inverse_transform(train_predict)
-    y_train_orig = scaler.inverse_transform([y_train])
-    test_predict = scaler.inverse_transform(test_predict)
-    y_test_orig = scaler.inverse_transform([y_test])
+# Conv1D Katmanı
+model.add(Conv1D(filters=64, kernel_size=2, activation='relu', 
+                 input_shape=(look_back, 1)))
 
-    # Hata hesapla (RMSE)
-    test_rmse = mean_squared_error(y_test_orig[0], test_predict[:,0], squared=False)
-    
-    print(f"1D-CNN Modeli Test RMSE Değeri: {test_rmse:.2f}")
-    ```
+# Pooling Katmanı
+model.add(MaxPooling1D(pool_size=2))
 
-### Akademik Yorum ve Karşılaştırma
+# Flatten
+model.add(Flatten())
 
-Gençler, bu noktada "Hocam, neden LSTM varken bunu kullanalım?" diye düşünebilirsiniz.
+# Dense Katmanı
+model.add(Dense(50, activation='relu'))
 
-1.  **Odak Farkı:** LSTM, zaman içindeki *bağımlılığı* (dependency) modeller. Yani "Ocak ayındaki olay Kasım ayını nasıl etkiledi?" sorusuna cevap arar. 1D-CNN ise *yerel yapıları* (local patterns) modeller. "Her krizden sonra şöyle bir 'U' dönüşü oluyor" gibi şekilsel çıkarımlar yapar.
-2.  **Hız:** AirPassengers verisi küçük olduğu için fark etmezsiniz ancak elinizde milyonlarca satırlık sensör verisi veya borsa verisi olduğunda, LSTM'in eğitimi günler sürebilirken CNN bunu saatler içinde tamamlayabilir. Çünkü CNN işlemleri paralel yapılabilir, LSTM ise sıralı gitmek zorundadır.
-3.  **Karma Kullanım:** Modern araştırmalarda sıkça **CNN-LSTM** hibrit modelleri görürsünüz. Önce CNN ile verideki önemli şekiller ve özellikler çıkarılır, sonra bu özellikler LSTM'e verilerek zamansal ilişki kurulur. Bu, her iki dünyanın da en iyi yanlarını almak demektir.
+# Çıktı Katmanı
+model.add(Dense(1))
 
-Bu örnekle birlikte çantanızda dört güçlü araç oldu: İstatistiksel (ARIMA), Sinir Ağı (LSTM), Ağaç Tabanlı (XGBoost) ve Desen Tabanlı (CNN). Veri bilimci olarak ustalığınız, verinin yapısına bakıp "Burada CNN daha iyi çalışır çünkü tekrarlayan kısa desenler var" veya "Burada Prophet kullanmalıyım çünkü bayram tatilleri veriyi bozuyor" diyebilmektir.
+model.compile(optimizer='adam', loss='mse')
+
+# Modeli Eğit
+model.fit(X_train, y_train, epochs=200, batch_size=1, verbose=0)
+```
+
+**Tahmin ve Hata Analizi**
+
+```python
+# Tahmin yap
+train_predict = model.predict(X_train)
+test_predict = model.predict(X_test)
+
+# Normalizasyonu geri al
+train_predict = scaler.inverse_transform(train_predict)
+y_train_orig = scaler.inverse_transform([y_train])
+test_predict = scaler.inverse_transform(test_predict)
+y_test_orig = scaler.inverse_transform([y_test])
+
+# Hata hesapla
+test_rmse = mean_squared_error(y_test_orig[0], test_predict[:,0], squared=False)
+print(f"1D-CNN Test RMSE: {test_rmse:.2f}")
+```
+
+### Karşılaştırma
+
+**Odak Farkı:** LSTM zaman içindeki bağımlılığı modeller. "Ocak ayındaki olay Kasım ayını nasıl etkiledi?" sorusuna cevap arar. 1D-CNN ise yerel yapıları modeller. "Her krizden sonra bir 'U' dönüşü oluyor" gibi şekilsel çıkarımlar yapar.
+
+**Hız:** AirPassengers verisi küçük olduğu için fark etmezsiniz ancak milyonlarca satırlık veri olduğunda LSTM'in eğitimi günler sürebilirken CNN bunu saatler içinde tamamlayabilir. CNN işlemleri paralel yapılabilir, LSTM ise sıralı gitmek zorundadır.
+
+**Karma Kullanım:** Modern araştırmalarda CNN-LSTM hibrit modelleri görürsünüz. Önce CNN ile verideki önemli desenler çıkarılır, sonra bu özellikler LSTM'e verilerek zamansal ilişki kurulur.
+
+Bu örnekle birlikte çantanızda dört araç oldu: İstatistiksel (ARIMA), Sinir Ağı (LSTM), Ağaç Tabanlı (XGBoost) ve Desen Tabanlı (CNN). Veri bilimci olarak ustalığınız verinin yapısına bakıp hangisinin daha iyi çalışacağına karar verebilmektir.
 
 ## Gretl ile Zaman Serisi Analizi
-Gençler, Python ve R gibi dillerde kod yazarak veriyi ilmek ilmek işledik. Bu yöntemler, modelin her parçasına hükmetmemizi sağlar ve esneklikleri sınırsızdır. Ancak akademik ve endüstriyel çalışmalarda bazen tekerleği yeniden icat etmeden, standart istatistiksel testleri hızlıca uygulamak ve sonuçları görsel arayüz üzerinden yorumlamak isteriz. İşte bu noktada, "Açık Kaynaklı Ekonometri Yazılımı" olan **Gretl** devreye girer.
 
-Gretl, yapay zeka veya derin öğrenme (Deep Learning) odaklı bir araç değildir. Daha çok klasik ekonometrik analizler, yani ARIMA gibi istatistiksel temelli modeller için tasarlanmıştır. Ancak bir veri bilimci için Gretl, kod yazmaya başlamadan önce veriyi "tanıma" ve "teşhis koyma" aşamasında çok güçlü bir laboratuvardır.
+Python ve R gibi dillerde kod yazarak veriyi işledik. Bu yöntemler modelin her parçasına hükmetmemizi sağlar ve esneklikleri sınırsızdır. Ancak akademik ve endüstriyel çalışmalarda bazen standart istatistiksel testleri hızlıca uygulamak ve sonuçları görsel arayüz üzerinden yorumlamak isteriz. Bu noktada açık kaynaklı ekonometri yazılımı **Gretl** devreye girer.
+
+Gretl yapay zeka veya derin öğrenme odaklı bir araç değildir. Klasik ekonometrik analizler, yani ARIMA gibi istatistiksel temelli modeller için tasarlanmıştır. Ancak bir veri bilimci için Gretl, kod yazmaya başlamadan önce veriyi tanıma ve teşhis koyma aşamasında güçlü bir araçtır.
 
 ### Gretl ile Analiz Süreci
 
-AirPassengers verisini Gretl'da incelemek, kod satırları arasında kaybolmadan verinin matematiğini görmemizi sağlar. Adım adım ilerleyelim.
+AirPassengers verisini Gretl'da incelemek, kod satırları arasında kaybolmadan verinin matematiğini görmemizi sağlar.
 
-**1. Veri Aktarımı ve Tanımlama**
-Python'da veriyi yükleyip tarih formatını `pd.to_datetime` ile biz ayarlıyorduk. Gretl'da ise süreç bir "sihirbaz" (wizard) yardımıyla ilerler.
-*   Gretl’ı açıp `File -> Open Data -> Import -> CSV` yolunu izleyerek AirPassengers dosyasını seçersiniz.
-*   Program size hemen sorar: "Bu veriyi içe aktardım ama yapısı nedir?"
-*   Seçmeniz gereken şudur: **Time Series (Zaman Serisi)**.
-*   Daha sonra frekansı sorar. Verimiz aylık olduğu için **Monthly** seçeneğini işaretleriz. Başlangıç tarihi olarak da **1949-01** gireriz.
+**Veri Aktarımı ve Tanımlama**
 
-Bu işlem bittiğinde, Gretl artık bu sütunun sadece sayılardan ibaret olmadığını, aylık periyotlarla ilerleyen bir zaman serisi olduğunu bilir.
+Python'da veriyi yükleyip tarih formatını `pd.to_datetime` ile ayarlıyorduk. Gretl'da ise süreç bir sihirbaz yardımıyla ilerler.
 
-**2. Görselleştirme ve Durağanlık**
-Python'da durağanlık için ADF (Augmented Dickey-Fuller) testi kodunu kütüphaneden çağırıyorduk. Gretl'da bu işlem menülerde hazırdır.
-*   Değişkenin üzerine sağ tıklayıp `Time series plot` dediğinizde trendi ve mevsimselliği net bir şekilde gösteren grafiği açar.
-*   Daha önemlisi, `Variable -> Unit root tests -> Augmented Dickey-Fuller` yolunu izlediğinizde, size saniyeler içinde o karmaşık istatistiksel raporu sunar. P-değerine (p-value) bakarak serinin durağan olup olmadığına (fark alıp almamamız gerektiğine) karar veririz.
+- Gretl'ı açıp `File -> Open Data -> Import -> CSV` yolunu izleyerek AirPassengers dosyasını seçersiniz.
+- Program size sorar: "Bu veriyi içe aktardım ama yapısı nedir?"
+- Seçmeniz gereken: **Time Series**.
+- Frekansı sorar. Verimiz aylık olduğu için **Monthly** seçeneğini işaretleriz. Başlangıç tarihi olarak **1949-01** gireriz.
 
-**3. ARIMA Modellemesi (X-12-ARIMA)**
-Hatırlarsanız Python'da `(p,d,q)` değerlerini bulmak için döngüler kuruyor veya ACF/PACF grafiklerini yorumluyorduk. Gretl bu süreci oldukça şeffaflaştırır.
+Bu işlem bittiğinde Gretl artık bu sütunun sadece sayılardan ibaret olmadığını, aylık periyotlarla ilerleyen bir zaman serisi olduğunu bilir.
 
-*   Menüden `Model -> Time series -> ARIMA` seçeneğine gidin.
-*   Karşınıza çıkan pencere, kod yazarken parametre girdiğimiz yerin görsel halidir.
-    *   **Dependent Variable:** Yolcu sayısı (#Passengers).
-    *   **Non-seasonal:** Burada `p` (AR), `d` (Fark) ve `q` (MA) değerlerini gireriz.
-    *   **Seasonal:** AirPassengers verisi mevsimsel olduğu için burası kritiktir. Mevsimsel fark (Seasonal Difference - D) kısmını 1 yaparız. Mevsimsel AR ve MA terimlerini de buradan ekleriz.
+**Görselleştirme ve Durağanlık**
 
-Modeli çalıştırdığınızda (OK tuşuna bastığınızda), Gretl size Python'daki `summary()` çıktısına benzer ama çok daha detaylı bir "Model Tablosu" sunar.
+Python'da durağanlık için ADF testi kodunu kütüphaneden çağırıyorduk. Gretl'da bu işlem menülerde hazırdır.
+
+- Değişkenin üzerine sağ tıklayıp `Time series plot` dediğinizde trendi ve mevsimselliği gösteren grafiği açar.
+- `Variable -> Unit root tests -> Augmented Dickey-Fuller` yolunu izlediğinizde saniyeler içinde istatistiksel raporu sunar. P-değerine bakarak serinin durağan olup olmadığına karar veririz.
+
+**ARIMA Modellemesi**
+
+Python'da `(p,d,q)` değerlerini bulmak için döngüler kuruyor veya ACF/PACF grafiklerini yorumluyorduk. Gretl bu süreci şeffaflaştırır.
+
+- Menüden `Model -> Time series -> ARIMA` seçeneğine gidin.
+- Karşınıza çıkan pencere, kod yazarken parametre girdiğimiz yerin görsel halidir.
+  - **Dependent Variable:** Yolcu sayısı.
+  - **Non-seasonal:** Burada `p` (AR), `d` (Fark) ve `q` (MA) değerlerini gireriz.
+  - **Seasonal:** AirPassengers verisi mevsimsel olduğu için burası önemlidir. Mevsimsel fark kısmını 1 yaparız. Mevsimsel AR ve MA terimlerini de buradan ekleriz.
+
+Modeli çalıştırdığınızda Gretl size Python'daki `summary()` çıktısına benzer ama daha detaylı bir model tablosu sunar.
 
 ### Gretl Çıktısının Yorumlanması
 
-Burada odaklanmanız gereken şey, yapay zeka algoritmalarındaki gibi sadece "tahmin başarısı" (RMSE) değildir. Gretl bize modelin **istatistiksel güvenilirliğini** söyler.
+Burada odaklanmanız gereken şey sadece tahmin başarısı değildir. Gretl bize modelin **istatistiksel güvenilirliğini** söyler.
 
-1.  **Katsayıların Anlamlılığı:** Tabloda her parametrenin yanında yıldızlar (*) veya p-değerleri görürsünüz. Eğer bir parametrenin p-değeri 0.05'ten büyükse, Gretl bize "Gençler, bu parametreyi modele eklediniz ama aslında sonuca bir katkısı yok, bunu çıkarın" demektedir. LSTM veya XGBoost bunu size doğrudan söylemez, sadece sonucu verir.
-2.  **Bilgi Kriterleri (AIC ve BIC):** Tablonun altında bu iki değeri görürsünüz. Farklı ARIMA modelleri denediğinizde (örneğin (1,1,1) yerine (2,1,2) denediğinizde), bu değerler hangisinde daha düşükse o model matematiksel olarak daha verimlidir.
-3.  **Hata Analizi:** Gretl, `Graphs -> Residual plot` seçeneği ile hataların grafiğini çizer. Eğer bu grafik rastgele gürültüden (white noise) farklı bir desen içeriyorsa, modeliniz verideki tüm bilgiyi emememiş demektir.
+**Katsayıların Anlamlılığı:** Tabloda her parametrenin yanında yıldızlar veya p-değerleri görürsünüz. Bir parametrenin p-değeri 0.05'ten büyükse, bu parametrenin modele katkısı yoktur. LSTM veya XGBoost bunu doğrudan söylemez, sadece sonucu verir.
+
+**Bilgi Kriterleri (AIC ve BIC):** Tablonun altında bu iki değeri görürsünüz. Farklı ARIMA modelleri denediğinizde bu değerler hangisinde daha düşükse o model matematiksel olarak daha verimlidir.
+
+**Hata Analizi:** Gretl, `Graphs -> Residual plot` seçeneği ile hataların grafiğini çizer. Bu grafik rastgele gürültüden farklı bir desen içeriyorsa modeliniz verideki tüm bilgiyi kullanamamış demektir.
 
 ### Neden Gretl Kullanıyoruz?
 
-Yapay zeka algoritmaları (LSTM, CNN) genellikle "kara kutu" (black box) olarak çalışır; girdi verirsiniz, çıktı alırsınız, aradaki nöronların ne yaptığını tam olarak bilemeyebilirsiniz. Gretl ve temsil ettiği ekonometrik yaklaşım ise **nedensellik** ve **yapısal analiz** üzerine kuruludur.
+Yapay zeka algoritmaları (LSTM, CNN) genellikle kara kutu olarak çalışır; girdi verirsiniz, çıktı alırsınız, aradaki nöronların ne yaptığını tam olarak bilemeyebilirsiniz. Gretl ve temsil ettiği ekonometrik yaklaşım ise nedensellik ve yapısal analiz üzerine kuruludur.
 
-Bir projeye başlarken benim önerim şudur: Önce veriyi Gretl gibi bir araçla hızlıca analiz edin. Mevsimsellik var mı, trend nasıl, yapısal bir kırılma (örneğin 1960'ta veride ani bir kopuş) var mı? Bu teşhisi koyduktan sonra, Python'a geçip LSTM veya Prophet ile "ince ayar" yapılmış yüksek başarılı tahmin modelleri kurmak çok daha bilinçli bir yöntemdir.
+Bir projeye başlarken önce veriyi Gretl gibi bir araçla hızlıca analiz edin. Mevsimsellik var mı, trend nasıl, yapısal bir kırılma var mı? Bu teşhisi koyduktan sonra Python'a geçip LSTM veya Prophet ile ince ayar yapılmış tahmin modelleri kurmak daha bilinçli bir yöntemdir.
 
-Özetle Gretl, bize "neyi" modellediğimizi gösterirken; Python ve R'daki yapay zeka algoritmaları "nasıl" daha iyi tahmin edeceğimize odaklanır. Veri bilimci olarak her iki yaklaşıma da hakim olmanız gerekir.
+Gretl bize neyi modellediğimizi gösterirken; Python ve R'daki yapay zeka algoritmaları nasıl daha iyi tahmin edeceğimize odaklanır. Her iki yaklaşıma da hakim olmanız gerekir.
