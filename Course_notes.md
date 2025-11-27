@@ -2309,60 +2309,161 @@ print(f"Ortalama TimeSeriesSplit RMSE: {np.mean(rmse_list):.2f}")
 
 ---
 
-## 15. Gretl ile Zaman Serisi Analizi
+## 15. Gretl: Ekonometrik Analiz için Görsel Bir Ortam
 
-Python ve R gibi dillerde kod yazarak veriyi işledik. Bu yöntemler modelin her parçasına hükmetmemizi sağlar ve esneklikleri sınırsızdır. Ancak akademik ve endüstriyel çalışmalarda bazen standart istatistiksel testleri hızlıca uygulamak ve sonuçları görsel arayüz üzerinden yorumlamak isteriz. Bu noktada açık kaynaklı ekonometri yazılımı **Gretl** devreye girer.
+Python, R, Weka gibi ortamlarda komut yazarak çalışmak oldukça esnek ama ilk adımda biraz yorucu olabiliyor. Gretl, özellikle ekonometrik modeller ve zaman serileri için tasarlanmış, **ücretsiz** ve **grafik arayüzü** olan bir programdır.
 
-Gretl yapay zeka veya derin öğrenme odaklı bir araç değildir. Klasik ekonometrik analizler, yani ARIMA gibi istatistiksel temelli modeller için tasarlanmıştır. Ancak bir veri bilimci için Gretl, kod yazmaya başlamadan önce veriyi tanıma ve teşhis koyma aşamasında güçlü bir araçtır.
+*   Grafik menülerle hızlıca regresyon, ARIMA, VAR vb. kurmanıza izin verir.
+*   İsterseniz kendi komut dilini kullanarak betik (script) de yazabilirsiniz.
+*   Zaman serisi yapısını tanımlamayı, otokorelasyonları görmeyi, durağanlık testlerini yapmayı kolaylaştırır.
 
-### 15.1. Gretl ile Analiz Süreci
+Gençler, Gretl’i Python ve Weka’nın yanında şöyle düşünebilirsiniz: Kod yazmadan ve fazla uğraşmadan “ekonometrik çekirdek modelleri” denemek için pratik bir masaüstü laboratuvarı.
 
-AirPassengers verisini Gretl'da incelemek, kod satırları arasında kaybolmadan verinin matematiğini görmemizi sağlar.
+### 15.1. Arayüz ve Temel Kavramlar
 
-**Veri Aktarımı ve Tanımlama**
+Gretl’i açtığınızda karşınıza genelde şu bölümler çıkar:
 
-Python'da veriyi yükleyip tarih formatını `pd.to_datetime` ile ayarlıyorduk. Gretl'da ise süreç bir sihirbaz yardımıyla ilerler.
+*   **Menü çubuğu:** **File, Data, View, Model, Tools, Graphs, Help** gibi seçenekler.
+*   **Ana pencere:** Veri kümenizle ilgili özet bilgiler.
+*   **Değişken listesi:** Yükledikten sonra değişkenlerin adlarını ve türlerini görürsünüz.
+*   **Komut penceresi (isteğe bağlı):** Kendi komutlarınızı yazabileceğiniz alan.
 
-- Gretl'ı açıp `File -> Open Data -> Import -> CSV` yolunu izleyerek AirPassengers dosyasını seçersiniz.
-- Program size sorar: "Bu veriyi içe aktardım ama yapısı nedir?"
-- Seçmeniz gereken: **Time Series**.
-- Frekansı sorar. Verimiz aylık olduğu için **Monthly** seçeneğini işaretleriz. Başlangıç tarihi olarak **1949-01** gireriz.
+Gretl veri tiplerini kabaca üç gruba ayırır:
 
-Bu işlem bittiğinde Gretl artık bu sütunun sadece sayılardan ibaret olmadığını, aylık periyotlarla ilerleyen bir zaman serisi olduğunu bilir.
+1.  **Kesitsel veri (cross-section)**
+2.  **Zaman serisi (time series)**
+3.  **Panel veri (time series + cross-section)**
 
-**Görselleştirme ve Durağanlık**
+Bir veri kümesini zaman serisi olarak kullanmak için önce “frekansını” (aylık, yıllık, çeyreklik vb.) ve başlangıç tarihini tanımlamak gerekir. Bunu bir defa düzenleyince, Gretl grafik ve modellerde bu yapıyı otomatik kullanır.
 
-Python'da durağanlık için ADF testi kodunu kütüphaneden çağırıyorduk. Gretl'da bu işlem menülerde hazırdır.
+### 15.2. Veri Hazırlığı
 
-- Değişkenin üzerine sağ tıklayıp `Time series plot` dediğinizde trendi ve mevsimselliği gösteren grafiği açar.
-- `Variable -> Unit root tests -> Augmented Dickey-Fuller` yolunu izlediğinizde saniyeler içinde istatistiksel raporu sunar. P-değerine bakarak serinin durağan olup olmadığına karar veririz.
+#### 15.2.1. Veri Yükleme
 
-**ARIMA Modellemesi**
+AirPassengers gibi bir CSV dosyasını Gretl’e aktarmak için genel çizgi şöyle:
 
-Python'da `(p,d,q)` değerlerini bulmak için döngüler kuruyor veya ACF/PACF grafiklerini yorumluyorduk. Gretl bu süreci şeffaflaştırır.
+1.  **File → Open data → Import → Text/CSV** seçeneğine tıklanır.
+2.  `AirPassengers.csv` dosyası seçilir.
+3.  Açılan pencerede sütun ayırıcı (virgül, noktalı virgül) otomatik algılanır; gerekirse manuel seçilir.
+4.  Sütun isimleri doğru okunmuş mu kontrol edilir (örneğin: `Month`, `Passengers` gibi).
+5.  “OK” denildiğinde veri kümesi Gretl’e aktarılır.
 
-- Menüden `Model -> Time series -> ARIMA` seçeneğine gidin.
-- Karşınıza çıkan pencere, kod yazarken parametre girdiğimiz yerin görsel halidir.
-  - **Dependent Variable:** Yolcu sayısı.
-  - **Non-seasonal:** Burada `p` (AR), `d` (Fark) ve `q` (MA) değerlerini gireriz.
-  - **Seasonal:** AirPassengers verisi mevsimsel olduğu için burası önemlidir. Mevsimsel fark kısmını 1 yaparız. Mevsimsel AR ve MA terimlerini de buradan ekleriz.
+Bu noktadan sonra Gretl, veriyi sıradan bir tablo olarak görür. Onu zaman serisi haline getirmek için bir adım daha gerekir.
 
-Modeli çalıştırdığınızda Gretl size Python'daki `summary()` çıktısına benzer ama daha detaylı bir model tablosu sunar.
+#### 15.2.2. Zaman Serisi Olarak Tanımlama
 
-### 15.2. Gretl Çıktısının Yorumlanması
+Bir CSV dosyasını açtıktan sonra:
 
-Burada odaklanmanız gereken şey sadece tahmin başarısı değildir. Gretl bize modelin **istatistiksel güvenilirliğini** söyler.
+1.  Menülerden **Data → Dataset structure** seçilir.
+2.  Açılan pencerede:
+    *   **Observations are**: time series
+    *   **Frequency**: monthly
+    *   **Start**: örneğin `1949:01`
+    *   **End**: Gretl genelde kendisi doldurur, gerekirse kontrol edilir.
+3.  Onaylandığında Gretl artık her satırı bir aya karşılık gelen bir gözlem olarak kabul eder.
 
-**Katsayıların Anlamlılığı:** Tabloda her parametrenin yanında yıldızlar veya p-değerleri görürsünüz. Bir parametrenin p-değeri 0.05'ten büyükse, bu parametrenin modele katkısı yoktur. LSTM veya XGBoost bunu doğrudan söylemez, sadece sonucu verir.
+Bu aşamadan sonra zaman eksenli grafiklerde tarihleri doğru görürsünüz ve ARIMA gibi modelleri kurarken ek bir işleme gerek kalmaz.
 
-**Bilgi Kriterleri (AIC ve BIC):** Tablonun altında bu iki değeri görürsünüz. Farklı ARIMA modelleri denediğinizde bu değerler hangisinde daha düşükse o model matematiksel olarak daha verimlidir.
+### 15.3. Keşifsel Analiz ve Modelleme
 
-**Hata Analizi:** Gretl, `Graphs -> Residual plot` seçeneği ile hataların grafiğini çizer. Bu grafik rastgele gürültüden farklı bir desen içeriyorsa modeliniz verideki tüm bilgiyi kullanamamış demektir.
+#### 15.3.1. Grafikler ve Özet İstatistikler
 
-### 15.3. Neden Gretl Kullanıyoruz?
+Veri kümesi yüklendikten ve zaman serisi yapısı tanımlandıktan sonra:
 
-Yapay zeka algoritmaları (LSTM, CNN) genellikle kara kutu olarak çalışır; girdi verirsiniz, çıktı alırsınız, aradaki nöronların ne yaptığını tam olarak bilemeyebilirsiniz. Gretl ve temsil ettiği ekonometrik yaklaşım ise nedensellik ve yapısal analiz üzerine kuruludur.
+*   **View → Graphs → Time series plot** ile herhangi bir değişkenin zaman serisi grafiğini çizebilirsiniz.
+*   **View → Summary statistics** ile ortalama, standart sapma, minimum, maksimum gibi özet istatistikleri görebilirsiniz.
+*   Belirli bir değişkene tıklayıp sağ tuş menüsünden de benzer işlemleri başlatmak mümkündür.
 
-Bir projeye başlarken önce veriyi Gretl gibi bir araçla hızlıca analiz edin. Mevsimsellik var mı, trend nasıl, yapısal bir kırılma var mı? Bu teşhisi koyduktan sonra Python'a geçip LSTM veya Prophet ile ince ayar yapılmış tahmin modelleri kurmak daha bilinçli bir yöntemdir.
+Örneğin, `Passengers` değişkenini seçip zaman serisi grafiğini çizdiğinizde, AirPassengers verisine oldukça benzer bir yapı görürsünüz: artan trend ve her yıl tekrarlayan mevsimsellik.
 
-Gretl bize neyi modellediğimizi gösterirken; Python ve R'daki yapay zeka algoritmaları nasıl daha iyi tahmin edeceğimize odaklanır. Her iki yaklaşıma da hakim olmanız gerekir.
+#### 15.3.2. Basit Doğrusal Regresyon ve Artıkların İncelenmesi
+
+Gretl’in güçlü yanlarından biri, regresyon kurmanın birkaç tıklama ile yapılabilmesidir.
+
+1.  **Model → Ordinary Least Squares** (OLS) seçilir.
+2.  Açılan pencerede:
+    *   “Dependent variable” (bağımlı değişken) olarak örneğin `Passengers` seçilir.
+    *   “Independent variables” (bağımsız değişkenler) olarak zaman trendi, mevsimsel kuklalar, lagler gibi değişkenler eklenebilir.
+3.  “OK” dendiğinde Gretl katsayı tahminlerini, t-istatistiklerini, R-kare değerini ve artık (residual) özetlerini gösterir.
+
+Çıkan sonuç penceresinden **Graphs → Residuals** ile artıkların zaman grafiğini görebilir ve **Tests → Autocorrelation** ile artıkların otokorelasyon içerip içermediğini inceleyebilirsiniz.
+
+#### 15.3.3. ARMA/ARIMA Modelleri
+
+Zaman serisi analizinde Gretl’in en çok kullanılan özelliklerinden biri ARMA/ARIMA modellemesidir. Menü üzerinden ARIMA kurmak için:
+
+1.  **Model → Time series → ARIMA** seçilir.
+2.  Bağımlı değişken olarak örneğin `Passengers` seçilir.
+3.  Model derecelerini girersiniz:
+    *   AR derecesi (p)
+    *   Differencing (d)
+    *   MA derecesi (q)
+    *   Mevsimsel parametreler (P, D, Q, s) gerekiyorsa onlar da ayrıca girilir.
+4.  Model tahmin edildikten sonra parametre tahminleri, standart hatalar, bilgi kriterleri (AIC, BIC) listelenir.
+5.  Sonuç penceresinden **View → Correlogram of residuals** ile artıkların ACF/PACF grafikleri incelenebilir.
+
+### 15.4. Model Doğrulama: Otokorelasyon ve Durağanlık Testleri
+
+Zaman serisi analizinde serinin durağan olup olmadığı veya artıkların otokorelasyon içerip içermediği gibi kontroller kritik öneme sahiptir. Gretl’de bunları kontrol etmek için:
+
+*   **View → Correlogram**: Bir değişkenin ACF ve PACF grafikleri çizilebilir.
+*   **Değişkene sağ tık → Unit root tests**: ADF, KPSS gibi durağanlık testleri uygulanabilir.
+*   Model sonuç ekranında **Tests** menüsü ile artıklar üzerinde Ljung-Box gibi otokorelasyon testleri yapılabilir.
+
+Bu testler, ARIMA kurarken veya daha sonra LSTM/GRU gibi modellere geçmeden önce serinin yapısını anlamak için yararlıdır.
+
+### 15.5. Komut Dili ile Otomasyon: Örnek Betik
+
+Gretl sadece menülerden oluşan bir program değildir. İsterseniz kendi komut dilini kullanarak aynı işlemleri tekrarlanabilir bir betik (script) haline getirebilirsiniz. Aşağıdaki tek parça örnek, AirPassengers benzeri bir dosya üzerinden temel adımları gösteriyor:
+
+```gretl
+# ---------------------------------------------------------
+# Gretl komut dili ile zaman serisi ve ARIMA örneği
+# Bu dosya .inp uzantılı bir script olarak çalıştırılabilir.
+# ---------------------------------------------------------
+
+# 1) Veri setini açalım (CSV dosyasını içeri almak için)
+# Burada dosya yolunu kendi bilgisayarınıza göre düzenlemeniz gerekir.
+open "data/AirPassengers.csv"
+
+# 2) Veri kümesini zaman serisi olarak tanımlayalım
+# frekans=12 (aylık), başlangıç=1949:01
+setobs 12 1949:01 --time-series
+
+# 3) Yolcu sayısı değişkeninin adını uygun hale getirelim
+rename "#Passengers" passengers
+
+# 4) Zaman serisi grafiği çizelim
+gnuplot passengers --time-series --with-lines --output=display
+
+# 5) Basit bir ARIMA(1,1,1) modeli tahmin edelim
+arima 1 1 1 ; passengers
+
+# 6) Artıkların korelogramını çizelim
+# $uhat: son tahmin edilen modelin artıklarını tutar
+series u = $uhat
+corrgm u 24   # 24 gecikmeye kadar ACF grafiği
+
+# 7) Durağanlık testi (ADF) uygulayalım
+adf passengers
+
+# 8) 12 dönem ileriye tahmin üretelim
+fcast 12
+
+# 9) Tahmini grafikte görelim
+gnuplot passengers passengers_f --time-series --with-lines --output=display
+```
+
+Bu tür bir betik, aynı analizi tekrar tekrar çalıştırmayı ve rapor üretirken daha düzenli çalışmayı kolaylaştırır.
+
+### 15.6. Gretl’in Ekosistemdeki Yeri: Diğer Yöntemlerle Karşılaştırma
+
+Toparlamak için şu tabloyu akılda tutmak faydalı olabilir:
+
+| Araç | Güçlü Yönleri |
+| :--- | :--- |
+| **Gretl** | OLS, ARIMA, VAR gibi klasik ekonometrik yapıların hızlıca denenmesi, grafikli arayüz ve komut dili kombinasyonu, temel tanı araçları. |
+| **Python** | Gelişmiş zaman serisi modelleri (LSTM, GRU, 1D-CNN), ağaç tabanlı yöntemler (XGBoost), esnek veri işleme ve otomasyon. |
+| **Weka** | Kod yazmadan çeşitli makine öğrenmesi algoritmalarını denemek, TSLagMaker ile zaman serilerini tabloya dönüştürüp regresyon uygulamak. |
+
+Gençler, Gretl bu resmin içinde özellikle zaman serisi ve ekonometrik modellerin temel mantığını görmek için oldukça işlevli bir araçtır. Aynı veriyi Gretl, Python ve Weka üzerinde çalıştırmak, hem yöntemleri hem de ortamların farklarını karşılaştırmak için güzel bir egzersiz olur.
