@@ -4,9 +4,9 @@
 
 ---
 
-## Bölüm 1: Zaman Serisi Analizine Giriş
+## 1. Zaman Serisi Analizine Giriş
 
-### Zaman Serisi Nedir?
+### 1.1. Zaman Serisi Nedir?
 
 En basit tanımıyla zaman serisi, belirli bir zaman aralığında ardışık olarak gözlemlenen veri noktaları dizisidir. Box ve Jenkins’in klasik tanımına göre, “zamana bağlı olarak düzenli aralıklarla kaydedilen gözlemler dizisidir.”
 
@@ -28,7 +28,7 @@ Bu ders boyunca şu temel sorulara yanıt arayacağız:
 
 ---
 
-## Bölüm 2: Zaman Serisinin Temel Kavramları ve Bileşenleri
+## 2. Zaman Serisinin Temel Kavramları ve Bileşenleri
 
 Bir zaman serisini analiz etmeden önce, onun temel kavramlarını anlamamız şart. İşte en temel kavramlar:
 
@@ -39,7 +39,7 @@ Bir zaman serisini analiz etmeden önce, onun temel kavramlarını anlamamız ş
 - **Döngüsellik (Cyclicity):** Mevsimsellik gibi periyodiktir ancak periyotları sabit değildir ve genellikle daha uzun vadelidir. Ekonomideki iş döngüleri (genişleme ve daralma dönemleri) bu duruma örnektir.
 - **Durağanlık (Stationarity):** Bu, dersin en kritik kavramlarından biridir. Bir serinin ortalama, varyans gibi istatistiksel özelliklerinin zamanla değişmemesi durumudur. Bunu anlamadan modelleme yapamazsınız. Birçok klasik model, serinin durağan olmasını veya durağanlaştırılmasını gerektirir.
 
-### Zaman Serisi Bileşenleri
+### 2.1. Zaman Serisi Bileşenleri
 
 Bir zaman serisini, genellikle dört ana bileşenin birleşimi olarak düşünebiliriz. Amacımız, bu bileşenleri ayrıştırarak serinin yapısını ortaya çıkarmaktır:
 
@@ -68,33 +68,33 @@ graph TD
 
 ---
 
-## Bölüm 3: Zaman Serisi Tipleri
+## 3. Zaman Serisi Tipleri
 
 Analize başlamadan önce, elinizdeki verinin türünü doğru sınıflandırmanız gerekir. Çünkü her seriye aynı yöntem uygulanmaz.
 
-1. **Değişken Sayısına Göre:**
+1.  **Değişken Sayısına Göre:**
     - **Tek Değişkenli (Univariate):** Tek bir değişkenin zaman içindeki değişimini inceleriz. Örnek: Sadece altın fiyatları.
     - **Çok Değişkenli (Multivariate):** İki veya daha fazla değişkenin eş zamanlı değişimini inceleriz. Örnek: Altın fiyatları, enflasyon oranı ve faiz oranlarının birlikte analizi.
 
-2. **İstatistiksel Özelliklere Göre:**
+2.  **İstatistiksel Özelliklere Göre:**
     - **Durağan (Stationary):** İstatistiksel özellikleri zamanla değişmeyen seriler.
     - **Durağan Olmayan (Non-Stationary):** Trend veya mevsimsellik gibi nedenlerle istatistiksel özellikleri zamanla değişen seriler.
 
-3. **Ölçüm Zamanına Göre:**
+3.  **Ölçüm Zamanına Göre:**
     - **Kesikli (Discrete-Time):** Gözlemlerin belirli zaman aralıklarında (saatlik, günlük, aylık) yapıldığı seriler. Analiz ettiğimiz serilerin büyük çoğunluğu bu tiptedir.
     - **Sürekli (Continuous-Time):** Gözlemlerin zamanın her anında mevcut olduğu teorik seriler. EKG sinyalleri gibi.
 
-4. **Rastgelelik Durumuna Göre:**
+4.  **Rastgelelik Durumuna Göre:**
     - **Deterministik:** Gelecek değerleri hatasız tahmin edilebilen, matematiksel bir fonksiyonla ifade edilebilen seriler.
     - **Stokastik:** Gelecek değerleri belirsizlik içeren ve rastgele bir bileşene sahip olan seriler. Gerçek dünyadaki serilerin neredeyse tamamı stokastiktir.
 
 ---
 
-## Bölüm 4: R ile Pratiğe Giriş - Tarih ve Zaman Nesneleri
+## 4. R ile Pratiğe Giriş - Tarih ve Zaman Nesneleri
 
 Bugün zaman serisi analizinin belki de en can sıkıcı ama en önemli konusuna gireceğiz: tarih ve zaman nesneleri. Birçok öğrenci burada takılıyor. Neden? Çünkü tarih formatları dünyada standart değil.
 
-### Tarih Formatı Sorunsalı
+### 4.1. Tarih Formatı Sorunsalı
 
 Şu tarihe bir bakın: `01/02/2024`. Bu ne anlama geliyor?
 
@@ -104,12 +104,12 @@ Bugün zaman serisi analizinin belki de en can sıkıcı ama en önemli konusuna
 
 Eğer verinizi okurken bu formata dikkat etmezseniz, tüm analiziniz en başından çöp olur. Bu yüzden kendinize bir iyilik yapın ve tek bir standarda bağlı kalın: **ISO 8601 formatı (YYYY-MM-DD)**. Bu format evrenseldir, makine dostudur ve sizi gelecekteki baş ağrılarından kurtarır.
 
-### R'da Tarih Nesneleri
+### 4.2. R'da Tarih Nesneleri
 
 R, bu format karmaşasını yönetmek için bize özel veri tipleri sunar. Bunlardan ikisini bilmek zorundasınız:
 
-1. **`Date`**: Sadece tarih bilgisi (gün, ay, yıl) tutar. Saatle işiniz yoksa bunu kullanın.
-2. **`POSIXct` / `POSIXlt`**: Tarih, saat ve hatta saat dilimi gibi daha detaylı bilgileri içerir. `POSIXct` daha yaygın kullanılır ve genellikle daha verimlidir.
+1.  **`Date`**: Sadece tarih bilgisi (gün, ay, yıl) tutar. Saatle işiniz yoksa bunu kullanın.
+2.  **`POSIXct` / `POSIXlt`**: Tarih, saat ve hatta saat dilimi gibi daha detaylı bilgileri içerir. `POSIXct` daha yaygın kullanılır ve genellikle daha verimlidir.
 
 ```r
 # Bugünün tarihini al
@@ -149,7 +149,7 @@ Bu kodlar, R'a metnin hangi parçasının gün, ay veya yıl olduğunu anlatır.
 - `%b`: Kısa ay ismi (örn: Oca, Feb)
 - `%d`: Gün (01-31)
 
-### `lubridate` Paketi: Akıl Sağlığınız İçin
+### 4.3. `lubridate` Paketi: Akıl Sağlığınız İçin
 
 `as.Date()` ve format kodları güçlüdür ama her seferinde uğraşmak yorucu olabilir. İşte burada `lubridate` paketi devreye giriyor. Bu paket, tarih işlemlerini o kadar basitleştirir ki, bir kere kullandıktan sonra asla geri dönmek istemezsiniz.
 
@@ -169,7 +169,7 @@ day(tarih1)    # 15
 wday(tarih1, label = TRUE) # Haftanın günü (örn: "Fri")
 ```
 
-### Tarih Aritmetiği ve Diziler
+### 4.4. Tarih Aritmetiği ve Diziler
 
 Tarihleri bir kere doğru formata getirdikten sonra onlarla matematiksel işlemler yapabiliriz. Bu, özellikle "30 gün sonrası" veya "iki olay arasındaki gün sayısı" gibi hesaplamalar için kritiktir. Ayrıca, analiz için baştan sona düzenli bir zaman dizini oluşturmamız gerektiğinde de hayat kurtarır.
 
@@ -195,16 +195,16 @@ print(aylik_dizi)
 
 ---
 
-## Bölüm 5: R'da Zaman Serisi Nesnesi: `ts`
+## 5. R'da Zaman Serisi Nesnesi: `ts`
 
 Tarih ve zaman sorununu çözdükten sonra, veriyi R'ın analiz için kullandığı özel bir nesneye dönüştürmemiz gerekiyor: `ts` (time series) nesnesi.
 
 Bir `ts` nesnesi iki temel bilgiyi içerir:
 
-1. **Veri:** Sayısal değerlerden oluşan bir vektör.
-2. **Zaman Bilgisi:** Serinin başlangıç zamanı (`start`) ve frekansı (`frequency`).
+1.  **Veri:** Sayısal değerlerden oluşan bir vektör.
+2.  **Zaman Bilgisi:** Serinin başlangıç zamanı (`start`) ve frekansı (`frequency`).
 
-### Frekans Kavramı: Modellemeyi Doğru Yapmanın Anahtarı
+### 5.1. Frekans Kavramı: Modellemeyi Doğru Yapmanın Anahtarı
 
 Frekans, bir zaman döngüsünde kaç gözlem olduğunu belirtir. Bu parametreyi yanlış ayarlarsanız, mevsimsellik gibi önemli desenleri modelleyemezsiniz. Bu yüzden buraya çok dikkat edin.
 
@@ -214,7 +214,7 @@ Frekans, bir zaman döngüsünde kaç gözlem olduğunu belirtir. Bu parametreyi
 - **Günlük veri:** `frequency = 365` (veya 365.25)
 - **Haftalık veri:** `frequency = 52`
 
-### `ts` Nesnesi Oluşturma ve İnceleme
+### 5.2. `ts` Nesnesi Oluşturma ve İnceleme
 
 ```r
 # Örnek 1: Manuel Veri ile ts Nesnesi Oluşturma
@@ -269,7 +269,7 @@ plot(AirPassengers,
 grid()
 ```
 
-### `ts` Nesnesinin Ötesi: `xts` ile Gerçek Dünya Verileri
+### 5.3. `ts` Nesnesinin Ötesi: `xts` ile Gerçek Dünya Verileri
 
 Gençler, şimdiye kadar gördüğümüz `ts` nesnesi, ders kitaplarındaki gibi düzenli aralıklı veriler (aylık, yıllık) için harikadır. Ancak gerçek dünya verileri nadiren bu kadar düzenlidir. Hafta sonları işlem görmeyen borsa verilerini veya bazen kesintiye uğrayan saniyelik sensör kayıtlarını düşünün. `ts` nesnesinin sabit frekans yapısı bu gibi durumlarda yetersiz kalır.
 
@@ -298,7 +298,7 @@ print(veri_xts)
 #> 2024-01-26  104
 ```
 
-#### `xts`'in Gücü: Sezgisel Filtreleme ve Manipülasyon
+#### 5.3.1. `xts`'in Gücü: Sezgisel Filtreleme ve Manipülasyon
 
 `xts`'in en büyük avantajlarından biri, tarih bazlı alt kümelemenin çok kolay olmasıdır. ISO 8601 formatında (`YYYY-MM-DD`) metinler kullanarak verinin istediğiniz bölümünü rahatça seçebilirsiniz.
 
@@ -330,13 +330,13 @@ print(aylik_ortalama)
 
 Özetle, elinizdeki veri düzenli aralıklı ve klasik bir zaman serisi ise `ts` nesnesi işinizi görecektir. Ancak düzensiz, yüksek frekanslı veya üzerinde karmaşık tarih/saat manipülasyonları yapmanız gereken bir veriyle çalışıyorsanız, `xts` sizin için doğru ve daha güçlü bir araçtır.
 
-### Pratik `lubridate` Örnekleri
+### 5.4. Pratik `lubridate` Örnekleri
 
 `lubridate` paketinin gücünü birkaç pratik örnekle görelim.
 
-#### Örnek 1: Kaç Gündür Hayattasınız?
+#### 5.4.1. Örnek 1: Kaç Gündür Hayattasınız?
 
-Örneğin  (`2021-06-29`) tarihini sembolik olarak kullanabiliriz. Bu tarih ile bugün arasındaki farkı hesaplayarak kaç gün geçtiğini ve kaç kış gördüğümüzü bulalım.
+Örneğin (`2021-06-29`) tarihini sembolik olarak kullanabiliriz. Bu tarih ile bugün arasındaki farkı hesaplayarak kaç gün geçtiğini ve kaç kış gördüğümüzü bulalım.
 
 ```r
 library(lubridate)
@@ -355,7 +355,7 @@ gorulen_kis_sayisi <- yas_araligi %/% years(1)
 cat("Ben", gorulen_kis_sayisi, "kış gördüm.\n")
 ```
 
-#### Örnek 2: Atatürk Kaç Gün Yaşadı ve Hangi Gün Vefat Etti?
+#### 5.4.2. Örnek 2: Atatürk Kaç Gün Yaşadı ve Hangi Gün Vefat Etti?
 
 Tarihi kişiliklerin yaşam sürelerini ve önemli günlerini `lubridate` ile kolayca analiz edebiliriz. Atatürk'ün doğum günü olarak 19 Mayıs 1881'i kabul edelim.
 
@@ -376,7 +376,7 @@ vefat_gunu <- wday(ataturk_vefat, label = TRUE, abbr = FALSE)
 cat("Vefat ettiği gün:", as.character(vefat_gunu), "\n")
 ```
 
-#### Örnek 3: Toplam Kaç Saat Yaşadınız?
+#### 5.4.3. Örnek 3: Toplam Kaç Saat Yaşadınız?
 
 Daha hassas hesaplamalar için tarihle birlikte saati de kullanmamız gerekir. `ymd_hms()` fonksiyonu ile `POSIXct` türünde bir nesne oluşturup şimdiki zamandan çıkararak toplam yaşanılan saati bulabiliriz.
 
@@ -396,7 +396,7 @@ cat("1995-04-23 14:30'da doğan bir kişi, yaklaşık olarak",
     round(yasanan_saat), "saattir hayattadır.\n")
 ```
 
-### Veri Alt Kümesi Alma: `window()`
+### 5.5. Veri Alt Kümesi Alma: `window()`
 
 Bir zaman serisinin belirli bir bölümünü analiz etmek için `window()` fonksiyonu kullanılır. Bu, en sık kullanacağınız fonksiyonlardan biridir.
 
@@ -409,11 +409,11 @@ subset_gas <- window(USgas,
 
 ---
 
-## Bölüm 6: Veri Manipülasyonu ve Görselleştirme
+## 6. Veri Manipülasyonu ve Görselleştirme
 
 Elimizde bir `ts` nesnesi var. Şimdi ne yapacağız? İlk kural: Veriyi çizin. Her zaman. Veriyi görselleştirmeden analize başlamak, gözü kapalı araba kullanmaya benzer.
 
-### Temel Görselleştirme
+### 6.1. Temel Görselleştirme
 
 `ts` nesneleri, `plot()` fonksiyonu ile doğrudan görselleştirilebilir.
 
@@ -426,7 +426,7 @@ plot(USgas,
 grid()
 ```
 
-### Zaman Serisi Manipülasyonu
+### 6.2. Zaman Serisi Manipülasyonu
 
 - **`aggregate()`:** Yüksek frekanslı veriyi daha düşük bir frekansa toplamak için kullanılır. Örneğin, aylık veriyi yıllık toplamlara çevirebiliriz.
 
@@ -515,11 +515,11 @@ plot(USgas_ayristir)
 
 Bu komut size dört grafik sunar: orijinal veri, tahmin edilen trend, tahmin edilen mevsimsel etki ve geriye kalan rastgele gürültü.
 
-### Keşifsel Analiz Grafikleri: Serinin Hafızasını Okumak (ACF ve PACF)
+### 6.3. Keşifsel Analiz Grafikleri: Serinin Hafızasını Okumak (ACF ve PACF)
 
 Evet gençler, verimizi hazırladık, grafiğini çizdik ve genel yapısını anladık. Şimdi dedektiflik zamanı. Elimizdeki serinin içinde gizlenen matematiksel yapıyı nasıl ortaya çıkarırız? Hangi modelin ona en uygun olacağına nasıl karar veririz? İşte bu noktada iki temel aracımız devreye giriyor: ACF ve PACF. Bu iki grafik, serinin adeta bir röntgenini çekerek onun 'hafızasını' ve içsel dinamiklerini bize gösterir.
 
-#### ACF (Autocorrelation Function - Otokorelasyon Fonksiyonu)
+#### 6.3.1. ACF (Autocorrelation Function - Otokorelasyon Fonksiyonu)
 
 Önce ACF'ye bakalım. Adı karmaşık gelebilir ama mantığı çok basit. Bir serinin bugünkü değeri, dünkü değerine ne kadar benziyor? Peki ya geçen haftaki değerine? Veya tam bir yıl önceki değerine? ACF, işte bu soruların cevabını verir. Serinin kendi geçmişiyle olan korelasyonunu, yani 'bağını' ölçer.
 
@@ -641,9 +641,9 @@ Mavi kesikli çizgiler ise istatistiksel anlamlılık sınırlarını temsil ede
 Şimdi, bu ACF'nin nasıl hesaplandığını basit bir örnekle görelim. Bu, aslında bildiğiniz korelasyon hesabının bir benzeri. Elimizde beş günlük sıcaklık verisi olsun: $x = [10, 12, 15, 11, 17]$. Sorumuz şu: Dünkü sıcaklık ile bugünkü sıcaklık arasında bir ilişki var mı? Yani, lag-1 otokorelasyonu nedir?
 
 - **Örnek Hesaplama (ACF Lag-1):**
-    1. **Ortalamayı Bul:** Serinin ortalaması, yani referans noktamız:
+    1.  **Ortalamayı Bul:** Serinin ortalaması, yani referans noktamız:
         $$ \bar{x} = (10 + 12 + 15 + 11 + 17) / 5 = 13 $$
-    2. **Hesaplama Tablosu:** İşlemleri adım adım görelim. Amacımız, bugünkü değerin ortalamadan sapması ile dünkü değerin ortalamadan sapması arasındaki ilişkiyi ölçmektir.
+    2.  **Hesaplama Tablosu:** İşlemleri adım adım görelim. Amacımız, bugünkü değerin ortalamadan sapması ile dünkü değerin ortalamadan sapması arasındaki ilişkiyi ölçmektir.
 
         | Zaman (t) | $x_t$ (Bugün) | $x_{t-1}$ (Dün) | Bugünün Sapması <br> $(x_t - \bar{x})$ | Dünün Sapması <br> $(x_{t-1} - \bar{x})$ | **Pay İçin Çarpım** <br> $(x_t - \bar{x})(x_{t-1} - \bar{x})$ | **Payda İçin Kare** <br> $(x_t - \bar{x})^2$ |
         |:---:|:---:|:---:|:---:|:---:|:---:|:---:|
@@ -654,7 +654,7 @@ Mavi kesikli çizgiler ise istatistiksel anlamlılık sınırlarını temsil ede
         | 5 | 17 | 11 | 4 | -2 | $4 \times (-2) = -8$ | 16 |
         | **Toplam** | | | | | **-11 (Pay)** | **34 (Payda)** |
 
-    3. **Sonucu Bul:** Formülün pay ve payda kısımlarını tablodan alıp bölelim.
+    3.  **Sonucu Bul:** Formülün pay ve payda kısımlarını tablodan alıp bölelim.
 
         $$
         \begin{align*}
@@ -712,7 +712,7 @@ Bu bulgu, modelleme için kritik bir ipucudur çünkü serinin "hafızası" hakk
         Her iki dilde de hesaplanan <strong>Lag-1 ACF değeri 0.1</strong>'dir. Bu sonuç, serinin bir önceki değeri ile bugünkü değeri arasında çok zayıf, pozitif bir doğrusal ilişki olduğunu gösterir. Değerin 1'e değil de 0'a çok yakın olması, dünkü değerin bugünkü değeri tahmin etmede neredeyse hiç bilgi taşımadığı anlamına gelir. Bu kadar küçük bir veri setinde, bu zayıf korelasyonun istatistiksel olarak anlamsız ve büyük olasılıkla rastgele gürültüden kaynaklandığını söyleyebiliriz.
         </p>
 
-#### PACF (Partial Autocorrelation Function - Kısmi Otokorelasyon Fonksiyonu)
+#### 6.3.2. PACF (Partial Autocorrelation Function - Kısmi Otokorelasyon Fonksiyonu)
 
 Şimdi gelelim PACF'ye. ACF bize genel ilişkiyi gösterirken, PACF daha incelikli bir iş yapar: **doğrudan etkiyi** ölçer.
 
@@ -759,13 +759,13 @@ acf(USgas, main = "Otokorelasyon Fonksiyonu (ACF)")
 pacf(USgas, main = "Kısmi Otokorelasyon Fonksiyonu (PACF)")
 ```
 
-### AR ve MA Modelleri için ACF ve PACF Yorumlama
+### 6.4. AR ve MA Modelleri için ACF ve PACF Yorumlama
 
 Gençler,
 
 şimdi bu iki grafiği kullanarak model tipini nasıl belirleyeceğimize bakalım. Bu, durağan bir seri için doğru ARIMA modelinin 'p' ve 'q' parametrelerini seçerken en temel adımlardan biridir.
 
-#### MA(q) Süreci ve ACF İmzası
+#### 6.4.1. MA(q) Süreci ve ACF İmzası
 
 Önce basit olanla başlayalım: **Hareketli Ortalama (MA)** süreci. Bir MA(q) sürecini, hafızası kısa olan bir sistem gibi düşünebilirsiniz. Bu sistem, sadece son 'q' adet rastgele şoktan (yani geçmiş hatalardan) etkilenir. 'q' adımdan daha eski bir şokun bugünkü değer üzerinde hiçbir etkisi yoktur.
 
@@ -803,7 +803,7 @@ Aşağıdaki çizim, tipik bir MA(2) sürecinin ACF grafiğini göstermektedir. 
 </svg>
 </div>
 
-#### AR(p) Süreci ve PACF İmzası
+#### 6.4.2. AR(p) Süreci ve PACF İmzası
 
 Şimdi **Otoregresif (AR)** sürecine bakalım. Bir AR(p) süreci, kendi geçmiş 'p' değerine *doğrudan* bağlıdır. Geçmiş bir değerin etkisi, bir dalga gibi zamanla azalarak sönümlenir ama teorik olarak asla tam sıfır olmaz. Bu yüzden ACF grafiği genellikle yavaşça azalır ve bize net bir kesilme noktası vermez.
 
@@ -841,7 +841,7 @@ Aşağıdaki çizim, tipik bir AR(2) sürecinin PACF grafiğini göstermektedir.
 </svg>
 </div>
 
-#### Özet Tablo
+#### 6.4.3. Özet Tablo
 
 Bu iki temel kuralı aşağıdaki gibi özetleyebiliriz:
 
@@ -932,7 +932,7 @@ PACF: AR(p) için cut‑off (örnek p = 2)
 
 Kısa not: Bu gözlemler model seçiminde rehberdir; kesin parametre belirlemek için model tahmini, bilgi kriterleri ve artıkların beyaz gürültü testi uygulanmalıdır.
 
-#### Gelişmiş Görselleştirme (`ggplot2`)
+#### 6.4.4. Gelişmiş Görselleştirme (`ggplot2`)
 
 `ggplot2` paketi, R'da profesyonel ve özelleştirilebilir zaman serisi grafikleri oluşturmak için kullanılır. `ts` nesnelerini `ggplot2` ile kullanmak için önce `data.frame` formatına çevirmek gerekir.
 
@@ -958,11 +958,11 @@ ggplot(df_gg, aes(x = tarih, y = deger)) +
 
 ---
 
-## Bölüm 7: Zaman Serisi Modellemesine Genel Bakış
+## 7. Zaman Serisi Modellemesine Genel Bakış
 
 Verimizi anladıktan, temizledikten ve görselleştirdikten sonra modelleme aşamasına geçebiliriz.
 
-### 1. Klasik İstatistiksel Modeller
+### 7.1. Klasik İstatistiksel Modeller
 
 Zaman serisi analizinin temelini oluşturan klasik istatistiksel modellere giriş yapacağız. Bu modeller, verinin kendi içindeki dinamiklerini, yani kendi geçmişini kullanarak geleceğe dair öngörülerde bulunmamızı sağlar.
 
@@ -1058,7 +1058,7 @@ Bu süreci, verinin yapısını anlamak ve geleceği öngörmek için izlenen bi
 </svg>
 </div>
 
-#### R Uygulaması
+#### 7.1.1. R Uygulaması
 
 Şimdi bu adımları daha derinlemesine inceleyelim ve R üzerinde `AirPassengers` veri setiyle uygulayalım. Bu veri seti, belirgin bir trend ve mevsimsellik içerdiği için harika bir örnektir.
 
@@ -1100,8 +1100,8 @@ p-değeri (0.58) yüksek olduğu için seri durağan değildir.
 
 Durağanlığı sağlamak için iki yaygın işlem yapılır:
 
-1. **Logaritmik Dönüşüm:** Artan varyansı stabilize etmek için kullanılır.
-2. **Fark Alma:** Trendi ve mevsimselliği ortadan kaldırmak için kullanılır.
+1.  **Logaritmik Dönüşüm:** Artan varyansı stabilize etmek için kullanılır.
+2.  **Fark Alma:** Trendi ve mevsimselliği ortadan kaldırmak için kullanılır.
 
 ```r
 # Önce log dönüşümü, sonra mevsimsel (lag=12) ve normal fark alma
@@ -1185,9 +1185,9 @@ Kurduğumuz modeli, verideki hikayeyi açıklamaya çalışan bir dedektif gibi 
 
 Şimdi bu fikri biraz daha teknik bir dille ifade edelim. İyi bir model, verideki tüm sistematik bilgiyi, yani trendi, mevsimselliği ve diğer otokorelasyon yapılarını yakalamalıdır. Geriye kalan artıklar, modelin açıklayamadığı saf, rastgele şokları temsil etmelidir. Bu 'beyaz gürültü' dediğimiz artıkların üç temel özelliği olmalıdır:
 
-1. **Ortalaması Sıfır Olmalı:** Modelimiz sistematik olarak ne yukarı ne de aşağı yönde hata yapmalı. Pozitif ve negatif hatalar birbirini dengelemelidir.
-2. **Sabit Varyansa Sahip Olmalı:** Hataların büyüklüğü zaman içinde değişmemelidir. Eğer modelin hataları zamanla büyüyorsa, geleceğe yönelik tahminlerine olan güvenimiz azalır.
-3. **Otokorelasyon İçermemeli:** Bu en önemlisi. Bir dönemdeki hata, bir sonraki dönemdeki hatayı tahmin etmemize yardımcı olmamalıdır. Eğer artıklar arasında bir korelasyon varsa, bu, modelimizin yakalayamadığı ve tahminlerimizi iyileştirmek için kullanabileceğimiz değerli bir bilgi olduğu anlamına gelir.
+1.  **Ortalaması Sıfır Olmalı:** Modelimiz sistematik olarak ne yukarı ne de aşağı yönde hata yapmalı. Pozitif ve negatif hatalar birbirini dengelemelidir.
+2.  **Sabit Varyansa Sahip Olmalı:** Hataların büyüklüğü zaman içinde değişmemelidir. Eğer modelin hataları zamanla büyüyorsa, geleceğe yönelik tahminlerine olan güvenimiz azalır.
+3.  **Otokorelasyon İçermemeli:** Bu en önemlisi. Bir dönemdeki hata, bir sonraki dönemdeki hatayı tahmin etmemize yardımcı olmamalıdır. Eğer artıklar arasında bir korelasyon varsa, bu, modelimizin yakalayamadığı ve tahminlerimizi iyileştirmek için kullanabileceğimiz değerli bir bilgi olduğu anlamına gelir.
 
 Bu özellikleri kontrol etmek için `checkresiduals()` gibi fonksiyonlar kullanırız. Bu fonksiyon bize birkaç önemli grafik sunar:
 
@@ -1243,14 +1243,14 @@ Bu tahmin grafiğini basit bir şekilde görselleştirelim. Grafik, nokta tahmin
 
 Bu grafik, modelin gelecekteki yolcu sayısını nasıl tahmin ettiğini görselleştirir. Mavi çizgi, tahmin edilen değerleri temsil ederken, gri alanlar tahminlerin güven aralıklarını gösterir. Güven aralıkları, tahminlerin ne kadar belirsiz olduğunu anlamamıza yardımcı olur. Gri alanların genişliği, belirsizliğin zamanla arttığını gösterir. Bu, modelin uzun vadeli tahminlerde daha az kesin olduğunu ifade eder.
 
-### Model Doğrulama: Eğitim ve Test Setleri ile AirPassengers Tahmini
+### 7.2. Model Doğrulama: Eğitim ve Test Setleri ile AirPassengers Tahmini
 
 Gençler, bir zaman serisi modeli kurmak kadar, o modelin gerçek dünya performansını anlamak da hayati önem taşır. Bir modelin gerçekten başarılı olup olmadığını anlamanın en güvenilir yolu, onu daha önce hiç görmediği veriler üzerinde test etmektir. Tıpkı bir öğrencinin sadece çalıştığı soruları değil, hiç görmediği yeni soruları da çözebilmesi gibi, modelimizin de "bilmediği" geleceği ne kadar doğru tahmin edebildiğini görmeliyiz. Bu sürece **model doğrulama (model validation)** diyoruz.
 
 Bunu yapmak için, elimizdeki tüm veri setini ikiye ayırırız:
 
-1. **Eğitim Seti (Training Set):** Modelimizi bu veri üzerinde "eğitiriz", yani geçmişteki desenleri, trendleri ve mevsimsel ilişkileri bu veriden öğrenmesini sağlarız. Modelin parametreleri bu set kullanılarak optimize edilir.
-2. **Test Seti (Test Set):** Modelimiz eğitimini tamamladıktan sonra, bu seti kullanarak modelin geleceği ne kadar iyi tahmin edebildiğini ölçeriz. Bu, modelin genelleme yeteneğini, yani yeni ve bilinmeyen verilere ne kadar uyum sağlayabildiğini gösterir. Test seti, modelin performansını tarafsız bir şekilde değerlendirmemizi sağlar ve aşırı uyum (overfitting) riskini anlamamıza yardımcı olur.
+1.  **Eğitim Seti (Training Set):** Modelimizi bu veri üzerinde "eğitiriz", yani geçmişteki desenleri, trendleri ve mevsimsel ilişkileri bu veriden öğrenmesini sağlarız. Modelin parametreleri bu set kullanılarak optimize edilir.
+2.  **Test Seti (Test Set):** Modelimiz eğitimini tamamladıktan sonra, bu seti kullanarak modelin geleceği ne kadar iyi tahmin edebildiğini ölçeriz. Bu, modelin genelleme yeteneğini, yani yeni ve bilinmeyen verilere ne kadar uyum sağlayabildiğini gösterir. Test seti, modelin performansını tarafsız bir şekilde değerlendirmemizi sağlar ve aşırı uyum (overfitting) riskini anlamamıza yardımcı olur.
 
 `AirPassengers` veri setimiz için bu ayrımı şöyle yapabiliriz:
 
@@ -1300,7 +1300,7 @@ print(comparison)
 # Kök Ortalama Kare Hatası'nı (RMSE - Root Mean Square Error) hesaplayalım.
 # RMSE, tahminlerimizin gerçek değerlerden ortalama ne kadar saptığını gösterir.
 # Değer ne kadar küçükse, tahminlerimiz o kadar iyidir.
-rmse <- sqrt(mean((comparison$Actual - comparison.Predicted)^2))
+rmse <- sqrt(mean((comparison$Actual - comparison$Predicted)^2))
 cat("Test Seti RMSE:", rmse, "\n")
 
 png(filename="arima_forecast_comparison.png", width=800, height=600)
@@ -1362,11 +1362,11 @@ Bu adımlarla, modelimizin daha önce hiç görmediği 1960 yılındaki yolcu sa
 
 Tahminler, modelin geçmiş verilerde öğrendiği trend ve mevsimsellik gibi yapıları geleceğe taşıyarak yapılır. Ancak, bu tür modellerin doğrusal varsayımlara dayandığını ve karmaşık, doğrusal olmayan ilişkileri modellemede yetersiz kalabileceğini unutmamak gerekir. Bu gibi durumlarda, yapay zeka tabanlı yöntemler daha etkili olabilir.
 
-### 2. Yapay Zeka ile Zaman Serisi Analizi
+### 7.3. Yapay Zeka ile Zaman Serisi Analizi
 
 Gençler, şimdiye kadar gördüğümüz ARIMA gibi klasik modeller, verideki doğrusal yapıları ve düzenli kalıpları yakalamada oldukça başarılıdır. Ancak gerçek dünya verileri her zaman bu kadar öngörülebilir değildir. Bazen serinin içindeki ilişkiler o kadar karmaşık ve doğrusal değildir ki, bu istatistiksel modeller yetersiz kalır. İşte bu noktada, daha esnek ve güçlü araçlara, yani yapay zeka tabanlı modellere yöneliyoruz.
 
-#### Makine Öğrenmesi Yaklaşımı: Problemi Yeniden Çerçevelemek
+#### 7.3.1. Makine Öğrenmesi Yaklaşımı: Problemi Yeniden Çerçevelemek
 
 Bu yaklaşımın temelinde zekice bir fikir yatar: Zaman serisi problemini, bildiğimiz bir **denetimli öğrenme (supervised learning)** problemine dönüştürmek.
 
@@ -1382,7 +1382,7 @@ $$
 
 Bu dönüşümü yaptıktan sonra, Gradient Boosting, Random Forest veya XGBoost gibi güçlü makine öğrenmesi algoritmalarını kullanarak bu fonksiyonu ($f$) modelleyebiliriz. Bu yöntem, özellikle takvim etkileri (hafta sonları, tatiller) veya promosyon gibi dışsal faktörlerin önemli olduğu durumlarda çok etkilidir.
 
-#### Derin Öğrenme Yaklaşımı: Serinin Hafızasını Modellemek
+#### 7.3.2. Derin Öğrenme Yaklaşımı: Serinin Hafızasını Modellemek
 
 Şimdi, zaman serisi analizinin daha derinlerine inelim ve özellikle sıralı verilerdeki karmaşık bağımlılıkları öğrenmek için tasarlanmış özel sinir ağı mimarilerine bakalım.
 
@@ -1392,9 +1392,9 @@ Bu dönüşümü yaptıktan sonra, Gradient Boosting, Random Forest veya XGBoost
     İşte bu sorunu çözmek için LSTM mimarisi geliştirilmiştir. LSTM'in sırrı, **kapı (gate)** adını verdiğimiz akıllı kontrol mekanizmalarındadır. Bu kapılar, hücrenin hafızasına hangi bilginin girip, hangisinin kalıp, hangisinin de çıkacağına karar verir. Bu yapı, ağın hangi bilgiyi uzun süre saklayacağını ve hangisini unutacağını öğrenmesini sağlar.
 
     Bir LSTM hücresinin üç temel kapısı vardır:
-    1. **Unutma Kapısı (Forget Gate):** Geçmiş hafızadan hangi bilgilerin artık gereksiz olduğuna karar verir ve onları siler.
-    2. **Giriş Kapısı (Input Gate):** Yeni gelen bilgiden hangi kısımların önemli olduğuna karar verir ve bunları hafızaya ekler.
-    3. **Çıkış Kapısı (Output Gate):** Mevcut hafızaya ve yeni girdiye bakarak, bu zaman adımı için ne tür bir çıktı üreteceğine karar verir.
+    1.  **Unutma Kapısı (Forget Gate):** Geçmiş hafızadan hangi bilgilerin artık gereksiz olduğuna karar verir ve onları siler.
+    2.  **Giriş Kapısı (Input Gate):** Yeni gelen bilgiden hangi kısımların önemli olduğuna karar verir ve bunları hafızaya ekler.
+    3.  **Çıkış Kapısı (Output Gate):** Mevcut hafızaya ve yeni girdiye bakarak, bu zaman adımı için ne tür bir çıktı üreteceğine karar verir.
 
     Aşağıdaki şema, bir LSTM hücresinin bu içsel çalışma mekanizmasını kavramsal olarak göstermektedir. Hücre durumu ($C_t$), bilgiyi uzun süre taşıyan bir "hafıza bandı" gibidir ve kapılar bu bant üzerindeki bilgi akışını kontrol eder.
 
@@ -1403,13 +1403,13 @@ Bu dönüşümü yaptıktan sonra, Gradient Boosting, Random Forest veya XGBoost
 - **Transformer Modelleri:**
     Başlangıçta doğal dil işleme (NLP) alanında devrim yaratmak için geliştirilen Transformer mimarisi, zaman serisi tahmininde de son derece başarılı sonuçlar vermektedir. LSTM'in aksine, veriyi adım adım sıralı bir şekilde işlemez. Bunun yerine, **dikkat mekanizması (attention mechanism)** adı verilen bir yapı sayesinde serinin tamamına aynı anda "bakar" ve geleceği tahmin etmek için geçmişteki hangi zaman noktalarının daha önemli olduğuna kendisi karar verir. Bu, özellikle çok uzun serilerdeki uzak ama önemli ilişkileri yakalamada Transformer'ı LSTM'den daha etkili kılabilir.
 
-## Zaman Serisi Analizi: ARIMA ve LSTM Modelleri ile Tahmin
+---
+
+## 8. Zaman Serisi Analizi Uygulamaları (Python)
 
 Bugünkü dersimizde popüler bir veri seti olan "AirPassengers" verisini kullanarak geleceğe yönelik tahminler yapmaya çalışacağız. Bu süreçte iki önemli modeli, ARIMA ve LSTM'i, adım adım nasıl kodlayacağımızı ve sonuçlarını nasıl yorumlayacağımızı öğreneceğiz.
 
----
-
-### Bölüm 1: Veri Setinin Yüklenmesi ve Hazırlanması
+### 8.1. Veri Setinin Yüklenmesi ve Hazırlanması
 
 Öncelikle gerekli kütüphaneleri projemize dahil ederek ve veri setimizi yükleyerek işe koyulalım.
 
@@ -1449,7 +1449,7 @@ plt.show()
 
 Grafikten de görebileceğiniz gibi, zamanla yolcu sayısında genel bir artış trendi ve her yıl tekrar eden döngüsel hareketler yani mevsimsellik bulunmaktadır.
 
-### Bölüm 2: ARIMA Modeli ile Tahmin
+### 8.2. ARIMA Modeli ile Tahmin
 
 ARIMA (Autoregressive Integrated Moving Average), zaman serisi tahminleri için yaygın olarak kullanılan istatistiksel bir modeldir. Geçmiş değerlere ve geçmiş tahmin hatalarına dayanır.
 
@@ -1471,7 +1471,7 @@ plt.show()
 
 ACF grafiğinin yavaşça azalması, serinin durağan olmadığının bir göstergesidir. Bu, trendin varlığını teyit eder.
 
-#### 2.3. Veriyi Eğitim ve Test Olarak Ayırma
+#### 8.2.1. Veriyi Eğitim ve Test Olarak Ayırma
 
 Modelimizin performansını ölçmek için verinin son 5 yılını (60 ay) test seti, geri kalanını ise eğitim seti olarak ayıralım.
 
@@ -1481,7 +1481,7 @@ train_data = data[:-60]
 test_data = data[-60:]
 ```
 
-#### 2.4. `auto_arima` ile En Uygun Modeli Bulma
+#### 8.2.2. `auto_arima` ile En Uygun Modeli Bulma
 
 ARIMA modelinin (p, d, q) ve mevsimsel (P, D, Q, m) parametrelerini manuel olarak belirlemek yerine, bu işi bizim için otomatik olarak yapan `auto_arima` fonksiyonunu kullanabiliriz. Bu fonksiyon, farklı parametre kombinasyonlarını deneyerek en düşük AIC (Akaike Information Criterion) değerine sahip modeli bulur. Düşük AIC değeri, modelin verilere daha iyi uyum sağladığını gösterir.
 
@@ -1503,7 +1503,7 @@ print(auto_model.summary())
 
 `auto_arima`'nın çıktısı, en uygun modelin parametrelerini (örneğin, SARIMAX(p,d,q)(P,D,Q)m) ve diğer istatistiksel bilgileri bize verecektir.
 
-#### 2.5. Tahmin ve Değerlendirme
+#### 8.2.3. Tahmin ve Değerlendirme
 
 Şimdi, bulduğumuz en iyi modeli kullanarak test verimiz için tahminler yapalım ve gerçek değerlerle karşılaştıralım.
 
@@ -1532,11 +1532,11 @@ print(f'ARIMA Modeli RMSE Değeri: {rmse_arima}')
 
 ---
 
-### Bölüm 3: LSTM Modeli ile Tahmin
+### 8.3. LSTM Modeli ile Tahmin
 
 LSTM (Long Short-Term Memory), özellikle sıralı veriler ve zaman serileri için çok uygun olan bir tür tekrarlayan sinir ağıdır (RNN). Geçmişteki uzun süreli bağımlılıkları öğrenebilme yeteneği sayesinde karmaşık zaman serisi desenlerini yakalayabilir.
 
-#### 3.1. Veri Ön İşleme
+#### 8.3.1. Veri Ön İşleme
 
 Sinir ağları, genellikle 0 ile 1 veya -1 ile 1 arasında ölçeklendirilmiş verilerle daha iyi çalışır. Bu nedenle, `MinMaxScaler` kullanarak verimizi 0-1 aralığına ölçekleyeceğiz.
 
@@ -1551,7 +1551,7 @@ scaler = MinMaxScaler(feature_range=(0, 1))
 dataset_scaled = scaler.fit_transform(dataset)
 ```
 
-#### 3.2. Eğitim ve Test Verisini Oluşturma
+#### 8.3.2. Eğitim ve Test Verisini Oluşturma
 
 LSTM modeli için de veriyi eğitim ve test olarak ayırmamız gerekiyor. ARIMA'da olduğu gibi son 60 ayı test için kullanacağız.
 
@@ -1586,7 +1586,7 @@ trainX = np.reshape(trainX, (trainX.shape[0], trainX.shape[1], 1))
 testX = np.reshape(testX, (testX.shape[0], testX.shape[1], 1))
 ```
 
-#### 3.3. LSTM Modelini Oluşturma ve Eğitme
+#### 8.3.3. LSTM Modelini Oluşturma ve Eğitme
 
 Şimdi Keras kütüphanesini kullanarak basit bir LSTM modeli oluşturalım. Modelimiz bir LSTM katmanı ve bir çıktı katmanından (Dense) oluşacak.
 
@@ -1610,7 +1610,7 @@ model_lstm.compile(loss='mean_squared_error', optimizer='adam')
 model_lstm.fit(trainX, trainY, epochs=100, batch_size=1, verbose=2)
 ```
 
-#### 3.4. Tahmin ve Değerlendirme
+#### 8.3.4. Tahmin ve Değerlendirme
 
 Modeli eğittikten sonra, hem eğitim hem de test verileri üzerinde tahminler yapalım ve sonuçları orijinal ölçeğe geri dönüştürelim.
 
@@ -1656,7 +1656,7 @@ plt.show()
 
 ```
 
-### Sonuçların Karşılaştırılması
+### 8.4. Sonuçların Karşılaştırılması
 
 Artık her iki modelin de test seti üzerindeki performansını (RMSE değerlerini) karşılaştırabiliriz.
 
@@ -1669,19 +1669,19 @@ Genellikle, bu tür klasik zaman serilerinde iyi ayarlanmış bir ARIMA modeli o
 
 Not: Her problemin kendine özgü dinamikleri vardır ve en iyi modeli bulmak için denemeler yapmak ve sonuçları dikkatle analiz etmek önemlidir.
 
-
 Gençler, ARIMA ve LSTM karşılaştırmasını tamamladığımıza göre, veri bilimcilerin ve endüstrinin sıklıkla başvurduğu iki farklı yaklaşımı daha incelememiz gerekiyor. Bir tarafta istatistiksel temelleri modern yazılımla birleştiren **Facebook Prophet**, diğer tarafta ise yapılandırılmış verilerde (tablo şeklindeki veriler) derin öğrenme modellerini dahi geride bırakabilen ağaç tabanlı yöntemlerden **XGBoost** var. Yine AirPassengers verisi üzerinden gideceğiz.
 
-### Facebook Prophet Algoritması
+---
+
+## 9. Facebook Prophet Algoritması
 
 Prophet, mevsimsellik ve tatil etkilerinin belirgin olduğu zaman serilerinde etkili sonuçlar verir. LSTM gibi içyapısı kapalı bir algoritma değildir, ARIMA gibi katı varsayımları da yoktur. Bir zaman serisini üç bileşene ayırır: trend (genel gidişat), mevsimsellik (yıllık/haftalık tekrarlar) ve tatiller.
 
 AirPassengers verisinde her yıl yaz aylarında yolcu sayısının arttığını, kışın düştüğünü görürüz. Prophet bunu otomatik algılar. Arka planda Fourier serileri kullanarak bu dalgalanmaları matematiksel bir eğriye oturtur.
 
-**Python ile Uygulama**
+### 9.1. Python ile Uygulama
 
 Prophet, veriyi belirli bir formatta ister. Tarih sütununun adı `ds`, tahmin edilecek değerin adı `y` olmalıdır.
-
 
 Gençler, şimdi Prophet algoritmasına bakalım. Facebook tarafından geliştirilen bu araç, zaman serisi analizini oldukça sezgisel bir yaklaşımla ele alır. Temel fikir, karmaşık görünen bir zaman serisi grafiğini, tıpkı bir motoru parçalarına ayırır gibi, anlaşılması kolay bileşenlere ayırmaktır. Bu bileşenler şunlardır:
 
@@ -1691,7 +1691,7 @@ Gençler, şimdi Prophet algoritmasına bakalım. Facebook tarafından geliştir
 
 Bu ayrıştırma işlemi aslında matematiksel bir temele dayanır. Prophet, bu bileşenleri bir araya getiren bir toplamsal model (additive model) kullanır. Trendi, zaman içinde eğimi değişebilen parçalı doğrusal (piecewise linear) bir fonksiyonla modeller. Bu, serideki ani yön değişikliklerini yakalamasını sağlar. Mevsimsellik gibi periyodik etkileri ise Fourier serileri kullanarak esnek bir şekilde modeller. Bu sayede, basit sinüs dalgalarının ötesinde, daha karmaşık mevsimsel desenleri de yakalayabilir. Tatil etkilerini ise kullanıcı tarafından tanımlanan özel günler için modele eklenen basit regresörler olarak ele alır. Sonuç olarak model,
 
-`tahmin = trend + mevsimsellik + tatil etkisi + hata` 
+`tahmin = trend + mevsimsellik + tatil etkisi + hata`
 
 şeklinde basitçe ifade edilebilir. Bu yapı, modelin hangi bileşenin tahmini ne kadar etkilediğini görmemizi sağladığı için oldukça yorumlanabilir bir modeldir.
 
@@ -1760,7 +1760,9 @@ fig2 = m.plot_components(forecast)
 plt.show()
 ```
 
-### XGBoost (Extreme Gradient Boosting)
+---
+
+## 10. XGBoost (Extreme Gradient Boosting)
 
 XGBoost bir karar ağacı algoritmasıdır. Karar ağaçları veriyi "Evet/Hayır" sorularıyla böler.
 
@@ -1768,7 +1770,7 @@ Bir yolcu sayısını tahmin etmek için model geçmişe bakar ve kurallar oluş
 
 XGBoost zamanın akışını kendiliğinden anlamaz. Veriyi ona uygun hale getirmemiz, yani gözetimli öğrenme formatına çevirmemiz gerekir.
 
-**Python ile Uygulama**
+### 10.1. Python ile Uygulama
 
 Kilit nokta "gecikme" (lag) oluşturmaktır. Yani `t` anını tahmin etmek için `t-1`, `t-2` gibi değerleri girdi olarak kullanacağız. Bu işlem, veri hazırlığı, model eğitimi, tahmin ve görselleştirme adımlarını içerir.
 
@@ -1834,13 +1836,13 @@ plt.legend()
 plt.show()
 ```
 
-### Weka ile Uygulama
+### 10.2. Weka ile Uygulama
 
 Kod yazmadan bu mantığı görmek isterseniz Weka da kullanılabilir. Ancak Weka standart haliyle zaman serisi analizi yapmaz, bunun için "Package Manager" üzerinden `timeseriesForecasting` paketini kurmanız gerekir.
 
 Gençler, Weka ile çalışmaya başlayalım. Kod yazmadan analiz yapmanın nasıl bir his olduğunu görmek için güzel bir fırsat. İlk adımımız, elbette, veriyi Weka'ya tanıtmak.
 
-**Veri Yükleme:**
+#### 10.2.1. Veri Yükleme
 
 Öncelikle AirPassengers veri setini bilgisayarımıza indirmemiz gerekiyor. Size verdiğim adrese gidin: `https://github.com/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/data/AirPassengers.csv`.
 
@@ -1852,7 +1854,7 @@ Daha pratik bir yol daha var. Dosyayı bilgisayarınıza indirmeden, doğrudan i
 
 Weka'ya dönün. `Open file...` yerine hemen altındaki `Open URL...` düğmesine tıklayın. Açılan küçük pencereye kopyaladığınız bu ham veri URL'sini yapıştırın ve "OK" deyin. Weka veriyi doğrudan internetten çekecektir. Bu yöntem, özellikle veriler güncellendiğinde veya farklı veri setlerini hızla denemek istediğinizde size zaman kazandırır.
 
-**Dönüşüm:** 
+#### 10.2.2. Dönüşüm
 
 Gençler, XGBoost mantığını Weka'da uygulamak için önce veriyi hazırlamamız gerekir. Bu işlem için `Preprocess` sekmesindeki `Filter` bölümünü kullanacağız. `Choose` düğmesine tıkladıktan sonra `weka.filters.supervised.attribute` altında `TSLagMaker` aracını bulacaksınız. Bu, Python'da yazdığımız `shift()` kodunun görsel arayüzdeki karşılığıdır.
 
@@ -1893,11 +1895,13 @@ Hangisinin daha iyi olduğu verinin karakterine bağlıdır. Verinizde mevsimsel
 
 ---
 
+## 11. Hata Metrikleri ve Model Değerlendirme
+
 Modelleri kurduk, tahminleri ürettik. Ancak bir modelin iyi çalışıp çalışmadığına sadece grafiklere bakarak karar veremeyiz. Göz yanıltıcı olabilir. Bilimsel bir kıyaslama için somut, sayısal kanıtlar olmalıdır. Burada hata metrikleri devreye girer.
 
 Zaman serisi analizinde en sık kullandığımız iki metrik MAE ve RMSE'dir. Bunların arasındaki farkı anlamak, hangi durumda hangisine güveneceğinizi bilmeniz açısından önemlidir.
 
-### MAE (Mean Absolute Error - Ortalama Mutlak Hata)
+### 11.1. MAE (Mean Absolute Error - Ortalama Mutlak Hata)
 
 Tahmin ettiğimiz değer ile gerçek değer arasındaki farkın (işaretine bakmaksızın) ortalamasını alır.
 
@@ -1909,7 +1913,7 @@ Tahmin ettiğimiz değer ile gerçek değer arasındaki farkın (işaretine bakm
 
 **Dezavantajı:** Büyük hataları küçük hatalardan ayırt etmez. 1 birimlik 10 hata yapmakla 10 birimlik 1 hata yapmayı aynı kefeye koyar.
 
-### RMSE (Root Mean Squared Error - Kök Ortalama Kare Hata)
+### 11.2. RMSE (Root Mean Squared Error - Kök Ortalama Kare Hata)
 
 Hataların karesini alarak ortalamasını bulur ve sonra karekökünü alır. Hataların karesini aldığı için büyük hataları orantısız biçimde büyütür.
 
@@ -1919,7 +1923,7 @@ Hataların karesini alarak ortalamasını bulur ve sonra karekökünü alır. Ha
 
 **Avantajı:** Büyük hataları cezalandırır. Tahminin çok uzak olması sistem için felakete yol açacaksa RMSE daha güvenilir bir göstergedir.
 
-### Uygulama ve Kodlama
+### 11.3. Uygulama ve Kodlama
 
 Bu bilgiyi Python üzerinde Prophet ve XGBoost modellerinin çıktılarını kullanarak somutlaştıralım. Bunun için `scikit-learn` kütüphanesinin metrik modüllerini kullanacağız.
 
@@ -1945,10 +1949,10 @@ y_pred_prophet = forecast['yhat'].iloc[-12:].values
 performans_hesapla(y_true_prophet, y_pred_prophet, "Facebook Prophet")
 
 # XGBoost Modeli İçin
-performans_hesapla(y_test, preds, "XGBoost")
+performans_hesapla(y_test, y_pred, "XGBoost")
 ```
 
-### Sonuçların Değerlendirilmesi
+### 11.4. Sonuçların Değerlendirilmesi
 
 Bu kodları çalıştırdığınızda iki farklı tablo çıkacaktır.
 
@@ -1960,7 +1964,9 @@ Hangi modeli seçeceğiz? Amacımız stok yönetimi gibi ortalama bir doğruluks
 
 ---
 
-Şimdiye kadar zaman serilerine iki temel felsefeyle yaklaştık: Geçmişi hatırlamak (LSTM), kurallar oluşturmak (XGBoost/Prophet). Ancak yapay zeka literatüründe, genellikle görüntü işleme ile özdeşleşmiş olsa da zaman serilerinde başarılı sonuçlar veren bir yöntem daha var: 
+## 12. 1D-CNN: Desen Tabanlı Yaklaşım
+
+Şimdiye kadar zaman serilerine iki temel felsefeyle yaklaştık: Geçmişi hatırlamak (LSTM), kurallar oluşturmak (XGBoost/Prophet). Ancak yapay zeka literatüründe, genellikle görüntü işleme ile özdeşleşmiş olsa da zaman serilerinde başarılı sonuçlar veren bir yöntem daha var:
 
 **1D-CNN (Bir Boyutlu Evrişimli Sinir Ağları)**.
 
@@ -1968,7 +1974,7 @@ CNN algoritmalarını "bu resimde kedi var mı?" sorusunu cevaplarken duyarız. 
 
 LSTM veriyi bir hikaye gibi baştan sona okuyup aklında tutmaya çalışırken CNN veriye desen taraması gibi yaklaşır. "Geçen ay ne oldu?" sorusundan ziyade "Son üç aydaki hareketin şekli, daha önceki yıllarda hangi şekle benziyor?" sorusuna odaklanır. Bu özellik verideki gürültüyü filtrelemede ve kısa vadeli desenleri yakalamada etkilidir. Ayrıca LSTM'e göre hesaplama maliyeti daha düşüktür, yani daha hızlı eğitilir.
 
-### Python ile 1D-CNN Uygulaması
+### 12.1. Python ile 1D-CNN Uygulaması
 
 Bu algoritmayı uygularken veriyi hazırlama biçimimiz LSTM ile oldukça benzerdir. Veriyi [Örnek Sayısı, Zaman Adımı, Özellik Sayısı] formatında 3 boyutlu bir yapıya sokmamız gerekir.
 
@@ -2060,7 +2066,7 @@ test_rmse = mean_squared_error(y_test_orig[0], test_predict[:,0], squared=False)
 print(f"1D-CNN Test RMSE: {test_rmse:.2f}")
 ```
 
-### Karşılaştırma
+### 12.2. Karşılaştırma
 
 **Odak Farkı:** LSTM zaman içindeki bağımlılığı modeller. "Ocak ayındaki olay Kasım ayını nasıl etkiledi?" sorusuna cevap arar. 1D-CNN ise yerel yapıları modeller. "Her krizden sonra bir 'U' dönüşü oluyor" gibi şekilsel çıkarımlar yapar.
 
@@ -2070,52 +2076,53 @@ print(f"1D-CNN Test RMSE: {test_rmse:.2f}")
 
 Bu örnekle birlikte çantanızda dört araç oldu: İstatistiksel (ARIMA), Sinir Ağı (LSTM), Ağaç Tabanlı (XGBoost) ve Desen Tabanlı (CNN). Veri bilimci olarak ustalığınız verinin yapısına bakıp hangisinin daha iyi çalışacağına karar verebilmektir.
 
+---
 
-## 12. GRU: Zaman Bağımlılıklarını Daha Sade Bir Yapıyla Öğrenmek
+## 13. GRU: Zaman Bağımlılıklarını Daha Sade Bir Yapıyla Öğrenmek
 
 LSTM, zaman içinde gelen bilgilerden hangisini hatırlayıp hangisini unutacağını kapılar (gates) aracılığıyla ayarlar. Bu yapı güçlü ama biraz ağırdır; parametre sayısı fazladır.
 
 GRU (Gated Recurrent Unit), benzer bir fikri daha sade bir yapı ile uygular:
 
-- “Güncelleme kapısı” (update gate):  
+- “Güncelleme kapısı” (update gate):
   Ne kadar yeni bilgi alacağını, ne kadar eski bilgiyi koruyacağını ayarlar.
-- “Sıfırlama kapısı” (reset gate):  
+- “Sıfırlama kapısı” (reset gate):
   Geçmiş bilgiyi ne ölçüde devre dışı bırakacağını belirler.
 
 Böylece GRU, LSTM’e göre:
 
-- Daha az parametre kullanır,  
-- Daha hızlı eğitilebilir,  
+- Daha az parametre kullanır,
+- Daha hızlı eğitilebilir,
 - Küçük veri kümelerinde ezberlemeye biraz daha az eğilim gösterebilir.
 
-Zaman serisi söz konusu olduğunda, GRU da tıpkı LSTM gibi:  
+Zaman serisi söz konusu olduğunda, GRU da tıpkı LSTM gibi:
 Belirli sayıda önceki adımı (örneğin son 12 ayı) giriş olarak alır, bir sonraki adımı tahmin etmeye çalışır.
 
 Aşağıdaki kod parçasında, AirPassengers benzeri bir zaman serisi için:
 
-1. Veriyi yüklüyoruz.  
-2. 0–1 aralığına ölçekliyoruz.  
-3. Son 12 gözleme bakarak bir sonraki ayı tahmin edecek GRU modelini kurup eğitiyoruz.  
-4. Test verisi üzerinde RMSE hesabını yapıyoruz.  
+1.  Veriyi yüklüyoruz.
+2.  0–1 aralığına ölçekliyoruz.
+3.  Son 12 gözleme bakarak bir sonraki ayı tahmin edecek GRU modelini kurup eğitiyoruz.
+4.  Test verisi üzerinde RMSE hesabını yapıyoruz.
 
 Kodun içinde adım adım yorumlar var, baştan sona okunabilir.
 
 ---
 
-## 13. TimeSeriesSplit: Zaman Serisinde Çapraz Doğrulama
+## 14. TimeSeriesSplit: Zaman Serisinde Çapraz Doğrulama
 
-Rastgele karıştırarak K-fold çapraz doğrulama yapmak, zaman serilerinde sorun yaratır.  
+Rastgele karıştırarak K-fold çapraz doğrulama yapmak, zaman serilerinde sorun yaratır.
 Zaman bilgisinin korunması gerekir; 2010 verisiyle 2008’i tahmin etmek istemeyiz.
 
 `TimeSeriesSplit`, veri sırasına saygı gösteren bir çapraz doğrulama yöntemidir:
 
-- İlk bölümü eğitim, hemen sonrasını doğrulama olarak alır.  
-- Sonra penceresini biraz daha ileri kaydırır ve aynı işlemi tekrarlar.  
+- İlk bölümü eğitim, hemen sonrasını doğrulama olarak alır.
+- Sonra penceresini biraz daha ileri kaydırır ve aynı işlemi tekrarlar.
 - Her adımda eğitim kümesi büyür, doğrulama kümesi zaman içinde ileri kayar.
 
 Böylece modelin:
 
-- Farklı dönemlerde nasıl davrandığını görebiliriz,  
+- Farklı dönemlerde nasıl davrandığını görebiliriz,
 - Zaman bilgisi bozulmadan, birden fazla “deneme” üzerinden ortalama bir performans hesaplayabiliriz.
 
 Aşağıdaki kodda:
@@ -2300,13 +2307,15 @@ for train_index, val_index in tscv.split(X):
 print(f"Ortalama TimeSeriesSplit RMSE: {np.mean(rmse_list):.2f}")
 ```
 
-## Gretl ile Zaman Serisi Analizi
+---
+
+## 15. Gretl ile Zaman Serisi Analizi
 
 Python ve R gibi dillerde kod yazarak veriyi işledik. Bu yöntemler modelin her parçasına hükmetmemizi sağlar ve esneklikleri sınırsızdır. Ancak akademik ve endüstriyel çalışmalarda bazen standart istatistiksel testleri hızlıca uygulamak ve sonuçları görsel arayüz üzerinden yorumlamak isteriz. Bu noktada açık kaynaklı ekonometri yazılımı **Gretl** devreye girer.
 
 Gretl yapay zeka veya derin öğrenme odaklı bir araç değildir. Klasik ekonometrik analizler, yani ARIMA gibi istatistiksel temelli modeller için tasarlanmıştır. Ancak bir veri bilimci için Gretl, kod yazmaya başlamadan önce veriyi tanıma ve teşhis koyma aşamasında güçlü bir araçtır.
 
-### Gretl ile Analiz Süreci
+### 15.1. Gretl ile Analiz Süreci
 
 AirPassengers verisini Gretl'da incelemek, kod satırları arasında kaybolmadan verinin matematiğini görmemizi sağlar.
 
@@ -2340,7 +2349,7 @@ Python'da `(p,d,q)` değerlerini bulmak için döngüler kuruyor veya ACF/PACF g
 
 Modeli çalıştırdığınızda Gretl size Python'daki `summary()` çıktısına benzer ama daha detaylı bir model tablosu sunar.
 
-### Gretl Çıktısının Yorumlanması
+### 15.2. Gretl Çıktısının Yorumlanması
 
 Burada odaklanmanız gereken şey sadece tahmin başarısı değildir. Gretl bize modelin **istatistiksel güvenilirliğini** söyler.
 
@@ -2350,7 +2359,7 @@ Burada odaklanmanız gereken şey sadece tahmin başarısı değildir. Gretl biz
 
 **Hata Analizi:** Gretl, `Graphs -> Residual plot` seçeneği ile hataların grafiğini çizer. Bu grafik rastgele gürültüden farklı bir desen içeriyorsa modeliniz verideki tüm bilgiyi kullanamamış demektir.
 
-### Neden Gretl Kullanıyoruz?
+### 15.3. Neden Gretl Kullanıyoruz?
 
 Yapay zeka algoritmaları (LSTM, CNN) genellikle kara kutu olarak çalışır; girdi verirsiniz, çıktı alırsınız, aradaki nöronların ne yaptığını tam olarak bilemeyebilirsiniz. Gretl ve temsil ettiği ekonometrik yaklaşım ise nedensellik ve yapısal analiz üzerine kuruludur.
 
