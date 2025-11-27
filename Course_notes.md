@@ -1774,194 +1774,560 @@ XGBoost zamanın akışını kendiliğinden anlamaz. Veriyi ona uygun hale getir
 
 Kilit nokta "gecikme" (lag) oluşturmaktır. Yani `t` anını tahmin etmek için `t-1`, `t-2` gibi değerleri girdi olarak kullanacağız. Bu işlem, veri hazırlığı, model eğitimi, tahmin ve görselleştirme adımlarını içerir.
 
+## 10. XGBoost ile Zaman Serisi Tahmini
+
+ARIMA istatistiksel kalıpları, LSTM derin öğrenmeyle karmaşık yapıları, Prophet ise takvim etkilerini modelledi. XGBoost farklı bir yaklaşım benimser: zaman serisini bir regresyon problemine dönüştürür.
+
+Bu dönüşümün özü şudur: "Geçmiş değerleri biliyorsam, gelecek değeri tahmin edebilir miyim?" sorusunu sormak. Bunun için geçmiş gözlemleri (lag özellikleri) ve takvim bilgilerini (ay, çeyrek) girdi olarak kullanırız.
+
+### 10.1. Python ile XGBoost Uygulaması
 ```python
+import numpy as np
 import pandas as pd
 import xgboost as xgb
-from sklearn.metrics import mean_squared_error, mean_absolute_error
 import matplotlib.pyplot as plt
-import numpy as np
 
-# Veriyi yükle
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+from sklearn.model_selection import TimeSeriesSplit
+
+
+# =============================================================
+# 0) TEKRARLANABİLİRLİK
+# =============================================================
+#
+# XGBoost içinde rastgele işlemler vardır (ağaç oluşturma, örnekleme).
+# Aynı sonuçları elde etmek için seed ayarlamak gerekir.
+
+SEED = 42
+np.random.seed(SEED)
+
+
+# =============================================================
+# 1) VERİ YÜKLEME VE İNCELEME
+# =============================================================
+
 df = pd.read_csv('data/AirPassengers.csv')
-# Orijinal CSV'deki sütun adı '#Passengers', bunu 'Passengers' olarak düzeltelim
-df.rename(columns={'#Passengers': 'Passengers'}, inplace=True)
+
+# Sütun adını düzeltelim
+if '#Passengers' in df.columns:
+    df.rename(columns={'#Passengers': 'Passengers'}, inplace=True)
+
+# Tarih indeksini ayarlayalım
 df['Month'] = pd.to_datetime(df['Month'])
 df.set_index('Month', inplace=True)
 
-# Gecikme (Lag) özelliği oluşturma
-df['lag_1'] = df['Passengers'].shift(1)
-df['lag_2'] = df['Passengers'].shift(2)
+print("Veri seti özeti:")
+print(f"  Gözlem sayısı: {len(df)}")
+print(f"  Tarih aralığı: {df.index.min()} - {df.index.max()}")
+print(f"\n{df.head()}")
 
-# Ay bilgisini sayısal özellik olarak ekle
-df['month_index'] = df.index.month
 
-# NaN (boş) değerleri at (Lag özellikleri oluştururken ilk satırlar boş kalır)
-df = df.dropna()
+# =============================================================
+# 2) ÖZELLİK MÜHENDİSLİĞİ
+# =============================================================
+#
+# XGBoost zaman serisini doğrudan işleyemez. Veriyi şu formata
+# dönüştürmemiz gerekir:
+#
+#   Özellikler (X)              →  Hedef (y)
+#   [lag_1, lag_2, ..., ay]     →  Passengers
+#
+# Ne kadar çok ve anlamlı özellik oluşturursak, model o kadar
+# iyi örüntüleri yakalayabilir.
 
-# X: Girdiler, y: Hedef
-X = df[['lag_1', 'lag_2', 'month_index']]
-y = df['Passengers']
+df_features = df.copy()
 
-# Son 12 ayı test olarak ayır
-split_point = len(df) - 12
+# ---------------------------------------------------------
+# Gecikme (Lag) Özellikleri
+# ---------------------------------------------------------
+# Geçmiş değerler en önemli özelliklerdir. Mevsimsel veri için
+# en az bir tam döngü (12 ay) geriye bakmak faydalıdır.
+
+for lag in range(1, 13):
+    df_features[f'lag_{lag}'] = df_features['Passengers'].shift(lag)
+
+# ---------------------------------------------------------
+# Hareketli İstatistikler
+# ---------------------------------------------------------
+# Hareketli ortalama trendi, hareketli standart sapma
+# volatiliteyi (dalgalanmayı) yakalar.
+#
+# shift(1) ile bir dönem kaydırıyoruz çünkü tahmin anında
+# o anın değerini bilemeyiz.
+
+df_features['rolling_mean_3'] = df_features['Passengers'].shift(1).rolling(3).mean()
+df_features['rolling_mean_6'] = df_features['Passengers'].shift(1).rolling(6).mean()
+df_features['rolling_mean_12'] = df_features['Passengers'].shift(1).rolling(12).mean()
+
+df_features['rolling_std_3'] = df_features['Passengers'].shift(1).rolling(3).std()
+df_features['rolling_std_12'] = df_features['Passengers'].shift(1).rolling(12).std()
+
+# ---------------------------------------------------------
+# Mevsimsel Fark
+# ---------------------------------------------------------
+# Bir önceki yılın aynı ayına göre değişim. Bu özellik
+# yıllık büyüme oranını yakalar.
+
+df_features['seasonal_diff'] = df_features['Passengers'] - df_features['Passengers'].shift(12)
+
+# ---------------------------------------------------------
+# Takvim Özellikleri
+# ---------------------------------------------------------
+# Ay ve çeyrek bilgisi mevsimselliği yakalamaya yardımcı olur.
+
+df_features['month'] = df_features.index.month
+df_features['quarter'] = df_features.index.quarter
+
+# Yıl bilgisini normalize edelim (trend için)
+df_features['year_normalized'] = (
+    (df_features.index.year - df_features.index.year.min()) /
+    (df_features.index.year.max() - df_features.index.year.min())
+)
+
+# ---------------------------------------------------------
+# Eksik Değerleri Temizleme
+# ---------------------------------------------------------
+# Gecikme ve hareketli ortalamalar nedeniyle ilk satırlarda
+# NaN oluşur. Bunları çıkarıyoruz.
+
+df_features = df_features.dropna()
+
+print(f"\nÖzellik mühendisliği sonrası:")
+print(f"  Gözlem sayısı: {len(df_features)}")
+print(f"  Özellik sayısı: {len(df_features.columns) - 1}")
+
+# Özellik ve hedef değişkenleri ayıralım
+feature_cols = [col for col in df_features.columns if col != 'Passengers']
+X = df_features[feature_cols]
+y = df_features['Passengers']
+
+print(f"\nKullanılan özellikler:\n  {feature_cols}")
+
+
+# =============================================================
+# 3) EĞİTİM / TEST AYIRIMI
+# =============================================================
+#
+# Zaman serilerinde kronolojik sıra korunmalıdır.
+# Son 12 ayı test için ayırıyoruz.
+
+test_size = 12
+split_point = len(X) - test_size
+
 X_train, X_test = X.iloc[:split_point], X.iloc[split_point:]
 y_train, y_test = y.iloc[:split_point], y.iloc[split_point:]
 
-# XGBoost Regresyon modeli
-reg = xgb.XGBRegressor(n_estimators=1000, learning_rate=0.01, random_state=42)
+print(f"\nVeri bölümü:")
+print(f"  Eğitim: {len(X_train)} gözlem ({y_train.index.min()} - {y_train.index.max()})")
+print(f"  Test: {len(X_test)} gözlem ({y_test.index.min()} - {y_test.index.max()})")
 
-# Modeli eğit
-reg.fit(X_train, y_train,
+
+# =============================================================
+# 4) XGBOOST MODELİNİN KURULMASI VE EĞİTİLMESİ
+# =============================================================
+#
+# XGBoost (Extreme Gradient Boosting) bir ensemble yöntemidir.
+# Ardışık olarak karar ağaçları kurar; her yeni ağaç, önceki
+# ağaçların hatalarını düzeltmeye çalışır.
+#
+# Önemli hiperparametreler:
+#
+# n_estimators: Kurulacak ağaç sayısı
+#   - Çok az → yetersiz öğrenme
+#   - Çok fazla → aşırı öğrenme riski (early stopping ile kontrol edilir)
+#
+# learning_rate: Her ağacın katkı oranı
+#   - Düşük değer → daha yavaş öğrenme, daha çok ağaç gerekir
+#   - Yüksek değer → hızlı öğrenme ama aşırı öğrenme riski
+#
+# max_depth: Ağaç derinliği
+#   - Derin ağaçlar karmaşık ilişkileri yakalar ama aşırı öğrenebilir
+#
+# subsample: Her ağaç için kullanılan veri oranı
+# colsample_bytree: Her ağaç için kullanılan özellik oranı
+#   - 1'den küçük değerler rastgelelik ekleyerek aşırı öğrenmeyi azaltır
+#
+# early_stopping_rounds: Doğrulama kaybı iyileşmezse eğitimi durdurur
+
+model = xgb.XGBRegressor(
+    n_estimators=1000,        # Maksimum ağaç sayısı
+    learning_rate=0.05,       # Öğrenme hızı
+    max_depth=4,              # Ağaç derinliği
+    subsample=0.8,            # Veri örnekleme oranı
+    colsample_bytree=0.8,     # Özellik örnekleme oranı
+    random_state=SEED,
+    early_stopping_rounds=50  # Erken durdurma
+)
+
+# Modeli eğitelim
+# eval_set ile hem eğitim hem test performansını izliyoruz
+print("\nXGBoost modeli eğitiliyor...")
+model.fit(
+    X_train, y_train,
     eval_set=[(X_train, y_train), (X_test, y_test)],
-    verbose=False)
+    verbose=False
+)
 
-# Tahmin yapma
-y_pred = reg.predict(X_test)
+# Kaç ağaç kullanıldığını görelim
+print(f"Kullanılan ağaç sayısı: {model.best_iteration + 1}")
 
-# Hata hesaplama (RMSE ve MAE)
-rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-mae = mean_absolute_error(y_test, y_pred)
 
-print(f"RMSE Değeri: {rmse:.2f}")
-print(f"MAE Değeri: {mae:.2f}")
+# =============================================================
+# 5) TAHMİN VE PERFORMANS DEĞERLENDİRMESİ
+# =============================================================
 
-# Sonuçları görselleştirme
-plt.figure(figsize=(10, 6))
-plt.plot(y_test.index, y_test, label='Gerçek Değerler')
-plt.plot(y_test.index, y_pred, label='Tahminler', linestyle='--', color='red')
-plt.title('XGBoost ile AirPassengers Tahmini')
-plt.xlabel('Tarih')
-plt.ylabel('Yolcu Sayısı')
-plt.legend()
+# Tahminler
+y_train_pred = model.predict(X_train)
+y_test_pred = model.predict(X_test)
+
+# ---------------------------------------------------------
+# Performans metrikleri
+# ---------------------------------------------------------
+
+def calculate_metrics(y_true, y_pred, set_name=""):
+    """
+    Tahmin performans metriklerini hesaplar.
+    
+    MAE: Ortalama mutlak hata - tüm hatalara eşit ağırlık
+    RMSE: Kök ortalama kare hata - büyük hataları cezalandırır
+    MAPE: Ortalama mutlak yüzde hata - ölçekten bağımsız
+    """
+    mae = mean_absolute_error(y_true, y_pred)
+    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+    mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+    
+    print(f"\n{set_name} Performansı:")
+    print(f"  MAE:  {mae:.2f}")
+    print(f"  RMSE: {rmse:.2f}")
+    print(f"  MAPE: {mape:.2f}%")
+    
+    return mae, rmse, mape
+
+print("\n" + "=" * 50)
+print("XGBOOST MODEL PERFORMANSI")
+print("=" * 50)
+
+train_mae, train_rmse, train_mape = calculate_metrics(
+    y_train, y_train_pred, "Eğitim Seti"
+)
+test_mae, test_rmse, test_mape = calculate_metrics(
+    y_test, y_test_pred, "Test Seti"
+)
+
+
+# =============================================================
+# 6) ÖZELLİK ÖNEMİ ANALİZİ
+# =============================================================
+#
+# XGBoost'un avantajlarından biri yorumlanabilirliğidir.
+# Hangi özelliklerin tahmine en çok katkı sağladığını görebiliriz.
+#
+# Bu bilgi şu sorulara yanıt verir:
+#   - Hangi gecikmeler daha önemli?
+#   - Mevsimsellik mi trend mi baskın?
+#   - Gereksiz özellikler var mı?
+
+feature_importance = pd.DataFrame({
+    'feature': feature_cols,
+    'importance': model.feature_importances_
+}).sort_values('importance', ascending=True)
+
+plt.figure(figsize=(10, 8))
+plt.barh(feature_importance['feature'], feature_importance['importance'])
+plt.xlabel('Önem Skoru')
+plt.title('XGBoost Özellik Önemi')
+plt.tight_layout()
 plt.show()
+
+print("\nEn önemli 5 özellik:")
+print(feature_importance.tail(5).to_string(index=False))
+
+
+# =============================================================
+# 7) TAHMİNLERİN GÖRSELLEŞTİRİLMESİ
+# =============================================================
+
+plt.figure(figsize=(12, 5))
+
+# Tüm gerçek değerler
+plt.plot(df.index, df['Passengers'], 'b-', label='Gerçek Değerler', alpha=0.7)
+
+# Eğitim tahminleri
+plt.plot(y_train.index, y_train_pred, 'g--', label='Eğitim Tahminleri', alpha=0.5)
+
+# Test tahminleri
+plt.plot(y_test.index, y_test_pred, 'r--', label='Test Tahminleri', linewidth=2)
+
+# Test dönemini işaretle
+plt.axvline(x=y_test.index[0], color='gray', linestyle=':', alpha=0.7)
+
+plt.xlabel('Tarih')
+plt.ylabel('Yolcu Sayısı (bin)')
+plt.title(f'XGBoost Tahminleri (Test RMSE: {test_rmse:.2f})')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# Test dönemi detaylı görünüm
+plt.figure(figsize=(10, 5))
+plt.plot(y_test.index, y_test.values, 'b-o', label='Gerçek Değerler', linewidth=2)
+plt.plot(y_test.index, y_test_pred, 'r--s', label='XGBoost Tahminleri', linewidth=2)
+plt.xlabel('Tarih')
+plt.ylabel('Yolcu Sayısı (bin)')
+plt.title('Test Dönemi Detaylı Görünüm')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+
+# =============================================================
+# 8) ÇAPRAZ DOĞRULAMA (TIMESERIESSPLIT)
+# =============================================================
+#
+# Tek bir train/test bölümü yanıltıcı olabilir. O dönem şanslı
+# veya şanssız bir dönem olabilir.
+#
+# TimeSeriesSplit ile birden fazla bölüm oluşturup modelin
+# tutarlılığını test edebiliriz.
+
+print("\n" + "=" * 50)
+print("ÇAPRAZ DOĞRULAMA (TimeSeriesSplit)")
+print("=" * 50)
+
+tscv = TimeSeriesSplit(n_splits=5)
+cv_scores = {'rmse': [], 'mae': [], 'mape': []}
+
+fold = 1
+for train_idx, val_idx in tscv.split(X):
+    X_tr, X_val = X.iloc[train_idx], X.iloc[val_idx]
+    y_tr, y_val = y.iloc[train_idx], y.iloc[val_idx]
+    
+    # Model
+    cv_model = xgb.XGBRegressor(
+        n_estimators=500,
+        learning_rate=0.05,
+        max_depth=4,
+        subsample=0.8,
+        colsample_bytree=0.8,
+        random_state=SEED,
+        early_stopping_rounds=30
+    )
+    
+    cv_model.fit(X_tr, y_tr, eval_set=[(X_val, y_val)], verbose=False)
+    y_val_pred = cv_model.predict(X_val)
+    
+    # Metrikler
+    rmse = np.sqrt(mean_squared_error(y_val, y_val_pred))
+    mae = mean_absolute_error(y_val, y_val_pred)
+    mape = np.mean(np.abs((y_val - y_val_pred) / y_val)) * 100
+    
+    cv_scores['rmse'].append(rmse)
+    cv_scores['mae'].append(mae)
+    cv_scores['mape'].append(mape)
+    
+    print(f"Fold {fold}: RMSE={rmse:.2f}, MAE={mae:.2f}, MAPE={mape:.2f}%")
+    fold += 1
+
+print(f"\nOrtalama Sonuçlar:")
+print(f"  RMSE: {np.mean(cv_scores['rmse']):.2f} ± {np.std(cv_scores['rmse']):.2f}")
+print(f"  MAE:  {np.mean(cv_scores['mae']):.2f} ± {np.std(cv_scores['mae']):.2f}")
+print(f"  MAPE: {np.mean(cv_scores['mape']):.2f}% ± {np.std(cv_scores['mape']):.2f}%")
 ```
-
-### 10.2. Weka ile Uygulama
-
-Kod yazmadan bu mantığı görmek isterseniz Weka da kullanılabilir. Ancak Weka standart haliyle zaman serisi analizi yapmaz, bunun için "Package Manager" üzerinden `timeseriesForecasting` paketini kurmanız gerekir.
-
-Gençler, Weka ile çalışmaya başlayalım. Kod yazmadan analiz yapmanın nasıl bir his olduğunu görmek için güzel bir fırsat. İlk adımımız, elbette, veriyi Weka'ya tanıtmak.
-
-#### 10.2.1. Veri Yükleme
-
-Öncelikle AirPassengers veri setini bilgisayarımıza indirmemiz gerekiyor. Size verdiğim adrese gidin: `https://github.com/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/data/AirPassengers.csv`.
-
-Bu sayfada, dosya içeriğinin sağ üst köşesinde "Raw" yazan bir düğme göreceksiniz. Bu düğmeye sağ tıklayıp "Farklı Kaydet" (Save As) seçeneği ile dosyayı `AirPassengers.csv` olarak bilgisayarınızın kolay bulabileceğiniz bir yerine, örneğin Masaüstü'ne kaydedin.
-
-Şimdi Weka'yı açın ve "Explorer" arayüzünü başlatın. Karşınıza gelen `Preprocess` sekmesinde, sol üstte `Open file...` düğmesi bulunur. Buraya tıklayın ve az önce kaydettiğiniz `AirPassengers.csv` dosyasını seçin. Bu kadar. Veri setiniz artık Weka'da incelenmeye hazır.
-
-Daha pratik bir yol daha var. Dosyayı bilgisayarınıza indirmeden, doğrudan internet üzerinden Weka'ya çektirebiliriz. Bunun için yine az önceki GitHub sayfasına gidin ve "Raw" düğmesine tıklayın. Bu sefer tarayıcınız sizi verinin ham, yani saf metin halinin olduğu bir sayfaya yönlendirecek. Adres çubuğundaki bu yeni URL'yi kopyalayın. Bu URL `raw.githubusercontent.com` ile başlamalıdır.
-
-Weka'ya dönün. `Open file...` yerine hemen altındaki `Open URL...` düğmesine tıklayın. Açılan küçük pencereye kopyaladığınız bu ham veri URL'sini yapıştırın ve "OK" deyin. Weka veriyi doğrudan internetten çekecektir. Bu yöntem, özellikle veriler güncellendiğinde veya farklı veri setlerini hızla denemek istediğinizde size zaman kazandırır.
-
-#### 10.2.2. Dönüşüm
-
-Gençler, XGBoost mantığını Weka'da uygulamak için önce veriyi hazırlamamız gerekir. Bu işlem için `Preprocess` sekmesindeki `Filter` bölümünü kullanacağız. `Choose` düğmesine tıkladıktan sonra `weka.filters.supervised.attribute` altında `TSLagMaker` aracını bulacaksınız. Bu, Python'da yazdığımız `shift()` kodunun görsel arayüzdeki karşılığıdır.
-
-Filtreyi seçtikten sonra, üzerine tıklayarak ayar penceresini açın. Burası, Weka'ya ne istediğimizi tam olarak söylediğimiz yerdir. Karşınıza birkaç önemli seçenek çıkacak:
-
-- **`lag_max`**: Bu parametre, "ne kadar geriye bakayım?" diye sorar. Eğer buraya `2` yazarsanız, Weka sizin için iki yeni sütun oluşturur: bir önceki değeri (`t-1`) ve iki önceki değeri (`t-2`) içeren sütunlar. Bu, bir önceki ve iki önceki ayın yolcu sayılarını ayrı birer özellik olarak ekler.
-- **`skip_first_instances`**: Bu kutucuğu işaretlemek önemlidir. Gecikme oluşturulduğunda ilk satırlarda oluşan boş değerleri (`NaN`) otomatik olarak siler. Hatırlarsanız, Python'da bunun için `.dropna()` kullanmıştık. Weka bu adımı bizim için kolaylaştırıyor.
-- **`add_month_of_year`**: Bu seçeneği `True` yaparsanız, Weka her bir satır için ay bilgisini (1'den 12'ye kadar) içeren yeni bir sütun ekler. Tıpkı XGBoost için `month_index` oluşturmamız gibi.
-
-Bu ayarları yapıp `Apply` düğmesine bastığınızda, Weka veri setinizi dönüştürür. Artık tek bir yolcu sayısı sütunu yerine, geçmiş değerleri ve ay bilgisini içeren, standart bir regresyon modelinin anlayabileceği bir tabloya sahipsiniz.
-
-Gençler, şimdi yaptığımız işlemin sonucunu düşünelim. Veri setimiz artık tek bir sütundan oluşan bir zaman dizisi değil. Aksine, 'bir önceki ayın yolcu sayısı', 'iki önceki ayın yolcu sayısı' ve 'ilgili ay' gibi girdi sütunları ile 'şimdiki yolcu sayısı' gibi bir hedef sütunu olan standart bir tabloya dönüştü.
-
-Bu dönüşüm, zaman serisi analizini bildiğimiz bir tahmin problemine indirger. Elimizdeki soru artık "sırada ne var?" değil, "bu girdilere göre çıktı ne olmalı?" sorusudur. Bu yeni yapıyla, Weka'nın regresyon yeteneklerini kullanabiliriz.
-
-Bunun için `Classify` sekmesine geçiyoruz. Burası, Weka'nın makine öğrenmesi modellerini çalıştırdığı yerdir.
-
-`Choose` düğmesine tıklayarak farklı algoritmalar deneyebilirsiniz. Örneğin, `trees` klasörü altındaki `RandomForest`, yüzlerce karar ağacı kurarak kolektif bir tahminde bulunur. `functions` altındaki `SMOreg` ise destek vektör makineleri prensibiyle, verideki doğrusal olmayan ilişkileri yakalamaya çalışır. `RandomForest` ile başlayalım.
-
-En kritik adım, Weka'ya neyi tahmin etmesi gerektiğini söylemektir. Sekmenin üst kısmındaki açılır menüden, hedef değişken olarak orijinal yolcu sayısı sütununu (örneğin, `#Passengers`) seçtiğinizden emin olun. Diğer `lag` ve `month` sütunları bizim girdilerimiz, yani 'X' değişkenlerimizdir. Hedefimiz ise 'y' değişkenidir.
-
-Modeli çalıştırmak için `Start` düğmesine basmadan önce, `Test options` bölümünü inceleyelim. `Use training set` seçeneği, modelin eğitim verisindeki başarısını gösterir ama bu biraz iyimser bir sonuç verebilir. Daha gerçekçi bir performans ölçümü için `Percentage split` seçeneğini kullanıp verinin, örneğin, %80'ini eğitime ayırabilirsiniz. Weka, modeli bu %80'lik kısımda eğitir ve kalan %20 üzerinde test ederek size tarafsız bir sonuç sunar.
-
-`Start` düğmesine bastığınızda, sağ taraftaki `Classifier output` penceresinde sonuçlar belirir. Burada bir zaman grafiği görmeyeceksiniz. Bunun yerine, modelin performansını özetleyen istatistiksel bir rapor alırsınız.
-
-Bu raporda dikkat etmeniz gereken birkaç temel metrik var:
-- **Correlation coefficient:** Tahmin edilen değerlerle gerçek değerler arasındaki uyumu gösterir. 1'e ne kadar yakınsa, model o kadar başarılıdır.
-- **Mean absolute error (MAE):** Modelin ortalama olarak ne kadar yanıldığını, yolcu sayısı cinsinden ifade eder.
-- **Root mean squared error (RMSE):** Büyük hataları daha ağır cezalandıran bir metriktir. Bu iki hata metriğini karşılaştırarak modelinizin tekil büyük hatalar yapıp yapmadığı hakkında bir fikir edinebilirsiniz.
-
-Özetle, Weka'da zaman serisi verisini önce özellik mühendisliği ile bir regresyon problemine dönüştürdük, sonra da bu probleme standart makine öğrenmesi algoritmalarını uyguladık. Bu yaklaşım, kod yazmadan farklı model ailelerinin performansını hızlıca karşılaştırmak için oldukça etkilidir.
 
 ---
 
-ARIMA ile verinin istatistiksel yapısını modelledik. LSTM ile veriyi bir sinyal gibi işleyip karmaşık yapısını öğrendik. Prophet ile takvim etkisini ve trendleri ayrıştırarak tahmin yaptık. XGBoost ile de veriyi bir tabloya dönüştürüp geçmiş değerlere dayalı kurallarla sonuca gittik.
+### 10.2. Weka ile Uygulama
 
-Hangisinin daha iyi olduğu verinin karakterine bağlıdır. Verinizde mevsimsellik belirginse Prophet, veri büyük ve karmaşıksa LSTM veya XGBoost, veri az ve düzenliyse ARIMA daha iyi sonuç verebilir. Bir veri bilimci olarak göreviniz, bu araç çantasından soruna en uygun olanı seçmektir.
+Kod yazmadan bu mantığı görmek isterseniz Weka da kullanılabilir. Ancak Weka standart haliyle zaman serisi analizi yapmaz; bunun için "Package Manager" üzerinden `timeseriesForecasting` paketini kurmanız gerekir.
+
+#### 10.2.1. Paket Kurulumu
+
+Weka'yı açın ve ana menüden `Tools → Package Manager` seçeneğine gidin. Açılan pencerede arama kutusuna "timeseries" yazın. `timeseriesForecasting` paketini bulup "Install" düğmesine tıklayın. Kurulum tamamlandıktan sonra Weka'yı yeniden başlatın.
+
+#### 10.2.2. Veri Yükleme
+
+AirPassengers veri setini `https://github.com/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/data/AirPassengers.csv` adresinden indirin. "Raw" düğmesine sağ tıklayıp "Farklı Kaydet" seçeneği ile dosyayı bilgisayarınıza kaydedin.
+
+Weka'da "Explorer" arayüzünü açın. `Preprocess` sekmesinde `Open file...` düğmesine tıklayıp indirdiğiniz dosyayı seçin.
+
+Alternatif olarak, "Raw" düğmesine tıklayarak açılan sayfanın URL'sini kopyalayıp `Open URL...` ile doğrudan yükleyebilirsiniz. Bu URL `raw.githubusercontent.com` ile başlamalıdır.
+
+#### 10.2.3. Özellik Mühendisliği (Dönüşüm)
+
+Python'da `shift()` ile yaptığımız gecikme özelliklerini Weka'da filtrelerle oluşturacağız. `Preprocess` sekmesinde `Filter → Choose` düğmesine tıklayın.
+
+**Not:** `timeseriesForecasting` paketi kurulduktan sonra `TSLagMaker` filtresi `weka.filters.unsupervised.attribute` altında görünür. Eğer bulamazsanız, Weka'yı yeniden başlattığınızdan emin olun.
+
+Filtreyi seçtikten sonra üzerine tıklayarak ayar penceresini açın:
+
+| Parametre | Değer | Açıklama |
+|-----------|-------|----------|
+| `lagMaker_lagFinish` | 12 | Kaç gecikme oluşturulacağı |
+| `lagMaker_adjustForVariance` | False | Varyans ayarlaması |
+| `addMonthOfYear` | True | Ay bilgisi özelliği ekler |
+| `addQuarterOfYear` | True | Çeyrek bilgisi ekler |
+
+Ayarları yaptıktan sonra `Apply` düğmesine basın. Weka veri setinizi dönüştürecek ve yeni sütunlar ekleyecektir.
+
+#### 10.2.4. Model Kurma ve Değerlendirme
+
+`Classify` sekmesine geçin. Sol üstteki açılır menüden hedef değişken olarak `Passengers` sütununu seçin.
+
+`Choose` düğmesine tıklayarak algoritma seçin:
+
+- `trees → RandomForest`: Kolektif karar ağaçları, genellikle iyi sonuç verir
+- `trees → REPTree`: Tek bir karar ağacı, yorumlaması kolay
+- `functions → SMOreg`: Destek vektör regresyonu
+
+`Test options` bölümünde:
+
+- `Percentage split` seçeneğini işaretleyin
+- Değeri %80 olarak ayarlayın (ilk %80 eğitim, son %20 test)
+
+`Start` düğmesine basın. Sonuçlar sağ panelde görünecektir.
+
+#### 10.2.5. Sonuçların Yorumlanması
+
+Weka çıktısında dikkat edilecek metrikler:
+
+| Metrik | Anlamı |
+|--------|--------|
+| Correlation coefficient | 1'e yakın = iyi uyum |
+| Mean absolute error | Ortalama mutlak hata (MAE) |
+| Root mean squared error | Kök ortalama kare hata (RMSE) |
+| Relative absolute error | %100'den düşük = ortalamadan iyi |
+
+MAE ve RMSE değerlerini Python sonuçlarıyla karşılaştırabilirsiniz. Weka'nın avantajı farklı algoritmaları hızlıca deneyebilmenizdir.
 
 ---
 
 ## 11. Hata Metrikleri ve Model Değerlendirme
 
-Modelleri kurduk, tahminleri ürettik. Ancak bir modelin iyi çalışıp çalışmadığına sadece grafiklere bakarak karar veremeyiz. Göz yanıltıcı olabilir. Bilimsel bir kıyaslama için somut, sayısal kanıtlar olmalıdır. Burada hata metrikleri devreye girer.
+Modelleri kurduk, tahminleri ürettik. Ancak bir modelin iyi çalışıp çalışmadığına sadece grafiklere bakarak karar veremeyiz. Göz yanıltıcı olabilir. Bilimsel bir kıyaslama için somut, sayısal kanıtlar gerekir. Burada hata metrikleri devreye girer.
 
-Zaman serisi analizinde en sık kullandığımız iki metrik MAE ve RMSE'dir. Bunların arasındaki farkı anlamak, hangi durumda hangisine güveneceğinizi bilmeniz açısından önemlidir.
+### 11.1. MAE (Mean Absolute Error)
 
-### 11.1. MAE (Mean Absolute Error - Ortalama Mutlak Hata)
+Tahmin ile gerçek değer arasındaki farkın mutlak değerinin ortalamasını alır:
 
-Tahmin ettiğimiz değer ile gerçek değer arasındaki farkın (işaretine bakmaksızın) ortalamasını alır.
+$$MAE = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|$$
 
-**Mantığı:** Model ortalama olarak kaç yolcu yanılıyor?
+**Yorumu:** MAE değeriniz 20 ise, modeliniz ortalama ±20 birim sapıyor demektir.
 
-**Yorumu:** MAE değeriniz 20 ise, modeliniz gerçek değerden ortalama ±20 yolcu sapıyor demektir.
+**Avantajı:** Anlaşılması ve açıklanması kolaydır.
 
-**Avantajı:** Anlatması kolaydır.
+**Dezavantajı:** Büyük hataları küçük hatalardan ayırt etmez. 1 birimlik 10 hata ile 10 birimlik 1 hata aynı MAE değerini verir.
 
-**Dezavantajı:** Büyük hataları küçük hatalardan ayırt etmez. 1 birimlik 10 hata yapmakla 10 birimlik 1 hata yapmayı aynı kefeye koyar.
+### 11.2. RMSE (Root Mean Squared Error)
 
-### 11.2. RMSE (Root Mean Squared Error - Kök Ortalama Kare Hata)
+Hataların karesini alır, ortalamasını bulur, sonra karekök alır:
 
-Hataların karesini alarak ortalamasını bulur ve sonra karekökünü alır. Hataların karesini aldığı için büyük hataları orantısız biçimde büyütür.
+$$RMSE = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2}$$
 
-**Mantığı:** Model büyük hatalar yapıyor mu?
+**Yorumu:** RMSE her zaman MAE'den büyük veya ona eşittir. Aradaki fark büyükse, model bazı noktalarda çok büyük hatalar yapıyor demektir.
 
-**Yorumu:** RMSE, MAE'den her zaman büyük veya ona eşittir. RMSE ile MAE arasındaki fark çok açıksa, modeliniz bazı noktalarda çok büyük hatalar yapıyor demektir.
+**Avantajı:** Büyük hataları cezalandırır. Kritik sistemlerde (stok yönetimi, enerji tahmini) tercih edilir.
 
-**Avantajı:** Büyük hataları cezalandırır. Tahminin çok uzak olması sistem için felakete yol açacaksa RMSE daha güvenilir bir göstergedir.
+### 11.3. MAPE (Mean Absolute Percentage Error)
 
-### 11.3. Uygulama ve Kodlama
+Hataları yüzde cinsinden ifade eder:
 
-Bu bilgiyi Python üzerinde Prophet ve XGBoost modellerinin çıktılarını kullanarak somutlaştıralım. Bunun için `scikit-learn` kütüphanesinin metrik modüllerini kullanacağız.
+$$MAPE = \frac{100}{n} \sum_{i=1}^{n} \left| \frac{y_i - \hat{y}_i}{y_i} \right|$$
 
-Verinin test seti (gerçek değerler) ile modelin ürettiği tahminlerin aynı uzunlukta ve aynı sırada olduğundan emin olmalıyız.
+**Yorumu:** MAPE %5 ise, model ortalama %5 oranında yanılıyor demektir.
 
+**Avantajı:** Ölçekten bağımsızdır. Farklı büyüklükteki veri setlerini karşılaştırabilirsiniz.
+
+**Dezavantajı:** Gerçek değer sıfıra yakınsa sonuç patlar (sıfıra bölme sorunu).
+
+### 11.4. Metriklerin Karşılaştırması
+
+| Durum | Tercih Edilecek Metrik |
+|-------|------------------------|
+| Sonuçları müşteriye açıklamak | MAE (anlaşılır) |
+| Büyük hataların maliyeti yüksek | RMSE (cezalandırıcı) |
+| Farklı ölçekleri karşılaştırmak | MAPE (yüzde) |
+| Genel değerlendirme | Üçünü birlikte kullanın |
+
+### 11.5. Uygulama ve Kodlama
+
+Farklı modellerin performansını karşılaştırmak için standart bir fonksiyon kullanmak faydalıdır:
 ```python
 import numpy as np
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 
-# Fonksiyon tanımlayalım
-def performans_hesapla(y_gercek, y_tahmin, model_ismi):
-    mae = mean_absolute_error(y_gercek, y_tahmin)
-    rmse = mean_squared_error(y_gercek, y_tahmin, squared=False)
+def evaluate_model(y_true, y_pred, model_name):
+    """
+    Model performansını değerlendirir ve sonuçları yazdırır.
     
-    print(f"--- {model_ismi} Performans Sonuçları ---")
-    print(f"MAE: {mae:.2f}")
-    print(f"RMSE: {rmse:.2f}")
-    print("-" * 30)
+    Parametreler:
+        y_true: Gerçek değerler (array veya Series)
+        y_pred: Tahmin edilen değerler (array veya Series)
+        model_name: Modelin adı (string)
+    
+    Döndürür:
+        dict: MAE, RMSE ve MAPE değerlerini içeren sözlük
+    """
+    # Array'e dönüştür
+    y_true = np.array(y_true).flatten()
+    y_pred = np.array(y_pred).flatten()
+    
+    # Metrikleri hesapla
+    mae = mean_absolute_error(y_true, y_pred)
+    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+    
+    # MAPE hesaplarken sıfıra bölmeyi önle
+    mask = y_true != 0
+    mape = np.mean(np.abs((y_true[mask] - y_pred[mask]) / y_true[mask])) * 100
+    
+    # Sonuçları yazdır
+    print(f"\n{'=' * 40}")
+    print(f"{model_name} Performans Sonuçları")
+    print(f"{'=' * 40}")
+    print(f"MAE:  {mae:>10.2f}")
+    print(f"RMSE: {rmse:>10.2f}")
+    print(f"MAPE: {mape:>9.2f}%")
+    
+    return {'mae': mae, 'rmse': rmse, 'mape': mape}
 
-# Prophet Modeli İçin
-y_true_prophet = df['y'].iloc[-12:].values
-y_pred_prophet = forecast['yhat'].iloc[-12:].values
-performans_hesapla(y_true_prophet, y_pred_prophet, "Facebook Prophet")
 
-# XGBoost Modeli İçin
-performans_hesapla(y_test, y_pred, "XGBoost")
+# Örnek kullanım: Farklı modelleri karşılaştırma
+# (Aşağıdaki değişkenlerin önceki kodlardan tanımlı olduğunu varsayıyoruz)
+
+# XGBoost sonuçları
+xgb_metrics = evaluate_model(y_test, y_test_pred, "XGBoost")
+
+# Eğer Prophet modeli de çalıştırıldıysa:
+# prophet_metrics = evaluate_model(
+#     df_prophet['y'].iloc[-12:], 
+#     forecast['yhat'].iloc[-12:], 
+#     "Prophet"
+# )
+
+# Eğer ARIMA modeli de çalıştırıldıysa:
+# arima_metrics = evaluate_model(y_test_arima, arima_pred, "ARIMA")
 ```
 
-### 11.4. Sonuçların Değerlendirilmesi
+### 11.6. Sonuçların Yorumlanması
 
-Bu kodları çalıştırdığınızda iki farklı tablo çıkacaktır.
+Metrikleri karşılaştırırken şu sorulara yanıt arayın:
 
-XGBoost'un RMSE değeri Prophet'ten düşükse; XGBoost verideki ani değişimleri daha iyi yakalamış, büyük hatalardan kaçınmış demektir.
+**MAE ve RMSE birbirine yakın mı?**
+- Evet → Model tutarlı hatalar yapıyor
+- RMSE çok yüksek → Bazı noktalarda büyük sapmalar var
 
-MAE değerleri birbirine yakın ama RMSE değerleri arasında fark varsa; RMSE'si yüksek olan model genel trendi tutturmuş olsa da bazı aylarda ciddi sapmalar yapmıştır.
+**MAPE makul düzeyde mi?**
+- %5-10 → İyi performans
+- %10-20 → Kabul edilebilir
+- %20+ → Model iyileştirilmeli
 
-Hangi modeli seçeceğiz? Amacımız stok yönetimi gibi ortalama bir doğruluksa MAE'si düşük olanı; amacımız kritik hata yapmama üzerine kuruluysa RMSE'si düşük olanı tercih etmeliyiz. AirPassengers verisi için genellikle her iki metrik de birbirine paralel hareket eder, ancak mevsimselliğin keskin olduğu yıllarda Prophet'in RMSE konusunda daha tutarlı olduğu gözlemlenebilir.
+**Eğitim ve test metrikleri arasında fark var mı?**
+- Eğitim çok düşük, test yüksek → Aşırı öğrenme (overfitting)
+- İkisi de yüksek → Yetersiz öğrenme (underfitting)
+- İkisi yakın → İyi genelleme
 
+Hangi modeli seçeceğiniz probleme bağlıdır. Stok yönetimi gibi ortalama doğruluk yeterliyse MAE'si düşük olanı; kritik hata kabul edilemezse RMSE'si düşük olanı tercih edin.
 ---
 
 ## 12. 1D-CNN: Desen Tabanlı Yaklaşım
@@ -1974,96 +2340,648 @@ CNN algoritmalarını "bu resimde kedi var mı?" sorusunu cevaplarken duyarız. 
 
 LSTM veriyi bir hikaye gibi baştan sona okuyup aklında tutmaya çalışırken CNN veriye desen taraması gibi yaklaşır. "Geçen ay ne oldu?" sorusundan ziyade "Son üç aydaki hareketin şekli, daha önceki yıllarda hangi şekle benziyor?" sorusuna odaklanır. Bu özellik verideki gürültüyü filtrelemede ve kısa vadeli desenleri yakalamada etkilidir. Ayrıca LSTM'e göre hesaplama maliyeti daha düşüktür, yani daha hızlı eğitilir.
 
-### 12.1. Python ile 1D-CNN Uygulaması
-
-Bu algoritmayı uygularken veriyi hazırlama biçimimiz LSTM ile oldukça benzerdir. Veriyi [Örnek Sayısı, Zaman Adımı, Özellik Sayısı] formatında 3 boyutlu bir yapıya sokmamız gerekir.
-
-**Veri Hazırlığı**
-
-Veriyi gecikmeli (lag) hale getirip CNN'in anlayacağı 3 boyutlu tensör formatına çevireceğiz.
-
 ```python
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+
+import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, Flatten, Conv1D, MaxPooling1D
+from tensorflow.keras.layers import (
+    Dense, Flatten, Conv1D, MaxPooling1D, 
+    Dropout, BatchNormalization
+)
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.optimizers import Adam
+
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 
-# --- Veri Hazırlığı ---
-# Veriyi gecikmeli (lag) hale getirip CNN'in anlayacağı 3 boyutlu tensör formatına çevireceğiz.
 
-# Veriyi yükle
+# =============================================================
+# 0) TEKRARLANABİLİRLİK İÇİN RASTGELELIK TOHUMLARINI AYARLAMA
+# =============================================================
+#
+# Derin öğrenme modellerinde ağırlıkların başlangıç değerleri,
+# dropout maskeleri ve veri karıştırma işlemleri rastgele yapılır.
+# Aynı sonuçları elde edebilmek için tüm rastgelelik kaynaklarını
+# kontrol altına almak gerekir.
+
+SEED = 42
+np.random.seed(SEED)
+tf.random.set_seed(SEED)
+
+
+# =============================================================
+# 1) VERİ SETİNİ YÜKLEME VE İNCELEME
+# =============================================================
+#
+# AirPassengers verisi zaman serisi analizinde standart bir
+# benchmark olarak kullanılır. 1949-1960 yılları arasında
+# aylık uluslararası havayolu yolcu sayılarını içerir.
+#
+# Veri özellikleri:
+#   - 144 gözlem (12 yıl × 12 ay)
+#   - Güçlü yukarı trend
+#   - 12 aylık mevsimsel döngü
+#   - Zamanla artan varyans (heteroskedastisite)
+
 df = pd.read_csv('data/AirPassengers.csv')
-data = df['#Passengers'].values.astype('float32').reshape(-1, 1)
 
-# Normalizasyon: Veriyi 0-1 arasına ölçeklendir
+# Sütun adını kontrol edip düzeltelim
+if '#Passengers' in df.columns:
+    df.rename(columns={'#Passengers': 'Passengers'}, inplace=True)
+
+# Tarih indeksini ayarlayalım
+df['Month'] = pd.to_datetime(df['Month'])
+df.set_index('Month', inplace=True)
+
+print("Veri seti özeti:")
+print(f"  Gözlem sayısı: {len(df)}")
+print(f"  Tarih aralığı: {df.index.min()} - {df.index.max()}")
+print(f"\nİlk 5 gözlem:\n{df.head()}")
+
+# Hedef değişkeni numpy array olarak alalım
+# float32 TensorFlow için optimize edilmiş veri tipidir
+data = df['Passengers'].values.astype('float32').reshape(-1, 1)
+
+# Veriyi görselleştirelim
+plt.figure(figsize=(12, 4))
+plt.plot(df.index, df['Passengers'], linewidth=1)
+plt.title('Aylık Havayolu Yolcu Sayısı (1949-1960)')
+plt.xlabel('Tarih')
+plt.ylabel('Yolcu Sayısı (bin)')
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+
+# =============================================================
+# 2) VERİ ÖN İŞLEME
+# =============================================================
+#
+# Sinir ağları, giriş değerlerinin belirli bir aralıkta olmasını
+# tercih eder. Çok büyük veya çok küçük değerler:
+#   - Gradyan patlamasına veya sönmesine yol açabilir
+#   - Aktivasyon fonksiyonlarının doygun bölgelerine düşürebilir
+#   - Öğrenmeyi yavaşlatabilir
+#
+# MinMaxScaler veriyi [0, 1] aralığına dönüştürür:
+#   x_scaled = (x - x_min) / (x_max - x_min)
+
 scaler = MinMaxScaler(feature_range=(0, 1))
 data_scaled = scaler.fit_transform(data)
 
-# Pencereleme yöntemiyle veri setini girdi (X) ve çıktı (Y) olarak hazırla
-def create_dataset(dataset, look_back=1):
-    X, Y = [], []
-    for i in range(len(dataset)-look_back-1):
-        a = dataset[i:(i+look_back), 0]
-        X.append(a)
-        Y.append(dataset[i + look_back, 0])
-    return np.array(X), np.array(Y)
+print(f"\nÖlçekleme sonrası:")
+print(f"  Min: {data_scaled.min():.4f}")
+print(f"  Max: {data_scaled.max():.4f}")
 
-# 12 ay geriye bakarak bir sonraki ayı tahmin et
-look_back = 12
+
+# =============================================================
+# 3) PENCERELİ VERİ SETİ OLUŞTURMA
+# =============================================================
+#
+# CNN modeli sabit boyutlu girdi bekler. Zaman serisini "sliding
+# window" (kayan pencere) yöntemiyle girdi-çıktı çiftlerine
+# dönüştürüyoruz.
+#
+# Örnek (look_back=3):
+#   Giriş: [y1, y2, y3] → Çıkış: y4
+#   Giriş: [y2, y3, y4] → Çıkış: y5
+#   ...
+#
+# look_back parametresi kritik bir hiperparametredir:
+#   - Çok küçük: Model yeterli bağlamı göremez
+#   - Çok büyük: Model karmaşıklaşır, eğitim zorlaşır
+#   - Mevsimsel veriler için genellikle mevsim periyodu kadar
+#     (aylık veri için 12) veya katları seçilir
+
+def create_dataset(dataset, look_back=1):
+    """
+    Zaman serisini gözetimli öğrenme formatına dönüştürür.
+    
+    Parametreler:
+        dataset: Ölçeklenmiş zaman serisi (2D numpy array)
+        look_back: Kaç geçmiş gözleme bakılacağı (pencere boyutu)
+    
+    Döndürür:
+        X: Giriş matrisi, boyut (n_samples, look_back)
+        y: Hedef vektörü, boyut (n_samples,)
+    
+    Not: Orijinal kodda 'range(len(dataset)-look_back-1)' kullanılmıştı.
+    Bu -1 gereksiz bir gözlem kaybına yol açıyordu. Düzeltildi.
+    """
+    X, y = [], []
+    for i in range(len(dataset) - look_back):
+        # i'den i+look_back'e kadar olan pencere giriş
+        X.append(dataset[i:(i + look_back), 0])
+        # Pencerenin hemen sonraki değeri çıkış
+        y.append(dataset[i + look_back, 0])
+    return np.array(X), np.array(y)
+
+look_back = 12  # 12 aylık pencere (bir tam mevsimsel döngü)
+
 X, y = create_dataset(data_scaled, look_back)
 
-# Veriyi CNN katmanının beklediği [örnek, zaman adımı, özellik] formatına dönüştür
+print(f"\nPencereli veri seti:")
+print(f"  X boyutu: {X.shape}")  # (132, 12)
+print(f"  y boyutu: {y.shape}")  # (132,)
+
+# ---------------------------------------------------------
+# CNN Giriş Formatı
+# ---------------------------------------------------------
+# Keras Conv1D katmanı 3 boyutlu giriş bekler:
+#   (batch_size, timesteps, features)
+#
+# Bizim durumumuzda:
+#   - batch_size: Eğitim sırasında belirlenir
+#   - timesteps: look_back = 12 (zaman adımı sayısı)
+#   - features: 1 (tek değişken - yolcu sayısı)
+#
+# Conv1D, bu zaman adımları üzerinde 1 boyutlu konvolüsyon uygular.
+# Örneğin kernel_size=3 ile her seferinde 3 ardışık zaman adımına bakar.
+
 X = X.reshape(X.shape[0], X.shape[1], 1)
+print(f"  X (yeniden boyutlandırılmış): {X.shape}")
 
-# Veriyi Eğitim ve Test olarak ayır
-train_size = int(len(X) * 0.67)
-X_train, X_test = X[0:train_size], X[train_size:len(X)]
-y_train, y_test = y[0:train_size], y[train_size:len(y)]
 
-# --- Modelin Kurulması ---
-# Conv1D katmanı işin temelidir. Filtreler verinin üzerinde gezinerek desenleri öğrenir.
-# MaxPooling ise en belirgin özellikleri (en önemli desenleri) öne çıkarır.
-model = Sequential()
+# =============================================================
+# 4) EĞİTİM / DOĞRULAMA / TEST AYIRIMI
+# =============================================================
+#
+# Zaman serilerinde veri bölümü kronolojik sırayı korumalıdır.
+# Rastgele karıştırma yapılmaz çünkü bu "geleceği görmek" anlamına
+# gelir ve gerçekçi olmayan performans tahminlerine yol açar.
+#
+# Üç parçalı bölüm:
+#   - Eğitim: Model parametrelerini öğrenir
+#   - Doğrulama: Hiperparametre ayarı ve erken durdurma için
+#   - Test: Final performans değerlendirmesi (eğitimde hiç kullanılmaz)
 
-# Conv1D Katmanı: 64 filtre ile 2'şer adımlık pencereler halinde veriyi tarar
-model.add(Conv1D(filters=64, kernel_size=2, activation='relu', 
-                 input_shape=(look_back, 1)))
+test_size = 24    # Son 2 yıl test için
+val_size = 12     # Ondan önceki 1 yıl doğrulama için
+train_size = len(X) - test_size - val_size
 
-# Pooling Katmanı: Öğrenilen özellik haritasını küçülterek en önemli bilgiyi korur
-model.add(MaxPooling1D(pool_size=2))
+X_train = X[:train_size]
+y_train = y[:train_size]
 
-# Flatten: 2 boyutlu havuzlanmış özellikleri tek boyutlu bir vektöre dönüştürür
-model.add(Flatten())
+X_val = X[train_size:train_size + val_size]
+y_val = y[train_size:train_size + val_size]
 
-# Dense Katmanı: Klasik bir tam bağlantılı katman
-model.add(Dense(50, activation='relu'))
+X_test = X[train_size + val_size:]
+y_test = y[train_size + val_size:]
 
-# Çıktı Katmanı: Tek bir sayısal değer tahmini için
-model.add(Dense(1))
+print(f"\nVeri bölümü:")
+print(f"  Eğitim: {len(X_train)} örnek")
+print(f"  Doğrulama: {len(X_val)} örnek")
+print(f"  Test: {len(X_test)} örnek")
 
-# Modeli derle: Optimizasyon algoritması ve kayıp fonksiyonunu belirle
-model.compile(optimizer='adam', loss='mse')
 
-# Modeli Eğit: Modeli eğitim verisi üzerinde eğit
-model.fit(X_train, y_train, epochs=200, batch_size=1, verbose=0)
+# =============================================================
+# 5) 1D-CNN MODELİNİN MİMARİSİ
+# =============================================================
+#
+# 1D Konvolüsyonel Sinir Ağı (1D-CNN), görüntü işlemede kullanılan
+# 2D-CNN'in zaman serilerine uyarlanmış halidir.
+#
+# Temel bileşenler:
+#
+# 1) Conv1D Katmanı:
+#    - Filtreler (kernels) veri üzerinde kayarak yerel örüntüleri öğrenir
+#    - Her filtre farklı bir özelliği (trend, ani değişim, vb.) yakalar
+#    - filters: Kaç farklı örüntü aranacağı
+#    - kernel_size: Filtrenin kaç zaman adımına baktığı
+#    - padding='same': Çıktı boyutunu girdiyle aynı tutar
+#
+# 2) BatchNormalization:
+#    - Her katmanın çıktısını normalize eder
+#    - Eğitimi stabilize eder ve hızlandırır
+#    - Internal covariate shift problemini azaltır
+#
+# 3) MaxPooling1D:
+#    - Özellik haritasını küçültür (downsampling)
+#    - En belirgin özellikleri korur, gürültüyü atar
+#    - Hesaplama maliyetini azaltır
+#
+# 4) Dropout:
+#    - Rastgele nöronları kapatarak aşırı öğrenmeyi önler
+#    - Modeli genellemeye zorlar
+#
+# 5) Flatten:
+#    - Çok boyutlu çıktıyı tek boyutlu vektöre çevirir
+#    - Dense katmana bağlanmak için gerekli
+#
+# 6) Dense:
+#    - Tam bağlantılı katman, öğrenilen özellikleri birleştirir
 
-# --- Tahmin ve Hata Analizi ---
+def build_cnn_model(look_back, filters=64, kernel_size=3, dropout_rate=0.2):
+    """
+    1D-CNN tabanlı zaman serisi tahmin modeli oluşturur.
+    
+    Parametreler:
+        look_back: Giriş pencere boyutu
+        filters: Conv1D filtre sayısı
+        kernel_size: Konvolüsyon çekirdek boyutu
+        dropout_rate: Dropout oranı
+    
+    Mimari:
+        Conv1D → BatchNorm → MaxPool → Dropout →
+        Conv1D → BatchNorm → MaxPool → Dropout →
+        Flatten → Dense → Dropout → Dense (çıktı)
+    """
+    model = Sequential([
+        # İlk Konvolüsyon Bloğu
+        # padding='same' çıktı boyutunu korur (önemli: derin modeller için)
+        Conv1D(
+            filters=filters,
+            kernel_size=kernel_size,
+            activation='relu',
+            padding='same',
+            input_shape=(look_back, 1)
+        ),
+        BatchNormalization(),
+        MaxPooling1D(pool_size=2),
+        Dropout(dropout_rate),
+        
+        # İkinci Konvolüsyon Bloğu
+        # Daha fazla filtre ile daha karmaşık örüntüler yakalanır
+        Conv1D(
+            filters=filters * 2,
+            kernel_size=kernel_size,
+            activation='relu',
+            padding='same'
+        ),
+        BatchNormalization(),
+        MaxPooling1D(pool_size=2),
+        Dropout(dropout_rate),
+        
+        # Düzleştirme ve Tam Bağlantılı Katmanlar
+        Flatten(),
+        Dense(50, activation='relu'),
+        Dropout(dropout_rate),
+        Dense(1)  # Regresyon çıktısı (aktivasyon yok)
+    ])
+    
+    # Model derleme
+    # Adam optimizer: Adaptif öğrenme oranı, çoğu durumda iyi çalışır
+    # MSE loss: Regresyon için standart kayıp fonksiyonu
+    model.compile(
+        optimizer=Adam(learning_rate=0.001),
+        loss='mse',
+        metrics=['mae']
+    )
+    
+    return model
 
-# Tahmin yap
-train_predict = model.predict(X_train)
-test_predict = model.predict(X_test)
+model = build_cnn_model(look_back, filters=64, kernel_size=3, dropout_rate=0.2)
 
-# Normalizasyonu geri al: Tahminleri orijinal ölçeğe çevir
-train_predict = scaler.inverse_transform(train_predict)
-y_train_orig = scaler.inverse_transform([y_train])
-test_predict = scaler.inverse_transform(test_predict)
-y_test_orig = scaler.inverse_transform([y_test])
+# Model özetini görelim
+print("\n1D-CNN Model Mimarisi:")
+model.summary()
 
-# Hata hesapla: Test setindeki gerçek değerler ile tahminleri karşılaştır
-test_rmse = mean_squared_error(y_test_orig[0], test_predict[:,0], squared=False)
-print(f"1D-CNN Test RMSE: {test_rmse:.2f}")
+# ---------------------------------------------------------
+# Boyut hesabı (padding='same' ile):
+# ---------------------------------------------------------
+# Giriş: (batch, 12, 1)
+# Conv1D_1: (batch, 12, 64)    [same padding boyutu korur]
+# MaxPool_1: (batch, 6, 64)    [12/2 = 6]
+# Conv1D_2: (batch, 6, 128)
+# MaxPool_2: (batch, 3, 128)   [6/2 = 3]
+# Flatten: (batch, 384)        [3 × 128 = 384]
+# Dense_1: (batch, 50)
+# Dense_2: (batch, 1)
+
+
+# =============================================================
+# 6) MODELİN EĞİTİLMESİ
+# =============================================================
+#
+# Eğitim parametreleri:
+#
+# epochs: Tüm eğitim verisinin model üzerinden kaç kez geçtiği.
+#   - Erken durdurma ile otomatik olarak optimal değer bulunur
+#
+# batch_size: Her gradyan güncellemesinde işlenen örnek sayısı.
+#   - batch_size=1: Çok gürültülü, yavaş (orijinal kodda böyleydi)
+#   - batch_size=8-32: Hız ve stabilite dengesi
+#   - batch_size=n (tüm veri): Stabil ama yavaş, yerel minimumlara takılabilir
+#
+# Early Stopping: Doğrulama kaybı iyileşmediğinde eğitimi durdurur
+#   - Aşırı öğrenmeyi önler
+#   - Optimal epoch sayısını otomatik bulur
+
+early_stop = EarlyStopping(
+    monitor='val_loss',       # İzlenecek metrik
+    patience=20,              # Kaç epoch iyileşme beklenecek
+    restore_best_weights=True, # En iyi ağırlıkları geri yükle
+    verbose=1
+)
+
+print("\n1D-CNN modeli eğitiliyor...")
+history = model.fit(
+    X_train, y_train,
+    epochs=300,               # Maksimum epoch (erken durdurma keser)
+    batch_size=16,            # Mini-batch boyutu
+    validation_data=(X_val, y_val),
+    callbacks=[early_stop],
+    verbose=1
+)
+
+print(f"\nEğitim {len(history.history['loss'])} epoch sürdü.")
+
+# ---------------------------------------------------------
+# Eğitim sürecinin görselleştirilmesi
+# ---------------------------------------------------------
+# Bu grafik modelin öğrenme dinamiklerini gösterir:
+#   - Eğitim ve doğrulama kayıpları birlikte düşüyorsa: İyi
+#   - Eğitim düşerken doğrulama artıyorsa: Aşırı öğrenme
+#   - Her ikisi de yüksek kalıyorsa: Yetersiz öğrenme
+
+fig, axes = plt.subplots(1, 2, figsize=(12, 4))
+
+# Kayıp grafiği
+axes[0].plot(history.history['loss'], label='Eğitim Kaybı')
+axes[0].plot(history.history['val_loss'], label='Doğrulama Kaybı')
+axes[0].set_xlabel('Epoch')
+axes[0].set_ylabel('MSE')
+axes[0].set_title('Eğitim Süreci - Kayıp')
+axes[0].legend()
+axes[0].grid(True, alpha=0.3)
+
+# MAE grafiği
+axes[1].plot(history.history['mae'], label='Eğitim MAE')
+axes[1].plot(history.history['val_mae'], label='Doğrulama MAE')
+axes[1].set_xlabel('Epoch')
+axes[1].set_ylabel('MAE')
+axes[1].set_title('Eğitim Süreci - MAE')
+axes[1].legend()
+axes[1].grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+
+
+# =============================================================
+# 7) TAHMİN VE PERFORMANS DEĞERLENDİRMESİ
+# =============================================================
+
+# Tahminler
+train_pred = model.predict(X_train, verbose=0)
+val_pred = model.predict(X_val, verbose=0)
+test_pred = model.predict(X_test, verbose=0)
+
+# ---------------------------------------------------------
+# Ters ölçekleme (inverse transform)
+# ---------------------------------------------------------
+# Tahminler [0,1] aralığında. Orijinal ölçeğe döndürmek için
+# scaler.inverse_transform kullanıyoruz.
+# Bu fonksiyon 2D array bekler, bu yüzden reshape gerekebilir.
+
+train_pred_inv = scaler.inverse_transform(train_pred)
+val_pred_inv = scaler.inverse_transform(val_pred)
+test_pred_inv = scaler.inverse_transform(test_pred)
+
+y_train_inv = scaler.inverse_transform(y_train.reshape(-1, 1))
+y_val_inv = scaler.inverse_transform(y_val.reshape(-1, 1))
+y_test_inv = scaler.inverse_transform(y_test.reshape(-1, 1))
+
+# ---------------------------------------------------------
+# Performans metrikleri
+# ---------------------------------------------------------
+# RMSE: Büyük hataları daha çok cezalandırır
+# MAE: Tüm hatalara eşit ağırlık verir
+# MAPE: Yüzde cinsinden hata, ölçekten bağımsız karşılaştırma sağlar
+
+def calculate_metrics(y_true, y_pred, set_name=""):
+    """Performans metriklerini hesaplar ve yazdırır."""
+    # Dizileri düzleştir
+    y_true = y_true.flatten()
+    y_pred = y_pred.flatten()
+    
+    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+    mae = mean_absolute_error(y_true, y_pred)
+    mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+    
+    print(f"\n{set_name} Performansı:")
+    print(f"  RMSE: {rmse:.2f}")
+    print(f"  MAE:  {mae:.2f}")
+    print(f"  MAPE: {mape:.2f}%")
+    
+    return rmse, mae, mape
+
+print("\n" + "=" * 50)
+print("1D-CNN MODEL PERFORMANSI")
+print("=" * 50)
+
+train_rmse, train_mae, train_mape = calculate_metrics(
+    y_train_inv, train_pred_inv, "Eğitim Seti"
+)
+val_rmse, val_mae, val_mape = calculate_metrics(
+    y_val_inv, val_pred_inv, "Doğrulama Seti"
+)
+test_rmse, test_mae, test_mape = calculate_metrics(
+    y_test_inv, test_pred_inv, "Test Seti"
+)
+
+
+# =============================================================
+# 8) TAHMİNLERİN GÖRSELLEŞTİRİLMESİ
+# =============================================================
+#
+# Grafik, modelin gerçek verileri ne kadar iyi yakaladığını
+# görsel olarak değerlendirmemizi sağlar.
+
+# Tarih indekslerini oluştur
+# create_dataset ilk look_back gözlemi "harcar"
+train_dates = df.index[look_back:look_back + len(y_train)]
+val_dates = df.index[look_back + len(y_train):look_back + len(y_train) + len(y_val)]
+test_dates = df.index[look_back + len(y_train) + len(y_val):]
+
+plt.figure(figsize=(14, 6))
+
+# Gerçek değerler
+plt.plot(df.index, df['Passengers'], 'b-', label='Gerçek Değerler', alpha=0.7)
+
+# Eğitim tahminleri
+plt.plot(train_dates, train_pred_inv, 'g--', label='Eğitim Tahminleri', alpha=0.6)
+
+# Doğrulama tahminleri
+plt.plot(val_dates, val_pred_inv, 'orange', linestyle='--', 
+         label='Doğrulama Tahminleri', alpha=0.8)
+
+# Test tahminleri
+plt.plot(test_dates, test_pred_inv, 'r--', label='Test Tahminleri', linewidth=2)
+
+# Bölüm sınırlarını işaretle
+plt.axvline(x=val_dates[0], color='gray', linestyle=':', alpha=0.7)
+plt.axvline(x=test_dates[0], color='gray', linestyle=':', alpha=0.7)
+
+plt.xlabel('Tarih')
+plt.ylabel('Yolcu Sayısı (bin)')
+plt.title('1D-CNN Model Tahminleri')
+plt.legend(loc='upper left')
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# ---------------------------------------------------------
+# Test dönemi detaylı görünüm
+# ---------------------------------------------------------
+plt.figure(figsize=(10, 5))
+plt.plot(test_dates, y_test_inv, 'b-o', label='Gerçek Değerler', linewidth=2)
+plt.plot(test_dates, test_pred_inv, 'r--s', label='CNN Tahminleri', linewidth=2)
+plt.xlabel('Tarih')
+plt.ylabel('Yolcu Sayısı (bin)')
+plt.title(f'Test Dönemi Detaylı Görünüm (RMSE: {test_rmse:.2f})')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+
+# =============================================================
+# 9) HATA ANALİZİ
+# =============================================================
+#
+# Hataların dağılımını ve örüntüsünü incelemek model iyileştirme
+# fırsatlarını ortaya çıkarabilir.
+
+test_errors = y_test_inv.flatten() - test_pred_inv.flatten()
+
+fig, axes = plt.subplots(1, 3, figsize=(14, 4))
+
+# Hata dağılımı (histogram)
+axes[0].hist(test_errors, bins=10, edgecolor='black', alpha=0.7)
+axes[0].axvline(x=0, color='r', linestyle='--')
+axes[0].set_xlabel('Tahmin Hatası')
+axes[0].set_ylabel('Frekans')
+axes[0].set_title('Hata Dağılımı')
+
+# Hataların zaman içindeki seyri
+axes[1].plot(test_dates, test_errors, 'b-o')
+axes[1].axhline(y=0, color='r', linestyle='--')
+axes[1].set_xlabel('Tarih')
+axes[1].set_ylabel('Hata')
+axes[1].set_title('Hataların Zaman Seyri')
+axes[1].tick_params(axis='x', rotation=45)
+
+# Gerçek değer vs Tahmin (scatter plot)
+axes[2].scatter(y_test_inv, test_pred_inv, alpha=0.7)
+# 45 derece çizgi (mükemmel tahmin çizgisi)
+min_val = min(y_test_inv.min(), test_pred_inv.min())
+max_val = max(y_test_inv.max(), test_pred_inv.max())
+axes[2].plot([min_val, max_val], [min_val, max_val], 'r--', label='Mükemmel Tahmin')
+axes[2].set_xlabel('Gerçek Değerler')
+axes[2].set_ylabel('Tahminler')
+axes[2].set_title('Gerçek vs Tahmin')
+axes[2].legend()
+
+plt.tight_layout()
+plt.show()
+
+# Hata istatistikleri
+print("\nHata İstatistikleri (Test Seti):")
+print(f"  Ortalama Hata: {np.mean(test_errors):.2f} (0'a yakın olmalı)")
+print(f"  Hata Std: {np.std(test_errors):.2f}")
+print(f"  Min Hata: {np.min(test_errors):.2f}")
+print(f"  Max Hata: {np.max(test_errors):.2f}")
+
+
+# =============================================================
+# 10) MODEL MİMARİSİ KARŞILAŞTIRMASI (OPSIYONEL)
+# =============================================================
+#
+# Farklı hiperparametrelerle modelleri karşılaştırmak, en iyi
+# konfigürasyonu bulmaya yardımcı olur.
+
+print("\n" + "=" * 50)
+print("MODEL KARŞILAŞTIRMASI")
+print("=" * 50)
+
+# Farklı konfigürasyonları test edelim
+configs = [
+    {'filters': 32, 'kernel_size': 2, 'dropout_rate': 0.1},
+    {'filters': 64, 'kernel_size': 3, 'dropout_rate': 0.2},
+    {'filters': 128, 'kernel_size': 3, 'dropout_rate': 0.3},
+]
+
+results = []
+
+for i, config in enumerate(configs):
+    print(f"\nKonfigürasyon {i+1}: {config}")
+    
+    # Model oluştur
+    test_model = build_cnn_model(look_back, **config)
+    
+    # Eğit
+    test_model.fit(
+        X_train, y_train,
+        epochs=100,
+        batch_size=16,
+        validation_data=(X_val, y_val),
+        callbacks=[EarlyStopping(patience=15, restore_best_weights=True, verbose=0)],
+        verbose=0
+    )
+    
+    # Test et
+    pred = test_model.predict(X_test, verbose=0)
+    pred_inv = scaler.inverse_transform(pred)
+    
+    rmse = np.sqrt(mean_squared_error(y_test_inv, pred_inv))
+    mae = mean_absolute_error(y_test_inv, pred_inv)
+    
+    results.append({
+        'config': str(config),
+        'rmse': rmse,
+        'mae': mae
+    })
+    
+    print(f"  Test RMSE: {rmse:.2f}, MAE: {mae:.2f}")
+
+# En iyi model
+best_idx = np.argmin([r['rmse'] for r in results])
+print(f"\nEn iyi konfigürasyon: {results[best_idx]['config']}")
+print(f"  RMSE: {results[best_idx]['rmse']:.2f}")
+
+
+# =============================================================
+# ÖZET VE SONUÇ
+# =============================================================
+
+print("\n" + "=" * 50)
+print("ANALİZ TAMAMLANDI")
+print("=" * 50)
+print(f"""
+Bu çalışmada 1D-CNN ile zaman serisi tahmini gerçekleştirdik.
+
+Model Mimarisi:
+  - 2 adet Conv1D katmanı (64 ve 128 filtre)
+  - BatchNormalization ile eğitim stabilizasyonu
+  - MaxPooling ile boyut azaltma
+  - Dropout ile aşırı öğrenme kontrolü
+
+Sonuçlar:
+  - Eğitim RMSE: {train_rmse:.2f}
+  - Doğrulama RMSE: {val_rmse:.2f}
+  - Test RMSE: {test_rmse:.2f}
+  - Test MAPE: {test_mape:.2f}%
+
+CNN'in Zaman Serilerindeki Avantajları:
+  - Yerel örüntüleri (trend değişimleri, ani sıçramalar) iyi yakalar
+  - RNN'lere göre daha hızlı eğitilir (paralelleştirilebilir)
+  - Daha az parametre ile etkili sonuçlar verebilir
+
+Dezavantajları:
+  - Çok uzun vadeli bağımlılıkları yakalamakta zorlanabilir
+  - Sıralı yapıyı doğrudan modellemez
+  - Mevsimsellik için ek özellik mühendisliği gerekebilir
+
+İyileştirme Önerileri:
+  - Daha fazla Conv1D katmanı (derin model)
+  - Dilated convolution ile geniş receptive field
+  - CNN + LSTM hibrit model
+  - Mevsimsel fark alınmış veriyle çalışma
+""")
 ```
 
 ### 12.2. Karşılaştırma
