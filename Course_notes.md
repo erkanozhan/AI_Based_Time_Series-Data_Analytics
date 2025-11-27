@@ -2145,168 +2145,712 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 from sklearn.model_selection import TimeSeriesSplit
 
+import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import GRU, Dense
+from tensorflow.keras.layers import GRU, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
 
 import xgboost as xgb
 
-# -------------------------------------------------------------------
-# 1) Zaman serisini yükleme ve temel hazırlık (AirPassengers benzeri)
-# -------------------------------------------------------------------
+# =============================================================
+# 0) TEKRARLANABİLİRLİK İÇİN RASTGELELELIK TOHUMLARINI AYARLAMA
+# =============================================================
+#
+# Derin öğrenme modellerinde ağırlıkların başlangıç değerleri rastgele
+# atanır. Aynı kodu her çalıştırdığınızda farklı sonuçlar alırsınız.
+# Bu durum sonuçların karşılaştırılmasını zorlaştırır.
+#
+# Tekrarlanabilirlik için tüm rastgelelik kaynaklarını kontrol altına
+# almak gerekir: NumPy, TensorFlow ve Python'un kendi random modülü.
 
-# Burada varsayım: 'data/AirPassengers.csv' dosyasında iki sütun var:
-# 'Month' ve '#Passengers'. Eğer sütun adları farklıysa uygun şekilde düzenlenmeli.
+SEED = 42
+np.random.seed(SEED)
+tf.random.set_seed(SEED)
+
+# GPU kullanılıyorsa deterministik işlemler için:
+# tf.config.experimental.enable_op_determinism()
+
+
+# =============================================================
+# 1) VERİ SETİNİ YÜKLEME VE TEMEL HAZIRLIK
+# =============================================================
+#
+# AirPassengers verisi 1949-1960 yılları arasında aylık uluslararası
+# havayolu yolcu sayılarını içerir. Toplamda 144 gözlem vardır.
+#
+# Bu veri zaman serisi analizinde klasik bir benchmark olarak kullanılır
+# çünkü hem trend hem de güçlü mevsimsellik içerir.
+
 df = pd.read_csv('data/AirPassengers.csv')
 
+# Sütun adlarını kontrol edelim
+print("Veri seti sütunları:", df.columns.tolist())
+print(f"Toplam gözlem sayısı: {len(df)}")
+
 # Tarih sütununu datetime tipine çevirip indeks yapalım
+# parse_dates ile okuma sırasında da yapılabilirdi ama burada
+# açıkça göstermek istedim
 df['Month'] = pd.to_datetime(df['Month'])
 df.set_index('Month', inplace=True)
 
-# Hedef değişkeni alalım (yolcu sayısı)
-values = df['#Passengers'].values.astype('float32').reshape(-1, 1)
+# Sütun adında özel karakter varsa düzeltelim
+if '#Passengers' in df.columns:
+    df.rename(columns={'#Passengers': 'Passengers'}, inplace=True)
 
-# -------------------------------------------------------
-# 2) GRU için veri ölçekleme ve giriş/çıkış çiftlerini oluşturma
-# -------------------------------------------------------
+# Hedef değişkeni numpy array olarak alalım
+# float32 kullanıyoruz çünkü TensorFlow bu tipte daha hızlı çalışır
+values = df['Passengers'].values.astype('float32').reshape(-1, 1)
 
-# Veriyi 0–1 aralığına ölçekleyelim
+# Veriye hızlı bir göz atalım
+print("\nİlk 5 gözlem:")
+print(df.head())
+print("\nTemel istatistikler:")
+print(df.describe())
+
+
+# =============================================================
+# 2) VERİYİ GÖRSELLEŞTİRME
+# =============================================================
+#
+# Model kurmadan önce veriye bakmak önemlidir. Bu grafik bize:
+#   - Yukarı yönlü trendin varlığını
+#   - 12 aylık mevsimsel örüntüyü
+#   - Varyansın zamanla arttığını (heteroskedastisite)
+# gösterecektir.
+
+plt.figure(figsize=(12, 4))
+plt.plot(df.index, df['Passengers'], linewidth=1)
+plt.title('Aylık Havayolu Yolcu Sayısı (1949-1960)')
+plt.xlabel('Tarih')
+plt.ylabel('Yolcu Sayısı (bin)')
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# Varyansın artması log dönüşümü gerektirebilir, ancak MinMaxScaler
+# da bu sorunu kısmen hafifletir. İleri düzeyde çalışmalarda
+# log dönüşümü tercih edilebilir.
+
+
+# =============================================================
+# 3) GRU İÇİN VERİ HAZIRLAMA
+# =============================================================
+#
+# Derin öğrenme modelleri girdi değerlerinin belirli bir aralıkta
+# olmasını bekler. Çok büyük veya çok küçük değerler gradyan
+# hesaplamalarını bozabilir.
+#
+# MinMaxScaler veriyi 0-1 aralığına dönüştürür:
+#   x_scaled = (x - x_min) / (x_max - x_min)
+#
+# Tahminler yapıldıktan sonra inverse_transform ile orijinal
+# ölçeğe geri dönülür.
+
 scaler = MinMaxScaler(feature_range=(0, 1))
 values_scaled = scaler.fit_transform(values)
 
-# Belirli sayıda geçmiş adıma bakarak (look_back),
-# bir sonraki adımı tahmin edecek veri setini oluşturalım.
-def create_dataset(sequence, look_back=1):
-    X, Y = [], []
-    # Son look_back+1 eleman dışarıda kalacak şekilde dönüyoruz
-    for i in range(len(sequence) - look_back - 1):
-        # i ile i+look_back arasındaki değerler giriş (X)
-        X.append(sequence[i:(i + look_back), 0])
-        # i+look_back'inci değer çıkış (Y)
-        Y.append(sequence[i + look_back, 0])
-    return np.array(X), np.array(Y)
+# ---------------------------------------------------------
+# Gözetimli öğrenme formatına dönüştürme
+# ---------------------------------------------------------
+# Zaman serisi tahmini için veriyi şu formata çevirmemiz gerekir:
+#
+#   X (giriş)           →  y (çıkış)
+#   [t-12, t-11, ..., t-1]  →  t
+#   [t-11, t-10, ..., t]    →  t+1
+#   ...
+#
+# Yani geçmiş 'look_back' gözleme bakarak bir sonraki değeri
+# tahmin etmeye çalışıyoruz. Bu yaklaşıma "sliding window" denir.
 
-look_back = 12  # Son 12 ay → bir sonraki ayı tahmin etmek için
+def create_dataset(sequence, look_back=1):
+    """
+    Zaman serisini gözetimli öğrenme formatına dönüştürür.
+    
+    Parametreler:
+        sequence: Ölçeklenmiş zaman serisi (2D array)
+        look_back: Kaç geçmiş gözleme bakılacağı
+    
+    Döndürür:
+        X: Giriş matrisi (n_samples, look_back)
+        y: Hedef vektörü (n_samples,)
+    """
+    X, y = [], []
+    # Not: Orijinal kodda -1 vardı, bu gereksiz bir gözlem kaybına
+    # yol açıyordu. Düzeltilmiş hali:
+    for i in range(len(sequence) - look_back):
+        X.append(sequence[i:(i + look_back), 0])
+        y.append(sequence[i + look_back, 0])
+    return np.array(X), np.array(y)
+
+# look_back = 12 seçiyoruz çünkü:
+# 1) Veri aylık ve mevsimsel döngü 12 ay
+# 2) Model tam bir yıllık örüntüyü görebilir
+# 3) Çok uzun look_back parametre sayısını artırır ve aşırı öğrenmeye
+#    yol açabilir
+look_back = 12
 
 X_all, y_all = create_dataset(values_scaled, look_back)
 
-# GRU katmanı, girişleri [örnek sayısı, zaman adımı sayısı, özellik sayısı] formatında bekler.
-# Özellik sayımız 1 (sadece yolcu sayısı).
-X_all = X_all.reshape(X_all.shape[0], X_all.shape[1], 1)
+print(f"\nOluşturulan veri seti boyutları:")
+print(f"  X_all: {X_all.shape}")  # (132, 12) olmalı
+print(f"  y_all: {y_all.shape}")  # (132,) olmalı
 
-# Eğitim ve test ayrımı: son 60 değeri test olarak ayıralım
-train_size = X_all.shape[0] - 60
+# ---------------------------------------------------------
+# GRU giriş formatı
+# ---------------------------------------------------------
+# Keras'taki RNN katmanları 3 boyutlu giriş bekler:
+#   (batch_size, timesteps, features)
+#
+# Bizim durumumuzda:
+#   - batch_size: Eğitim sırasında belirlenir
+#   - timesteps: look_back = 12
+#   - features: 1 (sadece yolcu sayısı)
+#
+# Eğer birden fazla değişken olsaydı (örneğin hava durumu, tatil
+# bilgisi) features sayısı artardı.
+
+X_all = X_all.reshape(X_all.shape[0], X_all.shape[1], 1)
+print(f"  X_all (yeniden boyutlandırılmış): {X_all.shape}")
+
+# ---------------------------------------------------------
+# Eğitim / Test ayrımı
+# ---------------------------------------------------------
+# Zaman serilerinde rastgele bölme YAPILMAZ çünkü bu gelecekten
+# geçmişe bilgi sızıntısına yol açar. Bunun yerine kronolojik
+# sıra korunur: ilk kısım eğitim, son kısım test.
+#
+# Genellikle %70-80 eğitim, %20-30 test kullanılır.
+# 132 gözlemde ~26 gözlemi (%20) test için ayıralım.
+
+test_size = 24  # Son 2 yıl (24 ay) test için
+train_size = X_all.shape[0] - test_size
+
 X_train, X_test = X_all[:train_size], X_all[train_size:]
 y_train, y_test = y_all[:train_size], y_all[train_size:]
 
-# -------------------------------------
-# 3) GRU modelinin kurulması ve eğitilmesi
-# -------------------------------------
+print(f"\nEğitim seti boyutu: {X_train.shape[0]}")
+print(f"Test seti boyutu: {X_test.shape[0]}")
 
-# Basit bir GRU modeli:
-# - 50 birimli bir GRU katmanı
-# - Tek çıktılı (1 nöronlu) Dense katmanı
-model_gru = Sequential()
-model_gru.add(GRU(50, input_shape=(look_back, 1)))
-model_gru.add(Dense(1))
+# Eğitim setinden bir kısmını doğrulama (validation) için ayıralım
+# Bu, eğitim sırasında aşırı öğrenmeyi izlememize yarar
+val_size = 12  # Son 1 yıl doğrulama için
+X_train_final = X_train[:-val_size]
+X_val = X_train[-val_size:]
+y_train_final = y_train[:-val_size]
+y_val = y_train[-val_size:]
 
-# Kayıp fonksiyonu olarak ortalama kare hata, optimizer olarak Adam kullanıyoruz
-model_gru.compile(loss='mean_squared_error', optimizer='adam')
+print(f"Eğitim (final): {X_train_final.shape[0]}")
+print(f"Doğrulama: {X_val.shape[0]}")
 
-# Modeli eğitelim
-# epochs: tüm eğitim verisinin model üzerinden kaç kez geçtiğini gösterir
-# batch_size: her adımda kaç örneğin birlikte işlendiğini gösterir
-model_gru.fit(X_train, y_train, epochs=100, batch_size=1, verbose=0)
 
-# -------------------------------------
-# 4) GRU ile tahmin ve performans değerlendirmesi
-# -------------------------------------
+# =============================================================
+# 4) GRU MODELİNİN KURULMASI
+# =============================================================
+#
+# GRU (Gated Recurrent Unit) bir tür tekrarlayan sinir ağıdır (RNN).
+# Standart RNN'lerin "uzun vadeli bağımlılıkları öğrenememe" sorununu
+# çözmek için tasarlanmıştır.
+#
+# GRU'nun LSTM'den farkı daha az parametre içermesidir:
+#   - LSTM: 3 kapı (forget, input, output) + hücre durumu
+#   - GRU: 2 kapı (reset, update) + gizli durum
+#
+# Daha az parametre = daha hızlı eğitim, daha az aşırı öğrenme riski
+# Küçük veri setlerinde GRU genellikle LSTM kadar iyi veya daha iyi
+# performans gösterir.
 
-# Eğitim ve test setleri üzerinde tahmin yapıyoruz
-train_pred_gru = model_gru.predict(X_train)
-test_pred_gru  = model_gru.predict(X_test)
+def build_gru_model(look_back, units=50, dropout_rate=0.2):
+    """
+    GRU tabanlı zaman serisi tahmin modeli oluşturur.
+    
+    Parametreler:
+        look_back: Giriş zaman adımı sayısı
+        units: GRU katmanındaki nöron sayısı
+        dropout_rate: Aşırı öğrenmeyi önlemek için dropout oranı
+    """
+    model = Sequential([
+        # GRU katmanı
+        # units: Gizli durumun boyutu (ne kadar "hafıza" tutulacağı)
+        # input_shape: (zaman adımları, özellik sayısı)
+        GRU(units, input_shape=(look_back, 1), return_sequences=False),
+        
+        # Dropout: Eğitim sırasında rastgele nöronları kapatarak
+        # aşırı öğrenmeyi önler
+        Dropout(dropout_rate),
+        
+        # Çıkış katmanı: Tek bir değer tahmin ediyoruz
+        Dense(1)
+    ])
+    
+    # Modeli derleme
+    # loss: Optimize edilecek kayıp fonksiyonu
+    # optimizer: Ağırlık güncelleme algoritması
+    # metrics: Eğitim sırasında izlenecek ek metrikler
+    model.compile(
+        loss='mean_squared_error',
+        optimizer='adam',
+        metrics=['mae']  # Mean Absolute Error de izleyelim
+    )
+    
+    return model
 
-# Tahminleri orijinal ölçeğe döndürelim
-train_pred_gru_inv = scaler.inverse_transform(train_pred_gru)
-test_pred_gru_inv  = scaler.inverse_transform(test_pred_gru)
+model_gru = build_gru_model(look_back, units=50, dropout_rate=0.2)
 
-y_train_inv = scaler.inverse_transform(y_train.reshape(-1, 1))
-y_test_inv  = scaler.inverse_transform(y_test.reshape(-1, 1))
+# Model özetini görelim
+print("\nGRU Model Yapısı:")
+model_gru.summary()
 
-# Test seti için RMSE hesaplayalım
-rmse_gru = mean_squared_error(y_test_inv[:, 0], test_pred_gru_inv[:, 0], squared=False)
-print(f"GRU Test RMSE: {rmse_gru:.2f}")
+# Parametre sayısı hesabı (GRU için):
+# GRU parametreleri = 3 * [(input_dim + 1) * units + units * units]
+# Bizim durumumuzda: 3 * [(1 + 1) * 50 + 50 * 50] = 3 * [100 + 2500] = 7800
+# Dense parametreleri: units * output_dim + output_dim = 50 * 1 + 1 = 51
+# Toplam: ~7851 parametre
 
-# İstersek basit bir grafik de çizebiliriz
-plt.figure(figsize=(10, 4))
-plt.plot(df.index[-len(y_test_inv):], y_test_inv, label='Gerçek Değerler')
-plt.plot(df.index[-len(y_test_inv):], test_pred_gru_inv, label='GRU Tahminleri')
-plt.xlabel('Tarih')
-plt.ylabel('Yolcu Sayısı')
+
+# =============================================================
+# 5) GRU MODELİNİN EĞİTİLMESİ
+# =============================================================
+#
+# Eğitim sürecinde dikkat edilmesi gerekenler:
+#
+# epochs: Tüm eğitim verisinin model üzerinden kaç kez geçtiği.
+#   - Çok az → model yeterince öğrenemez (underfitting)
+#   - Çok fazla → model ezberlemeye başlar (overfitting)
+#   - Early stopping ile optimal nokta otomatik bulunabilir
+#
+# batch_size: Her gradyan güncellemesinde kaç örneğin kullanıldığı.
+#   - batch_size=1: Stokastik gradyan inişi, çok gürültülü
+#   - batch_size=n (tüm veri): Batch gradyan inişi, yavaş
+#   - batch_size=16-64: Mini-batch, genellikle iyi denge sağlar
+#
+# Küçük veri setlerinde batch_size küçük tutulmalı (8-16 gibi).
+
+# Early stopping callback'i
+# Doğrulama kaybı 'patience' epoch boyunca iyileşmezse eğitimi durdurur
+# restore_best_weights: En iyi modeli geri yükler
+early_stop = EarlyStopping(
+    monitor='val_loss',      # İzlenecek metrik
+    patience=15,             # Kaç epoch sabırlı olunacak
+    restore_best_weights=True,
+    verbose=1
+)
+
+print("\nGRU modeli eğitiliyor...")
+history = model_gru.fit(
+    X_train_final, y_train_final,
+    epochs=200,              # Maksimum epoch (early stopping durduracak)
+    batch_size=8,            # Mini-batch boyutu
+    validation_data=(X_val, y_val),
+    callbacks=[early_stop],
+    verbose=1
+)
+
+# ---------------------------------------------------------
+# Eğitim sürecinin görselleştirilmesi
+# ---------------------------------------------------------
+# Bu grafik modelin öğrenip öğrenemediğini ve aşırı öğrenme
+# olup olmadığını gösterir.
+#
+# İdeal durum: Eğitim ve doğrulama kayıpları birlikte düşer
+# Aşırı öğrenme: Eğitim kaybı düşerken doğrulama kaybı artar
+
+plt.figure(figsize=(12, 4))
+
+plt.subplot(1, 2, 1)
+plt.plot(history.history['loss'], label='Eğitim Kaybı')
+plt.plot(history.history['val_loss'], label='Doğrulama Kaybı')
+plt.xlabel('Epoch')
+plt.ylabel('MSE')
+plt.title('Eğitim Süreci - Kayıp')
 plt.legend()
-plt.title('GRU Test Tahminleri')
+plt.grid(True, alpha=0.3)
+
+plt.subplot(1, 2, 2)
+plt.plot(history.history['mae'], label='Eğitim MAE')
+plt.plot(history.history['val_mae'], label='Doğrulama MAE')
+plt.xlabel('Epoch')
+plt.ylabel('MAE')
+plt.title('Eğitim Süreci - MAE')
+plt.legend()
+plt.grid(True, alpha=0.3)
+
+plt.tight_layout()
 plt.show()
 
-# ----------------------------------------------------------------------
-# 5) TimeSeriesSplit için özellik çıkarımı (lag_1, lag_2, ay bilgisi)
-# ----------------------------------------------------------------------
+print(f"\nEğitim {len(history.history['loss'])} epoch sürdü.")
 
-# TimeSeriesSplit'i göstermek için, aynı veri üzerinden gecikme (lag) özellikleri oluşturalım.
+
+# =============================================================
+# 6) GRU İLE TAHMİN VE PERFORMANS DEĞERLENDİRMESİ
+# =============================================================
+
+# Tüm eğitim verisiyle modeli yeniden eğitelim (doğrulama seti dahil)
+# Bu son model ile test tahminleri yapacağız
+print("\nSon model eğitiliyor (tüm eğitim verisiyle)...")
+model_gru_final = build_gru_model(look_back, units=50, dropout_rate=0.2)
+model_gru_final.fit(
+    X_train, y_train,
+    epochs=len(history.history['loss']),  # Optimal epoch sayısı
+    batch_size=8,
+    verbose=0
+)
+
+# Tahminler
+train_pred = model_gru_final.predict(X_train, verbose=0)
+test_pred = model_gru_final.predict(X_test, verbose=0)
+
+# Tahminleri orijinal ölçeğe dönüştürme
+# scaler.inverse_transform 2D array bekler
+train_pred_inv = scaler.inverse_transform(train_pred)
+test_pred_inv = scaler.inverse_transform(test_pred)
+
+y_train_inv = scaler.inverse_transform(y_train.reshape(-1, 1))
+y_test_inv = scaler.inverse_transform(y_test.reshape(-1, 1))
+
+# ---------------------------------------------------------
+# Performans metrikleri
+# ---------------------------------------------------------
+# RMSE (Root Mean Squared Error): Büyük hataları daha çok cezalandırır
+# MAE (Mean Absolute Error): Tüm hatalara eşit ağırlık verir
+# MAPE (Mean Absolute Percentage Error): Yüzde cinsinden hata
+
+def calculate_metrics(y_true, y_pred, set_name=""):
+    """Tahmin performans metriklerini hesaplar ve yazdırır."""
+    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+    mae = mean_absolute_error(y_true, y_pred)
+    mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+    
+    print(f"\n{set_name} Performansı:")
+    print(f"  RMSE: {rmse:.2f}")
+    print(f"  MAE:  {mae:.2f}")
+    print(f"  MAPE: {mape:.2f}%")
+    
+    return rmse, mae, mape
+
+rmse_train, mae_train, mape_train = calculate_metrics(
+    y_train_inv.flatten(), train_pred_inv.flatten(), "GRU Eğitim"
+)
+rmse_test, mae_test, mape_test = calculate_metrics(
+    y_test_inv.flatten(), test_pred_inv.flatten(), "GRU Test"
+)
+
+# ---------------------------------------------------------
+# Tahmin grafiği
+# ---------------------------------------------------------
+# Grafik için doğru tarih indekslerini oluşturmamız gerekiyor
+# create_dataset fonksiyonu ilk look_back gözlemi "harcar"
+
+# Eğitim tahminleri için tarihler
+train_dates = df.index[look_back:look_back + len(y_train_inv)]
+# Test tahminleri için tarihler
+test_dates = df.index[look_back + len(y_train_inv):]
+
+plt.figure(figsize=(14, 5))
+
+# Tüm gerçek değerler
+plt.plot(df.index, df['Passengers'], 'b-', label='Gerçek Değerler', alpha=0.7)
+
+# Eğitim tahminleri
+plt.plot(train_dates, train_pred_inv, 'g--', label='Eğitim Tahminleri', alpha=0.7)
+
+# Test tahminleri
+plt.plot(test_dates, test_pred_inv, 'r--', label='Test Tahminleri', linewidth=2)
+
+# Test dönemini vurgulama
+plt.axvline(x=test_dates[0], color='gray', linestyle=':', label='Test Başlangıcı')
+
+plt.xlabel('Tarih')
+plt.ylabel('Yolcu Sayısı (bin)')
+plt.title('GRU Model Tahminleri')
+plt.legend()
+plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+
+# =============================================================
+# 7) XGBOOST İÇİN ÖZELLİK MÜHENDİSLİĞİ
+# =============================================================
+#
+# Ağaç tabanlı modeller (XGBoost, Random Forest) zaman serisinin
+# doğrudan kendisini alamaz. Bunun yerine elle özellik çıkarmamız
+# gerekir. Bu özelliklere "lag features" denir.
+#
+# Ayrıca mevsimselliği yakalamak için takvim özellikleri de ekleriz:
+#   - Ay numarası (1-12)
+#   - Çeyrek (1-4)
+#   - Yılın hangi günü (1-365)
+#
+# Daha gelişmiş özellikler:
+#   - Hareketli ortalamalar
+#   - Hareketli standart sapma (volatilite)
+#   - Mevsimsel farklar (y_t - y_{t-12})
+
 df_features = df.copy()
-df_features.rename(columns={'#Passengers': 'Passengers'}, inplace=True)
 
-# Bir önceki ay (lag_1) ve iki önceki ay (lag_2) özellikleri:
-df_features['lag_1'] = df_features['Passengers'].shift(1)
-df_features['lag_2'] = df_features['Passengers'].shift(2)
+# ---------------------------------------------------------
+# Gecikme (lag) özellikleri
+# ---------------------------------------------------------
+# Geçmiş değerleri özellik olarak ekliyoruz
 
-# Ay bilgisini da 1–12 arasında bir sayı olarak ekleyelim
-df_features['month_index'] = df_features.index.month
+for lag in range(1, 13):  # 1'den 12'ye kadar gecikmeler
+    df_features[f'lag_{lag}'] = df_features['Passengers'].shift(lag)
 
-# Gecikme sütunları nedeniyle baştaki satırlarda NaN oluşur, bunları atıyoruz
+# ---------------------------------------------------------
+# Hareketli istatistikler
+# ---------------------------------------------------------
+# Son n dönemin ortalaması, trendi yakalar
+# Son n dönemin standart sapması, volatiliteyi yakalar
+
+df_features['rolling_mean_3'] = df_features['Passengers'].shift(1).rolling(window=3).mean()
+df_features['rolling_mean_6'] = df_features['Passengers'].shift(1).rolling(window=6).mean()
+df_features['rolling_mean_12'] = df_features['Passengers'].shift(1).rolling(window=12).mean()
+
+df_features['rolling_std_3'] = df_features['Passengers'].shift(1).rolling(window=3).std()
+df_features['rolling_std_12'] = df_features['Passengers'].shift(1).rolling(window=12).std()
+
+# ---------------------------------------------------------
+# Mevsimsel fark
+# ---------------------------------------------------------
+# Bir önceki yılın aynı ayına göre değişim
+
+df_features['seasonal_diff'] = df_features['Passengers'] - df_features['Passengers'].shift(12)
+
+# ---------------------------------------------------------
+# Takvim özellikleri
+# ---------------------------------------------------------
+
+df_features['month'] = df_features.index.month
+df_features['quarter'] = df_features.index.quarter
+df_features['year'] = df_features.index.year
+
+# Yılı normalize edelim (trend bilgisi olarak)
+df_features['year_normalized'] = (df_features['year'] - df_features['year'].min()) / \
+                                  (df_features['year'].max() - df_features['year'].min())
+
+# ---------------------------------------------------------
+# Eksik değerleri temizleme
+# ---------------------------------------------------------
+# Gecikme ve hareketli ortalamalar nedeniyle ilk satırlarda NaN oluşur
+
 df_features = df_features.dropna()
+print(f"\nÖzellik mühendisliği sonrası gözlem sayısı: {len(df_features)}")
+print(f"Özellik sayısı: {len(df_features.columns) - 1}")  # Passengers hariç
 
-# Girdi değişkenleri (X) ve hedef değişken (y) tanımı
-X = df_features[['lag_1', 'lag_2', 'month_index']]
+# Özellik listesi
+feature_cols = [col for col in df_features.columns if col != 'Passengers']
+print(f"\nKullanılan özellikler: {feature_cols}")
+
+X = df_features[feature_cols]
 y = df_features['Passengers']
 
-# ---------------------------------------------------
-# 6) TimeSeriesSplit ile zaman tabanlı çapraz doğrulama
-# ---------------------------------------------------
 
-# 5 parçalı bir zaman serisi çapraz doğrulama yapalım
+# =============================================================
+# 8) TİMESERIESSPLIT İLE ÇAPRAZ DOĞRULAMA
+# =============================================================
+#
+# Standart k-fold çapraz doğrulama zaman serilerinde KULLANILMAZ
+# çünkü verinin rastgele karıştırılması kronolojik sırayı bozar
+# ve gelecekten geçmişe bilgi sızıntısına yol açar.
+#
+# TimeSeriesSplit bu sorunu çözer:
+#
+# Fold 1: Eğitim [----]     | Doğrulama [--]
+# Fold 2: Eğitim [------]   | Doğrulama [--]
+# Fold 3: Eğitim [--------] | Doğrulama [--]
+# ...
+#
+# Her fold'da eğitim seti büyür, doğrulama seti hep "gelecekte" kalır.
+
 tscv = TimeSeriesSplit(n_splits=5)
 
+# Sonuçları saklamak için listeler
 rmse_list = []
+mae_list = []
+mape_list = []
+
+print("\n" + "=" * 50)
+print("XGBOOST - TIMESERIESSPLIT ÇAPRAZ DOĞRULAMA")
+print("=" * 50)
 
 fold = 1
 for train_index, val_index in tscv.split(X):
-    # Her fold için eğitim ve doğrulama kümeleri
+    # Eğitim ve doğrulama kümelerini ayır
     X_tr, X_val = X.iloc[train_index], X.iloc[val_index]
     y_tr, y_val = y.iloc[train_index], y.iloc[val_index]
     
-    # Basit bir XGBoost regresyon modeli
+    print(f"\nFold {fold}:")
+    print(f"  Eğitim: {len(X_tr)} gözlem ({y_tr.index.min()} - {y_tr.index.max()})")
+    print(f"  Doğrulama: {len(X_val)} gözlem ({y_val.index.min()} - {y_val.index.max()})")
+    
+    # XGBoost modeli
+    # n_estimators: Ağaç sayısı
+    # learning_rate: Öğrenme hızı (küçük = daha yavaş ama daha stabil)
+    # max_depth: Ağaç derinliği (derin = daha karmaşık model)
+    # early_stopping_rounds: Aşırı öğrenmeyi önler
     model_xgb = xgb.XGBRegressor(
-        n_estimators=300,
+        n_estimators=500,
         learning_rate=0.05,
-        random_state=42
+        max_depth=4,
+        subsample=0.8,
+        colsample_bytree=0.8,
+        random_state=SEED,
+        early_stopping_rounds=30
     )
     
-    # Modeli bu fold'un eğitim verisiyle eğitiyoruz
-    model_xgb.fit(X_tr, y_tr)
+    # Modeli eğit (early stopping için eval_set gerekli)
+    model_xgb.fit(
+        X_tr, y_tr,
+        eval_set=[(X_val, y_val)],
+        verbose=False
+    )
     
-    # Doğrulama kümesi üzerinde tahmin yapıyoruz
+    # Tahmin
     y_val_pred = model_xgb.predict(X_val)
     
-    # Bu fold için RMSE hesaplıyoruz
-    rmse_fold = mean_squared_error(y_val, y_val_pred, squared=False)
-    rmse_list.append(rmse_fold)
+    # Metrikler
+    rmse = np.sqrt(mean_squared_error(y_val, y_val_pred))
+    mae = mean_absolute_error(y_val, y_val_pred)
+    mape = np.mean(np.abs((y_val - y_val_pred) / y_val)) * 100
     
-    print(f"Fold {fold} RMSE: {rmse_fold:.2f}")
+    rmse_list.append(rmse)
+    mae_list.append(mae)
+    mape_list.append(mape)
+    
+    print(f"  RMSE: {rmse:.2f}, MAE: {mae:.2f}, MAPE: {mape:.2f}%")
+    
     fold += 1
 
-# Tüm fold'ların ortalama RMSE değeri
-print(f"Ortalama TimeSeriesSplit RMSE: {np.mean(rmse_list):.2f}")
-```
+# Ortalama sonuçlar
+print("\n" + "-" * 50)
+print("ÇAPRAZ DOĞRULAMA SONUÇLARI (Ortalama ± Std)")
+print("-" * 50)
+print(f"RMSE: {np.mean(rmse_list):.2f} ± {np.std(rmse_list):.2f}")
+print(f"MAE:  {np.mean(mae_list):.2f} ± {np.std(mae_list):.2f}")
+print(f"MAPE: {np.mean(mape_list):.2f}% ± {np.std(mape_list):.2f}%")
 
+
+# =============================================================
+# 9) SON XGBOOST MODELİ VE ÖZELLİK ÖNEMİ
+# =============================================================
+#
+# Çapraz doğrulama performans tahminini verir.
+# Şimdi tüm veriyle son modeli eğitip özellik önemini inceleyelim.
+
+# Son 24 gözlemi test için ayır
+train_end = len(X) - 24
+X_train_xgb = X.iloc[:train_end]
+X_test_xgb = X.iloc[train_end:]
+y_train_xgb = y.iloc[:train_end]
+y_test_xgb = y.iloc[train_end:]
+
+# Son model
+final_xgb = xgb.XGBRegressor(
+    n_estimators=500,
+    learning_rate=0.05,
+    max_depth=4,
+    subsample=0.8,
+    colsample_bytree=0.8,
+    random_state=SEED
+)
+final_xgb.fit(X_train_xgb, y_train_xgb)
+
+# Test tahminleri
+y_test_pred_xgb = final_xgb.predict(X_test_xgb)
+
+print("\n" + "=" * 50)
+print("XGBOOST TEST PERFORMANSI")
+print("=" * 50)
+calculate_metrics(y_test_xgb.values, y_test_pred_xgb, "XGBoost Test")
+
+# ---------------------------------------------------------
+# Özellik önemi grafiği
+# ---------------------------------------------------------
+# Hangi özelliklerin tahmine en çok katkı sağladığını gösterir
+# Bu bilgi hem model yorumlama hem de özellik seçimi için faydalıdır
+
+feature_importance = pd.DataFrame({
+    'feature': feature_cols,
+    'importance': final_xgb.feature_importances_
+}).sort_values('importance', ascending=True)
+
+plt.figure(figsize=(10, 8))
+plt.barh(feature_importance['feature'], feature_importance['importance'])
+plt.xlabel('Önem Skoru')
+plt.title('XGBoost Özellik Önemi')
+plt.tight_layout()
+plt.show()
+
+# En önemli 5 özellik
+print("\nEn önemli 5 özellik:")
+print(feature_importance.tail(5).to_string(index=False))
+
+
+# =============================================================
+# 10) MODEL KARŞILAŞTIRMASI VE SONUÇ
+# =============================================================
+
+print("\n" + "=" * 50)
+print("MODEL KARŞILAŞTIRMASI (Test Seti)")
+print("=" * 50)
+print(f"{'Model':<15} {'RMSE':>10} {'MAE':>10} {'MAPE':>10}")
+print("-" * 50)
+print(f"{'GRU':<15} {rmse_test:>10.2f} {mae_test:>10.2f} {mape_test:>9.2f}%")
+
+xgb_rmse = np.sqrt(mean_squared_error(y_test_xgb, y_test_pred_xgb))
+xgb_mae = mean_absolute_error(y_test_xgb, y_test_pred_xgb)
+xgb_mape = np.mean(np.abs((y_test_xgb - y_test_pred_xgb) / y_test_xgb)) * 100
+print(f"{'XGBoost':<15} {xgb_rmse:>10.2f} {xgb_mae:>10.2f} {xgb_mape:>9.2f}%")
+
+# Karşılaştırma grafiği
+fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+
+# GRU tahminleri
+axes[0].plot(test_dates, y_test_inv, 'b-', label='Gerçek', linewidth=2)
+axes[0].plot(test_dates, test_pred_inv, 'r--', label='GRU Tahmini', linewidth=2)
+axes[0].set_title(f'GRU Tahminleri (RMSE: {rmse_test:.2f})')
+axes[0].set_xlabel('Tarih')
+axes[0].set_ylabel('Yolcu Sayısı')
+axes[0].legend()
+axes[0].grid(True, alpha=0.3)
+
+# XGBoost tahminleri
+axes[1].plot(y_test_xgb.index, y_test_xgb.values, 'b-', label='Gerçek', linewidth=2)
+axes[1].plot(y_test_xgb.index, y_test_pred_xgb, 'r--', label='XGBoost Tahmini', linewidth=2)
+axes[1].set_title(f'XGBoost Tahminleri (RMSE: {xgb_rmse:.2f})')
+axes[1].set_xlabel('Tarih')
+axes[1].set_ylabel('Yolcu Sayısı')
+axes[1].legend()
+axes[1].grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.show()
+
+print("\n" + "=" * 50)
+print("ANALİZ TAMAMLANDI")
+print("=" * 50)
+print("""
+Bu çalışmada şunları yaptık:
+
+1. AirPassengers verisini yükleyip görselleştirdik
+2. GRU modeli için veriyi ölçekleyip sliding window formatına çevirdik
+3. Early stopping ile GRU modelini eğittik
+4. XGBoost için kapsamlı özellik mühendisliği yaptık:
+   - Gecikme özellikleri (lag features)
+   - Hareketli istatistikler
+   - Takvim özellikleri
+5. TimeSeriesSplit ile zaman-duyarlı çapraz doğrulama uyguladık
+6. İki modeli karşılaştırdık
+
+Sonuçların Yorumu:
+- GRU otomatik olarak zaman bağımlılıklarını öğrenir ancak
+  küçük veri setlerinde aşırı öğrenmeye eğilimlidir
+- XGBoost elle çıkarılan özelliklerle çalışır, yorumlanması
+  daha kolaydır ve genellikle daha stabil performans gösterir
+- Her iki yöntemin de avantajları ve dezavantajları vardır;
+  veri setinin büyüklüğüne ve probleme göre seçim yapılmalıdır
+""")
+```
 ---
 
 ## 15. Gretl: Ekonometrik Analiz için Görsel Bir Ortam
@@ -2417,44 +2961,413 @@ Bu testler, ARIMA kurarken veya daha sonra LSTM/GRU gibi modellere geçmeden ön
 Gretl sadece menülerden oluşan bir program değildir. İsterseniz kendi komut dilini kullanarak aynı işlemleri tekrarlanabilir bir betik (script) haline getirebilirsiniz. Aşağıdaki tek parça örnek, AirPassengers benzeri bir dosya üzerinden temel adımları gösteriyor:
 
 ```gretl
-# ---------------------------------------------------------
-# Gretl komut dili ile zaman serisi ve ARIMA örneği
-# Bu dosya .inp uzantılı bir script olarak çalıştırılabilir.
-# ---------------------------------------------------------
+# =============================================================
+# GRETL İLE ZAMAN SERİSİ ANALİZİ VE ARIMA MODELLEMESİ
+# =============================================================
+#
+# Bu script, zaman serisi analizinin temel adımlarını göstermektedir.
+# Örnek veri olarak klasik AirPassengers serisi kullanılıyor.
+# Bu seri 1949-1960 yılları arasında uluslararası havayolu
+# yolcu sayılarını içerir (aylık, bin kişi).
+#
+# Dosyayı çalıştırmak için: Gretl > File > Open > Script file
+# veya komut satırından: gretlcli -b script.inp
 
-# 1) Veri setini açalım (CSV dosyasını içeri almak için)
-# Burada dosya yolunu kendi bilgisayarınıza göre düzenlemeniz gerekir.
+
+# =============================================================
+# 1) VERİ SETİNİ AÇMA VE HAZIRLAMA
+# =============================================================
+#
+# open komutu farklı formatlardaki dosyaları okuyabilir:
+# CSV, Excel, Stata, SPSS ve Gretl'in kendi formatı (.gdt)
+#
+# Dosya yolunda Türkçe karakter veya boşluk varsa sorun çıkabilir.
+# En güvenlisi dosyayı Gretl'in çalışma dizinine koymaktır.
+
 open "data/AirPassengers.csv"
 
-# 2) Veri kümesini zaman serisi olarak tanımlayalım
-# frekans=12 (aylık), başlangıç=1949:01
+# Veriyi açtıktan sonra değişken listesini kontrol edelim.
+# CSV'deki sütun başlıkları bazen beklenmedik şekilde okunabilir.
+varlist
+
+# ---------------------------------------------------------
+# Zaman serisi yapısını tanımlama
+# ---------------------------------------------------------
+# setobs komutu veriye zaman boyutu ekler:
+#   - İlk parametre: frekans (12 = aylık, 4 = çeyreklik, 1 = yıllık)
+#   - İkinci parametre: başlangıç tarihi (yıl:dönem formatında)
+#   - --time-series: bunun bir zaman serisi olduğunu belirtir
+#
+# Bu tanım yapılmadan mevsimsel analiz, tahmin gibi işlemler çalışmaz.
+
 setobs 12 1949:01 --time-series
 
-# 3) Yolcu sayısı değişkeninin adını uygun hale getirelim
-rename "#Passengers" passengers
+# ---------------------------------------------------------
+# Değişkeni yeniden adlandırma
+# ---------------------------------------------------------
+# CSV dosyasındaki sütun adı "#Passengers" gibi özel karakter
+# içeriyorsa, Gretl bunu farklı bir isimle kaydedebilir.
+# varlist çıktısına bakarak doğru ismi bulun.
+#
+# Eğer değişken adı v1 veya benzeri bir şey olarak geldiyse:
+# rename v1 passengers
+#
+# Eğer doğru geldiyse bu satırı atlayabilirsiniz.
 
-# 4) Zaman serisi grafiği çizelim
+rename Passengers passengers
+
+
+# =============================================================
+# 2) VERİYİ TANIMA: GRAFİK VE TANIMLAYICI İSTATİSTİKLER
+# =============================================================
+#
+# Analiz öncesi veriye bakmak kritik öneme sahiptir.
+# Grafik bize şunları söyler:
+#   - Trend var mı? (Sürekli artış veya azalış)
+#   - Mevsimsellik var mı? (Tekrarlayan örüntüler)
+#   - Yapısal kırılmalar var mı? (Ani değişimler)
+#   - Aykırı değerler var mı?
+
+# Zaman serisi grafiği
 gnuplot passengers --time-series --with-lines --output=display
 
-# 5) Basit bir ARIMA(1,1,1) modeli tahmin edelim
-arima 1 1 1 ; passengers
+# Tanımlayıcı istatistikler
+summary passengers
 
-# 6) Artıkların korelogramını çizelim
-# $uhat: son tahmin edilen modelin artıklarını tutar
-series u = $uhat
-corrgm u 24   # 24 gecikmeye kadar ACF grafiği
+# Bu grafikte iki şey hemen göze çarpıyor:
+#   1) Yukarı yönlü güçlü bir trend (yolcu sayısı artıyor)
+#   2) Yıl içinde tekrarlayan dalgalanmalar (mevsimsellik)
+#
+# Ayrıca varyans da artıyor gibi görünüyor - yıllar ilerledikçe
+# dalgalanmalar büyüyor. Bu durum logaritmik dönüşümü gerektirebilir.
 
-# 7) Durağanlık testi (ADF) uygulayalım
-adf passengers
+# ---------------------------------------------------------
+# Logaritmik dönüşüm
+# ---------------------------------------------------------
+# Varyansın zamanla arttığı serilerde log dönüşümü yapılır.
+# Bu dönüşüm:
+#   - Varyansı stabilize eder
+#   - Çarpık dağılımı normale yaklaştırır
+#   - Yorumu kolaylaştırır (yüzde değişim olarak)
 
-# 8) 12 dönem ileriye tahmin üretelim
-fcast 12
+series lnpass = log(passengers)
+gnuplot lnpass --time-series --with-lines --output=display
 
-# 9) Tahmini grafikte görelim
-gnuplot passengers passengers_f --time-series --with-lines --output=display
+# Log alınmış seride dalgalanmalar daha homojen görünmeli.
+
+
+# =============================================================
+# 3) DURAĞANLIK ANALİZİ
+# =============================================================
+#
+# ARIMA modeli kurmadan önce serinin durağan olup olmadığını
+# anlamak gerekir. Durağan seri:
+#   - Sabit ortalamaya sahiptir
+#   - Sabit varyansa sahiptir
+#   - Otokovaryansı sadece gecikmeye bağlıdır
+#
+# Grafiğe bakınca bu serinin durağan olmadığı açık - hem trend
+# hem mevsimsellik var. Ama yine de test yapalım.
+
+# ---------------------------------------------------------
+# ADF (Augmented Dickey-Fuller) Testi
+# ---------------------------------------------------------
+# Hipotezler:
+#   H0: Seri durağan değildir (birim kök var)
+#   H1: Seri durağandır
+#
+# p-değeri 0.05'ten küçükse H0 reddedilir.
+# Gretl'de adf komutu farklı varyantlarla çalıştırılabilir:
+#   - Sabit terimli
+#   - Sabit terim + trend
+#   - İkisi de yok
+
+adf 12 lnpass          # 12 gecikme ile (aylık veri için makul)
+adf 12 lnpass --c      # Sabit terimli
+adf 12 lnpass --ct     # Sabit terim ve trendli
+
+# Muhtemelen p-değeri yüksek çıkacak ve seri durağan değil sonucu
+# alacağız. Bu durumda fark almak gerekir.
+
+# ---------------------------------------------------------
+# Fark alma ile durağanlaştırma
+# ---------------------------------------------------------
+# Birinci fark: Δy_t = y_t - y_{t-1}
+# Bu işlem trendi ortadan kaldırır.
+
+series dlnpass = diff(lnpass)
+
+# Mevsimsel fark: y_t - y_{t-12}
+# Bu işlem mevsimselliği ortadan kaldırır.
+
+series dslnpass = sdiff(lnpass)  # 12. fark (mevsimsel)
+
+# Hem trend hem mevsimsellik için ikisini birlikte alalım
+series ddlnpass = diff(sdiff(lnpass))
+
+# Fark alınmış serilerin grafiği
+gnuplot dlnpass --time-series --with-lines --output=display
+gnuplot ddlnpass --time-series --with-lines --output=display
+
+# Fark alınmış seri için ADF testi
+adf 12 ddlnpass --c
+
+# Şimdi p-değeri düşük çıkmalı ve seri durağan kabul edilmeli.
+
+
+# =============================================================
+# 4) OTOKORELASYON ANALİZİ (ACF VE PACF)
+# =============================================================
+#
+# ACF (Otokorelasyon Fonksiyonu) ve PACF (Kısmi Otokorelasyon)
+# grafikleri ARIMA model derecelerini belirlemede yardımcı olur.
+#
+# Temel kurallar:
+#   - ACF yavaş azalıyor, PACF keskin kesiyor → AR süreci
+#   - ACF keskin kesiyor, PACF yavaş azalıyor → MA süreci
+#   - İkisi de yavaş azalıyor → ARMA süreci
+#
+# Mevsimsel serilerde 12, 24, 36... gecikmelerinde de
+# anlamlı korelasyonlar görülür.
+
+# Orijinal seri için korelogram
+corrgm lnpass 36
+
+# Fark alınmış seri için korelogram
+corrgm ddlnpass 36
+
+# 36 gecikmeye kadar bakıyoruz çünkü 3 yıllık mevsimsel
+# örüntüleri görmek istiyoruz.
+
+
+# =============================================================
+# 5) MODEL SEÇİMİ VE TAHMİNİ
+# =============================================================
+#
+# ARIMA(p,d,q) notasyonunda:
+#   p = AR (otoregresif) derecesi
+#   d = Fark alma derecesi
+#   q = MA (hareketli ortalama) derecesi
+#
+# Mevsimsel ARIMA için: ARIMA(p,d,q)(P,D,Q)_s
+#   P = Mevsimsel AR derecesi
+#   D = Mevsimsel fark alma derecesi
+#   Q = Mevsimsel MA derecesi
+#   s = Mevsim periyodu (aylık veri için 12)
+
+# ---------------------------------------------------------
+# Basit ARIMA modeli (mevsimsellik yok)
+# ---------------------------------------------------------
+# Önce basit bir model deneyelim. Bu yeterli olmayacak ama
+# karşılaştırma için faydalı.
+
+arima 1 1 1 ; lnpass
+scalar aic_111 = $aic
+scalar bic_111 = $bic
+
+# Model sonuçlarını inceleyin:
+#   - Katsayılar anlamlı mı? (p-değerleri < 0.05)
+#   - AIC ve BIC değerleri ne?
+
+# ---------------------------------------------------------
+# Mevsimsel ARIMA modeli
+# ---------------------------------------------------------
+# AirPassengers serisi için klasik model ARIMA(0,1,1)(0,1,1)_12
+# Bunu "airline model" olarak da bilinir çünkü Box ve Jenkins
+# bu veriyle çalışırken geliştirmişlerdir.
+
+arima 0 1 1 ; 0 1 1 ; lnpass
+scalar aic_airline = $aic
+scalar bic_airline = $bic
+
+# Alternatif modeller de deneyelim
+arima 1 1 1 ; 0 1 1 ; lnpass
+scalar aic_111_011 = $aic
+
+arima 1 1 0 ; 0 1 1 ; lnpass
+scalar aic_110_011 = $aic
+
+arima 0 1 1 ; 1 1 0 ; lnpass
+scalar aic_011_110 = $aic
+
+# ---------------------------------------------------------
+# Model karşılaştırma
+# ---------------------------------------------------------
+# AIC ve BIC değerleri düşük olan model tercih edilir.
+# AIC daha esnek, BIC daha tutucudur (az parametreyi tercih eder).
+
+print "Model Karşılaştırması (AIC değerleri):"
+print "ARIMA(1,1,1)           : " aic_111
+print "ARIMA(0,1,1)(0,1,1)_12 : " aic_airline
+print "ARIMA(1,1,1)(0,1,1)_12 : " aic_111_011
+print "ARIMA(1,1,0)(0,1,1)_12 : " aic_110_011
+print "ARIMA(0,1,1)(1,1,0)_12 : " aic_011_110
+
+
+# =============================================================
+# 6) SEÇİLEN MODELİN DETAYLI ANALİZİ
+# =============================================================
+#
+# En düşük AIC'ye sahip modeli seçip detaylı inceliyoruz.
+# Muhtemelen airline model (0,1,1)(0,1,1)_12 kazanacak.
+
+arima 0 1 1 ; 0 1 1 ; lnpass
+
+# Model çıktısında bakılacaklar:
+#   - const: Sabit terim (drift)
+#   - theta_1: MA(1) katsayısı
+#   - Theta_1: Mevsimsel MA(1) katsayısı
+#   - Standart hatalar ve t-istatistikleri
+#   - Log-likelihood, AIC, BIC
+
+# ---------------------------------------------------------
+# Artık analizi
+# ---------------------------------------------------------
+# İyi bir modelde artıklar:
+#   - Beyaz gürültü olmalı (otokorelasyon yok)
+#   - Normal dağılmalı
+#   - Sabit varyanslı olmalı
+
+series uhat = $uhat
+
+# Artıkların grafiği
+gnuplot uhat --time-series --with-lines --output=display
+
+# Artıkların korelogramı
+# Tüm gecikmeler güven bandının içindeyse model uygundur.
+corrgm uhat 36
+
+# Ljung-Box testi
+# H0: Artıklarda otokorelasyon yoktur
+# p > 0.05 ise H0 reddedilemez (istediğimiz sonuç)
+modtest --autocorr
+
+# Normallik testi
+modtest --normality
+
+# Artıkların histogramı
+freq uhat --normal --plot=display
+
+
+# =============================================================
+# 7) TAHMİN (FORECASTING)
+# =============================================================
+#
+# Model doğrulandıktan sonra geleceğe yönelik tahmin yapılabilir.
+# fcast komutu hem nokta tahmini hem güven aralığı üretir.
+
+# Önce modeli tekrar tahmin edelim
+arima 0 1 1 ; 0 1 1 ; lnpass
+
+# ---------------------------------------------------------
+# 12 ay ileriye tahmin
+# ---------------------------------------------------------
+# Tahmin için veri setini genişletmemiz gerekiyor.
+# smpl komutuyla tahmin dönemi eklenir.
+
+# Mevcut veri aralığını görelim
+smpl --full
+print $t1 $t2
+
+# Veri setini 12 dönem uzatalım
+dataset addobs 12
+
+# Tahmini üretelim
+fcast 1961:01 1961:12 --dynamic
+
+# fcast komutu şu değişkenleri oluşturur:
+#   - lnpass_f   : Nokta tahmini
+#   - lnpass_se  : Standart hata
+# Bunlar log ölçeğinde. Orijinal ölçeğe dönmek için exp() alınır.
+
+# Tahminleri orijinal ölçeğe dönüştürelim
+series passengers_fcast = exp(lnpass)
+
+# ---------------------------------------------------------
+# Tahmin grafiği
+# ---------------------------------------------------------
+# Gerçek değerler ve tahminleri birlikte görelim
+
+gnuplot lnpass --time-series --with-lines --output=display \
+  { set title "Log Yolcu Sayısı ve Tahmin"; }
+
+# Orijinal ölçekte
+gnuplot passengers passengers_fcast --time-series --with-lines \
+  --output=display { set title "Yolcu Sayısı Tahmini"; }
+
+# ---------------------------------------------------------
+# Tahmin güven aralıkları
+# ---------------------------------------------------------
+# %95 güven aralığı: tahmin ± 1.96 × standart hata
+
+series upper = exp(lnpass + 1.96 * lnpass_se)
+series lower = exp(lnpass - 1.96 * lnpass_se)
+
+
+# =============================================================
+# 8) MODEL PERFORMANS DEĞERLENDİRMESİ
+# =============================================================
+#
+# Tahmin performansını değerlendirmek için seriyi ikiye bölebiliriz:
+#   - Eğitim seti: Model tahmini için
+#   - Test seti: Tahmin doğrulaması için
+#
+# Bu yaklaşım "out-of-sample" değerlendirme olarak bilinir.
+
+# Orijinal örneğe dönelim
+smpl 1949:01 1960:12
+
+# Son 12 gözlemi test için ayıralım
+smpl 1949:01 1959:12
+arima 0 1 1 ; 0 1 1 ; lnpass
+
+# Test dönemi için tahmin yapalım
+smpl 1960:01 1960:12
+fcast --dynamic --out-of-sample
+
+# Tahmin hata metrikleri
+# RMSE (Root Mean Square Error), MAE (Mean Absolute Error), MAPE
+
+smpl 1960:01 1960:12
+series error = passengers - passengers_fcast
+series sq_error = error^2
+series abs_error = abs(error)
+series pct_error = abs(error / passengers) * 100
+
+scalar rmse = sqrt(mean(sq_error))
+scalar mae = mean(abs_error)
+scalar mape = mean(pct_error)
+
+print "Tahmin Performansı (Test Seti):"
+print "RMSE : " rmse
+print "MAE  : " mae
+print "MAPE : " mape " %"
+
+
+# =============================================================
+# ÖZET
+# =============================================================
+#
+# Bu analizde şunları yaptık:
+#
+# 1. Veriyi yükleyip zaman serisi yapısını tanımladık
+# 2. Grafiklerle veriyi tanıdık (trend, mevsimsellik, varyans)
+# 3. Logaritmik dönüşüm ile varyansı stabilize ettik
+# 4. ADF testi ile durağanlığı kontrol ettik
+# 5. Fark alma ile seriyi durağanlaştırdık
+# 6. ACF/PACF grafikleriyle model yapısını inceledik
+# 7. Farklı ARIMA modellerini karşılaştırdık
+# 8. Artık analizleriyle model uyumunu doğruladık
+# 9. Geleceğe yönelik tahminler ürettik
+# 10. Out-of-sample performansı değerlendirdik
+#
+# AirPassengers için ARIMA(0,1,1)(0,1,1)_12 modeli
+# genellikle en iyi sonucu verir. Bu model hem trend
+# hem mevsimselliği yakalayabilmektedir.
+
+print "Analiz tamamlandı."
+
 ```
-
-Bu tür bir betik, aynı analizi tekrar tekrar çalıştırmayı ve rapor üretirken daha düzenli çalışmayı kolaylaştırır.
 
 ### 15.6. Gretl’in Ekosistemdeki Yeri: Diğer Yöntemlerle Karşılaştırma
 
@@ -2467,3 +3380,965 @@ Toparlamak için şu tabloyu akılda tutmak faydalı olabilir:
 | **Weka** | Kod yazmadan çeşitli makine öğrenmesi algoritmalarını denemek, TSLagMaker ile zaman serilerini tabloya dönüştürüp regresyon uygulamak. |
 
 Gençler, Gretl bu resmin içinde özellikle zaman serisi ve ekonometrik modellerin temel mantığını görmek için oldukça işlevli bir araçtır. Aynı veriyi Gretl, Python ve Weka üzerinde çalıştırmak, hem yöntemleri hem de ortamların farklarını karşılaştırmak için güzel bir egzersiz olur.
+
+## 16. VAR: Birden Fazla Zaman Serisini Aynı Anda Modellemek
+
+Tek değişkenli zaman serisi modelleri (ARIMA gibi) her seriyi **tek başına** ele alır. Oysa birçok durumda değişkenlerin birbirini etkilemesi temel konudur:
+
+*   Enflasyon ↔ faiz oranı
+*   Döviz kuru ↔ faiz ↔ sanayi üretimi
+*   Elektrik talebi ↔ sıcaklık ↔ fiyat
+
+Gençler, burada ihtiyaç duyulan şey, sadece “geçmişine bakarak kendini tahmin eden” bir model değil, aynı anda **birden fazla serinin geçmişine bakarak** hepsini birlikte tahmin eden bir yapıdır. Bu noktada **VAR (Vector Autoregression)** devreye girer.
+
+---
+
+### 16.1. VAR’ın Temel Fikri
+
+İki değişkenli (örneğin enflasyon ve faiz) basit bir VAR(1) düşünelim. Notasyon:
+
+*   $y_{1,t}$: Enflasyon
+*   $y_{2,t}$: Faiz oranı
+
+VAR(1) modeli:
+
+$$
+\begin{aligned}
+y_{1,t} &= c_1 + a_{11} y_{1,t-1} + a_{12} y_{2,t-1} + u_{1,t} \\
+y_{2,t} &= c_2 + a_{21} y_{1,t-1} + a_{22} y_{2,t-1} + u_{2,t}
+\end{aligned}
+$$
+
+Her bir denklemde:
+
+*   Hem **kendi gecikmeleri** (örneğin $y_{1,t-1}$ → $y_{1,t}$)
+*   Hem de **diğer değişkenin gecikmeleri** (örneğin $y_{2,t-1}$ → $y_{1,t}$) yer alır.
+
+Vektör ve matris biçiminde yazarsak:
+
+$$
+\mathbf{y}_t =
+\begin{bmatrix}
+y_{1,t} \\
+y_{2,t}
+\end{bmatrix},
+\quad
+\mathbf{c} =
+\begin{bmatrix}
+c_1 \\
+c_2
+\end{bmatrix},
+\quad
+A_1 =
+\begin{bmatrix}
+a_{11} & a_{12} \\
+a_{21} & a_{22}
+\end{bmatrix},
+\quad
+\mathbf{u}_t =
+\begin{bmatrix}
+u_{1,t} \\
+u_{2,t}
+\end{bmatrix}
+$$
+
+Genel form:
+
+$$
+\mathbf{y}_t = \mathbf{c} + A_1 \mathbf{y}_{t-1} + \mathbf{u}_t
+$$
+
+VAR(p) için:
+
+$$
+\mathbf{y}_t = \mathbf{c} + A_1 \mathbf{y}_{t-1} + A_2 \mathbf{y}_{t-2} + \dots + A_p \mathbf{y}_{t-p} + \mathbf{u}_t
+$$
+
+Burada:
+
+*   $\mathbf{y}_t$: Aynı anda tüm değişkenleri içeren vektör
+*   $A_i$: Her gecikme için katsayı matrisi
+*   $\mathbf{u}_t$: Hata terimleri (şoklar)
+
+---
+
+### 16.2. VAR’ı Görselleştirmek
+
+Modelin denklemleri, değişkenler arasındaki etkileşim ağını tarif eder. Bu ağı görselleştirmek, mantığı anlamayı kolaylaştırır.
+
+#### 16.2.1. Değişkenler Arası Etkileşim Diyagramı
+
+İki değişkenli bir VAR(1) modelinde, bir önceki zaman adımındaki (`t-1`) her değişken, şimdiki zaman adımındaki (`t`) her değişkeni nasıl etkiler? Bu etkileşimi daha net görmek için aşağıdaki diyagramı inceleyelim.
+```mermaid
+graph TD
+
+%% VAR(1) Etkileşim Diyagramı
+
+subgraph "Gecikmeli Değerler (t-1)"
+    direction LR
+    Enflasyon_t_1["Enflasyon(t-1)"]
+    Faiz_t_1["Faiz(t-1)"]
+end
+
+subgraph "Güncel Değerler (t)"
+    direction LR
+    Enflasyon_t["Enflasyon(t)"]
+    Faiz_t["Faiz(t)"]
+end
+
+Enflasyon_t_1 -->|"a11"| Enflasyon_t
+Faiz_t_1      -->|"a12"| Enflasyon_t
+
+Enflasyon_t_1 -->|"a21"| Faiz_t
+Faiz_t_1      -->|"a22"| Faiz_t
+```
+
+
+
+*   `Enflasyon(t-1)` değeri, hem `Enflasyon(t)` hem de `Faiz(t)` üzerinde etkili olabilir. Bu etkilerin gücünü `a11` ve `a21` katsayıları belirler.
+*   Benzer şekilde `Faiz(t-1)` değeri de her iki güncel değişkeni `a12` ve `a22` katsayıları aracılığıyla etkiler.
+
+Kısacası, “geçmiş enflasyon” ve “geçmiş faiz” bilgileri, hem bugünkü enflasyonu hem de bugünkü faizi tahmin etmek için birlikte kullanılır.
+
+#### 16.2.2. Zaman Boyunca Akış
+
+Bu etkileşim her zaman adımında tekrarlanır. Bir dönemin çıktıları, bir sonraki dönemin girdileri haline gelir. Bu sürekli akış, sistemin zaman içindeki dinamiklerini oluşturur.
+
+```mermaid
+graph LR
+    subgraph "Zaman Adımı t-1"
+        y1_t_1["Değişken 1 (t-1)"]
+        y2_t_1["Değişken 2 (t-1)"]
+    end
+    subgraph "Zaman Adımı t"
+        y1_t["Değişken 1 (t)"]
+        y2_t["Değişken 2 (t)"]
+    end
+    subgraph "Zaman Adımı t+1"
+        y1_t_2["Değişken 1 (t+1)"]
+        y2_t_2["Değişken 2 (t+1)"]
+    end
+
+    y1_t_1 & y2_t_1 --> y1_t
+    y1_t_1 & y2_t_1 --> y2_t
+
+    y1_t & y2_t --> y1_t_2
+    y1_t & y2_t --> y2_t_2
+```
+
+Bu şema, `t` anındaki her değişkenin, `t-1` anındaki tüm değişkenlerin bir fonksiyonu olduğunu ve bu yapının zaman içinde nasıl ileriye doğru ilerlediğini gösterir.
+
+---
+
+### 16.3. VAR Kurmadan Önce Dikkat Edilmesi Gerekenler
+
+VAR modeli tahmin etmeden önce birkaç kritik noktayı gözden geçirmek gerekir. Bu adımları atlamak, sonradan "acaba nerede hata yaptım?" sorusuyla uğraşmak demektir. O yüzden işe başlamadan önce şu kontrolleri yapmakta fayda var:
+
+---
+
+#### 1. Aynı Frekansta Veri Kullanımı
+
+Elimizdeki tüm serilerin aynı zaman aralığında ölçülmüş olması gerekir. Bir seri aylık, diğeri üç aylık, bir diğeri yıllık olamaz. Düşünün: bir değişken her ay değişirken diğeri yılda bir kez güncelleniyor. Bu ikisini aynı modele koymak, farklı hızlarda koşan iki kişiyi aynı yarışta değerlendirmeye benzer.
+
+Frekans uyumsuzluğu varsa ya yüksek frekanslı veriyi toplulaştırarak (örneğin aylık veriyi üç aylık ortalamalara dönüştürerek) ya da düşük frekanslı veriyi interpolasyon yöntemleriyle daha sık gözleme çevirerek çözüm üretilir. Ancak interpolasyon yapay bilgi eklediği için dikkatli kullanılmalıdır.
+
+---
+
+#### 2. Ortak Örnek Aralığı (Sample)
+
+Zaman serilerinde eksik gözlemler sık karşılaşılan bir durumdur. Bir seri 1990'dan başlarken diğeri 1995'ten başlıyor olabilir; birinin verisi 2020'de bitiyorken diğerininki 2023'e kadar uzanabilir.
+
+VAR tahmini için tüm değişkenlerin aynı zaman diliminde gözlemlenmesi zorunludur. Bu nedenle genellikle **ortak kesişim aralığı** belirlenir: tüm serilerin birlikte mevcut olduğu en geniş zaman penceresi. Bu pencere dışında kalan gözlemler analize dahil edilmez. Veri kaybı olsa da tutarlılık sağlanmış olur.
+
+---
+
+#### 3. Durağanlık Kontrolü
+
+VAR modeli, değişkenler arasındaki dinamik ilişkileri yakalamaya çalışır. Ancak bu ilişkilerin anlamlı olabilmesi için serilerin **durağan** olması beklenir.
+
+Durağanlık ne demek? Bir serinin ortalaması, varyansı ve otokovaryans yapısı zaman içinde sabit kalıyorsa o seri durağandır. Örneğin, sürekli yukarı tırmanış gösteren bir GSYİH serisi durağan değildir; çünkü ortalaması sürekli artmaktadır.
+
+Durağanlığı test etmek için ADF (Augmented Dickey-Fuller) veya KPSS testleri kullanılır. ADF testinde 0 hipotezi "seri durağan değildir" şeklindedir; test istatistiği kritik değerden küçükse boş hipotez reddedilir ve serinin durağan olduğu kabul edilir. KPSS testinde ise mantık tersine çalışır: boş-0 hipotez "seri durağandır" der.
+
+Durağan olmayan serilerle karşılaşıldığında en yaygın çözüm **fark alma** işlemidir:
+
+$$\Delta y_t = y_t - y_{t-1}$$
+
+Birinci fark alındığında çoğu ekonomik seri durağan hale gelir. Bazı serilerde ikinci fark gerekebilir, ancak bu nadirdir.
+
+Bir not daha: Eğer seriler aynı mertebeden bütünleşik (örneğin hepsi I(1)) ve aralarında uzun dönemli bir denge ilişkisi (eşbütünleşme) varsa, VAR yerine VECM (Vector Error Correction Model) kullanmak daha uygun olur. Fakat bu bölümde VAR çerçevesinde kalmaya devam ediyoruz.
+
+---
+
+#### 4. Gecikme Uzunluğu Seçimi (Lag Order)
+
+VAR(p) modelinde p, kaç dönem geriye bakılacağını belirler. Bu seçim kritik öneme sahiptir:
+
+- **p çok küçük seçilirse:** Modeldeki dinamik yapı yeterince yakalanmaz. Değişkenler arasındaki gecikmeli etkileşimler göz ardı edilmiş olur.
+  
+- **p çok büyük seçilirse:** Her ek gecikme, tahmin edilmesi gereken parametre sayısını hızla artırır. Örneğin 4 değişkenli bir VAR'da her ek gecikme 16 yeni parametre demektir. Aşırı parametreleşme, tahmin varyansını yükseltir ve modelin öngörü gücünü zayıflatır.
+
+Optimal gecikme uzunluğunu belirlemek için bilgi kriterleri kullanılır:
+
+Gençler, optimal gecikme uzunluğunu belirlemek, bir modele doğru miktarda "hafıza" vermek gibidir. Az verirseniz önemli bilgileri kaçırır, çok verirseniz de gereksiz detaylarda boğulur. Bu dengeyi kurmak için istatistikçiler bilgi kriterleri adını verdiğimiz zekice araçlar geliştirmişlerdir.
+
+Bu kriterlerin hepsi aynı temel felsefeye dayanır: **Occam'ın Usturası**. Yani, her şey eşitken en basit açıklama en iyisidir. Bir modelin veriyi ne kadar iyi açıkladığı (uyum başarısı) ile ne kadar karmaşık olduğu (parametre sayısı) arasında bir denge kurmaya çalışırlar. Düşünün ki bir terzi size özel bir ceket dikiyor. Çok az ölçü alarak dikerse ceket üzerinize oturmaz; bu, uyumun kötü olmasıdır. Ama vücudunuzdaki her milimetreyi ölçüp ona göre dikerse, o ceket sadece o anki duruşunuza uyar, hareket ettiğinizde veya kilo aldığınızda işe yaramaz hale gelir; bu da aşırı uyumdur (overfitting). Bilgi kriterleri, bu iki aşırı uç arasında en makul ceketi, yani modeli bulmamıza yardım eden ölçütlerdir.
+
+Bu kriterlerin hepsi, modelin uyumunu ölçen bir terim (genellikle log-likelihood) ile modelin karmaşıklığını cezalandıran bir terimden oluşur. Amaç, kriterin değerini en aza indirmektir.
+
+*   **AIC (Akaike Bilgi Kriteri):** Bu, en yaygın kullanılan kriterlerden biridir. Karmaşıklığa karşı bir ceza uygular, ancak bu ceza görece hafiftir. Bu nedenle, özellikle öngörü performansının önemli olduğu durumlarda, gerçek dinamiği kaçırmamak adına biraz daha karmaşık modellere izin verme eğilimindedir.
+*   **BIC (Bayesci Bilgi Kriteri):** BIC, karmaşıklığa karşı çok daha sert bir tavır alır. Ceza terimi sadece parametre sayısına değil, aynı zamanda gözlem sayısına da bağlıdır. Veri seti büyüdükçe, yeni bir parametre eklemenin maliyeti de artar. Bu yüzden BIC, daha basit, yani daha az gecikmeye sahip (tutumlu) modelleri seçme eğilimindedir. Eğer modelin temel yapısını, en temel ilişkileri anlamaya çalışıyorsak, BIC genellikle daha güvenilir bir rehberdir.
+*   **HQIC (Hannan-Quinn Bilgi Kriteri):** Bu kriter, AIC ile BIC arasında bir denge kurar. Karmaşıklık cezası AIC'den daha ağır, BIC'den ise daha hafiftir. Genellikle bu üç kriterin önerdiği gecikme sayıları birbirine yakın olur, ancak farklılık gösterdiklerinde hangisini seçeceğimiz, analizimizin amacına bağlıdır.
+
+Özetle, bu üç kriter arasındaki temel fark, yeni bir parametre eklemenin "maliyetini" nasıl hesapladıklarıdır.
+
+| Kriter | Temel Felsefesi | Ne Zaman Tercih Edilebilir? |
+| :--- | :--- | :--- |
+| **AIC** (Akaike) | Uyum başarısına daha fazla ağırlık verir. Karmaşıklık cezası sabittir. | Öngörü performansını en üst düzeye çıkarmak hedeflendiğinde. |
+| **BIC** (Bayesian) | Basitliği (tutumlu olmayı) daha çok ödüllendirir. Ceza, veri seti büyüdükçe artar. | Modelin altında yatan gerçek yapıyı, en anlamlı ilişkileri bulmak hedeflendiğinde. |
+| **HQ** (Hannan-Quinn) | AIC ve BIC arasında bir uzlaşma sunar. | Diğer iki kriter arasında bir denge arandığında. |
+
+Pratikte bu kriterlerin farklı gecikme önerebileceği durumlarla karşılaşılır. Böyle durumlarda BIC'in önerdiği daha düşük gecikme genellikle güvenli bir seçimdir; ancak teorik beklentiler veya artık analizleri (residual diagnostics) de göz önünde bulundurulmalıdır.
+
+---
+
+#### 5. Stabilite Koşulu
+
+Model tahmin edildikten sonra yapılması gereken önemli bir kontrol vardır: **karakteristik köklerin birim çember içinde olup olmadığı**.
+
+VAR modeli bir diferansiyel denklem sistemi gibi düşünülebilir. Bu sistemin kararlı (stabil) olması için, karakteristik polinomun tüm köklerinin mutlak değerinin 1'den küçük olması gerekir. Geometrik olarak ifade edersek, tüm kökler kompleks düzlemde birim çemberin içinde yer almalıdır.
+
+Stabil olmayan bir VAR modelinde:
+- Etki-tepki (impulse response) fonksiyonları patlayıcı davranış gösterir
+- Varyans ayrıştırması anlamsız sonuçlar verir
+- Öngörüler güvenilir olmaktan çıkar
+
+Bu nedenle tahmin sonrası mutlaka stabilite kontrolü yapılmalı ve gerekirse model yeniden gözden geçirilmelidir.
+
+---
+
+### 16.4. Python ile VAR Uygulaması (statsmodels)
+
+Aşağıda basit bir VAR uygulamasını tek parça kod içinde, yorum satırlarıyla birlikte görebilirsiniz. Örnek olarak:
+
+*   `inflation`: Enflasyon oranı
+*   `interest`: Faiz oranı
+*   `exchange`: Döviz kuru
+
+adında üç serinin yer aldığı bir veri seti varsayalım.
+
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+from statsmodels.tsa.api import VAR
+from statsmodels.tsa.stattools import adfuller
+from statsmodels.stats.stattools import durbin_watson
+
+# =======================================================
+# 1) VERİ SETİNİ OKUMA VE TEMEL HAZIRLIK
+# =======================================================
+#
+# VAR analizi birden fazla zaman serisinin birlikte nasıl hareket ettiğini
+# inceler. Elimizde üç makroekonomik değişken var:
+#
+#   - inflation : Yıllık enflasyon oranı (%)
+#   - interest  : Merkez bankası politika faizi (%)
+#   - exchange  : Döviz kuru (USD/TRY)
+#
+# Bu üç değişken ekonomide birbirini etkiler. Örneğin merkez bankası
+# enflasyonu kontrol etmek için faizi artırabilir; faiz artışı döviz
+# kurunu etkileyebilir; döviz kuru da ithal mallar üzerinden enflasyonu
+# etkileyebilir. VAR modeli bu karşılıklı etkileşimleri yakalamaya çalışır.
+
+df = pd.read_csv("data/macro.csv", parse_dates=["date"], index_col="date")
+
+# Çalışacağımız değişkenleri seçiyoruz.
+# dropna() ile eksik gözlem içeren satırları çıkarıyoruz çünkü
+# VAR modeli eksik veri kaldırmaz.
+vars_selected = ["inflation", "interest", "exchange"]
+df_var = df[vars_selected].dropna()
+
+print("Veri setinin son gözlemleri:")
+print(df_var.tail())
+print(f"\nToplam gözlem sayısı: {len(df_var)}")
+
+# Gözlem sayısı önemli. VAR modelinde her değişken için her gecikme
+# ayrı bir parametre demek. 3 değişken ve 4 gecikme seçersek
+# her denklemde 3 × 4 = 12 katsayı + 1 sabit = 13 parametre olur.
+# Toplam 3 × 13 = 39 parametre tahmin edilecek. Gözlem sayısı bu
+# parametreleri güvenilir şekilde tahmin etmeye yetmeli.
+
+
+# =======================================================
+# 2) SERİLERİN GÖRSELLEŞTİRİLMESİ
+# =======================================================
+#
+# Analiz öncesi verilere bakmak her zaman iyi bir alışkanlıktır.
+# Grafikler bize şunları söyleyebilir:
+#   - Serilerde belirgin bir trend var mı?
+#   - Yapısal kırılmalar (ani değişimler) var mı?
+#   - Seriler birlikte hareket ediyor mu?
+#
+# Aşağıdaki grafikte 2018 ve 2021-2022 dönemlerinde sert hareketler
+# göreceksiniz. Bunlar Türkiye ekonomisindeki kriz dönemlerine karşılık
+# geliyor ve model bu tür aşırı hareketleri yakalamakta zorlanabilir.
+
+fig, axes = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
+
+for i, col in enumerate(vars_selected):
+    axes[i].plot(df_var.index, df_var[col], linewidth=1.2)
+    axes[i].set_ylabel(col)
+    axes[i].grid(True, alpha=0.3)
+
+axes[0].set_title("Değişkenlerin Zaman İçindeki Seyri")
+axes[2].set_xlabel("Tarih")
+plt.tight_layout()
+plt.show()
+
+
+# =======================================================
+# 3) DURAĞANLIK TESTİ (ADF)
+# =======================================================
+#
+# Durağanlık kavramı zaman serisi analizinin temel taşlarından biridir.
+# Bir seri durağansa:
+#   - Ortalaması zaman içinde sabit kalır
+#   - Varyansı zaman içinde sabit kalır
+#   - İki dönem arasındaki korelasyon sadece aralarındaki uzaklığa bağlıdır
+#
+# Neden önemli? Durağan olmayan serilerle çalışırsak sahte (spurious)
+# ilişkiler bulabiliriz. İki seri sadece ikisi de yukarı gittiği için
+# ilişkili görünebilir, gerçekte aralarında anlamlı bir bağ olmasa bile.
+#
+# ADF (Augmented Dickey-Fuller) testi şu hipotezleri sınar:
+#   H0: Seri durağan değildir (birim kök vardır)
+#   H1: Seri durağandır
+#
+# p-değeri 0.05'ten küçükse H0'ı reddederiz ve serinin durağan olduğunu
+# kabul ederiz. p-değeri büyükse seri muhtemelen durağan değildir ve
+# fark almamız gerekir.
+
+def adf_test(series, name):
+    """
+    ADF testi uygular ve sonuçları yorumlar.
+    
+    Test istatistiği kritik değerlerden küçükse (daha negatifse)
+    veya p-değeri 0.05'ten küçükse seri durağan kabul edilir.
+    """
+    result = adfuller(series, autolag="AIC")
+    
+    # adfuller fonksiyonu bir tuple döndürür:
+    # [0]: Test istatistiği
+    # [1]: p-değeri
+    # [2]: Kullanılan gecikme sayısı
+    # [3]: Gözlem sayısı
+    # [4]: Kritik değerler (dictionary)
+    
+    test_stat = result[0]
+    p_value = result[1]
+    used_lag = result[2]
+    critical_values = result[4]
+    
+    print(f"\n{name}:")
+    print(f"  Test istatistiği : {test_stat:.4f}")
+    print(f"  p-değeri         : {p_value:.4f}")
+    print(f"  Kullanılan gecikme: {used_lag}")
+    print(f"  Kritik değerler  : %1: {critical_values['1%']:.3f}, "
+          f"%5: {critical_values['5%']:.3f}, "
+          f"%10: {critical_values['10%']:.3f}")
+    
+    # Yorum
+    if p_value < 0.05:
+        print("  → Seri durağan görünüyor (H0 reddedildi)")
+    else:
+        print("  → Seri muhtemelen durağan değil (H0 reddedilemedi)")
+        print("    Fark almak gerekebilir.")
+
+print("=" * 55)
+print("DURAĞANLIK TESTLERİ (ADF)")
+print("=" * 55)
+
+for col in vars_selected:
+    adf_test(df_var[col], col)
+
+# -------------------------------------------------------
+# Durağan olmayan serilerle ne yapılır?
+# -------------------------------------------------------
+#
+# En yaygın çözüm birinci fark almaktır:
+#   Δy_t = y_t - y_{t-1}
+#
+# Örneğin enflasyon durağan değilse:
+#   df_var["inflation_d"] = df_var["inflation"].diff()
+#
+# Fark alınca ilk gözlem kaybolur (NaN olur), dropna() ile temizlenir.
+# Fark alınmış seri için tekrar ADF testi yapılır.
+#
+# Bu örnekte eğitim amaçlı orijinal serilerle devam ediyoruz.
+# Gerçek bir çalışmada durağan olmayan seriler mutlaka dönüştürülmelidir.
+
+
+# =======================================================
+# 4) VAR MODELİNİN KURULMASI VE GECİKME SEÇİMİ
+# =======================================================
+#
+# VAR(p) modelinde p, kaç dönem geriye bakacağımızı belirler.
+# p = 2 seçersek model şöyle görünür:
+#
+#   y_t = c + A1 * y_{t-1} + A2 * y_{t-2} + e_t
+#
+# Burada y_t bir vektör (3 değişkenimiz var), A1 ve A2 katsayı
+# matrisleri, e_t ise hata terimleri vektörüdür.
+#
+# Gecikme sayısını nasıl seçeriz?
+# -------------------------------------------------------
+# Bilgi kriterleri bize yardımcı olur:
+#
+#   AIC (Akaike)      : Daha esnek, fazla gecikmeye izin verebilir
+#   BIC (Bayesian)    : Parametre sayısını daha çok cezalandırır, tutucu
+#   HQIC (Hannan-Quinn): İkisinin arasında
+#
+# Bu kriterler "model ne kadar iyi uyum sağlıyor" ile "kaç parametre
+# kullanıyor" arasında denge kurar. Düşük değer daha iyidir.
+
+model = VAR(df_var)
+
+# maxlags=8 diyerek 1'den 8'e kadar tüm gecikmeleri deniyoruz.
+# Her biri için AIC, BIC, HQIC hesaplanıyor.
+lag_order_results = model.select_order(maxlags=8)
+
+print("\n" + "=" * 55)
+print("GECİKME SEÇİMİ")
+print("=" * 55)
+print(lag_order_results.summary())
+
+# Her kriterin önerdiği gecikme farklı olabilir.
+# selected_orders dictionary'si bize en iyi gecikmeleri verir.
+print("\nKriterlere göre önerilen gecikmeler:")
+print(f"  AIC : {lag_order_results.selected_orders['aic']}")
+print(f"  BIC : {lag_order_results.selected_orders['bic']}")
+print(f"  HQIC: {lag_order_results.selected_orders['hqic']}")
+
+# Genel kural:
+#   - Öngörü (forecasting) amaçlıysa AIC tercih edilebilir
+#   - Tutumlu (parsimonious) model isteniyorsa BIC tercih edilir
+#   - Emin değilseniz BIC ile başlayın, sonuçlar yetersizse artırın
+
+selected_lag = lag_order_results.selected_orders['aic']
+print(f"\nSeçilen gecikme (AIC'ye göre): {selected_lag}")
+
+# -------------------------------------------------------
+# Modeli tahmin ediyoruz
+# -------------------------------------------------------
+# fit() fonksiyonu OLS (En Küçük Kareler) yöntemiyle her denklemi
+# ayrı ayrı tahmin eder. VAR'da her denklem aynı açıklayıcı
+# değişkenlere sahip olduğundan, denklem denklem OLS yapmak
+# tüm sistemi birlikte tahmin etmekle aynı sonucu verir.
+
+results = model.fit(selected_lag)
+
+print("\n" + "=" * 55)
+print("MODEL TAHMİN SONUÇLARI")
+print("=" * 55)
+print(results.summary())
+
+# Özet tabloda her denklem için ayrı sonuçlar görürsünüz:
+#   - Katsayılar (const, L1.inflation, L1.interest, vb.)
+#   - Standart hatalar
+#   - t-istatistikleri ve p-değerleri
+#   - R-kare değerleri
+#
+# Katsayıların işaretleri ve büyüklükleri ekonomik açıdan
+# yorumlanabilir, ancak VAR'da doğrudan yorum yapmak zordur.
+# IRF ve FEVD bu yorumu kolaylaştırır.
+
+
+# =======================================================
+# 5) STABİLİTE KONTROLÜ
+# =======================================================
+#
+# VAR modelinin anlamlı sonuçlar üretmesi için stabil olması gerekir.
+# Stabilite ne demek?
+#
+# Matematiksel olarak: Karakteristik polinomun tüm kökleri birim
+# çemberin içinde olmalıdır (mutlak değerleri 1'den küçük).
+#
+# Sezgisel olarak: Sisteme bir şok verildiğinde bu şokun etkisi
+# zamanla sönmeli, patmamalıdır. Stabil olmayan bir sistemde
+# küçük bir şok bile zamanla büyüyerek patlar.
+#
+# Stabil olmayan VAR ile:
+#   - Impulse response fonksiyonları anlamsız olur
+#   - Tahminler güvenilmez olur
+#   - Varyans ayrıştırması yorumlanamaz
+
+print("\n" + "=" * 55)
+print("STABİLİTE KONTROLÜ")
+print("=" * 55)
+
+is_stable = results.is_stable()
+print(f"Model stabil mi? {is_stable}")
+
+if is_stable:
+    print("Tüm kökler birim çemberin içinde - model stabil.")
+else:
+    print("UYARI: Köklerden bazıları birim çember dışında!")
+    print("Model yeniden gözden geçirilmeli:")
+    print("  - Gecikme sayısı değiştirilebilir")
+    print("  - Seriler fark alınarak durağanlaştırılabilir")
+    print("  - Aykırı gözlemler incelenebilir")
+
+# Köklerin değerlerini de görebiliriz:
+roots = results.roots
+print(f"\nKarakteristik kökler (mutlak değerler):")
+for i, root in enumerate(roots):
+    print(f"  Kök {i+1}: {np.abs(root):.4f}")
+print("(Tüm değerler 1'den küçük olmalı)")
+
+
+# =======================================================
+# 6) ARTIK (RESİDUAL) ANALİZİ
+# =======================================================
+#
+# Model tahmini yaptıktan sonra artıkları incelemek önemlidir.
+# Artıklar, modelin açıklayamadığı kısımdır:
+#   e_t = y_t - ŷ_t (gerçek değer - tahmin edilen değer)
+#
+# İyi bir modelde artıklar:
+#   - Ortalaması sıfır olmalı
+#   - Otokorelasyon içermemeli (rastgele olmalı)
+#   - Varyansı sabit olmalı (homoskedastik)
+#
+# Durbin-Watson istatistiği birinci derece otokorelasyonu ölçer:
+#   DW ≈ 2    : Otokorelasyon yok (ideal)
+#   DW < 2    : Pozitif otokorelasyon var
+#   DW > 2    : Negatif otokorelasyon var
+#
+# DW değeri 1.5 ile 2.5 arasındaysa genellikle kabul edilebilir.
+
+print("\n" + "=" * 55)
+print("ARTIK ANALİZİ")
+print("=" * 55)
+
+residuals = results.resid
+dw_stats = durbin_watson(residuals)
+
+print("\nDurbin-Watson istatistikleri:")
+for i, col in enumerate(vars_selected):
+    dw = dw_stats[i]
+    # Basit bir yorum ekleyelim
+    if 1.5 <= dw <= 2.5:
+        yorum = "kabul edilebilir"
+    elif dw < 1.5:
+        yorum = "pozitif otokorelasyon olabilir"
+    else:
+        yorum = "negatif otokorelasyon olabilir"
+    print(f"  {col}: {dw:.3f} ({yorum})")
+
+print("\n  Not: 2'ye yakın değerler otokorelasyon olmadığını gösterir.")
+
+# Artıkların grafiği
+# Rastgele dağılmış, belirgin bir örüntü göstermeyen artıklar isteriz.
+fig, axes = plt.subplots(3, 1, figsize=(10, 6), sharex=True)
+for i, col in enumerate(vars_selected):
+    axes[i].plot(residuals.index, residuals[col], linewidth=0.8)
+    axes[i].axhline(y=0, color='r', linestyle='--', alpha=0.5)
+    axes[i].set_ylabel(col)
+    axes[i].grid(True, alpha=0.3)
+
+axes[0].set_title("Model Artıkları")
+plt.tight_layout()
+plt.show()
+
+# Grafikte artıklar sıfır çizgisi etrafında rastgele dağılmalı.
+# Belirgin trendler, periyodik örüntüler veya değişen varyans
+# (önce küçük sonra büyük dalgalanmalar gibi) model sorunlarına işaret eder.
+
+
+# =======================================================
+# 7) KISA DÖNEM TAHMİN (FORECAST)
+# =======================================================
+#
+# VAR modelinin pratik kullanımlarından biri öngörü yapmaktır.
+# Model geçmiş ilişkileri öğrenmiştir; bu ilişkilerin gelecekte
+# de geçerli olacağını varsayarak tahmin üretir.
+#
+# Tahmin yapmak için son 'p' gözleme ihtiyacımız var (p = gecikme sayısı).
+# Bu gözlemler modele başlangıç noktası olarak verilir.
+#
+# Dikkat: VAR tahminleri kısa vadede genellikle makul sonuçlar verir
+# ancak uzun vadede belirsizlik hızla artar. 1-4 dönemlik tahminler
+# güvenilirken, 12+ dönemlik tahminler çok geniş güven aralıklarına sahiptir.
+
+print("\n" + "=" * 55)
+print("TAHMİN (FORECAST)")
+print("=" * 55)
+
+forecast_horizon = 4  # 4 dönem (ay) ileriye tahmin
+
+# Son 'selected_lag' gözlemi başlangıç değeri olarak alıyoruz
+lagged_values = df_var.values[-selected_lag:]
+
+# Tahmin üret
+forecast_values = results.forecast(y=lagged_values, steps=forecast_horizon)
+
+# Tahmin için tarih indeksi oluşturma
+# pd.infer_freq() bazen None dönebilir, bu durumu ele alıyoruz
+freq = pd.infer_freq(df_var.index)
+if freq is None:
+    freq = 'MS'  # Month Start - ay başı
+    print(f"Frekans otomatik belirlenemedi, '{freq}' varsayıldı.")
+
+# Son gözlemden sonraki tarihleri oluştur
+idx_forecast = pd.date_range(
+    start=df_var.index[-1] + pd.DateOffset(months=1),
+    periods=forecast_horizon,
+    freq=freq
+)
+
+df_forecast = pd.DataFrame(forecast_values, index=idx_forecast, columns=vars_selected)
+
+print(f"\n{forecast_horizon} dönemlik tahminler:")
+print(df_forecast.round(2))
+
+# -------------------------------------------------------
+# Tahminlerin görselleştirilmesi
+# -------------------------------------------------------
+# Gerçek değerlerle tahminleri yan yana görmek, modelin
+# mantıklı sonuçlar üretip üretmediğini anlamaya yardımcı olur.
+
+fig, axes = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
+for i, col in enumerate(vars_selected):
+    # Son 24 aylık gerçek değerler
+    axes[i].plot(df_var.index[-24:], df_var[col].iloc[-24:], 
+                 label='Gerçek', linewidth=1.2)
+    # Tahminler
+    axes[i].plot(df_forecast.index, df_forecast[col], 
+                 'r--', label='Tahmin', linewidth=1.2, marker='o')
+    axes[i].set_ylabel(col)
+    axes[i].legend(loc='upper left')
+    axes[i].grid(True, alpha=0.3)
+
+axes[0].set_title("Gerçek Değerler ve Tahminler")
+plt.tight_layout()
+plt.show()
+
+# Grafik yorumu:
+# Tahminler mevcut trendin devamı gibi görünmeli.
+# Çok keskin dönüşler veya mantıksız değerler (negatif enflasyon gibi)
+# model sorunlarına işaret edebilir.
+
+
+# =======================================================
+# 8) IMPULSE RESPONSE FUNCTION (IRF) - ETKİ-TEPKİ ANALİZİ
+# =======================================================
+#
+# IRF, VAR analizinin en önemli araçlarından biridir. Şu soruyu yanıtlar:
+# "Bir değişkene verilen şokun diğer değişkenler üzerindeki etkisi
+# zamanla nasıl gelişir?"
+#
+# Örneğin faize bir birimlik şok verildiğinde:
+#   - Enflasyon nasıl tepki verir?
+#   - Döviz kuru nasıl tepki verir?
+#   - Bu etkiler kaç dönem sürer?
+#
+# IRF grafikleri şöyle okunur:
+#   - Yatay eksen: Dönem sayısı (şoktan sonra geçen süre)
+#   - Dikey eksen: Tepkinin büyüklüğü
+#   - Sıfır çizgisi: Tepki yok
+#   - Çizgi sıfırın üstündeyse: Pozitif tepki
+#   - Çizgi sıfırın altındaysa: Negatif tepki
+#
+# Güven bantları (confidence bands) da gösterilir. Bantlar geniş ise
+# o dönemdeki tepki istatistiksel olarak belirsizdir.
+
+print("\n" + "=" * 55)
+print("ETKİ-TEPKİ ANALİZİ (IRF)")
+print("=" * 55)
+
+# 12 dönemlik (1 yıl) tepkileri hesapla
+irf = results.irf(12)
+
+# Tüm değişken çiftleri için IRF grafikleri
+# Her satır bir şoku, her sütun o şoka verilen tepkiyi gösterir
+fig_irf = irf.plot(orth=False)
+plt.suptitle("Impulse Response Functions", y=1.02)
+plt.tight_layout()
+plt.show()
+
+# -------------------------------------------------------
+# Belirli bir şok-tepki çiftini inceleme
+# -------------------------------------------------------
+# Tüm grafiklere bakmak kafa karıştırıcı olabilir.
+# Spesifik bir ilişkiyi incelemek daha aydınlatıcı olur.
+#
+# Örnek: Faiz şoku enflasyonu nasıl etkiler?
+# Ekonomi teorisine göre faiz artışı enflasyonu düşürmeli
+# (sıkı para politikası). Bunu veride görüyor muyuz?
+
+fig_irf_pair = irf.plot(impulse="interest", response="inflation")
+plt.suptitle("Faiz Şokuna Enflasyonun Tepkisi")
+plt.tight_layout()
+plt.show()
+
+# Bir diğer ilginç ilişki: Döviz kuru şoku enflasyonu nasıl etkiler?
+# Döviz kuru artışı (TL değer kaybı) ithal malları pahalılaştırarak
+# enflasyonu artırmalı. Buna "exchange rate pass-through" denir.
+
+fig_irf_exc = irf.plot(impulse="exchange", response="inflation")
+plt.suptitle("Döviz Kuru Şokuna Enflasyonun Tepkisi")
+plt.tight_layout()
+plt.show()
+
+
+# =======================================================
+# 9) FORECAST ERROR VARIANCE DECOMPOSITION (FEVD)
+# =======================================================
+#
+# FEVD şu soruyu yanıtlar: "Bir değişkenin tahmin hatasının
+# ne kadarı kendi şoklarından, ne kadarı diğer değişkenlerin
+# şoklarından kaynaklanıyor?"
+#
+# Örneğin enflasyonun tahmin hatasının:
+#   - %60'ı kendi şoklarından
+#   - %25'i döviz kuru şoklarından
+#   - %15'i faiz şoklarından
+# kaynaklanıyor olabilir.
+#
+# Bu bilgi politika yapıcılar için değerlidir:
+# Enflasyonu kontrol etmek istiyorsanız ve enflasyon üzerinde
+# döviz kurunun etkisi büyükse, döviz kuru istikrarı öncelikli olmalı.
+#
+# FEVD tablolarında:
+#   - Satırlar: Dönemler (1, 2, 3, ... n)
+#   - Sütunlar: Her değişkenin katkı payı (toplam = 1 veya %100)
+#   - Dönem arttıkça paylar stabilize olur
+
+print("\n" + "=" * 55)
+print("VARYANS AYRIŞTIRMASI (FEVD)")
+print("=" * 55)
+
+fevd = results.fevd(12)  # 12 dönemlik ufuk
+print(fevd.summary())
+
+# Grafik gösterimi
+# Her değişken için ayrı bir grafik çizilir.
+# Renkli alanlar her şokun katkı payını gösterir.
+fig_fevd = fevd.plot()
+plt.suptitle("Forecast Error Variance Decomposition", y=1.02)
+plt.tight_layout()
+plt.show()
+
+# Grafik yorumu:
+# İlk dönemlerde değişken genellikle kendi şoklarından etkilenir.
+# Dönem sayısı arttıkça diğer değişkenlerin etkisi belirginleşir.
+# Uzun dönemde paylar sabitlenir - bu "long-run" etkiyi gösterir.
+
+
+# =======================================================
+# 10) GRANGER NEDENSELLİK TESTLERİ
+# =======================================================
+#
+# Granger nedenselliği, günlük dildeki nedensellikten farklıdır.
+# "X, Y'yi Granger-nedensel olarak açıklıyor" demek şu anlama gelir:
+# "X'in geçmiş değerleri, Y'nin tahminini iyileştiriyor."
+#
+# Bu mutlaka gerçek bir neden-sonuç ilişkisi olduğunu göstermez.
+# Her iki seri de üçüncü bir değişkenden etkileniyor olabilir.
+# Yine de Granger nedenselliği öngörü ilişkilerini anlamak için faydalıdır.
+#
+# Test şöyle çalışır:
+#   H0: X'in geçmiş değerleri, Y denklemine ek bilgi katmıyor
+#       (Granger nedenselliği yok)
+#   H1: X'in geçmiş değerleri, Y'nin tahminini iyileştiriyor
+#       (Granger nedenselliği var)
+#
+# p-değeri 0.05'ten küçükse H0 reddedilir ve Granger nedenselliği
+# olduğu kabul edilir.
+
+print("\n" + "=" * 55)
+print("GRANGER NEDENSELLİK TESTLERİ")
+print("=" * 55)
+
+# Test 1: Faiz → Enflasyon
+# Soru: Faizin geçmiş değerleri enflasyonu öngörmede yardımcı mı?
+gc_int_inf = results.test_causality(
+    caused="inflation",      # Etkilenen (bağımlı) değişken
+    causing=["interest"],    # Etkileyen (açıklayıcı) değişken
+    kind="f"                 # F-testi kullan
+)
+print("\n1) Faiz → Enflasyon:")
+print(gc_int_inf.summary())
+
+# Test 2: Döviz kuru → Enflasyon
+# Soru: Döviz kurunun geçmiş değerleri enflasyonu öngörmede yardımcı mı?
+gc_exc_inf = results.test_causality(
+    caused="inflation",
+    causing=["exchange"],
+    kind="f"
+)
+print("\n2) Döviz Kuru → Enflasyon:")
+print(gc_exc_inf.summary())
+
+# Test 3: Enflasyon → Faiz
+# Soru: Merkez bankası enflasyona tepki veriyor mu?
+# Enflasyon-hedeflemesi yapan bir merkez bankası için
+# bu ilişkiyi beklerdik.
+gc_inf_int = results.test_causality(
+    caused="interest",
+    causing=["inflation"],
+    kind="f"
+)
+print("\n3) Enflasyon → Faiz:")
+print(gc_inf_int.summary())
+
+# Test 4: Döviz kuru → Faiz
+# Soru: Merkez bankası döviz kuruna tepki veriyor mu?
+gc_exc_int = results.test_causality(
+    caused="interest",
+    causing=["exchange"],
+    kind="f"
+)
+print("\n4) Döviz Kuru → Faiz:")
+print(gc_exc_int.summary())
+
+# -------------------------------------------------------
+# Sonuçların yorumlanması
+# -------------------------------------------------------
+# p-değeri < 0.05 ise Granger nedenselliği var diyoruz.
+# Çift yönlü nedensellik de mümkündür:
+#   - Enflasyon faizi etkiler (merkez bankası tepki verir)
+#   - Faiz de enflasyonu etkiler (para politikası çalışır)
+# Bu tür karşılıklı etkileşimler VAR modelinin varlık sebebidir.
+
+
+# =======================================================
+# ÖZET VE SONUÇ
+# =======================================================
+print("\n" + "=" * 55)
+print("ANALİZ TAMAMLANDI")
+print("=" * 55)
+print("""
+Bu VAR analizinde şunları yaptık:
+
+1. Verileri hazırladık ve görselleştirdik
+2. Durağanlığı ADF testi ile kontrol ettik
+3. Bilgi kriterleriyle optimal gecikme sayısını belirledik
+4. Modeli tahmin ettik ve stabilitesini kontrol ettik
+5. Artıkları inceleyerek model uyumunu değerlendirdik
+6. Kısa dönem tahminler ürettik
+7. IRF ile şokların yayılımını analiz ettik
+8. FEVD ile varyans kaynaklarını ayrıştırdık
+9. Granger nedensellik testleri ile öngörü ilişkilerini inceledik
+
+Unutulmaması gerekenler:
+- VAR sonuçları sadece korelasyon/öngörü ilişkilerini gösterir,
+  gerçek nedensellik için ek analizler gerekir.
+- Durağan olmayan serilerle çalışmak sahte ilişkilere yol açabilir.
+- Yapısal kırılmalar (kriz dönemleri) model performansını etkiler.
+- Kısa dönem tahminler uzun döneme göre daha güvenilirdir.
+""")
+```
+
+### 16.5. Impulse Response’ı Kavramsal Olarak Görselleştirmek
+
+Impulse response, kabaca şunu sorar:
+
+> “Bugün faiz oranına küçük bir şok versem, önümüzdeki dönemlerde enflasyon ve diğer değişkenler nasıl tepki verir?”
+
+Bu, bir durgun suya atılan taşın yarattığı dalgalanmaları izlemeye benzer. Şok (taş), sistemdeki (su) diğer değişkenleri (dalgalar) nasıl etkiler ve bu etki zamanla nasıl sönümlenir?
+
+```mermaid
+graph LR
+    subgraph "Zaman Akışı"
+        direction LR
+        A["Faiz Şoku (t)"] ==> B["Enflasyon Tepkisi (t+1)"]
+        B --> C["Enflasyon Tepkisi (t+2)"]
+        C --> D["Enflasyon Tepkisi (t+3)"]
+        D --> E["... (Sönümlenme)"]
+    end
+```
+
+Bu şemada:
+
+*   Şok, `t` anında sisteme bir kerelik bir etki yapar.
+*   Bu etki, `t+1`, `t+2` gibi sonraki dönemlerde enflasyon üzerinde bir tepki zinciri başlatır.
+*   Stabil bir VAR modelinde, bu tepkinin zamanla azalarak sıfıra yaklaşması beklenir.
+
+Impulse response grafikleri, bu tepki zincirinin büyüklüğünü ve yönünü zaman içinde görselleştirir.
+
+---
+
+### 16.6. Gretl ile VAR Kurulumu ve Kısa Komut Örneği
+
+Gretl tarafında VAR kurmanın iki yolu var:
+
+1.  Menü üzerinden:
+
+        *   **Model → Time series → VAR**
+        *   Değişkenleri sırayla seçersiniz (örneğin `inflation`, `interest`, `exchange`)
+        *   Gecikme sayısını belirlersiniz (örneğin p = 2)
+        *   Deterministik terimleri (sabit, trend) seçersiniz.
+        *   “OK” dediğinizde Gretl VAR sonuç tablosunu gösterir.
+
+        Sonuç ekranından:
+
+        *   **View → Impulse responses** ile impulse response grafikleri,
+        *   **View → Forecast error variance decomposition** ile FEVD tabloları,
+        *   **Tests → Granger causality** ile nedensellik testleri yapılabilir.
+
+2.  Komut dili (script) ile:
+        Aşağıdaki örnek, kısa bir Gretl betiği gösteriyor:
+
+```gretl
+# ---------------------------------------------
+# Gretl ile basit bir VAR örneği (komut dili)
+# ---------------------------------------------
+
+# 1) Daha önce hazırlanmış bir veri dosyasını açalım (.gdt veya .csv içe aktarılmış olabilir)
+open "macro_data.gdt"
+
+# 2) Veri setinin zaman serisi yapısı tanımlı değilse tanımlayalım
+# Örnek: 2000:01'den başlayan aylık veri
+# setobs 12 2000:01 --time-series
+
+# 3) VAR modelini tahmin edelim
+# var p ; y1 y2 y3
+# Burada p: gecikme sayısı
+# Örnek: inflation, interest, exchange için p=2
+var 2 ; inflation interest exchange
+
+# 4) Impulse response hesaplayalım (12 dönemlik)
+irf 12
+
+# 5) Forecast Error Variance Decomposition (12 dönemlik)
+fevd 12
+
+# 6) Granger nedensellik testleri
+# Örnek: interest → inflation nedenselliği var mı?
+# varlist 'inflation' için 'interest' üzerine test
+granger inflation ; interest
+```
+
+Bu komutlar çalıştırıldığında Gretl:
+
+*   VAR sonuç tablosunu,
+*   IRF ve FEVD çıktılarını,
+*   Nedensellik test sonuçlarını
+
+ayrı pencerelerde sunar.
+
+---
+
+### 16.7. VAR’ın Kullanım Alanları Üzerine Kısa Not
+
+VAR, özellikle şu tip sorular için kullanışlıdır:
+
+*   Para politikası şoklarının (faiz değişimleri) enflasyon, çıktı, döviz kuru üzerindeki etkisi
+*   Enerji fiyatı şoklarının üretim, tüketim ve fiyatlar üzerindeki etkisi
+*   Finansal piyasalarda endeksler arası etkileşimler
+*   Çok boyutlu ekonomik göstergelerin birlikte öngörülmesi
+
+Gençler, önemli olan tek bir denklemle sınırlı kalmak yerine, değişkenlerin birbirini nasıl **gecikmeli olarak** etkilediğini birlikte görebilmektir. VAR, bu etkileşimi hem tahmin hem de yorumlama açısından anlaşılır bir iskelet üzerinde sunar.
