@@ -1960,7 +1960,9 @@ Hangi modeli seçeceğiz? Amacımız stok yönetimi gibi ortalama bir doğruluks
 
 ---
 
-Şimdiye kadar zaman serilerine iki temel felsefeyle yaklaştık: Geçmişi hatırlamak (LSTM), kurallar oluşturmak (XGBoost/Prophet). Ancak yapay zeka literatüründe, genellikle görüntü işleme ile özdeşleşmiş olsa da zaman serilerinde başarılı sonuçlar veren bir yöntem daha var: **1D-CNN (Bir Boyutlu Evrişimli Sinir Ağları)**.
+Şimdiye kadar zaman serilerine iki temel felsefeyle yaklaştık: Geçmişi hatırlamak (LSTM), kurallar oluşturmak (XGBoost/Prophet). Ancak yapay zeka literatüründe, genellikle görüntü işleme ile özdeşleşmiş olsa da zaman serilerinde başarılı sonuçlar veren bir yöntem daha var: 
+
+**1D-CNN (Bir Boyutlu Evrişimli Sinir Ağları)**.
 
 CNN algoritmalarını "bu resimde kedi var mı?" sorusunu cevaplarken duyarız. Orada algoritma resmin üzerinde küçük pencereler gezdirerek kenarları, köşeleri öğrenir. Zaman serisinde de mantık aynıdır. AirPassengers verisinin grafiğini düşünün. Veriyi bir bütün olarak ezberlemek yerine üzerinde kayan bir pencere gezdiriyoruz. Bu filtreler verinin içindeki yükseliş trendini, ani düşüşü veya tepe noktasını birer desen olarak tanımayı öğreniyor.
 
@@ -1982,15 +1984,18 @@ from tensorflow.keras.layers import Dense, Flatten, Conv1D, MaxPooling1D
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 
+# --- Veri Hazırlığı ---
+# Veriyi gecikmeli (lag) hale getirip CNN'in anlayacağı 3 boyutlu tensör formatına çevireceğiz.
+
 # Veriyi yükle
-df = pd.read_csv('AirPassengers.csv')
+df = pd.read_csv('data/AirPassengers.csv')
 data = df['#Passengers'].values.astype('float32').reshape(-1, 1)
 
-# Normalizasyon
+# Normalizasyon: Veriyi 0-1 arasına ölçeklendir
 scaler = MinMaxScaler(feature_range=(0, 1))
 data_scaled = scaler.fit_transform(data)
 
-# Pencereleme yöntemiyle hazırlama
+# Pencereleme yöntemiyle veri setini girdi (X) ve çıktı (Y) olarak hazırla
 def create_dataset(dataset, look_back=1):
     X, Y = [], []
     for i in range(len(dataset)-look_back-1):
@@ -1999,61 +2004,58 @@ def create_dataset(dataset, look_back=1):
         Y.append(dataset[i + look_back, 0])
     return np.array(X), np.array(Y)
 
+# 12 ay geriye bakarak bir sonraki ayı tahmin et
 look_back = 12
 X, y = create_dataset(data_scaled, look_back)
 
-# Reshape
+# Veriyi CNN katmanının beklediği [örnek, zaman adımı, özellik] formatına dönüştür
 X = X.reshape(X.shape[0], X.shape[1], 1)
 
-# Eğitim ve Test ayrımı
+# Veriyi Eğitim ve Test olarak ayır
 train_size = int(len(X) * 0.67)
 X_train, X_test = X[0:train_size], X[train_size:len(X)]
 y_train, y_test = y[0:train_size], y[train_size:len(y)]
-```
 
-**Modelin Kurulması**
-
-`Conv1D` katmanı işin temeldir. Filtreler verinin üzerinde gezinir. `MaxPooling` ise en belirgin özellikleri öne çıkarır.
-
-```python
+# --- Modelin Kurulması ---
+# Conv1D katmanı işin temelidir. Filtreler verinin üzerinde gezinerek desenleri öğrenir.
+# MaxPooling ise en belirgin özellikleri (en önemli desenleri) öne çıkarır.
 model = Sequential()
 
-# Conv1D Katmanı
+# Conv1D Katmanı: 64 filtre ile 2'şer adımlık pencereler halinde veriyi tarar
 model.add(Conv1D(filters=64, kernel_size=2, activation='relu', 
                  input_shape=(look_back, 1)))
 
-# Pooling Katmanı
+# Pooling Katmanı: Öğrenilen özellik haritasını küçülterek en önemli bilgiyi korur
 model.add(MaxPooling1D(pool_size=2))
 
-# Flatten
+# Flatten: 2 boyutlu havuzlanmış özellikleri tek boyutlu bir vektöre dönüştürür
 model.add(Flatten())
 
-# Dense Katmanı
+# Dense Katmanı: Klasik bir tam bağlantılı katman
 model.add(Dense(50, activation='relu'))
 
-# Çıktı Katmanı
+# Çıktı Katmanı: Tek bir sayısal değer tahmini için
 model.add(Dense(1))
 
+# Modeli derle: Optimizasyon algoritması ve kayıp fonksiyonunu belirle
 model.compile(optimizer='adam', loss='mse')
 
-# Modeli Eğit
+# Modeli Eğit: Modeli eğitim verisi üzerinde eğit
 model.fit(X_train, y_train, epochs=200, batch_size=1, verbose=0)
-```
 
-**Tahmin ve Hata Analizi**
+# --- Tahmin ve Hata Analizi ---
 
-```python
 # Tahmin yap
 train_predict = model.predict(X_train)
 test_predict = model.predict(X_test)
 
-# Normalizasyonu geri al
+# Normalizasyonu geri al: Tahminleri orijinal ölçeğe çevir
 train_predict = scaler.inverse_transform(train_predict)
 y_train_orig = scaler.inverse_transform([y_train])
 test_predict = scaler.inverse_transform(test_predict)
 y_test_orig = scaler.inverse_transform([y_test])
 
-# Hata hesapla
+# Hata hesapla: Test setindeki gerçek değerler ile tahminleri karşılaştır
 test_rmse = mean_squared_error(y_test_orig[0], test_predict[:,0], squared=False)
 print(f"1D-CNN Test RMSE: {test_rmse:.2f}")
 ```
@@ -2067,6 +2069,236 @@ print(f"1D-CNN Test RMSE: {test_rmse:.2f}")
 **Karma Kullanım:** Modern araştırmalarda CNN-LSTM hibrit modelleri görürsünüz. Önce CNN ile verideki önemli desenler çıkarılır, sonra bu özellikler LSTM'e verilerek zamansal ilişki kurulur.
 
 Bu örnekle birlikte çantanızda dört araç oldu: İstatistiksel (ARIMA), Sinir Ağı (LSTM), Ağaç Tabanlı (XGBoost) ve Desen Tabanlı (CNN). Veri bilimci olarak ustalığınız verinin yapısına bakıp hangisinin daha iyi çalışacağına karar verebilmektir.
+
+
+## 12. GRU: Zaman Bağımlılıklarını Daha Sade Bir Yapıyla Öğrenmek
+
+LSTM, zaman içinde gelen bilgilerden hangisini hatırlayıp hangisini unutacağını kapılar (gates) aracılığıyla ayarlar. Bu yapı güçlü ama biraz ağırdır; parametre sayısı fazladır.
+
+GRU (Gated Recurrent Unit), benzer bir fikri daha sade bir yapı ile uygular:
+
+- “Güncelleme kapısı” (update gate):  
+  Ne kadar yeni bilgi alacağını, ne kadar eski bilgiyi koruyacağını ayarlar.
+- “Sıfırlama kapısı” (reset gate):  
+  Geçmiş bilgiyi ne ölçüde devre dışı bırakacağını belirler.
+
+Böylece GRU, LSTM’e göre:
+
+- Daha az parametre kullanır,  
+- Daha hızlı eğitilebilir,  
+- Küçük veri kümelerinde ezberlemeye biraz daha az eğilim gösterebilir.
+
+Zaman serisi söz konusu olduğunda, GRU da tıpkı LSTM gibi:  
+Belirli sayıda önceki adımı (örneğin son 12 ayı) giriş olarak alır, bir sonraki adımı tahmin etmeye çalışır.
+
+Aşağıdaki kod parçasında, AirPassengers benzeri bir zaman serisi için:
+
+1. Veriyi yüklüyoruz.  
+2. 0–1 aralığına ölçekliyoruz.  
+3. Son 12 gözleme bakarak bir sonraki ayı tahmin edecek GRU modelini kurup eğitiyoruz.  
+4. Test verisi üzerinde RMSE hesabını yapıyoruz.  
+
+Kodun içinde adım adım yorumlar var, baştan sona okunabilir.
+
+---
+
+## 13. TimeSeriesSplit: Zaman Serisinde Çapraz Doğrulama
+
+Rastgele karıştırarak K-fold çapraz doğrulama yapmak, zaman serilerinde sorun yaratır.  
+Zaman bilgisinin korunması gerekir; 2010 verisiyle 2008’i tahmin etmek istemeyiz.
+
+`TimeSeriesSplit`, veri sırasına saygı gösteren bir çapraz doğrulama yöntemidir:
+
+- İlk bölümü eğitim, hemen sonrasını doğrulama olarak alır.  
+- Sonra penceresini biraz daha ileri kaydırır ve aynı işlemi tekrarlar.  
+- Her adımda eğitim kümesi büyür, doğrulama kümesi zaman içinde ileri kayar.
+
+Böylece modelin:
+
+- Farklı dönemlerde nasıl davrandığını görebiliriz,  
+- Zaman bilgisi bozulmadan, birden fazla “deneme” üzerinden ortalama bir performans hesaplayabiliriz.
+
+Aşağıdaki kodda:
+
+- Önce tek değişkenli bir zaman serisinden (AirPassengers gibi) gecikmeli özellikler (`lag_1`, `lag_2`) ve ay bilgisi (`month_index`) üretiliyor.
+- Bu tabloyu girdi (X) ve hedef (y) olarak ayırıyoruz.
+- `TimeSeriesSplit` ile 5 parçalı bir zaman tabanlı çapraz doğrulama yapıyoruz.
+- Her fold’da basit bir XGBoost regressoru eğitip RMSE hesaplıyoruz.
+
+---
+
+Aşağıda GRU ve TimeSeriesSplit örneklerini tek bir kod parçasında bulabilirsiniz:
+
+```python
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+from sklearn.model_selection import TimeSeriesSplit
+
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import GRU, Dense
+
+import xgboost as xgb
+
+# -------------------------------------------------------------------
+# 1) Zaman serisini yükleme ve temel hazırlık (AirPassengers benzeri)
+# -------------------------------------------------------------------
+
+# Burada varsayım: 'data/AirPassengers.csv' dosyasında iki sütun var:
+# 'Month' ve '#Passengers'. Eğer sütun adları farklıysa uygun şekilde düzenlenmeli.
+df = pd.read_csv('data/AirPassengers.csv')
+
+# Tarih sütununu datetime tipine çevirip indeks yapalım
+df['Month'] = pd.to_datetime(df['Month'])
+df.set_index('Month', inplace=True)
+
+# Hedef değişkeni alalım (yolcu sayısı)
+values = df['#Passengers'].values.astype('float32').reshape(-1, 1)
+
+# -------------------------------------------------------
+# 2) GRU için veri ölçekleme ve giriş/çıkış çiftlerini oluşturma
+# -------------------------------------------------------
+
+# Veriyi 0–1 aralığına ölçekleyelim
+scaler = MinMaxScaler(feature_range=(0, 1))
+values_scaled = scaler.fit_transform(values)
+
+# Belirli sayıda geçmiş adıma bakarak (look_back),
+# bir sonraki adımı tahmin edecek veri setini oluşturalım.
+def create_dataset(sequence, look_back=1):
+    X, Y = [], []
+    # Son look_back+1 eleman dışarıda kalacak şekilde dönüyoruz
+    for i in range(len(sequence) - look_back - 1):
+        # i ile i+look_back arasındaki değerler giriş (X)
+        X.append(sequence[i:(i + look_back), 0])
+        # i+look_back'inci değer çıkış (Y)
+        Y.append(sequence[i + look_back, 0])
+    return np.array(X), np.array(Y)
+
+look_back = 12  # Son 12 ay → bir sonraki ayı tahmin etmek için
+
+X_all, y_all = create_dataset(values_scaled, look_back)
+
+# GRU katmanı, girişleri [örnek sayısı, zaman adımı sayısı, özellik sayısı] formatında bekler.
+# Özellik sayımız 1 (sadece yolcu sayısı).
+X_all = X_all.reshape(X_all.shape[0], X_all.shape[1], 1)
+
+# Eğitim ve test ayrımı: son 60 değeri test olarak ayıralım
+train_size = X_all.shape[0] - 60
+X_train, X_test = X_all[:train_size], X_all[train_size:]
+y_train, y_test = y_all[:train_size], y_all[train_size:]
+
+# -------------------------------------
+# 3) GRU modelinin kurulması ve eğitilmesi
+# -------------------------------------
+
+# Basit bir GRU modeli:
+# - 50 birimli bir GRU katmanı
+# - Tek çıktılı (1 nöronlu) Dense katmanı
+model_gru = Sequential()
+model_gru.add(GRU(50, input_shape=(look_back, 1)))
+model_gru.add(Dense(1))
+
+# Kayıp fonksiyonu olarak ortalama kare hata, optimizer olarak Adam kullanıyoruz
+model_gru.compile(loss='mean_squared_error', optimizer='adam')
+
+# Modeli eğitelim
+# epochs: tüm eğitim verisinin model üzerinden kaç kez geçtiğini gösterir
+# batch_size: her adımda kaç örneğin birlikte işlendiğini gösterir
+model_gru.fit(X_train, y_train, epochs=100, batch_size=1, verbose=0)
+
+# -------------------------------------
+# 4) GRU ile tahmin ve performans değerlendirmesi
+# -------------------------------------
+
+# Eğitim ve test setleri üzerinde tahmin yapıyoruz
+train_pred_gru = model_gru.predict(X_train)
+test_pred_gru  = model_gru.predict(X_test)
+
+# Tahminleri orijinal ölçeğe döndürelim
+train_pred_gru_inv = scaler.inverse_transform(train_pred_gru)
+test_pred_gru_inv  = scaler.inverse_transform(test_pred_gru)
+
+y_train_inv = scaler.inverse_transform(y_train.reshape(-1, 1))
+y_test_inv  = scaler.inverse_transform(y_test.reshape(-1, 1))
+
+# Test seti için RMSE hesaplayalım
+rmse_gru = mean_squared_error(y_test_inv[:, 0], test_pred_gru_inv[:, 0], squared=False)
+print(f"GRU Test RMSE: {rmse_gru:.2f}")
+
+# İstersek basit bir grafik de çizebiliriz
+plt.figure(figsize=(10, 4))
+plt.plot(df.index[-len(y_test_inv):], y_test_inv, label='Gerçek Değerler')
+plt.plot(df.index[-len(y_test_inv):], test_pred_gru_inv, label='GRU Tahminleri')
+plt.xlabel('Tarih')
+plt.ylabel('Yolcu Sayısı')
+plt.legend()
+plt.title('GRU Test Tahminleri')
+plt.show()
+
+# ----------------------------------------------------------------------
+# 5) TimeSeriesSplit için özellik çıkarımı (lag_1, lag_2, ay bilgisi)
+# ----------------------------------------------------------------------
+
+# TimeSeriesSplit'i göstermek için, aynı veri üzerinden gecikme (lag) özellikleri oluşturalım.
+df_features = df.copy()
+df_features.rename(columns={'#Passengers': 'Passengers'}, inplace=True)
+
+# Bir önceki ay (lag_1) ve iki önceki ay (lag_2) özellikleri:
+df_features['lag_1'] = df_features['Passengers'].shift(1)
+df_features['lag_2'] = df_features['Passengers'].shift(2)
+
+# Ay bilgisini da 1–12 arasında bir sayı olarak ekleyelim
+df_features['month_index'] = df_features.index.month
+
+# Gecikme sütunları nedeniyle baştaki satırlarda NaN oluşur, bunları atıyoruz
+df_features = df_features.dropna()
+
+# Girdi değişkenleri (X) ve hedef değişken (y) tanımı
+X = df_features[['lag_1', 'lag_2', 'month_index']]
+y = df_features['Passengers']
+
+# ---------------------------------------------------
+# 6) TimeSeriesSplit ile zaman tabanlı çapraz doğrulama
+# ---------------------------------------------------
+
+# 5 parçalı bir zaman serisi çapraz doğrulama yapalım
+tscv = TimeSeriesSplit(n_splits=5)
+
+rmse_list = []
+
+fold = 1
+for train_index, val_index in tscv.split(X):
+    # Her fold için eğitim ve doğrulama kümeleri
+    X_tr, X_val = X.iloc[train_index], X.iloc[val_index]
+    y_tr, y_val = y.iloc[train_index], y.iloc[val_index]
+    
+    # Basit bir XGBoost regresyon modeli
+    model_xgb = xgb.XGBRegressor(
+        n_estimators=300,
+        learning_rate=0.05,
+        random_state=42
+    )
+    
+    # Modeli bu fold'un eğitim verisiyle eğitiyoruz
+    model_xgb.fit(X_tr, y_tr)
+    
+    # Doğrulama kümesi üzerinde tahmin yapıyoruz
+    y_val_pred = model_xgb.predict(X_val)
+    
+    # Bu fold için RMSE hesaplıyoruz
+    rmse_fold = mean_squared_error(y_val, y_val_pred, squared=False)
+    rmse_list.append(rmse_fold)
+    
+    print(f"Fold {fold} RMSE: {rmse_fold:.2f}")
+    fold += 1
+
+# Tüm fold'ların ortalama RMSE değeri
+print(f"Ortalama TimeSeriesSplit RMSE: {np.mean(rmse_list):.2f}")
+```
 
 ## Gretl ile Zaman Serisi Analizi
 
