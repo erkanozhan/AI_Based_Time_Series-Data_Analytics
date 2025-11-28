@@ -2388,10 +2388,6 @@ tf.random.set_seed(SEED)
 
 df = pd.read_csv('data/AirPassengers.csv')
 
-# Sütun adını kontrol edip düzeltelim
-if '#Passengers' in df.columns:
-    df.rename(columns={'#Passengers': 'Passengers'}, inplace=True)
-
 # Tarih indeksini ayarlayalım
 df['Month'] = pd.to_datetime(df['Month'])
 df.set_index('Month', inplace=True)
@@ -2467,9 +2463,8 @@ def create_dataset(dataset, look_back=1):
     Döndürür:
         X: Giriş matrisi, boyut (n_samples, look_back)
         y: Hedef vektörü, boyut (n_samples,)
-    
-    Not: Orijinal kodda 'range(len(dataset)-look_back-1)' kullanılmıştı.
-    Bu -1 gereksiz bir gözlem kaybına yol açıyordu. Düzeltildi.
+   
+ 
     """
     X, y = [], []
     for i in range(len(dataset) - look_back):
