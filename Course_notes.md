@@ -2327,7 +2327,7 @@ Metrikleri karşılaştırırken şu sorulara yanıt arayın:
 - İkisi de yüksek → Yetersiz öğrenme (underfitting)
 - İkisi yakın → İyi genelleme
 
-Hangi modeli seçeceğiniz probleme bağlıdır. Stok yönetimi gibi ortalama doğruluk yeterliyse MAE'si düşük olanı; kritik hata kabul edilemezse RMSE'si düşük olanı tercih edin.
+    Hangi modeli seçeceğiniz probleme bağlıdır. Stok yönetimi gibi ortalama doğruluk yeterliyse MAE'si düşük olanı; kritik hata kabul edilemezse RMSE'si düşük olanı tercih edin.
 ---
 
 ## 12. 1D-CNN: Desen Tabanlı Yaklaşım
