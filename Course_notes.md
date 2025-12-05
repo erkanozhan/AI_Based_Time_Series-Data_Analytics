@@ -2154,101 +2154,96 @@ Weka'da "Explorer" arayüzünü açın. `Preprocess` sekmesinde `Open file...` d
 
 Alternatif olarak, "Raw" düğmesine tıklayarak açılan sayfanın URL'sini kopyalayıp `Open URL...` ile doğrudan yükleyebilirsiniz. Bu URL `raw.githubusercontent.com` ile başlamalıdır.
 
+
+***
+
 #### 10.2.3. Özellik Mühendisliği (Dönüşüm)
 
-Python'da `shift()` ile yaptığımız gecikme özelliklerini Weka'da filtrelerle oluşturacağız. `Preprocess` sekmesinde `Filter → Choose` düğmesine tıklayın.
+Gençler, zaman serisi analizinde ham veriyi doğrudan modele veremeyiz; verinin geçmişteki davranışlarını modele öğretmenimiz gerekir. Python'da `shift()` fonksiyonu ile yaptığımız bu işlemi, Weka ortamında filtreler aracılığıyla gerçekleştireceğiz. Ancak Weka'nın çalışma mantığı gereği, tahmin edeceğimiz hedef değişkeni doğrudan girdi olarak kullanamayız. Bu nedenle, filtreleme işlemine geçmeden önce verimizi hazırlamamız gereken üç temel adım bulunuyor.
 
-**Not:** `timeseriesForecasting` paketi kurulduktan sonra `TSLagMaker` filtresi `weka.filters.unsupervised.attribute` altında görünür. Eğer bulamazsanız, Weka'yı yeniden başlattığınızdan emin olun.
+Öncelikle `Preprocess` sekmesinde `Filter` bölümünden `Choose` diyerek sırasıyla şu işlemleri uygulayacağız:
 
-Filtreyi seçtikten sonra üzerine tıklayarak ayar penceresini açın:
+1.  **Sütunu Kopyalama:** Hedef değişkenimiz olan `Passengers` sütununu girdi olarak kullanabilmek için bir kopyasını oluşturmalıyız. `weka.filters.unsupervised.attribute.Copy` filtresini seçip, `passengers` sütununun indeksini girerek uygulayın.
+2.  **Yeniden İsimlendirme:** Oluşan kopyanın ismindeki boşluklar ileride sorun yaratabilir. `weka.filters.unsupervised.attribute.RenameAttribute` filtresi ile bu kopya sütunun ismini `YolcuGiris` gibi bitişik bir isme dönüştürün.
+3.  **Sıralama (Reorder):** Weka, sınıflandırma ve regresyon algoritmalarında varsayılan olarak en son sütunu hedef (class) olarak kabul eder. `weka.filters.unsupervised.attribute.Reorder` filtresini kullanarak sütun sıralamasını `1,3,2` şeklinde (Tarih, Girdi, Hedef) düzenleyin. Böylece asıl `Passengers` sütunu en sona gelecektir.
+
+Bu hazırlık aşaması tamamlandığında, asıl dönüşüm işlemine geçebiliriz. `weka.filters.supervised.attribute.TSLagMaker` filtresini seçin ve ayarlarını şu şekilde yapılandırın:
 
 | Parametre | Değer | Açıklama |
 |-----------|-------|----------|
-| `lagMaker_lagFinish` | 12 | Kaç gecikme oluşturulacağı |
-| `lagMaker_adjustForVariance` | False | Varyans ayarlaması |
-| `addMonthOfYear` | True | Ay bilgisi özelliği ekler |
-| `addQuarterOfYear` | True | Çeyrek bilgisi ekler |
+| `Fields to lag` | YolcuGiris | Gecikmesi alınacak kopya sütunun ismi |
+| `Periodicity` | MONTHLY | Verinin aylık olduğunu belirtir |
+| `Maximum lag length` | 12 | Mevsimselliği yakalamak için bir yıl geriye bakılır |
+| `adjustForTrends` | True | Verideki genel artış eğilimini hesaba katar |
+| `addMonthOfYear` | True | Hangi ayda olduğumuzu belirten özellik ekler |
 
-Ayarları yaptıktan sonra `Apply` düğmesine basın. Weka veri setinizi dönüştürecek ve yeni sütunlar ekleyecektir.
+Ayarları yaptıktan sonra `Apply` düğmesine bastığınızda, veri setinizin genişlediğini ve geçmişe yönelik yeni özelliklerin eklendiğini göreceksiniz.
 
 #### 10.2.4. Model Kurma ve Değerlendirme
 
-`Classify` sekmesine geçin. Sol üstteki açılır menüden hedef değişken olarak `Passengers` sütununu seçin.
+Verimiz hazırlandıktan sonra `Classify` sekmesine geçebiliriz. Sol üstteki açılır menüden hedef değişken olarak en sondaki `Passengers` sütununun seçili olduğundan emin olun.
 
-`Choose` düğmesine tıklayarak algoritma seçin:
+`Choose` düğmesine tıklayarak problemin yapısına uygun bir algoritma seçmemiz gerekir. Zaman serilerinde sıklıkla kullandığımız bazı algoritmalar şunlardır:
 
-- `trees → RandomForest`: Kolektif karar ağaçları, genellikle iyi sonuç verir
-- `trees → REPTree`: Tek bir karar ağacı, yorumlaması kolay
-- `functions → SMOreg`: Destek vektör regresyonu
+*   **`trees → RandomForest`:** Birden fazla karar ağacının ortak kararıyla sonuç üretir, genellikle kararlı sonuçlar verir.
+*   **`trees → REPTree`:** Hızlı çalışan ve budama yaparak aşırı öğrenmeyi (overfitting) engelleyen bir karar ağacıdır.
+*   **`functions → SMOreg`:** Destek vektör makinelerinin regresyon versiyonudur, doğrusal olmayan karmaşık ilişkileri modelleyebilir.
 
-`Test options` bölümünde:
-
-- `Percentage split` seçeneğini işaretleyin
-- Değeri %80 olarak ayarlayın (ilk %80 eğitim, son %20 test)
-
-`Start` düğmesine basın. Sonuçlar sağ panelde görünecektir.
+Modelin başarısını test etmek için `Test options` bölümünde `Percentage split` seçeneğini işaretleyin ve oranı %80 olarak ayarlayın. Bu, verinin ilk %80'i ile modelin eğitileceğini, kalan %20'lik kısımla ise modelin sınanacağını ifade eder. `Start` düğmesine bastığınızda işlem başlayacaktır.
 
 #### 10.2.5. Sonuçların Yorumlanması
 
-Weka çıktısında dikkat edilecek metrikler:
+Analiz tamamlandığında sağ panelde bir sonuç özeti göreceksiniz. Burada odaklanmanız gereken temel noktalar şunlardır:
 
 | Metrik | Anlamı |
 |--------|--------|
-| Correlation coefficient | 1'e yakın = iyi uyum |
-| Mean absolute error | Ortalama mutlak hata (MAE) |
-| Root mean squared error | Kök ortalama kare hata (RMSE) |
-| Relative absolute error | %100'den düşük = ortalamadan iyi |
+| **Correlation coefficient** | Tahmin ile gerçek değer arasındaki ilişkinin gücünü gösterir. 1'e ne kadar yakınsa uyum o kadar yüksektir. |
+| **Mean absolute error (MAE)** | Yapılan hataların ortalama büyüklüğüdür. |
+| **Root mean squared error (RMSE)** | Hataların karesi alındığı için büyük sapmaların daha belirgin olduğu hata değeridir. |
 
-MAE ve RMSE değerlerini Python sonuçlarıyla karşılaştırabilirsiniz. Weka'nın avantajı farklı algoritmaları hızlıca deneyebilmenizdir.
+Bu değerleri, daha önce Python ile elde ettiğiniz sonuçlarla kıyaslayarak hangi platformun veya algoritmanın veriniz için daha uygun olduğuna karar verebilirsiniz.
 
 ---
 
 ## 11. Hata Metrikleri ve Model Değerlendirme
 
-Modelleri kurduk, tahminleri ürettik. Ancak bir modelin iyi çalışıp çalışmadığına sadece grafiklere bakarak karar veremeyiz. Göz yanıltıcı olabilir. Bilimsel bir kıyaslama için somut, sayısal kanıtlar gerekir. Burada hata metrikleri devreye girer.
+Gençler, modelleri kurup tahminler ürettikten sonra yapmamız gereken en önemli iş, bu modelin ne kadar güvenilir olduğunu ölçmektir. Bir grafiğe bakıp "çizgiler birbirine yakın görünüyor" demek bilimsel bir yaklaşım değildir. Başarımızı sayısal olarak ifade etmemiz, somut kanıtlara dayandırmamız gerekir. İşte burada hata metrikleri devreye girer.
 
-### 11.1. MAE (Mean Absolute Error)
+### 11.1. MAE (Mean Absolute Error - Ortalama Mutlak Hata)
 
-Tahmin ile gerçek değer arasındaki farkın mutlak değerinin ortalamasını alır:
+Bir tahmin yaptığımızda, bazen gerçek değerin üzerinde, bazen altında kalabiliriz. Yönüne bakmaksızın, "ortalama ne kadar yanılıyoruz?" sorusunun cevabı MAE değeridir.
 
 $$MAE = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|$$
 
-**Yorumu:** MAE değeriniz 20 ise, modeliniz ortalama ±20 birim sapıyor demektir.
+Formülde gördüğünüz mutlak değer ifadesi, negatif ve pozitif hataların birbirini götürmesini engeller. Örneğin, MAE değeriniz 20 ise, modeliniz ortalama 20 yolcu eksik veya fazla tahmin yapıyor demektir. Anlaşılması en kolay metrik budur.
 
-**Avantajı:** Anlaşılması ve açıklanması kolaydır.
+### 11.2. RMSE (Root Mean Squared Error - Kök Ortalama Kare Hata)
 
-**Dezavantajı:** Büyük hataları küçük hatalardan ayırt etmez. 1 birimlik 10 hata ile 10 birimlik 1 hata aynı MAE değerini verir.
-
-### 11.2. RMSE (Root Mean Squared Error)
-
-Hataların karesini alır, ortalamasını bulur, sonra karekök alır:
+Bazı durumlarda küçük hatalar önemsiz olabilirken, büyük bir hata felakete yol açabilir. RMSE, hataların karesini alarak hesaplama yaptığı için büyük hataları cezalandırır ve daha belirgin hale getirir.
 
 $$RMSE = \sqrt{\frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2}$$
 
-**Yorumu:** RMSE her zaman MAE'den büyük veya ona eşittir. Aradaki fark büyükse, model bazı noktalarda çok büyük hatalar yapıyor demektir.
+Eğer RMSE değeri MAE değerinden çok yüksek çıkıyorsa, modeliniz genel olarak iyi gitse de bazı noktalarda çok büyük saçmalamalar yapıyor demektir. Hassasiyet gerektiren çalışmalarda bu metriği dikkate almalısınız.
 
-**Avantajı:** Büyük hataları cezalandırır. Kritik sistemlerde (stok yönetimi, enerji tahmini) tercih edilir.
+### 11.3. MAPE (Mean Absolute Percentage Error - Ortalama Mutlak Yüzde Hata)
 
-### 11.3. MAPE (Mean Absolute Percentage Error)
-
-Hataları yüzde cinsinden ifade eder:
+Hata miktarını verinin kendi büyüklüğüne oranlayarak ifade ederiz. 1000 yolcuda 10 hata yapmakla, 20 yolcuda 10 hata yapmak aynı şey değildir. MAPE bize bu bağlamı sunar.
 
 $$MAPE = \frac{100}{n} \sum_{i=1}^{n} \left| \frac{y_i - \hat{y}_i}{y_i} \right|$$
 
-**Yorumu:** MAPE %5 ise, model ortalama %5 oranında yanılıyor demektir.
-
-**Avantajı:** Ölçekten bağımsızdır. Farklı büyüklükteki veri setlerini karşılaştırabilirsiniz.
-
-**Dezavantajı:** Gerçek değer sıfıra yakınsa sonuç patlar (sıfıra bölme sorunu).
+Sonuç yüzde cinsinden çıkar. Örneğin MAPE %5 ise, modeliniz ortalama %5'lik bir sapma ile çalışıyor demektir. Farklı ölçekteki veri setlerini karşılaştırırken bu metrik oldukça kullanışlıdır.
 
 ### 11.4. Metriklerin Karşılaştırması
 
+Hangi metriği ne zaman kullanacağınızı bilmek, en az hesaplamak kadar önemlidir:
+
 | Durum | Tercih Edilecek Metrik |
 |-------|------------------------|
-| Sonuçları müşteriye açıklamak | MAE (anlaşılır) |
-| Büyük hataların maliyeti yüksek | RMSE (cezalandırıcı) |
-| Farklı ölçekleri karşılaştırmak | MAPE (yüzde) |
-| Genel değerlendirme | Üçünü birlikte kullanın |
+| Sonuçları teknik olmayan birine (örn. yöneticiye) sunarken | **MAE** (Yorumlaması basittir) |
+| Büyük hataların maliyeti yüksekse (örn. uçuş güvenliği, borsa) | **RMSE** (Büyük hataları affetmez) |
+| Farklı büyüklükteki veri setlerini kıyaslarken | **MAPE** (Oransal sonuç verir) |
+
+Genel bir değerlendirme için tek bir metriğe bağlı kalmamalı, üçünü bir arada değerlendirerek modelin karakteristiğini anlamaya çalışmalısınız.
 
 ### 11.5. Uygulama ve Kodlama
 
