@@ -271,7 +271,7 @@ grid()
 
 ### 5.3. `ts` Nesnesinin Ötesi: `xts` ile Gerçek Dünya Verileri
 
-Gençler, şimdiye kadar gördüğümüz `ts` nesnesi, ders kitaplarındaki gibi düzenli aralıklı veriler (aylık, yıllık) için harikadır. Ancak gerçek dünya verileri nadiren bu kadar düzenlidir. Hafta sonları işlem görmeyen borsa verilerini veya bazen kesintiye uğrayan saniyelik sensör kayıtlarını düşünün. `ts` nesnesinin sabit frekans yapısı bu gibi durumlarda yetersiz kalır.
+Gençler, şimdiye kadar gördüğümüz `ts` nesnesi, ders kitaplarındaki gibi düzenli aralıklı veriler (aylık, yıllık) için uygundur. Ancak gerçek dünya verileri nadiren bu kadar düzenlidir. Hafta sonları işlem görmeyen borsa verilerini veya bazen kesintiye uğrayan saniyelik sensör kayıtlarını düşünün. `ts` nesnesinin sabit frekans yapısı bu gibi durumlarda yetersiz kalır.
 
 İşte bu noktada, R'ın zaman serisi analizindeki en güçlü paketlerinden biri olan `xts` (eXtensible Time Series) devreye giriyor. `xts`, `zoo` paketi üzerine inşa edilmiştir ve her bir gözlemi kendi hassas zaman damgasıyla eşleştirir. Bu sayede düzensiz ve yüksek frekanslı verilerle çalışmak son derece kolaylaşır.
 
@@ -1060,7 +1060,7 @@ Bu süreci, verinin yapısını anlamak ve geleceği öngörmek için izlenen bi
 
 #### 7.1.1. R Uygulaması
 
-Şimdi bu adımları daha derinlemesine inceleyelim ve R üzerinde `AirPassengers` veri setiyle uygulayalım. Bu veri seti, belirgin bir trend ve mevsimsellik içerdiği için harika bir örnektir.
+Şimdi bu adımları daha derinlemesine inceleyelim ve R üzerinde `AirPassengers` veri setiyle uygulayalım. Bu veri seti, belirgin bir trend ve mevsimsellik içerdiği için  bir örnektir.
 
 **1. Veriyi Görselleştirme ve Durağanlık Kontrolü**
 
@@ -2245,6 +2245,210 @@ Hangi metriği ne zaman kullanacağınızı bilmek, en az hesaplamak kadar önem
 
 Genel bir değerlendirme için tek bir metriğe bağlı kalmamalı, üçünü bir arada değerlendirerek modelin karakteristiğini anlamaya çalışmalısınız.
 
+
+Modeli kurup hatasını ölçmek akademik bir tatmin sağlasa da, iş dünyasında veya gerçek hayatta bizden beklenen şey somut sayılardır: "Gelecek ay kaç yolcu bekliyoruz?"
+
+Ders notuna bu bölümü ekleyerek, Weka'nın ürettiği sayısal tahminleri nasıl göreceğimizi ve gerçek anlamda ileriye dönük (veri setinde olmayan) tahminin mantığını anlatalım.
+
+***
+
+#### 10.2.6. Tahmin Değerlerinin Raporlanması ve Gelecek Tahmini
+
+Gençler, şu ana kadar modelimizin ne kadar "hatalı" olduğunu ölçtük (RMSE, MAE). Ancak bir yönetici veya karar verici karşısına çıktığınızda size "Hata oranımız %5" dediğinizde, hemen ardından şu soruyu soracaklardır: "Peki, sayı kaç? Önümüzdeki ay tam olarak kaç yolcu bekliyoruz?"
+
+Weka'nın standart çıktı ekranı sadece özet istatistikleri verir. Modelin ürettiği tek tek tahmin değerlerini görmek için küçük bir ayar yapmamız gerekir.
+
+**1. Test Verisi Üzerindeki Tahminleri Görmek**
+
+Ayırdığımız o %20'lik test kısmındaki (yani modelin hiç görmediği "gelecek" olarak kabul ettiği) ayların tahminlerini listelemek için şu adımları izleyin:
+
+1.  `Classify` sekmesinde, sol altta bulunan **`More options...`** düğmesine tıklayın.
+2.  Açılan pencerede **`Output predictions`** kutucuğunu işaretleyin.
+3.  Hemen yanındaki kutucuğa tıklayarak **`PlainText`** seçeneğinin seçili olduğundan emin olun (CSV veya HTML de seçebilirsiniz ama okuması en kolayı PlainText'tir).
+4.  `OK` diyerek pencereyi kapatın ve tekrar **`Start`** düğmesine basın.
+
+Sonuç ekranında artık *Summary* bölümünün hemen üzerinde şöyle bir liste göreceksiniz:
+
+```text
+ inst#     actual  predicted error prediction
+   115        404      412.3  -8.3
+   116        359      365.1  -6.1
+   ...
+```
+
+Burada:
+*   **actual:** Gerçekleşen değer (Veri setindeki gerçek sayı).
+*   **predicted:** Modelimizin tahmini.
+*   **error:** İkisi arasındaki fark.
+
+Bu liste, modelinizin hangi aylarda başarılı, hangi aylarda (örneğin yaz sezonu zirvelerinde) başarısız olduğunu satır satır incelemenizi sağlar.
+
+**2. Veri Setinde Olmayan Tarihleri Tahmin Etmek (Gerçek Gelecek)**
+
+Burada önemli bir ayrıma dikkat etmelisiniz. Yukarıdaki işlem, elimizde zaten var olan ama modele gizlediğimiz veriler içindi. Peki, veri setimiz 1960 Aralık ayında bitiyorsa ve biz **1961 Ocak** ayını tahmin etmek istiyorsak ne yapacağız?
+
+Şu an kullandığımız yöntem (`TSLagMaker` ile manuel özellik üretimi) buna doğrudan izin vermez. Çünkü 1961 Ocak ayını tahmin etmek için modele "bir önceki ayın (1960 Aralık) yolcu sayısı"nı girdi olarak vermemiz gerekir. 1961 Şubat'ı tahmin etmek için ise, henüz gerçekleşmemiş olan 1961 Ocak tahminini girdi olarak kullanmamız gerekir. Buna **Özyinelemeli Tahmin (Recursive Forecasting)** denir.
+
+Eğer veri setinin bittiği tarihten daha ileri bir tarihi tahmin etmek istiyorsanız iki yolunuz var:
+
+1.  **Manuel Yöntem (Zor):** Excel'de veri setinizin altına tarihleri ekleyip yolcu sayılarını boş (`?`) bırakırsınız. Weka'da tahmin alıp, çıkan sonucu bir sonraki satıra el ile kopyalayarak ilerlersiniz. Bu hataya açıktır.
+2.  **Forecasting Eklentisi (Profesyonel Yöntem):** Weka'nın ana ekranında gördüğünüz `Forecast` sekmesi (Time Series Forecasting Paketi) bu işi otomatik yapar. Bu paket, kurduğunuz modeli kullanarak tahmin üretir, o tahmini alır bir sonraki adımın girdisi yapar ve size 1961, 1962 yıllarının tahminlerini otomatik olarak çizer.
+
+Bu dersimizde temel mantığı kavramak adına `Explorer` (Sınıflandırma) ekranını kullandık. Ancak endüstriyel bir tahmin raporu hazırlayacaksanız, veri hazırlığını burada öğrendikten sonra `Forecast` sekmesini kullanmanız daha doğru olacaktır.
+
+
+***
+
+# BÖLÜM 12: Weka Zaman Serisi Tahmin Modülü (Forecast Sekmesi)
+
+Gençler, `Explorer` sekmesinde işin mutfağını ve algoritmaların mantığını kavradık. Şimdi ise endüstriyel standartlarda, hem modelin başarısını bilimsel olarak test edeceğimiz hem de geleceğe yönelik (1961 yılı gibi) tahminler üreteceğimiz **`Forecast`** sekmesini inceleyeceğiz.
+
+Ancak bu sekmeyi hatasız kullanabilmek için veri setimizin "teknik" olarak kusursuz olması gerekir. Weka'nın zamanı anlayabilmesi için tarih formatının `Date` olması ve sütun isminin `Month` olmaması (çakışma yaratmaması) şarttır.
+
+## 12.1. Veri Hazırlığı: İki Farklı Yöntem
+
+Veriyi hazırlamak için iki yolumuz var. İkisini de bilmenizde fayda var.
+
+### Yöntem A: Dosya Yüklerken Ayarlama (Invoke Options - Profesyonel Yol)
+Veriyi yükleme aşamasında Weka'ya "Bu sütun tarihtir" diyebiliriz. Bu, filtrelerle uğraşmaktan daha temizdir.
+
+1.  Weka'yı açıp `Preprocess` sekmesinde **`Open file...`** düğmesine basın.
+2.  Dosya seçim penceresinde CSV dosyanızı seçin **ancak hemen "Open" demeyin.**
+3.  Pencerenin altındaki **`Invoke options dialog`** (Seçenekler penceresini çağır) kutucuğunu işaretleyin.
+4.  Şimdi **Open** deyin. Karşınıza özel bir ayar penceresi gelecektir.
+5.  Burada şu iki satırı bulun ve değiştirin:
+    *   **`dateAttributes`**: Tarih sütununuz kaçıncı sıradaysa o sayıyı yazın (Genellikle **`1`**).
+    *   **`dateFormat`**: Dosyadaki tarih formatını aynen yazın (AirPassengers için: **`yyyy-MM`**).
+6.  **OK** dediğinizde veri seti, tarih sütunu otomatik olarak `Date` tipine dönüşmüş şekilde açılacaktır.
+7.  **Çok Önemli Son Adım:** Dosya açıldıktan sonra üstteki `Edit` düğmesine basın. "Month" sütununa sağ tıklayıp `Rename attribute` diyerek adını **`Tarih`** olarak değiştirin. (Weka analiz yaparken kendisi de "Month" isminde sütun ürettiği için bu değişikliği yapmazsak hata alırız).
+
+### Yöntem B: Filtre Kullanarak Dönüştürme (Alternatif Yol)
+Eğer dosyayı düz yüklediyseniz, içeriden düzeltebiliriz:
+1.  **İsim Değiştirme:** `Edit` düğmesine basın, "Month" sütununa sağ tıklayıp adını **`Tarih`** yapın.
+2.  **Format Dönüştürme:** `Filter` > `unsupervised` > `attribute` > **`NominalToDate`** filtresini seçin. Ayarlarına girip `dateFormat` kısmına **`yyyy-MM`** yazın ve `Apply` deyin.
+
+---
+
+## 12.2. Forecast Sekmesi: Temel Ayarlar (Basic Configuration)
+
+Verimiz hazırsa `Forecast` sekmesine geçelim.
+
+1.  **Fields to forecast (Tahmin Hedefi):** `Passengers` sütununu seçin.
+2.  **Time stamp field (Zaman Damgası):** `Tarih` sütununu seçin.
+3.  **Periodicity (Periyot):** **`Monthly`** seçin. (Bunu seçtiğimizde Weka mevsimsellik ayarlarını otomatik yapacaktır).
+4.  **Number of steps to forecast:** **`12`** yazın. (Bu, verinin bittiği tarihten sonraki, yani 1961 yılı için istediğimiz 12 aylık tahmindir).
+
+---
+
+## 12.3. Gelişmiş Ayarlar (Advanced Configuration) - Sekme Sekme İnceleme
+
+Şimdi `Advanced configuration` düğmesine basın. 6 adet sekme göreceksiniz. Lütfen aşağıdaki ayarları sırasıyla yapın:
+
+### 1. Sekme: Base Learner (Temel Öğrenici)
+Tahmin algoritmasını seçtiğimiz yerdir. Varsayılan `LinearRegression` basit kalabilir. `Choose` diyerek **`SMOreg`** veya **`RandomForest`** seçebilirsiniz.
+
+### 2. Sekme: Lag Creation (Gecikme)
+Geçmişe bakış ayarıdır.
+*   **Use custom lag lengths:** İşaretleyin.
+*   **Maximum lag:** **`12`** yapın (Mevsimselliği yakalamak için modelin 1 yıl geriye bakması şarttır).
+
+### 3. Sekme: Periodic Attributes
+Ana ekranda `Periodicity: Monthly` seçtiğimiz için burası genellikle boş gelir. Weka bu özellikleri otomatik ekleyeceği için müdahale etmenize gerek yoktur.
+
+### 4. Sekme: Overlay Data
+Dış veri (Dolar, Benzin vb.) kullanmadığımız için burayı boş geçiyoruz.
+
+### 5. Sekme: Evaluation (Değerlendirme) - *Lütfen Dikkat!*
+Modelin başarısını nerede ve nasıl ölçeceğimizi burada ayarlarız.
+
+**Sağ Taraftaki "Test options" Bölümü:**
+*   **Evaluate on training (Eğitim verisiyle test et):** **KESİNLİKLE İŞARETLEMEYİN.**
+    *   **Neden?** Bu, soruları önceden gören öğrencinin sınava girmesi gibidir. Model veriyi ezberler (overfitting). Hatayı çok düşük gösterir ama gerçek hayatta başarısız olur. Bizi yanıltır.
+*   **Evaluate on held out training (Saklı veriyle test et):** **BUNU İŞARETLEYİN.**
+    *   Kutucuğa **`12`** yazın (veya 0.1 gibi bir oran).
+    *   **Mantığı:** Weka, son 12 ayı eğitimden çıkarır ve saklar. Modeli geri kalanla eğitir. Sonra o sakladığı 12 ayı tahmin etmeye çalışır. Gerçekçi başarı testi budur.
+
+**Sol Taraftaki "Metrics" Listesi:**
+Modelin başarısını hangi puan türleriyle görmek istediğinizi buradan seçersiniz. Şu kutucukların işaretli olduğundan emin olun:
+*   **Mean absolute error (MAE)**
+*   **Root mean squared error (RMSE)**
+
+### 6. Sekme: Output (Çıktı Ayarları)
+Start'a bastıktan sonra karşımıza ne çıkacağını belirleriz.
+
+**Sol Panel (Output options):**
+*   **Output predictions at step:** Bunu işaretleyin. Böylece test için ayırdığımız o 12 ayın (geçmişin) tahmin sonuçlarını sayısal olarak döküm halinde görebiliriz.
+*   **Output future predictions beyond end of series:** **EN ÖNEMLİSİ BUDUR.** Bunu işaretleyin. Eğer işaretlemezseniz, veri setinin bittiği tarihten sonraki (1961 yılı) tahminleri göremezsiniz.
+
+**Sağ Panel (Graphing options):**
+*   **Graph predictions at step:** İşaretleyin (Tahmin çizgisini çizer).
+*   **Graph target at steps:** İşaretleyin (Gerçek veri çizgisini çizer).
+    *   *Neden?* Mavi (tahmin) ve Kırmızı (gerçek) çizgilerin ne kadar üst üste bindiğini gözümüzle görmek ve kıyaslamak için buna ihtiyacımız var.
+
+---
+
+## 12.4. Sonuçların Okunması
+
+Ayarları yaptıktan sonra `Start` düğmesine basın. Sonuçlar alt kısımdaki **Output/Visualization** panelinde görünecektir.
+
+**1. Grafik Yorumu:**
+Ekranda beliren grafikte sağ tarafa odaklanın:
+*   **Test Bölgesi (1960):** İki çizgi göreceksiniz (Gerçek ve Tahmin). Bunların birbirine yakınlığı modelin başarısını gösterir.
+*   **Gelecek Bölgesi (1961):** Verinin bittiği yerden sağa boşluğa doğru uzanan tek çizgi, geleceğe dair tahminimizdir.
+
+**2. Output (Metin) Paneli Yorumu:**
+Metin panelini yukarı doğru kaydırarak şu başlıkları bulun:
+
+*   **Evaluation on held out training:** Bu başlığın altında, 5. sekmede seçtiğimiz **RMSE** ve **MAE** değerlerini göreceksiniz. Bu değerler ne kadar düşükse, model o kadar iyidir.
+*   **Future Predictions:** Bu başlığın altında ise, 6. sekmede açtığımız ayar sayesinde, **1961 yılına ait aylık yolcu tahmin listesi** (Ocak: 450, Şubat: 465...) yer alacaktır.
+
+
+Bu tablo zaman serisi analizinin en kritik "ince ayar" raporudur. Genellikle gözden kaçar ama modelin güvenilirliğini (stabilitesini) ölçen asıl yer burasıdır.
+
+Bu tabloyu ders notunun en sonuna, **"12.5. Adım Adım Hata Analizi (Ufuk Testi)"** başlığıyla ekleyelim.
+
+İşte ders notunun sonuna eklenecek kısım:
+
+***
+
+## 12.5. Adım Adım Hata Analizi (Ufuk Testi)
+
+Gençler, Output panelini biraz daha aşağı kaydırdığınızda, yan yana uzayıp giden geniş bir tablo göreceksiniz. Başlığı **`=== Evaluation on test data ===`** olan bu tablo, modelinizin performansını "zamana bağlı olarak" analiz etmenizi sağlar.
+
+Bunun anlamı şudur: Bir modelin "gelecek ayı" tahmin etmesiyle, "bir yıl sonrasını" tahmin etmesi aynı zorlukta değildir. Tahmin ufku uzadıkça hata genellikle artar.
+
+Tabloyu şöyle okumalısınız:
+
+*   **Sütunlar (1-step-ahead ... 12-steps-ahead):**
+    *   **1-step-ahead:** Modelin 1 ay sonrasını tahmin ederken yaptığı hata.
+    *   **12-steps-ahead:** Modelin 12 ay (1 yıl) sonrasını tahmin ederken yaptığı hata.
+*   **Mean absolute error (MAE):**
+    *   Örneğin tabloda `1-step-ahead` altındaki MAE **31.8** ise; modeliniz bir sonraki ayı tahmin ederken ortalama 31 yolcu yanılıyor demektir.
+    *   `5-steps-ahead` altında MAE **38.8** olmuşsa; 5 ay sonrasını tahmin ederken hata payı artmış demektir.
+
+**Yorumlama Mantığı:**
+Normal şartlarda, geleceğe ne kadar uzak bakarsak belirsizlik o kadar artar ve hatanın yükselmesini bekleriz (MAE değerlerinin sağa doğru gittikçe büyümesi).
+
+*   Eğer hata değerleri 1. aydan 12. aya doğru **çok aşırı artıyorsa**; modeliniz kısa vade için güvenilirdir ama uzun vadeli planlama (örneğin seneye yapılacak yatırımlar) için risklidir.
+*   Eğer hata değerleri **sabit kalıyor veya az artıyorsa**; modeliniz oldukça kararlı (stabil) ve güvenilir bir yapıdadır.
+
+**Özetle:** Raporlarınızda sadece genel hatayı (Average RMSE) değil, bu tabloya bakarak *"Modelimiz ilk 3 ay için çok keskin tahminler yapıyor, ancak 6. aydan sonra hata payı %10 artıyor"* şeklinde detaylı bir yorum alabilirsiniz.
+
+***
+
+## 12.6. Tablodaki "N" Değeri ve Veri Sınırı
+
+Gençler, tablonun en başında yer alan **N** satırı, istatistiksel analizde "Number of Instances" yani **Gözlem Sayısı** anlamına gelir. Daha basit bir ifadeyle, modelin o adım için kaç kez sınanabildiğini gösterir.
+
+Tabloya dikkat ederseniz, `1-step-ahead` (1 ay sonrası) tahmini için **N=14** iken, `12-steps-ahead` (1 yıl sonrası) tahmini için bu sayı **N=3**'e düşmüştür. Bu düşüş bir hata değil, test verimizin sonlu olmasının doğal bir sonucudur. Mantığı şöyledir:
+
+Elinizde test etmek için ayırdığınız 14 aylık gerçek veri olduğunu düşünün.
+*   **Kısa vade için (1 ay sonrası):** Elinizdeki verinin başından sonuna kadar ilerlerken, hemen bir sonraki ayın gerçek verisi elinizde olduğu için tahmini defalarca (14 kez) kontrol edebilirsiniz.
+*   **Uzun vade için (12 ay sonrası):** Bir yıl sonrasını test edebilmek için, test verisinin en başında durup 12 ay sonrasına bakmanız gerekir. Ancak test verisinin ortasına veya sonuna geldiğinizde, 12 ay sonrası artık veri setinizin dışına (bilinmeyen geleceğe) taşar. Elinizde karşılaştıracak "gerçek veri" kalmadığı için o noktalarda hata hesaplaması yapılamaz.
+
+Bu durum, sonuçları yorumlarken bize şunu söyler: **N** sayısı ne kadar yüksekse, hesaplanan hata oranı (MAE/RMSE) o kadar güvenilirdir. N sayısının çok düştüğü (örneğin 3'e indiği) uzun vadeli tahminlerde, ortalama hata değeri az sayıda denemeye dayandığı için istatistiksel olarak daha az güvenilir olabilir. Dolayısıyla tablonun sağ tarafındaki (uzun vadeli) hata değerlerini yorumlarken bu kısıtlamayı göz önünde bulundurmalısınız.
+
+***
 ### 11.5. Uygulama ve Kodlama
 
 Farklı modellerin performansını karşılaştırmak için standart bir fonksiyon kullanmak faydalıdır:
@@ -3097,7 +3301,7 @@ print(f"Toplam gözlem sayısı: {len(df)}")
 
 # Tarih sütununu datetime tipine çevirip indeks yapalım
 # parse_dates ile okuma sırasında da yapılabilirdi ama burada
-# açıkça göstermek istedim
+# açıkça gösteriyoruz.
 df['Month'] = pd.to_datetime(df['Month'])
 df.set_index('Month', inplace=True)
 
