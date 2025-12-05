@@ -5454,3 +5454,69 @@ VAR, özellikle şu tip sorular için kullanışlıdır:
 *   Çok boyutlu ekonomik göstergelerin birlikte öngörülmesi
 
 Gençler, önemli olan tek bir denklemle sınırlı kalmak yerine, değişkenlerin birbirini nasıl **gecikmeli olarak** etkilediğini birlikte görebilmektir. VAR, bu etkileşimi hem tahmin hem de yorumlama açısından anlaşılır bir iskelet üzerinde sunar.
+
+
+***
+Belirttiğiniz kaynaktaki içeriğe tamamen sadık kalarak hazırlanan ders notu aşağıdadır:
+
+***
+
+# ZAMAN SERİSİ TAHMİNLEMEDE 10 ALTIN KURAL
+
+**Özet:** Bu notlar, zaman serisi tahminlemesini (time series forecasting) "veri biliminin karanlık sanatı" olmaktan çıkarıp, algoritmalar (ARIMA, Prophet, LSTM vb.) değişse bile değişmeyen temel prensipleri kapsamaktadır.
+
+---
+
+### 1. Görsel İnceleme Tartışılamaz (Visual Inspection is Non-Negotiable)
+Herhangi bir modelleme kodu yazmadan önce veriyi mutlaka grafiğe dökün. Özet istatistikler yalan söyleyebilir ama grafikler nadiren yalan söyler. Grafikte şunları arayın:
+*   **Trend:** Veri yukarı mı aşağı mı hareket ediyor?
+*   **Mevsimsellik:** Tekrarlayan bir desen var mı?
+*   **Aykırı Değerler (Outliers):** Olmaması gereken ani sıçramalar var mı?
+*   **Boşluklar:** Eksik veri var mı?
+
+### 2. Veriyi Asla Karıştırmayın (Never Shuffle Your Data)
+Standart makine öğrenmesinde eğitim/test ayrımı için veriyi karıştırmak (shuffle) yaygındır ancak zaman serilerinde bu büyük bir hatadır. Zaman kesinlikle doğrusaldır; bugünü tahmin etmek için gelecek haftanın verisini kullanamazsınız. Daima zamansal ayrım (temporal split) kullanın:
+*   *Örnek:* **Eğitim:** Ocak 2020 - Aralık 2023 | **Test:** Ocak 2024 - Mart 2024
+
+### 3. Bir Referans Noktası Belirleyin (Establish a Baseline - The Naive Model)
+Karmaşık bir modelin (örneğin LSTM) gerçekten "iyi" olup olmadığını anlamak için bir kıyaslama noktasına ihtiyacınız vardır. Modelinizi daima "Saf Yöntem" (Naive Method) ile karşılaştırın:
+*   **Naive 1:** Yarının değeri, bugünün değeri ile aynı olacaktır.
+*   **Naive 2 (Mevsimsel):** Önümüzdeki Haziran ayının satışları, geçen Haziran ile aynı olacaktır.
+*   *Kural:* Eğer karmaşık modeliniz bu basit sezgisel yöntemleri geçemiyorsa, canlıya almaya değmez.
+
+### 4. Durağanlığa Saygı Gösterin (Respect Stationarity)
+Çoğu klasik istatistiksel model (ARIMA gibi), serinin istatistiksel özelliklerinin (ortalama, varyans) zaman içinde değişmemesini varsayar.
+*   Veride trend varsa farkını alın (difference it).
+*   Varyans artıyorsa logaritmik dönüşüm uygulayın.
+
+### 5. Alan Bilgisi > Algoritmalar (Domain Knowledge > Algorithms)
+Bir algoritma, satışlardaki ani artışın "Kara Cuma" (Black Friday) yüzünden olduğunu veya düşüşün sunucu kesintisinden kaynaklandığını bilemez.
+*   **Öznitelik Mühendisliği:** Tatilleri, hava durumunu veya pazarlama etkinliklerini dışsal değişkenler olarak modele ekleyin. Bağlam (context), genellikle hiperparametre optimizasyonundan daha güçlüdür.
+
+### 6. Veri Sızıntısına Dikkat Edin (Watch Out for Leakage)
+Zaman serilerinde veri sızıntısı sinsi olabilir. Geçmişi tahmin etmek için gelecek bilgisi kullanılırsa, model eğitimde harika görünür ama üretimde (production) çuvallar.
+*   *Örnek:* Ocak 2024 günlük satışlarını tahmin etmek için 2024'ün "aylık ortalama sıcaklığını" kullanmak. (Ay bitene kadar aylık ortalamayı bilemezsiniz!)
+
+### 7. Diyagnostikler Önemlidir: Hataları Kontrol Edin (Diagnostics Matter)
+İyi bir model, tüm "sinyali" alır ve geriye sadece "gürültü" bırakır. Modelin artıklarını (hatalarını) kontrol edin. Hatalar **Beyaz Gürültü (White Noise)** gibi görünmelidir:
+*   Ortalama sıfır olmalı.
+*   Varyans sabit olmalı.
+*   Otokorelasyon olmamalı (Hataların ACF grafiğine bakın).
+*   *Eğer hatalarda bir desen varsa, modeliniz bir şeyi gözden kaçırmış demektir.*
+
+### 8. Belirsizliği Kucaklayın (Embrace Uncertainty)
+Nokta atışı tahminler (örn. "Satışlar 105 adet olacak") neredeyse her zaman yanlıştır. Bunun yerine Karar Vericilerin riski değerlendirebilmesi için **Tahmin Aralıkları (Prediction Intervals)** sunun:
+*   *Örnek:* "Satışlar %95 güven aralığıyla 95 ile 115 adet arasında olacak."
+
+### 9. Doğru Metriği Seçin (Choose the Right Metric)
+Sadece R² değerine güvenmeyin. İş durumunuza uygun metriği seçin:
+*   **RMSE:** Büyük hataları ağır cezalandırır (güvenlik açısından kritik tahminler için iyidir).
+*   **MAE:** Yorumlaması daha kolaydır (ortalama hata).
+*   **MAPE:** Yüzdeler için iyidir ancak gerçek değerler sıfır ise başarısız olur.
+
+### 10. Karmaşıklık ≠ Doğruluk (Complexity ≠ Accuracy)
+Her problem için en son çıkan Transformer veya Derin Öğrenme modelini kullanma eğilimi vardır. Ancak birçok gerçek dünya tek değişkenli (univariate) zaman serisi için; Üstel Düzeltme (ETS) veya ARIMA gibi basit modeller, karmaşık sinir ağlarından daha iyi performans gösterir.
+*   Basit başlayın, ancak temel model (baseline) başarısız olursa karmaşıklığı artırın.
+
+---
+**Kaynak:** https://ozancanozdemir.github.io/posts/2025/12/10-rules-time-series-forecasting/
