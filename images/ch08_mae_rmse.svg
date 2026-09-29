@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="420" viewBox="0 0 900 420">
+<title>MAE ve RMSE karşılaştırması</title>
+<rect x="0.5" y="0.5" width="899" height="419" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">Hata, MAE ve RMSE: Büyük Hatalara Duyarlılık</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Hata eₜ = yₜ − ŷₜ · İki modelin MAE'si aynı olabilir; RMSE tek bir büyük hatayı öne çıkarır</text>
+<rect x="60" y="95" width="300" height="220" fill="#f9fafb"/>
+<line x1="60" y1="315" x2="360" y2="315" stroke="#6b7280" stroke-width="1.2"/>
+<line x1="60" y1="315" x2="60" y2="95" stroke="#6b7280" stroke-width="1.2"/>
+<text x="54.0" y="287.6" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">100</text>
+<text x="54.0" y="224.7" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">120</text>
+<text x="54.0" y="161.9" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">140</text>
+<text x="54.0" y="99.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">160</text>
+<polyline points="100.0,283.6 172.0,220.7 244.0,189.3 316.0,126.4" fill="none" stroke="#2563eb" stroke-width="2"/>
+<polyline points="100.0,252.1 172.0,236.4 244.0,189.3 316.0,220.7" fill="none" stroke="#ea580c" stroke-width="2" stroke-dasharray="6 4"/>
+<line x1="100.0" y1="283.6" x2="100.0" y2="252.1" stroke="#dc2626" stroke-width="2.5"/>
+<circle cx="100.0" cy="283.6" r="4.5" fill="#2563eb"/>
+<circle cx="100.0" cy="252.1" r="4.5" fill="#fff" stroke="#ea580c" stroke-width="2"/>
+<text x="100.0" y="242.1" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#dc2626" text-anchor="middle" font-weight="bold">e = -10</text>
+<text x="100.0" y="331.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">t = 1</text>
+<line x1="172.0" y1="220.7" x2="172.0" y2="236.4" stroke="#dc2626" stroke-width="2.5"/>
+<circle cx="172.0" cy="220.7" r="4.5" fill="#2563eb"/>
+<circle cx="172.0" cy="236.4" r="4.5" fill="#fff" stroke="#ea580c" stroke-width="2"/>
+<text x="172.0" y="210.7" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#dc2626" text-anchor="middle" font-weight="bold">e = +5</text>
+<text x="172.0" y="331.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">t = 2</text>
+<circle cx="244.0" cy="189.3" r="4.5" fill="#2563eb"/>
+<circle cx="244.0" cy="189.3" r="4.5" fill="#fff" stroke="#ea580c" stroke-width="2"/>
+<text x="244.0" y="179.3" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#dc2626" text-anchor="middle" font-weight="bold">e = 0</text>
+<text x="244.0" y="331.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">t = 3</text>
+<line x1="316.0" y1="126.4" x2="316.0" y2="220.7" stroke="#dc2626" stroke-width="2.5"/>
+<circle cx="316.0" cy="126.4" r="4.5" fill="#2563eb"/>
+<circle cx="316.0" cy="220.7" r="4.5" fill="#fff" stroke="#ea580c" stroke-width="2"/>
+<text x="334.0" y="116.4" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#dc2626" text-anchor="middle" font-weight="bold">e = +30</text>
+<text x="316.0" y="331.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">t = 4</text>
+<line x1="72" y1="109" x2="92" y2="109" stroke="#2563eb" stroke-width="2"/>
+<text x="96.0" y="113.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2563eb" text-anchor="start" font-weight="bold">gerçek y</text>
+<line x1="165" y1="109" x2="185" y2="109" stroke="#ea580c" stroke-width="2" stroke-dasharray="6 4"/>
+<text x="189.0" y="113.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="start" font-weight="bold">tahmin ŷ</text>
+<text x="210.0" y="358.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="middle" font-weight="bold">(a) Hata = gerçek − tahmin</text>
+<text x="210.0" y="378.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">MAE = 11.25 · RMSE ≈ 16.01 · MAPE ≈ %8.54</text>
+<rect x="440" y="95" width="400" height="220" fill="#f9fafb"/>
+<rect x="462.0" y="294.3" width="17" height="20.7" fill="#2563eb" opacity="0.75"/>
+<rect x="482.0" y="294.3" width="17" height="20.7" fill="#2563eb" opacity="0.75"/>
+<rect x="502.0" y="294.3" width="17" height="20.7" fill="#2563eb" opacity="0.75"/>
+<rect x="522.0" y="294.3" width="17" height="20.7" fill="#2563eb" opacity="0.75"/>
+<rect x="542.0" y="294.3" width="17" height="20.7" fill="#2563eb" opacity="0.75"/>
+<rect x="562.0" y="294.3" width="17" height="20.7" fill="#2563eb" opacity="0.75"/>
+<rect x="582.0" y="294.3" width="17" height="20.7" fill="#2563eb" opacity="0.75"/>
+<rect x="602.0" y="294.3" width="17" height="20.7" fill="#2563eb" opacity="0.75"/>
+<text x="542.0" y="115.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#2563eb" text-anchor="middle" font-weight="bold">Model A</text>
+<text x="542.0" y="133.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">|hata| değerleri</text>
+<text x="542.0" y="358.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">MAE = 10.0</text>
+<text x="542.0" y="378.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">RMSE = 10.0</text>
+<rect x="662.0" y="310.9" width="17" height="4.1" fill="#7c3aed" opacity="0.75"/>
+<rect x="682.0" y="310.9" width="17" height="4.1" fill="#7c3aed" opacity="0.75"/>
+<rect x="702.0" y="310.9" width="17" height="4.1" fill="#7c3aed" opacity="0.75"/>
+<rect x="722.0" y="310.9" width="17" height="4.1" fill="#7c3aed" opacity="0.75"/>
+<rect x="742.0" y="310.9" width="17" height="4.1" fill="#7c3aed" opacity="0.75"/>
+<rect x="762.0" y="310.9" width="17" height="4.1" fill="#7c3aed" opacity="0.75"/>
+<rect x="782.0" y="310.9" width="17" height="4.1" fill="#7c3aed" opacity="0.75"/>
+<rect x="802.0" y="178.3" width="17" height="136.7" fill="#7c3aed" opacity="0.75"/>
+<text x="742.0" y="115.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#7c3aed" text-anchor="middle" font-weight="bold">Model B</text>
+<text x="742.0" y="133.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">|hata| değerleri</text>
+<text x="742.0" y="358.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">MAE = 10.0</text>
+<text x="742.0" y="378.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#dc2626" text-anchor="middle" font-weight="bold">RMSE = 23.4</text>
+<line x1="440" y1="315" x2="840" y2="315" stroke="#6b7280" stroke-width="1.2"/>
+<line x1="640" y1="145" x2="640" y2="315" stroke="#d1d5db"/>
+<text x="796.0" y="246.6" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#dc2626" text-anchor="end" font-weight="bold">tek büyük hata →</text>
+<text x="450.0" y="406.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic">(b) Aynı ortalama mutlak hata, farklı risk: kare alma büyük hatayı büyütür, RMSE ≥ MAE olur.</text>
+</svg>

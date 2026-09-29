@@ -1,0 +1,356 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="610" viewBox="0 0 900 610">
+<title>TimeSeriesSplit fold diyagramı</title>
+<rect x="0.5" y="0.5" width="899" height="609" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">Rastgele K-Fold ve TimeSeriesSplit: Fold'lar Nasıl Oluşur?</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">24 ardışık gözlem (soldan sağa zaman) · mavi: eğitim · turuncu: doğrulama/test · gri: kullanılmıyor · kesikli: boşluk (gap)</text>
+<line x1="95" y1="72" x2="572" y2="72" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="579,72 570,67 570,77" fill="#6b7280"/>
+<text x="95.0" y="66.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="start" font-weight="normal">geçmiş</text>
+<text x="572.0" y="66.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">gelecek</text>
+<text x="30.0" y="100.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="start" font-weight="bold">(a) Rastgele karıştırmalı K-Fold (shuffle=True, K=4)</text>
+<text x="30.0" y="117.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">Doğrulama gözlemleri zamana dağılmış; model her fold'da gelecekteki gözlemlerle eğitiliyor</text>
+<text x="83.0" y="146.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="bold">Fold 1</text>
+<rect x="95" y="132" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="115" y="132" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="135" y="132" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="155" y="132" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="175" y="132" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="195" y="132" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="215" y="132" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="235" y="132" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="255" y="132" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="275" y="132" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="295" y="132" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="315" y="132" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="335" y="132" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="355" y="132" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="375" y="132" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="395" y="132" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="415" y="132" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="435" y="132" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="455" y="132" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="475" y="132" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="495" y="132" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="515" y="132" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="535" y="132" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="555" y="132" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<text x="585.0" y="146.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#dc2626" text-anchor="start" font-weight="normal">✗ eğitimde 13 gelecek gözlem var (sızıntı)</text>
+<text x="83.0" y="170.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="bold">Fold 2</text>
+<rect x="95" y="156" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="115" y="156" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="135" y="156" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="155" y="156" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="175" y="156" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="195" y="156" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="215" y="156" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="235" y="156" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="255" y="156" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="275" y="156" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="295" y="156" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="315" y="156" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="335" y="156" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="355" y="156" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="375" y="156" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="395" y="156" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="415" y="156" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="435" y="156" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="455" y="156" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="475" y="156" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="495" y="156" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="515" y="156" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="535" y="156" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="555" y="156" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<text x="585.0" y="170.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#dc2626" text-anchor="start" font-weight="normal">✗ eğitimde 12 gelecek gözlem var (sızıntı)</text>
+<text x="83.0" y="194.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="bold">Fold 3</text>
+<rect x="95" y="180" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="115" y="180" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="135" y="180" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="155" y="180" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="175" y="180" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="195" y="180" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="215" y="180" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="235" y="180" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="255" y="180" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="275" y="180" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="295" y="180" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="315" y="180" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="335" y="180" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="355" y="180" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="375" y="180" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="395" y="180" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="415" y="180" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="435" y="180" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="455" y="180" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="475" y="180" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="495" y="180" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="515" y="180" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="535" y="180" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="555" y="180" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<text x="585.0" y="194.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#dc2626" text-anchor="start" font-weight="normal">✗ eğitimde 18 gelecek gözlem var (sızıntı)</text>
+<text x="83.0" y="218.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="bold">Fold 4</text>
+<rect x="95" y="204" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="115" y="204" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="135" y="204" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="155" y="204" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="175" y="204" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="195" y="204" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="215" y="204" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="235" y="204" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="255" y="204" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="275" y="204" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="295" y="204" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="315" y="204" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="335" y="204" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="355" y="204" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="375" y="204" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="395" y="204" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="415" y="204" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="435" y="204" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="455" y="204" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="475" y="204" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="495" y="204" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="515" y="204" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="535" y="204" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="555" y="204" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<text x="585.0" y="218.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#dc2626" text-anchor="start" font-weight="normal">✗ eğitimde 17 gelecek gözlem var (sızıntı)</text>
+<text x="30.0" y="245.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="start" font-weight="bold">(b) TimeSeriesSplit — genişleyen pencere (n_splits=5, varsayılan)</text>
+<text x="30.0" y="262.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">Doğrulama hep eğitimden sonra gelir; eğitim kümesi her fold'da büyür</text>
+<text x="83.0" y="291.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="bold">Fold 1</text>
+<rect x="95" y="277" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="115" y="277" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="135" y="277" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="155" y="277" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="175" y="277" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="195" y="277" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="215" y="277" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="235" y="277" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="255" y="277" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="275" y="277" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="295" y="277" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="315" y="277" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="335" y="277" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="355" y="277" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="375" y="277" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="395" y="277" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="415" y="277" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="435" y="277" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="455" y="277" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="475" y="277" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="495" y="277" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="515" y="277" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="535" y="277" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="555" y="277" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<text x="585.0" y="291.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">eğitim 0–3, doğrulama 4–7</text>
+<text x="83.0" y="315.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="bold">Fold 2</text>
+<rect x="95" y="301" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="115" y="301" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="135" y="301" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="155" y="301" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="175" y="301" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="195" y="301" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="215" y="301" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="235" y="301" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="255" y="301" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="275" y="301" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="295" y="301" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="315" y="301" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="335" y="301" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="355" y="301" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="375" y="301" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="395" y="301" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="415" y="301" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="435" y="301" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="455" y="301" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="475" y="301" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="495" y="301" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="515" y="301" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="535" y="301" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="555" y="301" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<text x="585.0" y="315.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">eğitim 0–7, doğrulama 8–11</text>
+<text x="83.0" y="339.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="bold">Fold 3</text>
+<rect x="95" y="325" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="115" y="325" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="135" y="325" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="155" y="325" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="175" y="325" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="195" y="325" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="215" y="325" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="235" y="325" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="255" y="325" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="275" y="325" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="295" y="325" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="315" y="325" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="335" y="325" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="355" y="325" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="375" y="325" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="395" y="325" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="415" y="325" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="435" y="325" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="455" y="325" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="475" y="325" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="495" y="325" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="515" y="325" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="535" y="325" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="555" y="325" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<text x="585.0" y="339.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">eğitim 0–11, doğrulama 12–15</text>
+<text x="83.0" y="363.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="bold">Fold 4</text>
+<rect x="95" y="349" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="115" y="349" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="135" y="349" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="155" y="349" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="175" y="349" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="195" y="349" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="215" y="349" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="235" y="349" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="255" y="349" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="275" y="349" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="295" y="349" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="315" y="349" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="335" y="349" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="355" y="349" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="375" y="349" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="395" y="349" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="415" y="349" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="435" y="349" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="455" y="349" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="475" y="349" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="495" y="349" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="515" y="349" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="535" y="349" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="555" y="349" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<text x="585.0" y="363.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">eğitim 0–15, doğrulama 16–19</text>
+<text x="83.0" y="387.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="bold">Fold 5</text>
+<rect x="95" y="373" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="115" y="373" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="135" y="373" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="155" y="373" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="175" y="373" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="195" y="373" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="215" y="373" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="235" y="373" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="255" y="373" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="275" y="373" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="295" y="373" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="315" y="373" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="335" y="373" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="355" y="373" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="375" y="373" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="395" y="373" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="415" y="373" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="435" y="373" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="455" y="373" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="475" y="373" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="495" y="373" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="515" y="373" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="535" y="373" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="555" y="373" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<text x="585.0" y="387.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">eğitim 0–19, doğrulama 20–23</text>
+<text x="30.0" y="415.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="start" font-weight="bold">(c) Kayan pencere + boşluk (n_splits=4, test_size=4, max_train_size=6, gap=2)</text>
+<text x="30.0" y="432.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">Eğitim uzunluğu sabit kalır ve ileri kayar; gap, eğitim ile doğrulama arasına tampon koyar</text>
+<text x="83.0" y="461.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="bold">Fold 1</text>
+<rect x="95" y="447" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="115" y="447" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="135" y="447" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="155" y="447" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="175" y="447" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="195" y="447" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="215" y="447" width="17" height="18" rx="3" fill="#ffffff" fill-opacity="1.0" stroke="#6b7280" stroke-dasharray="2,2"/>
+<rect x="235" y="447" width="17" height="18" rx="3" fill="#ffffff" fill-opacity="1.0" stroke="#6b7280" stroke-dasharray="2,2"/>
+<rect x="255" y="447" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="275" y="447" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="295" y="447" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="315" y="447" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="335" y="447" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="355" y="447" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="375" y="447" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="395" y="447" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="415" y="447" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="435" y="447" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="455" y="447" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="475" y="447" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="495" y="447" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="515" y="447" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="535" y="447" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="555" y="447" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<text x="585.0" y="461.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">eğitim 0–5, gap 6–7, doğrulama 8–11</text>
+<text x="83.0" y="485.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="bold">Fold 2</text>
+<rect x="95" y="471" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="115" y="471" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="135" y="471" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="155" y="471" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="175" y="471" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="195" y="471" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="215" y="471" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="235" y="471" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="255" y="471" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="275" y="471" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="295" y="471" width="17" height="18" rx="3" fill="#ffffff" fill-opacity="1.0" stroke="#6b7280" stroke-dasharray="2,2"/>
+<rect x="315" y="471" width="17" height="18" rx="3" fill="#ffffff" fill-opacity="1.0" stroke="#6b7280" stroke-dasharray="2,2"/>
+<rect x="335" y="471" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="355" y="471" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="375" y="471" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="395" y="471" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="415" y="471" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="435" y="471" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="455" y="471" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="475" y="471" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="495" y="471" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="515" y="471" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="535" y="471" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="555" y="471" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<text x="585.0" y="485.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">eğitim 4–9, gap 10–11, doğrulama 12–15</text>
+<text x="83.0" y="509.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="bold">Fold 3</text>
+<rect x="95" y="495" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="115" y="495" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="135" y="495" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="155" y="495" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="175" y="495" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="195" y="495" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="215" y="495" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="235" y="495" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="255" y="495" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="275" y="495" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="295" y="495" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="315" y="495" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="335" y="495" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="355" y="495" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="375" y="495" width="17" height="18" rx="3" fill="#ffffff" fill-opacity="1.0" stroke="#6b7280" stroke-dasharray="2,2"/>
+<rect x="395" y="495" width="17" height="18" rx="3" fill="#ffffff" fill-opacity="1.0" stroke="#6b7280" stroke-dasharray="2,2"/>
+<rect x="415" y="495" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="435" y="495" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="455" y="495" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="475" y="495" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="495" y="495" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="515" y="495" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="535" y="495" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="555" y="495" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<text x="585.0" y="509.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">eğitim 8–13, gap 14–15, doğrulama 16–19</text>
+<text x="83.0" y="533.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="bold">Fold 4</text>
+<rect x="95" y="519" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="115" y="519" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="135" y="519" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="155" y="519" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="175" y="519" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="195" y="519" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="215" y="519" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="235" y="519" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="255" y="519" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="275" y="519" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="295" y="519" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="315" y="519" width="17" height="18" rx="3" fill="#e5e7eb" fill-opacity="1.0"/>
+<rect x="335" y="519" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="355" y="519" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="375" y="519" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="395" y="519" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="415" y="519" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="435" y="519" width="17" height="18" rx="3" fill="#2563eb" fill-opacity="0.85"/>
+<rect x="455" y="519" width="17" height="18" rx="3" fill="#ffffff" fill-opacity="1.0" stroke="#6b7280" stroke-dasharray="2,2"/>
+<rect x="475" y="519" width="17" height="18" rx="3" fill="#ffffff" fill-opacity="1.0" stroke="#6b7280" stroke-dasharray="2,2"/>
+<rect x="495" y="519" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="515" y="519" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="535" y="519" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<rect x="555" y="519" width="17" height="18" rx="3" fill="#ea580c" fill-opacity="0.85"/>
+<text x="585.0" y="533.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">eğitim 12–17, gap 18–19, doğrulama 20–23</text>
+<text x="450.0" y="572.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">Gerçek tahmin koşulunu taklit eden yalnızca (b) ve (c)'dir: model hiçbir fold'da geleceği görmez.</text>
+<text x="450.0" y="592.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="middle" font-weight="normal">Nihai performans, fold'lardaki hataların ortalaması ± standart sapması olarak raporlanır.</text>
+</svg>

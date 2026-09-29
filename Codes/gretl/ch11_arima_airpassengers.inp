@@ -1,0 +1,142 @@
+# =============================================================
+# GRETL İLE AIRPASSENGERS: ARIMA MODELLEMESİ VE TAHMİN
+# =============================================================
+# Ders notu: Course_notes.md, Bölüm 11.5 (Komut Dili ile Otomasyon: ARIMA Betiği)
+# Veri: 1949-1960 aylık uluslararası havayolu yolcu sayıları (bin kişi)
+#
+# ÇALIŞTIRMA
+#   Komut satırı (depo kök dizininden):
+#     gretlcli -b Codes/gretl/ch11_arima_airpassengers.inp
+#   Gretl arayüzü: File → Script files → Open user file… ile bu dosyayı
+#   açıp Run (dişli simgesi) düğmesine basın.
+#
+# VERİ YOLU
+#   Aşağıdaki "open" komutu, betiğin depo kök dizininden çalıştırıldığını
+#   varsayar ("data/AirPassengers.csv"). Gretl dosyayı bulamazsa:
+#     - satırı tam yolla yazın (ör. open "C:/Users/.../data/AirPassengers.csv"), ya da
+#     - betik Codes/gretl/ klasöründen açıldıysa göreli yolu
+#       open "../../data/AirPassengers.csv" olarak değiştirin.
+#   Dosya yolunda Türkçe karakter veya boşluk sorun çıkarabilir.
+
+# -------------------------------------------------------------
+# 1) VERİYİ AÇMA VE ZAMAN SERİSİ YAPISINI TANIMLAMA
+# -------------------------------------------------------------
+open "data/AirPassengers.csv"
+varlist                          # değişken adlarını kontrol et
+
+# setobs: frekans (12 = aylık), başlangıç (yıl:dönem)
+setobs 12 1949:01 --time-series
+
+# Sütun adı farklı geldiyse (ör. v1) varlist çıktısına göre düzeltin:
+# rename v1 Passengers
+rename Passengers passengers
+
+# -------------------------------------------------------------
+# 2) GRAFİK, ÖZET İSTATİSTİK VE LOG DÖNÜŞÜMÜ
+# -------------------------------------------------------------
+gnuplot passengers --time-series --with-lines --output=display
+summary passengers
+
+# Dalgalanmalar zamanla büyüdüğü için (çarpımsal yapı, Bölüm 2.4)
+# log dönüşümü ile varyansı sabitliyoruz.
+series lnpass = log(passengers)
+gnuplot lnpass --time-series --with-lines --output=display
+
+# -------------------------------------------------------------
+# 3) DURAĞANLIK: ADF TESTİ VE FARK ALMA
+# -------------------------------------------------------------
+# H0: birim kök var (durağan değil). p < 0.05 ise H0 reddedilir.
+adf 12 lnpass --c --ct           # sabitli ve sabit+trendli sürümler
+
+series dlnpass  = diff(lnpass)          # birinci fark (trend için)
+series ddlnpass = diff(sdiff(lnpass))   # birinci + mevsimsel fark
+gnuplot ddlnpass --time-series --with-lines --output=display
+
+adf 12 ddlnpass --c              # şimdi p-değeri küçük çıkmalı
+kpss 12 ddlnpass                 # KPSS ile çapraz kontrol (H0: durağan)
+
+# -------------------------------------------------------------
+# 4) KORELOGRAM (ACF / PACF)
+# -------------------------------------------------------------
+# 36 gecikme: üç yıllık mevsimsel örüntüyü (12, 24, 36) görmek için.
+# Model derecesi seçiminde ACF/PACF imzaları için bkz. Bölüm 6 ve 7.
+corrgm lnpass 36
+corrgm ddlnpass 36
+
+# -------------------------------------------------------------
+# 5) ADAY MODELLERİN KARŞILAŞTIRILMASI
+# -------------------------------------------------------------
+# Sözdizimi: arima p d q ; P D Q ; seri
+# (mevsimsel kısım yoksa ortadaki blok yazılmaz)
+arima 1 1 1 ; lnpass --quiet
+scalar aic_111 = $aic
+
+arima 1 1 1 ; 0 1 1 ; lnpass --quiet
+scalar aic_111_011 = $aic
+
+arima 1 1 0 ; 0 1 1 ; lnpass --quiet
+scalar aic_110_011 = $aic
+
+arima 0 1 1 ; 1 1 0 ; lnpass --quiet
+scalar aic_011_110 = $aic
+
+# Box-Jenkins'in "airline model"i: ARIMA(0,1,1)(0,1,1)_12
+arima 0 1 1 ; 0 1 1 ; lnpass --quiet
+scalar aic_airline = $aic
+
+printf "Model karşılaştırması (AIC, küçük olan daha iyi):\n"
+printf "ARIMA(1,1,1)           : %.2f\n", aic_111
+printf "ARIMA(1,1,1)(0,1,1)_12 : %.2f\n", aic_111_011
+printf "ARIMA(1,1,0)(0,1,1)_12 : %.2f\n", aic_110_011
+printf "ARIMA(0,1,1)(1,1,0)_12 : %.2f\n", aic_011_110
+printf "ARIMA(0,1,1)(0,1,1)_12 : %.2f\n", aic_airline
+
+# -------------------------------------------------------------
+# 6) SEÇİLEN MODEL VE ARTIK ANALİZİ
+# -------------------------------------------------------------
+# AirPassengers için genellikle airline model en düşük AIC'yi verir.
+arima 0 1 1 ; 0 1 1 ; lnpass
+# Çıktıda theta_1: MA(1), Theta_1: mevsimsel MA(1) katsayısıdır.
+
+series uhat = $uhat
+gnuplot uhat --time-series --with-lines --output=display
+corrgm uhat 36                   # tüm çubuklar güven bandı içinde olmalı
+modtest --autocorr               # Ljung-Box, H0: otokorelasyon yok (p > 0.05 istenir)
+modtest --normality              # artıkların normalliği
+freq uhat --normal --plot=display
+
+# -------------------------------------------------------------
+# 7) EĞİTİM-TEST AYRIMI İLE PERFORMANS (Bölüm 8)
+# -------------------------------------------------------------
+# Son 12 ayı (1960) test için ayırıyoruz: model yalnızca 1949-1959
+# ile tahmin edilir, 1960 için tahmin üretilip gerçek değerlerle
+# karşılaştırılır.
+smpl 1949:01 1959:12
+arima 0 1 1 ; 0 1 1 ; lnpass --quiet
+smpl full
+fcast 1960:01 1960:12 lnpass_test --dynamic   # tahmini lnpass_test serisine kaydet
+series pass_test = exp(lnpass_test)           # log ölçeğinden orijinal ölçeğe
+
+smpl 1960:01 1960:12
+series err = passengers - pass_test
+scalar rmse = sqrt(mean(err^2))
+scalar mae  = mean(abs(err))
+scalar mape = 100 * mean(abs(err / passengers))
+printf "Test seti (1960) performansı:\n"
+printf "RMSE : %.2f\nMAE  : %.2f\nMAPE : %.2f %%\n", rmse, mae, mape
+smpl full
+
+# -------------------------------------------------------------
+# 8) GELECEĞE YÖNELİK TAHMİN (1961)
+# -------------------------------------------------------------
+# Tüm veriyle modeli yeniden tahmin edip veri setini 12 ay uzatıyoruz.
+arima 0 1 1 ; 0 1 1 ; lnpass --quiet
+dataset addobs 12
+fcast 1961:01 1961:12 lnpass_f --dynamic
+# fcast çıktısı her ay için tahmini, standart hatayı ve %95 güven
+# aralığını (log ölçeğinde) tablo olarak da yazdırır.
+
+series pass_f = exp(lnpass_f)
+gnuplot passengers pass_f --time-series --with-lines --output=display
+
+print "Analiz tamamlandı."

@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="430" viewBox="0 0 900 430">
+<title>Etki-tepki fonksiyonu kavramsal grafiği</title>
+<rect x="0.5" y="0.5" width="899" height="429" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">Etki-Tepki (Impulse Response): Faiz Şokuna Enflasyonun Tepkisi</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">t = 0 anında faize tek seferlik bir şok verilir; sonraki dönemlerde enflasyonun normal seyrinden sapması izlenir</text>
+<rect x="70" y="95" width="340" height="230" fill="#f9fafb" stroke="none"/>
+<line x1="70" y1="325" x2="418" y2="325" stroke="#6b7280" stroke-width="1.2"/>
+<line x1="70" y1="325" x2="70" y2="89" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="418,321 425,325 418,329" fill="#6b7280"/>
+<polygon points="66,89 70,82 74,89" fill="#6b7280"/>
+<text x="240.0" y="359.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">Şoktan sonraki dönem (h)</text>
+<line x1="70" y1="179.7" x2="410" y2="179.7" stroke="#6b7280" stroke-dasharray="4 3"/>
+<polygon points="70.0,170.1 98.3,250.6 126.7,269.6 155.0,260.5 183.3,240.7 211.7,218.4 240.0,197.6 268.3,179.5 296.7,164.3 325.0,151.7 353.3,141.3 381.7,132.5 410.0,125.0 410.0,248.9 381.7,247.7 353.3,247.8 325.0,249.5 296.7,253.4 268.3,259.9 240.0,269.3 211.7,281.4 183.3,294.9 155.0,306.1 126.7,306.4 98.3,278.7 70.0,189.4" fill="#2563eb" opacity="0.15" stroke="none"/>
+<polyline points="70.0,179.7 98.3,264.6 126.7,288.0 155.0,283.3 183.3,267.8 211.7,249.9 240.0,233.4 268.3,219.7 296.7,208.8 325.0,200.6 353.3,194.5 381.7,190.1 410.0,187.0" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" opacity="1.0"/>
+<circle cx="70.0" cy="179.7" r="2.8" fill="#2563eb"/>
+<circle cx="98.3" cy="264.6" r="2.8" fill="#2563eb"/>
+<circle cx="126.7" cy="288.0" r="2.8" fill="#2563eb"/>
+<circle cx="155.0" cy="283.3" r="2.8" fill="#2563eb"/>
+<circle cx="183.3" cy="267.8" r="2.8" fill="#2563eb"/>
+<circle cx="211.7" cy="249.9" r="2.8" fill="#2563eb"/>
+<circle cx="240.0" cy="233.4" r="2.8" fill="#2563eb"/>
+<circle cx="268.3" cy="219.7" r="2.8" fill="#2563eb"/>
+<circle cx="296.7" cy="208.8" r="2.8" fill="#2563eb"/>
+<circle cx="325.0" cy="200.6" r="2.8" fill="#2563eb"/>
+<circle cx="353.3" cy="194.5" r="2.8" fill="#2563eb"/>
+<circle cx="381.7" cy="190.1" r="2.8" fill="#2563eb"/>
+<circle cx="410.0" cy="187.0" r="2.8" fill="#2563eb"/>
+<text x="70.0" y="341.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<text x="183.3" y="341.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">4</text>
+<text x="296.7" y="341.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">8</text>
+<text x="410.0" y="341.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">12</text>
+<text x="240.0" y="80.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#16a34a" text-anchor="middle" font-weight="bold">Stabil VAR: tepki zamanla sönümlenir</text>
+<text x="76.0" y="173.7" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="start" font-weight="normal">tepki yok (0)</text>
+<text x="136.7" y="310.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#2563eb" text-anchor="start" font-weight="normal">en güçlü etki (~2. dönem)</text>
+<text x="406.0" y="113.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">Mavi alan: %95 güven bandı</text>
+<rect x="500" y="95" width="340" height="230" fill="#f9fafb" stroke="none"/>
+<line x1="500" y1="325" x2="848" y2="325" stroke="#6b7280" stroke-width="1.2"/>
+<line x1="500" y1="325" x2="500" y2="89" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="848,321 855,325 848,329" fill="#6b7280"/>
+<polygon points="496,89 500,82 504,89" fill="#6b7280"/>
+<text x="670.0" y="359.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">Şoktan sonraki dönem (h)</text>
+<line x1="500" y1="122.1" x2="840" y2="122.1" stroke="#6b7280" stroke-dasharray="4 3"/>
+<polyline points="500.0,122.1 528.3,126.8 556.7,128.7 585.0,131.3 613.3,135.1 641.7,140.2 670.0,147.5 698.3,157.7 726.7,172.0 755.0,191.9 783.3,219.9 811.7,259.0 840.0,313.8" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" opacity="1.0"/>
+<circle cx="500.0" cy="122.1" r="2.8" fill="#dc2626"/>
+<circle cx="528.3" cy="126.8" r="2.8" fill="#dc2626"/>
+<circle cx="556.7" cy="128.7" r="2.8" fill="#dc2626"/>
+<circle cx="585.0" cy="131.3" r="2.8" fill="#dc2626"/>
+<circle cx="613.3" cy="135.1" r="2.8" fill="#dc2626"/>
+<circle cx="641.7" cy="140.2" r="2.8" fill="#dc2626"/>
+<circle cx="670.0" cy="147.5" r="2.8" fill="#dc2626"/>
+<circle cx="698.3" cy="157.7" r="2.8" fill="#dc2626"/>
+<circle cx="726.7" cy="172.0" r="2.8" fill="#dc2626"/>
+<circle cx="755.0" cy="191.9" r="2.8" fill="#dc2626"/>
+<circle cx="783.3" cy="219.9" r="2.8" fill="#dc2626"/>
+<circle cx="811.7" cy="259.0" r="2.8" fill="#dc2626"/>
+<circle cx="840.0" cy="313.8" r="2.8" fill="#dc2626"/>
+<text x="500.0" y="341.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<text x="613.3" y="341.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">4</text>
+<text x="726.7" y="341.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">8</text>
+<text x="840.0" y="341.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">12</text>
+<text x="670.0" y="80.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#dc2626" text-anchor="middle" font-weight="bold">Stabil olmayan VAR: tepki patlar</text>
+<text x="508.0" y="165.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#dc2626" text-anchor="start" font-weight="normal">Öz değerlerden biri birim</text>
+<text x="508.0" y="180.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#dc2626" text-anchor="start" font-weight="normal">çemberin dışında: şok büyür</text>
+<text transform="rotate(-90 40 210)" x="40.0" y="210.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Enflasyonun tepkisi</text>
+<text x="450.0" y="388.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="middle" font-weight="normal">Okuma: çizgi sıfırın altındaysa faiz şoku enflasyonu düşürüyor; bant sıfırı içeriyorsa o dönemdeki etki istatistiksel olarak belirsiz.</text>
+<text x="450.0" y="410.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic">Değerler kavramsaldır (gerçek veri değildir).</text>
+</svg>

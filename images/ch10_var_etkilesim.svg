@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="470" viewBox="0 0 900 470">
+<title>VAR(1) etkileşim diyagramı</title>
+<rect x="0.5" y="0.5" width="899" height="469" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">VAR(1): Değişkenler Arası Etkileşim</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Her değişkenin bugünkü değeri, tüm değişkenlerin bir önceki dönemdeki değerlerine bağlıdır</text>
+<defs>
+<marker id="aB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/></marker>
+<marker id="aO" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#ea580c"/></marker>
+<marker id="aG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#6b7280"/></marker>
+</defs>
+<rect x="70" y="72" width="200" height="330" rx="12" fill="#f9fafb" stroke="#e5e7eb"/>
+<text x="170.0" y="95.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#6b7280" text-anchor="middle" font-weight="bold">Dönem t-1</text>
+<rect x="370" y="72" width="200" height="330" rx="12" fill="#f9fafb" stroke="#e5e7eb"/>
+<text x="470.0" y="95.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#6b7280" text-anchor="middle" font-weight="bold">Dönem t</text>
+<rect x="670" y="72" width="200" height="330" rx="12" fill="#f9fafb" stroke="#e5e7eb"/>
+<text x="770.0" y="95.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#6b7280" text-anchor="middle" font-weight="bold">Dönem t+1</text>
+<rect x="90" y="140" width="160" height="58" rx="10" fill="#2563eb" fill-opacity="0.10" stroke="#2563eb" stroke-width="1.6"/>
+<text x="170.0" y="166.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="middle" font-weight="bold">Enflasyon(t-1)</text>
+<text x="170.0" y="184.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">y₁,t-1</text>
+<rect x="90" y="300" width="160" height="58" rx="10" fill="#ea580c" fill-opacity="0.10" stroke="#ea580c" stroke-width="1.6"/>
+<text x="170.0" y="326.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="middle" font-weight="bold">Faiz(t-1)</text>
+<text x="170.0" y="344.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">y₂,t-1</text>
+<rect x="390" y="140" width="160" height="58" rx="10" fill="#2563eb" fill-opacity="0.10" stroke="#2563eb" stroke-width="1.6"/>
+<text x="470.0" y="166.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="middle" font-weight="bold">Enflasyon(t)</text>
+<text x="470.0" y="184.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">y₁,t</text>
+<rect x="390" y="300" width="160" height="58" rx="10" fill="#ea580c" fill-opacity="0.10" stroke="#ea580c" stroke-width="1.6"/>
+<text x="470.0" y="326.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="middle" font-weight="bold">Faiz(t)</text>
+<text x="470.0" y="344.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">y₂,t</text>
+<rect x="690" y="140" width="160" height="58" rx="10" fill="#2563eb" fill-opacity="0.10" stroke="#2563eb" stroke-width="1.6"/>
+<text x="770.0" y="166.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="middle" font-weight="bold">Enflasyon(t+1)</text>
+<text x="770.0" y="184.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">y₁,t+1</text>
+<rect x="690" y="300" width="160" height="58" rx="10" fill="#ea580c" fill-opacity="0.10" stroke="#ea580c" stroke-width="1.6"/>
+<text x="770.0" y="326.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="middle" font-weight="bold">Faiz(t+1)</text>
+<text x="770.0" y="344.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">y₂,t+1</text>
+<line x1="250" y1="169.0" x2="388" y2="169.0" stroke="#2563eb" stroke-width="2" marker-end="url(#aB)"/>
+<rect x="265" y="148.0" width="40" height="19" rx="5" fill="#ffffff" stroke="#2563eb"/>
+<text x="285.0" y="162.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#2563eb" text-anchor="middle" font-weight="bold">a₁₁</text>
+<line x1="250" y1="329.0" x2="388" y2="181.0" stroke="#ea580c" stroke-width="2" marker-end="url(#aO)"/>
+<rect x="302" y="214.0" width="40" height="19" rx="5" fill="#ffffff" stroke="#ea580c"/>
+<text x="322.0" y="228.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#ea580c" text-anchor="middle" font-weight="bold">a₁₂</text>
+<line x1="250" y1="169.0" x2="388" y2="317.0" stroke="#2563eb" stroke-width="2" marker-end="url(#aB)"/>
+<rect x="302" y="266.0" width="40" height="19" rx="5" fill="#ffffff" stroke="#2563eb"/>
+<text x="322.0" y="280.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#2563eb" text-anchor="middle" font-weight="bold">a₂₁</text>
+<line x1="250" y1="329.0" x2="388" y2="329.0" stroke="#ea580c" stroke-width="2" marker-end="url(#aO)"/>
+<rect x="265" y="308.0" width="40" height="19" rx="5" fill="#ffffff" stroke="#ea580c"/>
+<text x="285.0" y="322.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#ea580c" text-anchor="middle" font-weight="bold">a₂₂</text>
+<line x1="550" y1="169.0" x2="688" y2="169.0" stroke="#6b7280" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#aG)"/>
+<line x1="550" y1="329.0" x2="688" y2="181.0" stroke="#6b7280" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#aG)"/>
+<line x1="550" y1="169.0" x2="688" y2="317.0" stroke="#6b7280" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#aG)"/>
+<line x1="550" y1="329.0" x2="688" y2="329.0" stroke="#6b7280" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#aG)"/>
+<rect x="560" y="236" width="120" height="40" rx="6" fill="#ffffff" stroke="#e5e7eb"/>
+<text x="620.0" y="252.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic">aynı A₁ matrisi</text>
+<text x="620.0" y="268.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic">her adımda tekrar</text>
+<text x="450.0" y="428.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="normal">Mavi oklar: geçmiş enflasyonun etkisi (a₁₁, a₂₁)  ·  Turuncu oklar: geçmiş faizin etkisi (a₁₂, a₂₂)</text>
+<text x="450.0" y="450.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Çapraz oklar (a₁₂, a₂₁) VAR'ı tek değişkenli AR modellerinden ayıran kısımdır.</text>
+</svg>

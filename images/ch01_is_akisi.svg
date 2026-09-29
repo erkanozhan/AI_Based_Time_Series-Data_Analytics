@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="330" viewBox="0 0 900 330">
+<title>Zaman serisi analizinin tipik iş akışı</title>
+<rect x="0.5" y="0.5" width="899" height="329" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">Zaman Serisi Analizinin Tipik İş Akışı</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Her adımın parantez içindeki bölümlerde ayrıntılı işlendiği yinelemeli bir süreç</text>
+<rect x="21" y="95" width="128" height="150" rx="10" fill="#2563eb" fill-opacity="0.08" stroke="#2563eb" stroke-width="1.6"/>
+<circle cx="85.0" cy="95" r="12" fill="#2563eb"/>
+<text x="85.0" y="100.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#fff" text-anchor="middle" font-weight="bold">1</text>
+<text x="85.0" y="131.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#2563eb" text-anchor="middle" font-weight="bold">Veri</text>
+<text x="85.0" y="150.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#2563eb" text-anchor="middle" font-weight="normal">toplama ve hazırlık</text>
+<line x1="35" y1="165" x2="135" y2="165" stroke="#2563eb" stroke-opacity="0.4"/>
+<text x="85.0" y="187.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">tarih/zaman,</text>
+<text x="85.0" y="204.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">ts / xts nesneleri</text>
+<text x="85.0" y="235.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic">Bölüm 4–5</text>
+<line x1="151.0" y1="170.0" x2="157.0" y2="170.0" stroke="#6b7280" stroke-width="1.6"/>
+<polygon points="166.0,170.0 157.0,165.0 157.0,175.0" fill="#6b7280"/>
+<rect x="167" y="95" width="128" height="150" rx="10" fill="#16a34a" fill-opacity="0.08" stroke="#16a34a" stroke-width="1.6"/>
+<circle cx="231.0" cy="95" r="12" fill="#16a34a"/>
+<text x="231.0" y="100.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#fff" text-anchor="middle" font-weight="bold">2</text>
+<text x="231.0" y="131.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#16a34a" text-anchor="middle" font-weight="bold">Görselleştirme</text>
+<text x="231.0" y="150.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#16a34a" text-anchor="middle" font-weight="normal">serinin grafiği</text>
+<line x1="181" y1="165" x2="281" y2="165" stroke="#16a34a" stroke-opacity="0.4"/>
+<text x="231.0" y="187.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">trend, mevsim,</text>
+<text x="231.0" y="204.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">aykırı değerler</text>
+<text x="231.0" y="235.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic">Bölüm 6</text>
+<line x1="297.0" y1="170.0" x2="303.0" y2="170.0" stroke="#6b7280" stroke-width="1.6"/>
+<polygon points="312.0,170.0 303.0,165.0 303.0,175.0" fill="#6b7280"/>
+<rect x="313" y="95" width="128" height="150" rx="10" fill="#ea580c" fill-opacity="0.08" stroke="#ea580c" stroke-width="1.6"/>
+<circle cx="377.0" cy="95" r="12" fill="#ea580c"/>
+<text x="377.0" y="100.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#fff" text-anchor="middle" font-weight="bold">3</text>
+<text x="377.0" y="131.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#ea580c" text-anchor="middle" font-weight="bold">Ayrıştırma ve</text>
+<text x="377.0" y="150.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#ea580c" text-anchor="middle" font-weight="bold">durağanlık</text>
+<line x1="327" y1="165" x2="427" y2="165" stroke="#ea580c" stroke-opacity="0.4"/>
+<text x="377.0" y="187.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">bileşenler, fark alma,</text>
+<text x="377.0" y="204.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">ADF/KPSS, ACF/PACF</text>
+<text x="377.0" y="235.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic">Bölüm 2–3, 6</text>
+<line x1="443.0" y1="170.0" x2="449.0" y2="170.0" stroke="#6b7280" stroke-width="1.6"/>
+<polygon points="458.0,170.0 449.0,165.0 449.0,175.0" fill="#6b7280"/>
+<rect x="459" y="95" width="128" height="150" rx="10" fill="#7c3aed" fill-opacity="0.08" stroke="#7c3aed" stroke-width="1.6"/>
+<circle cx="523.0" cy="95" r="12" fill="#7c3aed"/>
+<text x="523.0" y="100.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#fff" text-anchor="middle" font-weight="bold">4</text>
+<text x="523.0" y="131.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#7c3aed" text-anchor="middle" font-weight="bold">Model</text>
+<text x="523.0" y="150.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#7c3aed" text-anchor="middle" font-weight="normal">kurma</text>
+<line x1="473" y1="165" x2="573" y2="165" stroke="#7c3aed" stroke-opacity="0.4"/>
+<text x="523.0" y="187.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">ARIMA, Prophet, VAR,</text>
+<text x="523.0" y="204.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">XGBoost, LSTM</text>
+<text x="523.0" y="235.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic">Bölüm 7, 9–15</text>
+<line x1="589.0" y1="170.0" x2="595.0" y2="170.0" stroke="#6b7280" stroke-width="1.6"/>
+<polygon points="604.0,170.0 595.0,165.0 595.0,175.0" fill="#6b7280"/>
+<rect x="605" y="95" width="128" height="150" rx="10" fill="#dc2626" fill-opacity="0.08" stroke="#dc2626" stroke-width="1.6"/>
+<circle cx="669.0" cy="95" r="12" fill="#dc2626"/>
+<text x="669.0" y="100.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#fff" text-anchor="middle" font-weight="bold">5</text>
+<text x="669.0" y="131.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#dc2626" text-anchor="middle" font-weight="bold">Değerlendirme</text>
+<text x="669.0" y="150.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#dc2626" text-anchor="middle" font-weight="normal">test verisinde</text>
+<line x1="619" y1="165" x2="719" y2="165" stroke="#dc2626" stroke-opacity="0.4"/>
+<text x="669.0" y="187.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">MAE, RMSE, MAPE,</text>
+<text x="669.0" y="204.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">çapraz doğrulama</text>
+<text x="669.0" y="235.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic">Bölüm 8, 16</text>
+<line x1="735.0" y1="170.0" x2="741.0" y2="170.0" stroke="#6b7280" stroke-width="1.6"/>
+<polygon points="750.0,170.0 741.0,165.0 741.0,175.0" fill="#6b7280"/>
+<rect x="751" y="95" width="128" height="150" rx="10" fill="#1f2937" fill-opacity="0.08" stroke="#1f2937" stroke-width="1.6"/>
+<circle cx="815.0" cy="95" r="12" fill="#1f2937"/>
+<text x="815.0" y="100.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#fff" text-anchor="middle" font-weight="bold">6</text>
+<text x="815.0" y="131.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="middle" font-weight="bold">Tahmin</text>
+<text x="815.0" y="150.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="normal">ve raporlama</text>
+<line x1="765" y1="165" x2="865" y2="165" stroke="#1f2937" stroke-opacity="0.4"/>
+<text x="815.0" y="187.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">gelecek değerler +</text>
+<text x="815.0" y="204.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">tahmin aralığı</text>
+<text x="815.0" y="235.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic">Bölüm 7–17</text>
+<path d="M669.0,245 L669.0,275 L377.0,275 L377.0,255" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="5 4"/>
+<polygon points="377.0,246 372.0,255 382.0,255" fill="#dc2626"/>
+<text x="523.0" y="293.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#dc2626" text-anchor="middle" font-weight="normal">Sonuç yetersizse geri dön: dönüşümü, modeli ya da parametreleri değiştir</text>
+</svg>

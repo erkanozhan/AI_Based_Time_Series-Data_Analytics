@@ -1,0 +1,27 @@
+# Ders notundaki Python kodları için gerekli paketler
+# Kurulum (depo kök dizininde, tercihen bir sanal ortamda):
+#   python -m venv .venv
+#   .venv\Scripts\activate        (Windows)   |   source .venv/bin/activate   (macOS/Linux)
+#   pip install -r Codes/requirements.txt
+
+# Temel (tüm bölümler)
+numpy>=1.26
+pandas>=2.2
+matplotlib>=3.8
+scikit-learn>=1.4
+
+# İstatistiksel modeller (Bölüm 7, 8, 10, 15)
+statsmodels>=0.14
+pmdarima>=2.0.4
+
+# Prophet (Bölüm 9)
+prophet>=1.1.5
+
+# XGBoost (Bölüm 13, 15, 16)
+xgboost>=2.0
+
+# Derin öğrenme: LSTM, GRU, 1D-CNN (Bölüm 15, 16)
+tensorflow>=2.15
+
+# Notebook'ları yerelde açmak için (isteğe bağlı)
+jupyter

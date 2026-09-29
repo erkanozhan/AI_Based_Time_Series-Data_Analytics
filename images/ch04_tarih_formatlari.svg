@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="500" viewBox="0 0 900 500">
+<title>Tarih formatları ve R'ın iç temsili</title>
+<rect x="0.5" y="0.5" width="899" height="499" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">Aynı Metin, Farklı Tarihler — ve R'ın İç Temsili</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Biçim (format) belirtilmezse "01/02/2024" iki farklı güne karşılık gelebilir; R ise her tarihi bir sayı olarak saklar</text>
+<text x="40.0" y="84.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="start" font-weight="bold">1) Metin nasıl okunur?</text>
+<rect x="40" y="140" width="190" height="64" rx="8" fill="#1f2937" fill-opacity="0.06" stroke="#1f2937" stroke-width="1.5"/>
+<text x="135.0" y="170.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="21" fill="#1f2937" text-anchor="middle" font-weight="bold">"01/02/2024"</text>
+<text x="135.0" y="192.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">karakter (metin)</text>
+<path d="M230,172 C275,172 275,121 318,121" fill="none" stroke="#ea580c" stroke-width="1.5"/>
+<polygon points="318,121 310,117 310,125" fill="#ea580c"/>
+<rect x="320" y="98" width="540" height="46" rx="8" fill="#ea580c" fill-opacity="0.08" stroke="#ea580c" stroke-width="1.5"/>
+<text x="334.0" y="117.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#ea580c" text-anchor="start" font-weight="bold">ABD — ay/gün/yıl</text>
+<text x="334.0" y="135.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">format = "%m/%d/%Y"</text>
+<text x="640.0" y="117.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#1f2937" text-anchor="start" font-weight="bold">2 Ocak 2024</text>
+<text x="640.0" y="135.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="normal">ISO: 2024-01-02</text>
+<path d="M230,172 C275,172 275,175 318,175" fill="none" stroke="#2563eb" stroke-width="1.5"/>
+<polygon points="318,175 310,171 310,179" fill="#2563eb"/>
+<rect x="320" y="152" width="540" height="46" rx="8" fill="#2563eb" fill-opacity="0.08" stroke="#2563eb" stroke-width="1.5"/>
+<text x="334.0" y="171.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#2563eb" text-anchor="start" font-weight="bold">Türkiye, Avrupa — gün/ay/yıl</text>
+<text x="334.0" y="189.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">format = "%d/%m/%Y"</text>
+<text x="640.0" y="171.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#1f2937" text-anchor="start" font-weight="bold">1 Şubat 2024</text>
+<text x="640.0" y="189.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="normal">ISO: 2024-02-01</text>
+<path d="M230,172 C275,172 275,229 318,229" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-dasharray="5 4"/>
+<polygon points="318,229 310,225 310,233" fill="#16a34a"/>
+<rect x="320" y="206" width="540" height="46" rx="8" fill="#16a34a" fill-opacity="0.08" stroke="#16a34a" stroke-width="1.5"/>
+<text x="334.0" y="225.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#16a34a" text-anchor="start" font-weight="bold">Çözüm: ISO 8601 — yıl-ay-gün</text>
+<text x="334.0" y="243.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">format = "%Y-%m-%d"</text>
+<text x="640.0" y="225.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#1f2937" text-anchor="start" font-weight="bold">"2024-02-01" yazın</text>
+<text x="640.0" y="243.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="normal">tek anlamlı, sıralanabilir</text>
+<text x="590.0" y="272.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic">ISO 8601 biçimi (2024-02-01) ülkeden bağımsızdır ve metin olarak sıralandığında kronolojik sıra korunur.</text>
+<line x1="30" y1="292" x2="870" y2="292" stroke="#e5e7eb" stroke-width="1"/>
+<text x="40.0" y="318.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="start" font-weight="bold">2) R, 1 Şubat 2024'ü içeride nasıl saklar?</text>
+<line x1="70" y1="352" x2="830" y2="352" stroke="#6b7280" stroke-width="2"/>
+<circle cx="70" cy="352" r="5" fill="#1f2937"/>
+<text x="70.0" y="341.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="bold">1970-01-01 00:00 UTC</text>
+<text x="70.0" y="370.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="start" font-weight="normal">orijin = 0</text>
+<circle cx="830" cy="352" r="5" fill="#1f2937"/>
+<text x="830.0" y="341.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="middle" font-weight="bold">2024-02-01</text>
+<text x="450.0" y="342.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic">geçen süre sayılır (gün ya da saniye)</text>
+<line x1="220" y1="365" x2="822" y2="365" stroke="#6b7280" stroke-width="1.2" stroke-dasharray="4 3"/><polygon points="822,365 814.6,368.1 814.6,361.9" fill="#6b7280"/>
+<rect x="40.0" y="382" width="265" height="100" rx="8" fill="#2563eb" fill-opacity="0.07" stroke="#2563eb" stroke-width="1.5"/>
+<text x="54.0" y="404.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#2563eb" text-anchor="start" font-weight="bold">Date</text>
+<text x="172.5" y="434.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="20" fill="#1f2937" text-anchor="middle" font-weight="bold">19754</text>
+<text x="172.5" y="456.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">1970-01-01'den bu yana GÜN</text>
+<text x="172.5" y="473.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">as.numeric(as.Date("2024-02-01"))</text>
+<rect x="322.5" y="382" width="265" height="100" rx="8" fill="#ea580c" fill-opacity="0.07" stroke="#ea580c" stroke-width="1.5"/>
+<text x="336.5" y="404.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#ea580c" text-anchor="start" font-weight="bold">POSIXct</text>
+<text x="455.0" y="434.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="20" fill="#1f2937" text-anchor="middle" font-weight="bold">1706745600</text>
+<text x="455.0" y="456.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">1970-01-01 00:00 UTC'den bu yana SANİYE</text>
+<text x="455.0" y="473.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">tz = "UTC" iken, gece yarısı</text>
+<rect x="605.0" y="382" width="265" height="100" rx="8" fill="#7c3aed" fill-opacity="0.07" stroke="#7c3aed" stroke-width="1.5"/>
+<text x="619.0" y="404.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#7c3aed" text-anchor="start" font-weight="bold">POSIXlt</text>
+<text x="737.5" y="434.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="bold">list(year=124, mon=1, mday=1, ...)</text>
+<text x="737.5" y="456.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">parçalara ayrılmış liste</text>
+<text x="737.5" y="473.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">yıl 1900'den, ay 0'dan sayılır</text>
+</svg>

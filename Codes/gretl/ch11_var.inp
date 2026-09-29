@@ -1,0 +1,46 @@
+# ---------------------------------------------
+# Gretl ile VAR örneği (komut dili)
+# ---------------------------------------------
+# Ders notu: Course_notes.md, Bölüm 11.6.2 (Betik ile VAR); teori Bölüm 10.
+# Veri: data/macro.csv — 2015:01'den başlayan aylık inflation, interest, exchange serileri.
+#
+# ÇALIŞTIRMA
+#   Komut satırı (depo kök dizininden):
+#     gretlcli -b Codes/gretl/ch11_var.inp
+#   Gretl arayüzü: File → Script files → Open user file… ile bu dosyayı
+#   açıp Run (dişli simgesi) düğmesine basın.
+#
+# VERİ YOLU
+#   "open" komutu betiğin depo kök dizininden çalıştırıldığını varsayar.
+#   Gretl dosyayı bulamazsa satırı tam yolla yazın ya da betik
+#   Codes/gretl/ klasöründen açıldıysa open "../../data/macro.csv" kullanın.
+
+# 1) Veri dosyasını açalım (depo kök dizininden; .gdt dosyaları da aynı komutla açılır)
+open "data/macro.csv"
+
+# Zaman serisi yapısını açıkça tanımlıyoruz (2015:01'den başlayan aylık veri):
+setobs 12 2015:01 --time-series
+
+# 2) Gecikme seçimi: 1'den 8'e kadar AIC, BIC, HQC tablosu
+var 8 inflation interest exchange --lagselect
+
+# 3) VAR(2) modelinin tahmini
+#    Sözdizimi: var gecikme_sayısı değişken_listesi
+#    IRF ve FEVD ufkunu 12 dönem olarak ayarlıyoruz.
+set horizon 12
+var 2 inflation interest exchange --impulse-responses --variance-decomp
+
+# Çıktıda her denklem için:
+#   - katsayılar ve standart hatalar
+#   - "F-tests of zero restrictions": Granger nedensellik testleri
+#     (ör. inflation denklemindeki "All lags of interest" satırı)
+# --impulse-responses ve --variance-decomp seçenekleri IRF ve FEVD
+# tablolarını da yazdırır (değişken sırası = Cholesky sırası).
+
+# 4) Artık tanı testleri
+modtest --autocorr               # artıklarda otokorelasyon
+modtest --normality              # artıkların normalliği
+
+# 5) 12 dönemlik tahmin: veri setini uzatıp fcast çalıştırıyoruz
+dataset addobs 12
+fcast --out-of-sample

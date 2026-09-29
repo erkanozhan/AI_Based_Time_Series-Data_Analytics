@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="450" viewBox="0 0 900 450">
+<title>RNN açılımı ve kaybolan gradyan</title>
+<rect x="0.5" y="0.5" width="899" height="449" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">RNN'in Zaman İçinde Açılmış Hâli</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Solda katlanmış gösterim; sağda aynı hücrenin her zaman adımı için kopyası (ağırlıklar paylaşılır)</text>
+<rect x="60.0" y="175.0" width="84.0" height="56.0" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.8"/>
+<text x="102.0" y="209.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="17" fill="#7c3aed" text-anchor="middle" font-weight="bold">hₜ</text>
+<path d="M144,191 C189,191 189,215 152,215" fill="none" stroke="#7c3aed" stroke-width="1.6"/>
+<polygon points="144,215 153,210 153,220" fill="#7c3aed"/>
+<text x="186.0" y="208.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#7c3aed" text-anchor="start" font-weight="bold">Wₕ</text>
+<g opacity="1.0"><line x1="102.0" y1="281.0" x2="102.0" y2="238.6" stroke="#2563eb" stroke-width="1.6"/><polygon points="102.0,233.0 105.0,239.3 99.0,239.3" fill="#2563eb"/></g>
+<text x="102.0" y="301.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#2563eb" text-anchor="middle" font-weight="bold">xₜ</text>
+<g opacity="1.0"><line x1="102.0" y1="173.0" x2="102.0" y2="132.6" stroke="#16a34a" stroke-width="1.6"/><polygon points="102.0,127.0 105.0,133.3 99.0,133.3" fill="#16a34a"/></g>
+<text x="102.0" y="119.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#16a34a" text-anchor="middle" font-weight="bold">ŷₜ</text>
+<text x="236.0" y="213.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="30" fill="#1f2937" text-anchor="middle" font-weight="bold">=</text>
+<text x="236.0" y="233.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">açılım</text>
+<g opacity="1.0"><line x1="276.0" y1="203.0" x2="321.4" y2="203.0" stroke="#7c3aed" stroke-width="1.6" stroke-dasharray="4 3"/><polygon points="327.0,203.0 320.7,206.0 320.7,200.0" fill="#7c3aed"/></g>
+<text x="276.0" y="195.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#7c3aed" text-anchor="start" font-weight="normal">hₜ₋₄</text>
+<rect x="330.0" y="175.0" width="84.0" height="56.0" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.8"/>
+<text x="372.0" y="209.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" fill="#7c3aed" text-anchor="middle" font-weight="bold">hₜ₋₃</text>
+<g opacity="1.0"><line x1="372.0" y1="281.0" x2="372.0" y2="238.6" stroke="#2563eb" stroke-width="1.6"/><polygon points="372.0,233.0 375.0,239.3 369.0,239.3" fill="#2563eb"/></g>
+<text x="372.0" y="301.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#2563eb" text-anchor="middle" font-weight="bold">xₜ₋₃</text>
+<text x="378.0" y="261.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#2563eb" text-anchor="start" font-weight="normal">Wₓ</text>
+<g opacity="1.0"><line x1="372.0" y1="173.0" x2="372.0" y2="132.6" stroke="#16a34a" stroke-width="1.6"/><polygon points="372.0,127.0 375.0,133.3 369.0,133.3" fill="#16a34a"/></g>
+<text x="372.0" y="119.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#16a34a" text-anchor="middle" font-weight="bold">ŷₜ₋₃</text>
+<text x="378.0" y="153.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#16a34a" text-anchor="start" font-weight="normal">Wᵧ</text>
+<g opacity="1.0"><line x1="416.0" y1="203.0" x2="461.4" y2="203.0" stroke="#7c3aed" stroke-width="1.8"/><polygon points="467.0,203.0 460.7,206.0 460.7,200.0" fill="#7c3aed"/></g>
+<text x="442.0" y="195.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#7c3aed" text-anchor="middle" font-weight="bold">Wₕ</text>
+<rect x="470.0" y="175.0" width="84.0" height="56.0" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.8"/>
+<text x="512.0" y="209.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" fill="#7c3aed" text-anchor="middle" font-weight="bold">hₜ₋₂</text>
+<g opacity="1.0"><line x1="512.0" y1="281.0" x2="512.0" y2="238.6" stroke="#2563eb" stroke-width="1.6"/><polygon points="512.0,233.0 515.0,239.3 509.0,239.3" fill="#2563eb"/></g>
+<text x="512.0" y="301.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#2563eb" text-anchor="middle" font-weight="bold">xₜ₋₂</text>
+<text x="518.0" y="261.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#2563eb" text-anchor="start" font-weight="normal">Wₓ</text>
+<g opacity="1.0"><line x1="512.0" y1="173.0" x2="512.0" y2="132.6" stroke="#16a34a" stroke-width="1.6"/><polygon points="512.0,127.0 515.0,133.3 509.0,133.3" fill="#16a34a"/></g>
+<text x="512.0" y="119.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#16a34a" text-anchor="middle" font-weight="bold">ŷₜ₋₂</text>
+<text x="518.0" y="153.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#16a34a" text-anchor="start" font-weight="normal">Wᵧ</text>
+<g opacity="1.0"><line x1="556.0" y1="203.0" x2="601.4" y2="203.0" stroke="#7c3aed" stroke-width="1.8"/><polygon points="607.0,203.0 600.7,206.0 600.7,200.0" fill="#7c3aed"/></g>
+<text x="582.0" y="195.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#7c3aed" text-anchor="middle" font-weight="bold">Wₕ</text>
+<rect x="610.0" y="175.0" width="84.0" height="56.0" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.8"/>
+<text x="652.0" y="209.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" fill="#7c3aed" text-anchor="middle" font-weight="bold">hₜ₋₁</text>
+<g opacity="1.0"><line x1="652.0" y1="281.0" x2="652.0" y2="238.6" stroke="#2563eb" stroke-width="1.6"/><polygon points="652.0,233.0 655.0,239.3 649.0,239.3" fill="#2563eb"/></g>
+<text x="652.0" y="301.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#2563eb" text-anchor="middle" font-weight="bold">xₜ₋₁</text>
+<text x="658.0" y="261.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#2563eb" text-anchor="start" font-weight="normal">Wₓ</text>
+<g opacity="1.0"><line x1="652.0" y1="173.0" x2="652.0" y2="132.6" stroke="#16a34a" stroke-width="1.6"/><polygon points="652.0,127.0 655.0,133.3 649.0,133.3" fill="#16a34a"/></g>
+<text x="652.0" y="119.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#16a34a" text-anchor="middle" font-weight="bold">ŷₜ₋₁</text>
+<text x="658.0" y="153.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#16a34a" text-anchor="start" font-weight="normal">Wᵧ</text>
+<g opacity="1.0"><line x1="696.0" y1="203.0" x2="741.4" y2="203.0" stroke="#7c3aed" stroke-width="1.8"/><polygon points="747.0,203.0 740.7,206.0 740.7,200.0" fill="#7c3aed"/></g>
+<text x="722.0" y="195.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#7c3aed" text-anchor="middle" font-weight="bold">Wₕ</text>
+<rect x="750.0" y="175.0" width="84.0" height="56.0" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.8"/>
+<text x="792.0" y="209.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" fill="#7c3aed" text-anchor="middle" font-weight="bold">hₜ</text>
+<g opacity="1.0"><line x1="792.0" y1="281.0" x2="792.0" y2="238.6" stroke="#2563eb" stroke-width="1.6"/><polygon points="792.0,233.0 795.0,239.3 789.0,239.3" fill="#2563eb"/></g>
+<text x="792.0" y="301.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#2563eb" text-anchor="middle" font-weight="bold">xₜ</text>
+<text x="798.0" y="261.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#2563eb" text-anchor="start" font-weight="normal">Wₓ</text>
+<g opacity="1.0"><line x1="792.0" y1="173.0" x2="792.0" y2="132.6" stroke="#16a34a" stroke-width="1.6"/><polygon points="792.0,127.0 795.0,133.3 789.0,133.3" fill="#16a34a"/></g>
+<text x="792.0" y="119.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#16a34a" text-anchor="middle" font-weight="bold">ŷₜ</text>
+<text x="798.0" y="153.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#16a34a" text-anchor="start" font-weight="normal">Wᵧ</text>
+<g opacity="1.0"><line x1="792.0" y1="341.0" x2="666.0" y2="341.0" stroke="#dc2626" stroke-width="3.2"/><polygon points="658.0,341.0 667.0,336.7 667.0,345.3" fill="#dc2626"/></g>
+<g opacity="0.55"><line x1="652.0" y1="341.0" x2="526.0" y2="341.0" stroke="#dc2626" stroke-width="2.3"/><polygon points="518.0,341.0 527.0,336.7 527.0,345.3" fill="#dc2626"/></g>
+<g opacity="0.25"><line x1="512.0" y1="341.0" x2="386.0" y2="341.0" stroke="#dc2626" stroke-width="1.5"/><polygon points="378.0,341.0 387.0,336.7 387.0,345.3" fill="#dc2626"/></g>
+<text x="800.0" y="346.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#dc2626" text-anchor="start" font-weight="bold">hata</text>
+<text x="560.0" y="373.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#dc2626" text-anchor="middle" font-weight="normal">Geri yayılımda (BPTT) hata sinyali her adımda bir çarpanla çarpılarak geriye taşınır;</text>
+<text x="560.0" y="391.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#dc2626" text-anchor="middle" font-weight="normal">çarpan 1'den küçükse uzak geçmişe ulaştığında neredeyse sıfırlanır → kaybolan gradyan</text>
+</svg>

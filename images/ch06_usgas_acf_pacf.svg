@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="470" viewBox="0 0 900 470">
+<title>USgas ACF ve PACF</title>
+<rect x="0.5" y="0.5" width="899" height="469" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">USgas Serisinin ACF ve PACF Grafikleri</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">T = 238 aylık gözlem, 36 gecikme. Mavi kesikli çizgiler: ±1.96/√T = ±0.127. Turuncu: gecikme 12, 24, 36</text>
+<rect x="70" y="85" width="790" height="140" fill="#f9fafb" stroke="#e5e7eb"/>
+<rect x="70" y="146.1" width="790" height="17.8" fill="#2563eb" opacity="0.08"/>
+<line x1="70" y1="146.1" x2="860" y2="146.1" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.2"/>
+<line x1="70" y1="163.9" x2="860" y2="163.9" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.2"/>
+<line x1="70" y1="155.0" x2="860" y2="155.0" stroke="#6b7280" stroke-width="1"/>
+<text x="65.0" y="89.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">1</text>
+<text x="65.0" y="159.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">0</text>
+<text x="65.0" y="229.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">-1</text>
+<rect x="86.4" y="100.3" width="10.0" height="54.7" fill="#2563eb"/>
+<text x="91.4" y="239.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<rect x="107.7" y="126.1" width="10.0" height="28.9" fill="#2563eb"/>
+<rect x="129.1" y="150.5" width="10.0" height="4.5" fill="#9ca3af"/>
+<rect x="150.4" y="155.0" width="10.0" height="8.8" fill="#9ca3af"/>
+<rect x="171.8" y="155.0" width="10.0" height="11.9" fill="#2563eb"/>
+<rect x="193.1" y="155.0" width="10.0" height="12.1" fill="#2563eb"/>
+<text x="198.1" y="239.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">6</text>
+<rect x="214.5" y="155.0" width="10.0" height="11.4" fill="#2563eb"/>
+<rect x="235.8" y="155.0" width="10.0" height="9.5" fill="#2563eb"/>
+<rect x="257.2" y="152.4" width="10.0" height="2.6" fill="#9ca3af"/>
+<rect x="278.5" y="129.4" width="10.0" height="25.6" fill="#2563eb"/>
+<rect x="299.9" y="105.7" width="10.0" height="49.3" fill="#2563eb"/>
+<rect x="321.2" y="94.4" width="10.0" height="60.6" fill="#ea580c"/>
+<text x="326.2" y="239.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">12</text>
+<rect x="342.6" y="107.5" width="10.0" height="47.5" fill="#2563eb"/>
+<rect x="363.9" y="130.8" width="10.0" height="24.2" fill="#2563eb"/>
+<rect x="385.3" y="153.9" width="10.0" height="1.1" fill="#9ca3af"/>
+<rect x="406.6" y="155.0" width="10.0" height="10.9" fill="#2563eb"/>
+<rect x="428.0" y="155.0" width="10.0" height="12.8" fill="#2563eb"/>
+<rect x="449.3" y="155.0" width="10.0" height="12.7" fill="#2563eb"/>
+<text x="454.3" y="239.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">18</text>
+<rect x="470.7" y="155.0" width="10.0" height="12.2" fill="#2563eb"/>
+<rect x="492.0" y="155.0" width="10.0" height="11.0" fill="#2563eb"/>
+<rect x="513.4" y="155.0" width="10.0" height="0.8" fill="#9ca3af"/>
+<rect x="534.7" y="133.4" width="10.0" height="21.6" fill="#2563eb"/>
+<rect x="556.1" y="111.6" width="10.0" height="43.4" fill="#2563eb"/>
+<rect x="577.4" y="101.3" width="10.0" height="53.7" fill="#ea580c"/>
+<text x="582.4" y="239.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">24</text>
+<rect x="598.8" y="113.1" width="10.0" height="41.9" fill="#2563eb"/>
+<rect x="620.1" y="135.2" width="10.0" height="19.8" fill="#2563eb"/>
+<rect x="641.5" y="155.0" width="10.0" height="1.7" fill="#9ca3af"/>
+<rect x="662.8" y="155.0" width="10.0" height="12.4" fill="#2563eb"/>
+<rect x="684.2" y="155.0" width="10.0" height="13.7" fill="#2563eb"/>
+<rect x="705.5" y="155.0" width="10.0" height="13.5" fill="#2563eb"/>
+<text x="710.5" y="239.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">30</text>
+<rect x="726.9" y="155.0" width="10.0" height="12.9" fill="#2563eb"/>
+<rect x="748.2" y="155.0" width="10.0" height="11.4" fill="#2563eb"/>
+<rect x="769.6" y="155.0" width="10.0" height="0.8" fill="#9ca3af"/>
+<rect x="790.9" y="134.3" width="10.0" height="20.7" fill="#2563eb"/>
+<rect x="812.3" y="113.6" width="10.0" height="41.4" fill="#2563eb"/>
+<rect x="833.6" y="103.8" width="10.0" height="51.2" fill="#ea580c"/>
+<text x="838.6" y="239.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">36</text>
+<text x="70.0" y="78.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="start" font-weight="bold">ACF</text>
+<text x="860.0" y="78.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="end" font-weight="normal">dalgalı, 12 aylık periyotla tekrar eden ve yavaş sönen yapı → güçlü mevsimsellik</text>
+<rect x="70" y="280" width="790" height="140" fill="#f9fafb" stroke="#e5e7eb"/>
+<rect x="70" y="341.1" width="790" height="17.8" fill="#2563eb" opacity="0.08"/>
+<line x1="70" y1="341.1" x2="860" y2="341.1" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.2"/>
+<line x1="70" y1="358.9" x2="860" y2="358.9" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.2"/>
+<line x1="70" y1="350.0" x2="860" y2="350.0" stroke="#6b7280" stroke-width="1"/>
+<text x="65.0" y="284.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">1</text>
+<text x="65.0" y="354.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">0</text>
+<text x="65.0" y="424.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">-1</text>
+<rect x="86.4" y="295.3" width="10.0" height="54.7" fill="#7c3aed"/>
+<text x="91.4" y="434.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<rect x="107.7" y="350.0" width="10.0" height="35.8" fill="#7c3aed"/>
+<rect x="129.1" y="350.0" width="10.0" height="5.7" fill="#9ca3af"/>
+<rect x="150.4" y="341.4" width="10.0" height="8.6" fill="#9ca3af"/>
+<rect x="171.8" y="350.0" width="10.0" height="1.3" fill="#9ca3af"/>
+<rect x="193.1" y="350.0" width="10.0" height="13.5" fill="#7c3aed"/>
+<text x="198.1" y="434.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">6</text>
+<rect x="214.5" y="348.4" width="10.0" height="1.6" fill="#9ca3af"/>
+<rect x="235.8" y="346.4" width="10.0" height="3.6" fill="#9ca3af"/>
+<rect x="257.2" y="319.0" width="10.0" height="31.0" fill="#7c3aed"/>
+<rect x="278.5" y="316.4" width="10.0" height="33.6" fill="#7c3aed"/>
+<rect x="299.9" y="325.5" width="10.0" height="24.5" fill="#7c3aed"/>
+<rect x="321.2" y="335.0" width="10.0" height="15.0" fill="#ea580c"/>
+<text x="326.2" y="434.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">12</text>
+<rect x="342.6" y="350.0" width="10.0" height="28.4" fill="#7c3aed"/>
+<rect x="363.9" y="347.6" width="10.0" height="2.4" fill="#9ca3af"/>
+<rect x="385.3" y="350.0" width="10.0" height="3.1" fill="#9ca3af"/>
+<rect x="406.6" y="345.3" width="10.0" height="4.7" fill="#9ca3af"/>
+<rect x="428.0" y="348.1" width="10.0" height="1.9" fill="#9ca3af"/>
+<rect x="449.3" y="350.0" width="10.0" height="6.5" fill="#9ca3af"/>
+<text x="454.3" y="434.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">18</text>
+<rect x="470.7" y="350.0" width="10.0" height="0.8" fill="#9ca3af"/>
+<rect x="492.0" y="350.0" width="10.0" height="2.5" fill="#9ca3af"/>
+<rect x="513.4" y="350.0" width="10.0" height="3.2" fill="#9ca3af"/>
+<rect x="534.7" y="343.4" width="10.0" height="6.6" fill="#9ca3af"/>
+<rect x="556.1" y="350.0" width="10.0" height="1.9" fill="#9ca3af"/>
+<rect x="577.4" y="341.9" width="10.0" height="8.1" fill="#ea580c"/>
+<text x="582.4" y="434.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">24</text>
+<rect x="598.8" y="350.0" width="10.0" height="8.9" fill="#9ca3af"/>
+<rect x="620.1" y="350.0" width="10.0" height="2.2" fill="#9ca3af"/>
+<rect x="641.5" y="347.7" width="10.0" height="2.3" fill="#9ca3af"/>
+<rect x="662.8" y="348.4" width="10.0" height="1.6" fill="#9ca3af"/>
+<rect x="684.2" y="350.0" width="10.0" height="0.9" fill="#9ca3af"/>
+<rect x="705.5" y="350.0" width="10.0" height="4.5" fill="#9ca3af"/>
+<text x="710.5" y="434.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">30</text>
+<rect x="726.9" y="345.4" width="10.0" height="4.6" fill="#9ca3af"/>
+<rect x="748.2" y="345.1" width="10.0" height="4.9" fill="#9ca3af"/>
+<rect x="769.6" y="343.1" width="10.0" height="6.9" fill="#9ca3af"/>
+<rect x="790.9" y="349.3" width="10.0" height="0.8" fill="#9ca3af"/>
+<rect x="812.3" y="349.1" width="10.0" height="0.9" fill="#9ca3af"/>
+<rect x="833.6" y="341.4" width="10.0" height="8.6" fill="#ea580c"/>
+<text x="838.6" y="434.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">36</text>
+<text x="70.0" y="273.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="start" font-weight="bold">PACF</text>
+<text x="860.0" y="273.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="end" font-weight="normal">gecikme 1 ve 2 büyük; 9–13 civarında mevsimsel etki</text>
+<text x="465.0" y="455.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Gecikme h (ay)</text>
+</svg>

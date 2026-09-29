@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="450" viewBox="0 0 900 450">
+<title>Özyinelemeli çok adımlı tahmin</title>
+<rect x="0.5" y="0.5" width="899" height="449" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">Özyinelemeli (Recursive) Çok Adımlı Tahmin</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Model yalnızca bir adım ileriyi tahmin eder; her tahmin, bir sonraki adımın girdisine eklenir</text>
+<text x="183.0" y="92.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="middle" font-weight="bold">Girdi penceresi (son 3 değer)</text>
+<text x="40.0" y="134.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">Adım 1</text>
+<rect x="70" y="110" width="70" height="38" rx="6" fill="#2563eb" stroke="#2563eb" stroke-width="1.5"/>
+<text x="105.0" y="134.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">yₜ₋₂</text>
+<rect x="148" y="110" width="70" height="38" rx="6" fill="#2563eb" stroke="#2563eb" stroke-width="1.5"/>
+<text x="183.0" y="134.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">yₜ₋₁</text>
+<rect x="226" y="110" width="70" height="38" rx="6" fill="#2563eb" stroke="#2563eb" stroke-width="1.5"/>
+<text x="261.0" y="134.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">yₜ</text>
+<line x1="300.0" y1="129.0" x2="333.0" y2="129.0" stroke="#1f2937" stroke-width="1.8"/>
+<polygon points="333.0,134.0 342.0,129.0 333.0,124.0" fill="#1f2937"/>
+<rect x="344" y="106" width="150" height="46" rx="6" fill="#1f2937" stroke="#1f2937" stroke-width="1.5"/>
+<text x="419.0" y="134.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#ffffff" text-anchor="middle" font-weight="bold">Model f(·)</text>
+<line x1="496.0" y1="129.0" x2="533.0" y2="129.0" stroke="#1f2937" stroke-width="1.8"/>
+<polygon points="533.0,134.0 542.0,129.0 533.0,124.0" fill="#1f2937"/>
+<rect x="544" y="110" width="90" height="38" rx="6" fill="#ea580c" stroke="#ea580c" stroke-width="1.5"/>
+<text x="589.0" y="134.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">ŷₜ₊₁</text>
+<text x="644.0" y="134.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="normal">1 adım ileri tahmin</text>
+<path d="M589.0,150.0 L589.0,174.0 L261.0,174.0 L261.0,190.0" fill="none" stroke="#ea580c" stroke-width="1.8" stroke-dasharray="6 4"/>
+<polygon points="256.0,190.0 261.0,199.0 266.0,190.0" fill="#ea580c"/>
+<text x="425.0" y="169.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="bold">tahmin girdiye eklenir, en eski değer düşer</text>
+<text x="40.0" y="224.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">Adım 2</text>
+<rect x="70" y="200" width="70" height="38" rx="6" fill="#2563eb" stroke="#2563eb" stroke-width="1.5"/>
+<text x="105.0" y="224.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">yₜ₋₁</text>
+<rect x="148" y="200" width="70" height="38" rx="6" fill="#2563eb" stroke="#2563eb" stroke-width="1.5"/>
+<text x="183.0" y="224.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">yₜ</text>
+<rect x="226" y="200" width="70" height="38" rx="6" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+<text x="261.0" y="224.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#ea580c" text-anchor="middle" font-weight="bold">ŷₜ₊₁</text>
+<line x1="300.0" y1="219.0" x2="333.0" y2="219.0" stroke="#1f2937" stroke-width="1.8"/>
+<polygon points="333.0,224.0 342.0,219.0 333.0,214.0" fill="#1f2937"/>
+<rect x="344" y="196" width="150" height="46" rx="6" fill="#1f2937" stroke="#1f2937" stroke-width="1.5"/>
+<text x="419.0" y="224.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#ffffff" text-anchor="middle" font-weight="bold">Model f(·)</text>
+<line x1="496.0" y1="219.0" x2="533.0" y2="219.0" stroke="#1f2937" stroke-width="1.8"/>
+<polygon points="533.0,224.0 542.0,219.0 533.0,214.0" fill="#1f2937"/>
+<rect x="544" y="200" width="90" height="38" rx="6" fill="#ea580c" stroke="#ea580c" stroke-width="1.5"/>
+<text x="589.0" y="224.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">ŷₜ₊₂</text>
+<text x="644.0" y="224.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="normal">2 adım ileri tahmin</text>
+<path d="M589.0,240.0 L589.0,264.0 L261.0,264.0 L261.0,280.0" fill="none" stroke="#ea580c" stroke-width="1.8" stroke-dasharray="6 4"/>
+<polygon points="256.0,280.0 261.0,289.0 266.0,280.0" fill="#ea580c"/>
+<text x="425.0" y="259.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="bold">tahmin girdiye eklenir, en eski değer düşer</text>
+<text x="40.0" y="314.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">Adım 3</text>
+<rect x="70" y="290" width="70" height="38" rx="6" fill="#2563eb" stroke="#2563eb" stroke-width="1.5"/>
+<text x="105.0" y="314.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">yₜ</text>
+<rect x="148" y="290" width="70" height="38" rx="6" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+<text x="183.0" y="314.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#ea580c" text-anchor="middle" font-weight="bold">ŷₜ₊₁</text>
+<rect x="226" y="290" width="70" height="38" rx="6" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+<text x="261.0" y="314.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#ea580c" text-anchor="middle" font-weight="bold">ŷₜ₊₂</text>
+<line x1="300.0" y1="309.0" x2="333.0" y2="309.0" stroke="#1f2937" stroke-width="1.8"/>
+<polygon points="333.0,314.0 342.0,309.0 333.0,304.0" fill="#1f2937"/>
+<rect x="344" y="286" width="150" height="46" rx="6" fill="#1f2937" stroke="#1f2937" stroke-width="1.5"/>
+<text x="419.0" y="314.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#ffffff" text-anchor="middle" font-weight="bold">Model f(·)</text>
+<line x1="496.0" y1="309.0" x2="533.0" y2="309.0" stroke="#1f2937" stroke-width="1.8"/>
+<polygon points="533.0,314.0 542.0,309.0 533.0,304.0" fill="#1f2937"/>
+<rect x="544" y="290" width="90" height="38" rx="6" fill="#ea580c" stroke="#ea580c" stroke-width="1.5"/>
+<text x="589.0" y="314.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold">ŷₜ₊₃</text>
+<text x="644.0" y="314.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="normal">3 adım ileri tahmin</text>
+<rect x="70" y="372" width="34" height="22" rx="6" fill="#2563eb" stroke="#2563eb" stroke-width="1.5"/>
+<text x="87.0" y="388.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold"></text>
+<text x="112.0" y="388.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2937" text-anchor="start" font-weight="normal">Gözlenen (gerçek) değer</text>
+<rect x="310" y="372" width="34" height="22" rx="6" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+<text x="327.0" y="388.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#ffffff" text-anchor="middle" font-weight="bold"></text>
+<text x="352.0" y="388.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2937" text-anchor="start" font-weight="normal">Modelin kendi tahmini (girdi olarak kullanılıyor)</text>
+<text x="450.0" y="420.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#dc2626" text-anchor="middle" font-weight="bold">Sonuç: ufuk uzadıkça girdilerin giderek daha büyük kısmı tahminlerden oluşur ve hatalar birikir.</text>
+</svg>

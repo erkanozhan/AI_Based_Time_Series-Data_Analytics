@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="470" viewBox="0 0 900 470">
+<title>Period ve duration farkı</title>
+<rect x="0.5" y="0.5" width="899" height="469" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">lubridate: Period (takvim süresi) ve Duration (fiziksel süre)</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Berlin, 30 Mart 2024 12:00 — o gece saatler 02:00'de bir saat ileri alınıyor (yaz saati)</text>
+<rect x="80" y="142" width="420" height="28" fill="#6b7280" fill-opacity="0.06"/>
+<rect x="500" y="142" width="360" height="28" fill="#ea580c" fill-opacity="0.06"/>
+<text x="290.0" y="134.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">kış saati (CET, UTC+1)</text>
+<text x="680.0" y="134.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="normal">yaz saati (CEST, UTC+2)</text>
+<line x1="80" y1="170" x2="860" y2="170" stroke="#6b7280" stroke-width="2"/>
+<line x1="80" y1="165" x2="80" y2="175" stroke="#6b7280" stroke-width="1.2"/>
+<text x="80.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1f2937" text-anchor="middle" font-weight="normal">12:00</text>
+<text x="80.0" y="188.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<line x1="140" y1="165" x2="140" y2="175" stroke="#6b7280" stroke-width="1.2"/>
+<text x="140.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1f2937" text-anchor="middle" font-weight="normal">14:00</text>
+<text x="140.0" y="188.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">2</text>
+<line x1="200" y1="165" x2="200" y2="175" stroke="#6b7280" stroke-width="1.2"/>
+<text x="200.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1f2937" text-anchor="middle" font-weight="normal">16:00</text>
+<text x="200.0" y="188.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">4</text>
+<line x1="260" y1="165" x2="260" y2="175" stroke="#6b7280" stroke-width="1.2"/>
+<text x="260.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1f2937" text-anchor="middle" font-weight="normal">18:00</text>
+<text x="260.0" y="188.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">6</text>
+<line x1="320" y1="165" x2="320" y2="175" stroke="#6b7280" stroke-width="1.2"/>
+<text x="320.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1f2937" text-anchor="middle" font-weight="normal">20:00</text>
+<text x="320.0" y="188.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">8</text>
+<line x1="380" y1="165" x2="380" y2="175" stroke="#6b7280" stroke-width="1.2"/>
+<text x="380.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1f2937" text-anchor="middle" font-weight="normal">22:00</text>
+<text x="380.0" y="188.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">10</text>
+<line x1="440" y1="165" x2="440" y2="175" stroke="#6b7280" stroke-width="1.2"/>
+<text x="440.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1f2937" text-anchor="middle" font-weight="normal">00:00</text>
+<text x="440.0" y="188.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">12</text>
+<line x1="500" y1="165" x2="500" y2="175" stroke="#6b7280" stroke-width="1.2"/>
+<text x="500.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1f2937" text-anchor="middle" font-weight="normal">03:00</text>
+<text x="500.0" y="188.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">14</text>
+<line x1="560" y1="165" x2="560" y2="175" stroke="#6b7280" stroke-width="1.2"/>
+<text x="560.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1f2937" text-anchor="middle" font-weight="normal">05:00</text>
+<text x="560.0" y="188.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">16</text>
+<line x1="620" y1="165" x2="620" y2="175" stroke="#6b7280" stroke-width="1.2"/>
+<text x="620.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1f2937" text-anchor="middle" font-weight="normal">07:00</text>
+<text x="620.0" y="188.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">18</text>
+<line x1="680" y1="165" x2="680" y2="175" stroke="#6b7280" stroke-width="1.2"/>
+<text x="680.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1f2937" text-anchor="middle" font-weight="normal">09:00</text>
+<text x="680.0" y="188.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">20</text>
+<line x1="740" y1="165" x2="740" y2="175" stroke="#6b7280" stroke-width="1.2"/>
+<text x="740.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1f2937" text-anchor="middle" font-weight="normal">11:00</text>
+<text x="740.0" y="188.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">22</text>
+<line x1="800" y1="165" x2="800" y2="175" stroke="#6b7280" stroke-width="1.2"/>
+<text x="800.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1f2937" text-anchor="middle" font-weight="normal">13:00</text>
+<text x="800.0" y="188.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">24</text>
+<line x1="860" y1="165" x2="860" y2="175" stroke="#6b7280" stroke-width="1.2"/>
+<text x="860.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1f2937" text-anchor="middle" font-weight="normal">15:00</text>
+<text x="860.0" y="188.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="middle" font-weight="normal">26</text>
+<text x="488.0" y="206.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal" font-style="italic">alt satır: başlangıçtan itibaren geçen gerçek saat</text>
+<text x="58.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">saat:</text>
+<text x="58.0" y="188.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">geçen:</text>
+<line x1="500" y1="140" x2="500" y2="176" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 3"/>
+<line x1="500" y1="194" x2="500" y2="230" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4 3"/>
+<text x="506.0" y="226.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#dc2626" text-anchor="start" font-weight="bold">02:00 → 03:00 (saat atlar)</text>
+<circle cx="80" cy="170" r="6" fill="#1f2937"/>
+<text x="80.0" y="220.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="bold">başlangıç</text>
+<line x1="80" y1="260" x2="770" y2="260" stroke="#2563eb" stroke-width="3"/><polygon points="770,260 762.6,263.1 762.6,256.9" fill="#2563eb"/>
+<line x1="770" y1="170" x2="770" y2="260" stroke="#2563eb" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="88.0" y="252.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#2563eb" text-anchor="start" font-weight="bold">x + days(1)  →  "2024-03-31 12:00:00 CEST"</text>
+<text x="764.0" y="277.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#2563eb" text-anchor="end" font-weight="normal">saat aynı kalır; gerçekte 23 saat geçti</text>
+<line x1="80" y1="305" x2="800" y2="305" stroke="#ea580c" stroke-width="3"/><polygon points="800,305 792.6,308.1 792.6,301.9" fill="#ea580c"/>
+<line x1="800" y1="170" x2="800" y2="305" stroke="#ea580c" stroke-width="1" stroke-dasharray="3 3"/>
+<text x="88.0" y="297.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#ea580c" text-anchor="start" font-weight="bold">x + ddays(1)  →  "2024-03-31 13:00:00 CEST"</text>
+<text x="794.0" y="322.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#ea580c" text-anchor="end" font-weight="normal">tam 86 400 saniye; duvar saati 13:00</text>
+<line x1="30" y1="348" x2="870" y2="348" stroke="#e5e7eb"/>
+<text x="40.0" y="372.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="start" font-weight="bold">İşlem</text>
+<text x="300.0" y="372.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#2563eb" text-anchor="start" font-weight="bold">Period: years(1)</text>
+<text x="600.0" y="372.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#ea580c" text-anchor="start" font-weight="bold">Duration: dyears(1) = 365,25 gün</text>
+<rect x="32" y="383" width="836" height="24" fill="#f3f4f6"/>
+<text x="40.0" y="400.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">ymd("2023-01-01") + 1 yıl</text>
+<text x="300.0" y="400.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">"2024-01-01"</text>
+<text x="600.0" y="400.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">"2024-01-01 06:00:00 UTC"</text>
+<text x="40.0" y="426.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">ymd("2024-02-29") + 1 yıl</text>
+<text x="300.0" y="426.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#dc2626" text-anchor="start" font-weight="normal">NA  (2025-02-29 yok!)</text>
+<text x="600.0" y="426.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">"2025-02-28 06:00:00 UTC"</text>
+<text x="40.0" y="460.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal" font-style="italic">Period takvimi izler ("bir sonraki ayın aynı günü"); Duration saniye sayar. Ay sonu/artık yıl için %m+% kullanın.</text>
+</svg>

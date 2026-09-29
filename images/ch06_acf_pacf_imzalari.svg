@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="640" viewBox="0 0 900 640">
+<title>AR MA beyaz gürültü ACF PACF imzaları</title>
+<rect x="0.5" y="0.5" width="899" height="639" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">ACF ve PACF İmzaları: Beyaz Gürültü, AR(1) ve MA(1)</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Simülasyon: T = 400, εₜ ~ N(0, 1). Mavi kesikli çizgiler ±1.96/√T = ±0.10; gri çubuklar sınırlar içinde (anlamsız)</text>
+<text x="155.0" y="82.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">Seri (ilk 100 gözlem)</text>
+<text x="465.0" y="82.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">ACF</text>
+<text x="745.0" y="82.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">PACF</text>
+<rect x="40" y="130" width="230" height="100" fill="#f9fafb" stroke="#e5e7eb"/>
+<polyline points="40.0,160.1 42.3,178.6 44.6,186.5 47.0,194.1 49.3,181.9 51.6,162.2 53.9,169.8 56.3,171.4 58.6,209.7 60.9,171.1 63.2,173.1 65.6,186.9 67.9,187.8 70.2,180.0 72.5,158.4 74.8,193.2 77.2,185.3 79.5,163.0 81.8,185.6 84.1,184.6 86.5,178.8 88.8,195.5 91.1,177.3 93.4,195.1 95.8,168.9 98.1,180.0 100.4,151.5 102.7,176.5 105.1,162.9 107.4,196.3 109.7,181.5 112.0,176.0 114.3,158.2 116.7,201.0 119.0,167.6 121.3,172.6 123.6,160.8 126.0,171.1 128.3,179.3 130.6,186.5 132.9,195.6 135.3,177.6 137.6,182.4 139.9,154.7 142.2,187.6 144.5,176.0 146.9,199.6 149.2,184.9 151.5,176.7 153.8,169.7 156.2,161.9 158.5,180.6 160.8,194.0 163.1,174.3 165.5,173.5 167.8,173.9 170.1,188.8 172.4,165.8 174.7,178.9 177.1,171.3 179.4,164.1 181.7,172.4 184.0,176.4 186.4,153.1 188.7,177.0 191.0,183.7 193.3,178.6 195.7,161.5 198.0,178.5 200.3,173.5 202.6,165.1 204.9,186.4 207.3,201.6 209.6,176.3 211.9,177.1 214.2,187.6 216.6,169.1 218.9,172.4 221.2,192.4 223.5,173.5 225.9,182.5 228.2,198.5 230.5,174.3 232.8,180.6 235.2,189.3 237.5,173.5 239.8,173.9 242.1,187.2 244.4,175.0 246.8,167.3 249.1,188.9 251.4,175.2 253.7,180.0 256.1,151.7 258.4,203.3 260.7,171.3 263.0,183.8 265.4,181.3 267.7,156.2 270.0,180.1" fill="none" stroke="#1f2937" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" opacity="1.0"/>
+<text x="40.0" y="112.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="start" font-weight="bold">Beyaz gürültü</text>
+<text x="40.0" y="126.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="normal" font-style="italic">xₜ = εₜ</text>
+<rect x="345" y="120" width="240" height="110" fill="#f9fafb" stroke="#e5e7eb"/>
+<rect x="345" y="169.6" width="240" height="10.8" fill="#2563eb" opacity="0.08"/>
+<line x1="345" y1="169.6" x2="585" y2="169.6" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.2"/>
+<line x1="345" y1="180.4" x2="585" y2="180.4" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.2"/>
+<line x1="345" y1="175.0" x2="585" y2="175.0" stroke="#6b7280" stroke-width="1"/>
+<text x="340.0" y="124.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">1</text>
+<text x="340.0" y="179.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">0</text>
+<text x="340.0" y="234.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">-1</text>
+<rect x="355.9" y="175.0" width="8.2" height="1.8" fill="#9ca3af"/>
+<text x="360.0" y="244.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<rect x="370.9" y="175.0" width="8.2" height="1.0" fill="#9ca3af"/>
+<rect x="385.9" y="175.0" width="8.2" height="3.8" fill="#9ca3af"/>
+<rect x="400.9" y="175.0" width="8.2" height="0.9" fill="#9ca3af"/>
+<rect x="415.9" y="175.0" width="8.2" height="1.0" fill="#9ca3af"/>
+<text x="420.0" y="244.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">5</text>
+<rect x="430.9" y="172.4" width="8.2" height="2.6" fill="#9ca3af"/>
+<rect x="445.9" y="173.4" width="8.2" height="1.6" fill="#9ca3af"/>
+<rect x="460.9" y="175.0" width="8.2" height="3.7" fill="#9ca3af"/>
+<rect x="475.9" y="173.1" width="8.2" height="1.9" fill="#9ca3af"/>
+<rect x="490.9" y="175.0" width="8.2" height="0.8" fill="#9ca3af"/>
+<text x="495.0" y="244.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">10</text>
+<rect x="505.9" y="173.9" width="8.2" height="1.1" fill="#9ca3af"/>
+<rect x="520.9" y="175.0" width="8.2" height="2.3" fill="#9ca3af"/>
+<rect x="535.9" y="175.0" width="8.2" height="3.3" fill="#9ca3af"/>
+<rect x="550.9" y="175.0" width="8.2" height="2.4" fill="#9ca3af"/>
+<rect x="565.9" y="175.0" width="8.2" height="2.4" fill="#9ca3af"/>
+<text x="570.0" y="244.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">15</text>
+<rect x="625" y="120" width="240" height="110" fill="#f9fafb" stroke="#e5e7eb"/>
+<rect x="625" y="169.6" width="240" height="10.8" fill="#2563eb" opacity="0.08"/>
+<line x1="625" y1="169.6" x2="865" y2="169.6" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.2"/>
+<line x1="625" y1="180.4" x2="865" y2="180.4" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.2"/>
+<line x1="625" y1="175.0" x2="865" y2="175.0" stroke="#6b7280" stroke-width="1"/>
+<rect x="635.9" y="175.0" width="8.2" height="1.8" fill="#9ca3af"/>
+<text x="640.0" y="244.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<rect x="650.9" y="175.0" width="8.2" height="1.0" fill="#9ca3af"/>
+<rect x="665.9" y="175.0" width="8.2" height="3.8" fill="#9ca3af"/>
+<rect x="680.9" y="175.0" width="8.2" height="1.2" fill="#9ca3af"/>
+<rect x="695.9" y="175.0" width="8.2" height="1.2" fill="#9ca3af"/>
+<text x="700.0" y="244.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">5</text>
+<rect x="710.9" y="172.8" width="8.2" height="2.2" fill="#9ca3af"/>
+<rect x="725.9" y="173.4" width="8.2" height="1.6" fill="#9ca3af"/>
+<rect x="740.9" y="175.0" width="8.2" height="3.7" fill="#9ca3af"/>
+<rect x="755.9" y="172.9" width="8.2" height="2.1" fill="#9ca3af"/>
+<rect x="770.9" y="175.0" width="8.2" height="0.8" fill="#9ca3af"/>
+<text x="775.0" y="244.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">10</text>
+<rect x="785.9" y="174.2" width="8.2" height="0.8" fill="#9ca3af"/>
+<rect x="800.9" y="175.0" width="8.2" height="2.2" fill="#9ca3af"/>
+<rect x="815.9" y="175.0" width="8.2" height="3.7" fill="#9ca3af"/>
+<rect x="830.9" y="175.0" width="8.2" height="2.3" fill="#9ca3af"/>
+<rect x="845.9" y="175.0" width="8.2" height="3.1" fill="#9ca3af"/>
+<text x="850.0" y="244.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">15</text>
+<text x="465.0" y="260.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">ACF: hiçbir gecikme anlamlı değil</text>
+<text x="745.0" y="260.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">PACF: hiçbir gecikme anlamlı değil</text>
+<rect x="40" y="310" width="230" height="100" fill="#f9fafb" stroke="#e5e7eb"/>
+<polyline points="40.0,325.5 42.3,334.4 44.6,348.5 47.0,366.1 49.3,366.1 51.6,346.5 53.9,340.4 56.3,337.6 58.6,374.0 60.9,360.9 63.2,353.7 65.6,362.5 67.9,369.6 70.2,366.7 72.5,343.2 74.8,361.4 77.2,366.3 79.5,347.4 81.8,356.8 84.1,362.3 86.5,360.4 88.8,375.8 91.1,368.3 93.4,380.9 95.8,363.6 98.1,362.5 100.4,333.2 102.7,337.7 105.1,327.3 107.4,353.4 109.7,356.9 112.0,353.8 114.3,333.8 116.7,362.7 119.0,349.5 121.3,345.3 123.6,330.5 126.0,330.5 128.3,338.7 130.6,351.6 132.9,369.7 135.3,364.4 137.6,365.4 139.9,338.6 142.2,352.6 144.5,350.8 146.9,373.2 149.2,374.2 151.5,366.7 153.8,354.4 156.2,338.0 158.5,345.1 160.8,363.5 163.1,356.8 165.5,351.3 167.8,347.7 170.1,360.2 172.4,346.0 174.7,349.1 177.1,343.6 179.4,332.6 181.7,333.2 184.0,337.7 186.4,317.5 188.7,327.2 191.0,340.7 193.3,345.1 195.7,331.0 198.0,338.2 200.3,338.3 202.6,329.8 204.9,345.3 207.3,371.3 209.6,364.2 211.9,360.0 214.2,367.6 216.6,354.5 218.9,348.5 221.2,364.4 223.5,356.6 225.9,360.1 228.2,378.6 230.5,367.4 232.8,365.7 235.2,373.3 237.5,362.8 239.8,355.8 242.1,364.3 244.4,358.0 246.8,345.9 249.1,359.1 251.4,354.6 253.7,356.2 256.1,329.0 258.4,361.6 260.7,352.4 263.0,358.5 265.4,360.2 267.7,336.4 270.0,343.6" fill="none" stroke="#2563eb" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" opacity="1.0"/>
+<text x="40.0" y="292.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#2563eb" text-anchor="start" font-weight="bold">AR(1),  φ = 0.7</text>
+<text x="40.0" y="306.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="normal" font-style="italic">xₜ = 0.7·xₜ₋₁ + εₜ</text>
+<rect x="345" y="300" width="240" height="110" fill="#f9fafb" stroke="#e5e7eb"/>
+<rect x="345" y="349.6" width="240" height="10.8" fill="#2563eb" opacity="0.08"/>
+<line x1="345" y1="349.6" x2="585" y2="349.6" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.2"/>
+<line x1="345" y1="360.4" x2="585" y2="360.4" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.2"/>
+<line x1="345" y1="355.0" x2="585" y2="355.0" stroke="#6b7280" stroke-width="1"/>
+<text x="340.0" y="304.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">1</text>
+<text x="340.0" y="359.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">0</text>
+<text x="340.0" y="414.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">-1</text>
+<rect x="355.9" y="319.2" width="8.2" height="35.8" fill="#2563eb"/>
+<text x="360.0" y="424.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<rect x="370.9" y="332.2" width="8.2" height="22.8" fill="#2563eb"/>
+<rect x="385.9" y="341.5" width="8.2" height="13.5" fill="#2563eb"/>
+<rect x="400.9" y="345.9" width="8.2" height="9.1" fill="#2563eb"/>
+<rect x="415.9" y="348.3" width="8.2" height="6.7" fill="#2563eb"/>
+<text x="420.0" y="424.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">5</text>
+<rect x="430.9" y="349.3" width="8.2" height="5.7" fill="#2563eb"/>
+<rect x="445.9" y="351.7" width="8.2" height="3.3" fill="#9ca3af"/>
+<rect x="460.9" y="355.0" width="8.2" height="0.8" fill="#9ca3af"/>
+<rect x="475.9" y="355.0" width="8.2" height="0.8" fill="#9ca3af"/>
+<rect x="490.9" y="355.0" width="8.2" height="1.7" fill="#9ca3af"/>
+<text x="495.0" y="424.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">10</text>
+<rect x="505.9" y="355.0" width="8.2" height="3.3" fill="#9ca3af"/>
+<rect x="520.9" y="355.0" width="8.2" height="6.1" fill="#2563eb"/>
+<rect x="535.9" y="355.0" width="8.2" height="7.8" fill="#2563eb"/>
+<rect x="550.9" y="355.0" width="8.2" height="7.8" fill="#2563eb"/>
+<rect x="565.9" y="355.0" width="8.2" height="7.0" fill="#2563eb"/>
+<text x="570.0" y="424.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">15</text>
+<rect x="625" y="300" width="240" height="110" fill="#f9fafb" stroke="#e5e7eb"/>
+<rect x="625" y="349.6" width="240" height="10.8" fill="#2563eb" opacity="0.08"/>
+<line x1="625" y1="349.6" x2="865" y2="349.6" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.2"/>
+<line x1="625" y1="360.4" x2="865" y2="360.4" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.2"/>
+<line x1="625" y1="355.0" x2="865" y2="355.0" stroke="#6b7280" stroke-width="1"/>
+<rect x="635.9" y="319.2" width="8.2" height="35.8" fill="#2563eb"/>
+<text x="640.0" y="424.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<rect x="650.9" y="355.0" width="8.2" height="1.0" fill="#9ca3af"/>
+<rect x="665.9" y="355.0" width="8.2" height="1.7" fill="#9ca3af"/>
+<rect x="680.9" y="352.8" width="8.2" height="2.2" fill="#9ca3af"/>
+<rect x="695.9" y="354.2" width="8.2" height="0.8" fill="#9ca3af"/>
+<text x="700.0" y="424.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">5</text>
+<rect x="710.9" y="353.6" width="8.2" height="1.4" fill="#9ca3af"/>
+<rect x="725.9" y="355.0" width="8.2" height="2.2" fill="#9ca3af"/>
+<rect x="740.9" y="355.0" width="8.2" height="3.2" fill="#9ca3af"/>
+<rect x="755.9" y="352.3" width="8.2" height="2.7" fill="#9ca3af"/>
+<rect x="770.9" y="355.0" width="8.2" height="3.2" fill="#9ca3af"/>
+<text x="775.0" y="424.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">10</text>
+<rect x="785.9" y="355.0" width="8.2" height="2.2" fill="#9ca3af"/>
+<rect x="800.9" y="355.0" width="8.2" height="4.2" fill="#9ca3af"/>
+<rect x="815.9" y="355.0" width="8.2" height="2.2" fill="#9ca3af"/>
+<rect x="830.9" y="355.0" width="8.2" height="0.8" fill="#9ca3af"/>
+<rect x="845.9" y="355.0" width="8.2" height="0.9" fill="#9ca3af"/>
+<text x="850.0" y="424.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">15</text>
+<text x="465.0" y="440.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">ACF: geometrik olarak sönümlenir (kuyruk)</text>
+<text x="745.0" y="440.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">PACF: 1. gecikmeden sonra kesilir</text>
+<rect x="40" y="490" width="230" height="100" fill="#f9fafb" stroke="#e5e7eb"/>
+<polyline points="40.0,523.7 42.3,522.6 44.6,545.3 47.0,559.3 49.3,553.2 51.6,523.7 53.9,515.6 56.3,523.2 58.6,562.8 60.9,554.9 63.2,525.9 65.6,541.3 67.9,553.3 70.2,546.3 72.5,518.5 74.8,535.9 77.2,555.9 79.5,527.3 81.8,532.0 84.1,549.0 86.5,542.4 88.8,554.5 91.1,549.7 93.4,552.9 95.8,541.0 98.1,531.1 100.4,511.4 102.7,513.7 105.1,520.1 107.4,542.6 109.7,554.6 112.0,537.2 114.3,514.9 116.7,543.6 119.0,544.4 121.3,522.7 123.6,514.9 126.0,515.8 128.3,532.2 130.6,546.0 132.9,560.8 135.3,550.0 137.6,540.4 139.9,516.7 142.2,527.4 144.5,542.1 146.9,556.4 149.2,560.6 151.5,540.7 153.8,527.1 156.2,513.7 158.5,526.1 160.8,554.4 163.1,545.4 165.5,529.0 167.8,528.7 170.1,543.8 172.4,532.8 174.7,527.6 177.1,530.4 179.4,517.1 181.7,519.6 184.0,530.3 186.4,510.2 188.7,515.4 191.0,541.3 193.3,541.6 195.7,520.3 198.0,523.7 200.3,532.3 202.6,519.9 204.9,534.5 207.3,566.7 209.6,553.5 211.9,534.1 214.2,545.3 216.6,535.2 218.9,523.7 221.2,546.4 223.5,543.5 225.9,537.3 228.2,560.5 230.5,549.2 232.8,536.0 235.2,549.8 237.5,540.9 239.8,528.7 242.1,542.3 244.4,540.8 246.8,523.3 249.1,538.8 251.4,542.4 253.7,536.2 256.1,511.6 258.4,540.6 260.7,549.9 263.0,536.9 265.4,544.3 267.7,517.2 270.0,521.1" fill="none" stroke="#16a34a" stroke-width="1.1" stroke-linejoin="round" stroke-linecap="round" opacity="1.0"/>
+<text x="40.0" y="472.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#16a34a" text-anchor="start" font-weight="bold">MA(1),  θ = 0.8</text>
+<text x="40.0" y="486.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="normal" font-style="italic">xₜ = εₜ + 0.8·εₜ₋₁</text>
+<rect x="345" y="480" width="240" height="110" fill="#f9fafb" stroke="#e5e7eb"/>
+<rect x="345" y="529.6" width="240" height="10.8" fill="#2563eb" opacity="0.08"/>
+<line x1="345" y1="529.6" x2="585" y2="529.6" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.2"/>
+<line x1="345" y1="540.4" x2="585" y2="540.4" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.2"/>
+<line x1="345" y1="535.0" x2="585" y2="535.0" stroke="#6b7280" stroke-width="1"/>
+<text x="340.0" y="484.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">1</text>
+<text x="340.0" y="539.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">0</text>
+<text x="340.0" y="594.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">-1</text>
+<rect x="355.9" y="509.6" width="8.2" height="25.4" fill="#16a34a"/>
+<text x="360.0" y="604.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<rect x="370.9" y="535.0" width="8.2" height="3.8" fill="#9ca3af"/>
+<rect x="385.9" y="535.0" width="8.2" height="4.8" fill="#9ca3af"/>
+<rect x="400.9" y="535.0" width="8.2" height="3.3" fill="#9ca3af"/>
+<rect x="415.9" y="535.0" width="8.2" height="0.8" fill="#9ca3af"/>
+<text x="420.0" y="604.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">5</text>
+<rect x="430.9" y="532.1" width="8.2" height="2.9" fill="#9ca3af"/>
+<rect x="445.9" y="534.0" width="8.2" height="1.0" fill="#9ca3af"/>
+<rect x="460.9" y="535.0" width="8.2" height="2.1" fill="#9ca3af"/>
+<rect x="475.9" y="535.0" width="8.2" height="0.8" fill="#9ca3af"/>
+<rect x="490.9" y="534.0" width="8.2" height="1.0" fill="#9ca3af"/>
+<text x="495.0" y="604.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">10</text>
+<rect x="505.9" y="535.0" width="8.2" height="0.8" fill="#9ca3af"/>
+<rect x="520.9" y="535.0" width="8.2" height="3.4" fill="#9ca3af"/>
+<rect x="535.9" y="535.0" width="8.2" height="5.7" fill="#16a34a"/>
+<rect x="550.9" y="535.0" width="8.2" height="5.4" fill="#16a34a"/>
+<rect x="565.9" y="535.0" width="8.2" height="3.6" fill="#9ca3af"/>
+<text x="570.0" y="604.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">15</text>
+<rect x="625" y="480" width="240" height="110" fill="#f9fafb" stroke="#e5e7eb"/>
+<rect x="625" y="529.6" width="240" height="10.8" fill="#2563eb" opacity="0.08"/>
+<line x1="625" y1="529.6" x2="865" y2="529.6" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.2"/>
+<line x1="625" y1="540.4" x2="865" y2="540.4" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.2"/>
+<line x1="625" y1="535.0" x2="865" y2="535.0" stroke="#6b7280" stroke-width="1"/>
+<rect x="635.9" y="509.6" width="8.2" height="25.4" fill="#16a34a"/>
+<text x="640.0" y="604.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<rect x="650.9" y="535.0" width="8.2" height="19.7" fill="#16a34a"/>
+<rect x="665.9" y="525.3" width="8.2" height="9.7" fill="#16a34a"/>
+<rect x="680.9" y="535.0" width="8.2" height="9.4" fill="#16a34a"/>
+<rect x="695.9" y="527.3" width="8.2" height="7.7" fill="#16a34a"/>
+<text x="700.0" y="604.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">5</text>
+<rect x="710.9" y="535.0" width="8.2" height="2.7" fill="#9ca3af"/>
+<rect x="725.9" y="534.3" width="8.2" height="0.8" fill="#9ca3af"/>
+<rect x="740.9" y="535.0" width="8.2" height="2.6" fill="#9ca3af"/>
+<rect x="755.9" y="531.1" width="8.2" height="3.9" fill="#9ca3af"/>
+<rect x="770.9" y="535.0" width="8.2" height="2.7" fill="#9ca3af"/>
+<text x="775.0" y="604.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">10</text>
+<rect x="785.9" y="533.7" width="8.2" height="1.3" fill="#9ca3af"/>
+<rect x="800.9" y="535.0" width="8.2" height="6.1" fill="#16a34a"/>
+<rect x="815.9" y="535.0" width="8.2" height="0.8" fill="#9ca3af"/>
+<rect x="830.9" y="535.0" width="8.2" height="4.3" fill="#9ca3af"/>
+<rect x="845.9" y="535.0" width="8.2" height="0.8" fill="#9ca3af"/>
+<text x="850.0" y="604.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">15</text>
+<text x="465.0" y="620.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">ACF: 1. gecikmeden sonra kesilir</text>
+<text x="745.0" y="620.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="normal">PACF: işaret değiştirerek sönümlenir (kuyruk)</text>
+</svg>

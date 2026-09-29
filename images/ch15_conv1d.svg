@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560">
+<title>1D evrişim filtresinin kayması</title>
+<rect x="0.5" y="0.5" width="899" height="559" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">1D Evrişim: Filtrenin Zaman Serisi Üzerinde Kayması</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">AirPassengers 1949 (12 ay) · kernel_size=3, ağırlıklar w = [−1, 0, +1] (“yükseliş dedektörü”) · stride=1 · padding='valid'</text>
+<polyline points="155.0,131.2 215.0,122.8 275.0,103.2 335.0,107.4 395.0,118.6 455.0,99.0 515.0,80.8 575.0,80.8 635.0,97.6 695.0,121.4 755.0,142.4 815.0,122.8" fill="none" stroke="#2563eb" stroke-width="2"/>
+<circle cx="155.0" cy="131.2" r="3" fill="#2563eb"/>
+<circle cx="215.0" cy="122.8" r="3" fill="#2563eb"/>
+<circle cx="275.0" cy="103.2" r="3" fill="#2563eb"/>
+<circle cx="335.0" cy="107.4" r="3" fill="#2563eb"/>
+<circle cx="395.0" cy="118.6" r="3" fill="#2563eb"/>
+<circle cx="455.0" cy="99.0" r="3" fill="#2563eb"/>
+<circle cx="515.0" cy="80.8" r="3" fill="#2563eb"/>
+<circle cx="575.0" cy="80.8" r="3" fill="#2563eb"/>
+<circle cx="635.0" cy="97.6" r="3" fill="#2563eb"/>
+<circle cx="695.0" cy="121.4" r="3" fill="#2563eb"/>
+<circle cx="755.0" cy="142.4" r="3" fill="#2563eb"/>
+<circle cx="815.0" cy="122.8" r="3" fill="#2563eb"/>
+<text x="116.0" y="194.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#2563eb" text-anchor="end" font-weight="bold">xₜ</text>
+<rect x="128" y="170" width="54" height="36" rx="5" fill="#2563eb" opacity="0.10" stroke="#2563eb"/>
+<text x="155.0" y="193.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">112</text>
+<text x="155.0" y="222.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Oca</text>
+<rect x="188" y="170" width="54" height="36" rx="5" fill="#2563eb" opacity="0.10" stroke="#2563eb"/>
+<text x="215.0" y="193.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">118</text>
+<text x="215.0" y="222.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Şub</text>
+<rect x="248" y="170" width="54" height="36" rx="5" fill="#2563eb" opacity="0.10" stroke="#2563eb"/>
+<text x="275.0" y="193.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">132</text>
+<text x="275.0" y="222.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Mar</text>
+<rect x="308" y="170" width="54" height="36" rx="5" fill="#2563eb" opacity="0.10" stroke="#2563eb"/>
+<text x="335.0" y="193.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">129</text>
+<text x="335.0" y="222.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Nis</text>
+<rect x="368" y="170" width="54" height="36" rx="5" fill="#2563eb" opacity="0.10" stroke="#2563eb"/>
+<text x="395.0" y="193.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">121</text>
+<text x="395.0" y="222.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">May</text>
+<rect x="428" y="170" width="54" height="36" rx="5" fill="#2563eb" opacity="0.10" stroke="#2563eb"/>
+<text x="455.0" y="193.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">135</text>
+<text x="455.0" y="222.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Haz</text>
+<rect x="488" y="170" width="54" height="36" rx="5" fill="#2563eb" opacity="0.10" stroke="#2563eb"/>
+<text x="515.0" y="193.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">148</text>
+<text x="515.0" y="222.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Tem</text>
+<rect x="548" y="170" width="54" height="36" rx="5" fill="#2563eb" opacity="0.10" stroke="#2563eb"/>
+<text x="575.0" y="193.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">148</text>
+<text x="575.0" y="222.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Ağu</text>
+<rect x="608" y="170" width="54" height="36" rx="5" fill="#2563eb" opacity="0.10" stroke="#2563eb"/>
+<text x="635.0" y="193.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">136</text>
+<text x="635.0" y="222.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Eyl</text>
+<rect x="668" y="170" width="54" height="36" rx="5" fill="#2563eb" opacity="0.10" stroke="#2563eb"/>
+<text x="695.0" y="193.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">119</text>
+<text x="695.0" y="222.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Eki</text>
+<rect x="728" y="170" width="54" height="36" rx="5" fill="#2563eb" opacity="0.10" stroke="#2563eb"/>
+<text x="755.0" y="193.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">104</text>
+<text x="755.0" y="222.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Kas</text>
+<rect x="788" y="170" width="54" height="36" rx="5" fill="#2563eb" opacity="0.10" stroke="#2563eb"/>
+<text x="815.0" y="193.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">118</text>
+<text x="815.0" y="222.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Ara</text>
+<rect x="125" y="165" width="180" height="46" rx="7" fill="none" stroke="#ea580c" stroke-width="2.6" opacity="1.0"/>
+<text x="155.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="bold">−1</text>
+<text x="215.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="bold">0</text>
+<text x="275.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="bold">+1</text>
+<rect x="365" y="165" width="180" height="46" rx="7" fill="none" stroke="#ea580c" stroke-width="2.6" opacity="0.45"/>
+<text x="395.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="bold">−1</text>
+<text x="455.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="bold">0</text>
+<text x="515.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="bold">+1</text>
+<text x="455.0" y="146.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#ea580c" text-anchor="middle" font-weight="normal" font-style="italic">…filtre bir adım sağa kayar…</text>
+<text x="116.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#ea580c" text-anchor="end" font-weight="bold">filtre ağırlıkları</text>
+<text x="116.0" y="304.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="bold">Evrişim</text>
+<text x="116.0" y="318.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="bold">çıktısı</text>
+<rect x="188" y="280" width="54" height="36" rx="5" fill="#16a34a" opacity="0.13" stroke="#16a34a"/>
+<text x="215.0" y="303.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#16a34a" text-anchor="middle" font-weight="bold">20</text>
+<rect x="248" y="280" width="54" height="36" rx="5" fill="#16a34a" opacity="0.13" stroke="#16a34a"/>
+<text x="275.0" y="303.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#16a34a" text-anchor="middle" font-weight="bold">11</text>
+<rect x="308" y="280" width="54" height="36" rx="5" fill="#dc2626" opacity="0.13" stroke="#dc2626"/>
+<text x="335.0" y="303.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#dc2626" text-anchor="middle" font-weight="bold">−11</text>
+<rect x="368" y="280" width="54" height="36" rx="5" fill="#16a34a" opacity="0.13" stroke="#16a34a"/>
+<text x="395.0" y="303.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#16a34a" text-anchor="middle" font-weight="bold">6</text>
+<rect x="428" y="280" width="54" height="36" rx="5" fill="#16a34a" opacity="0.13" stroke="#16a34a"/>
+<text x="455.0" y="303.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#16a34a" text-anchor="middle" font-weight="bold">27</text>
+<rect x="488" y="280" width="54" height="36" rx="5" fill="#16a34a" opacity="0.13" stroke="#16a34a"/>
+<text x="515.0" y="303.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#16a34a" text-anchor="middle" font-weight="bold">13</text>
+<rect x="548" y="280" width="54" height="36" rx="5" fill="#dc2626" opacity="0.13" stroke="#dc2626"/>
+<text x="575.0" y="303.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#dc2626" text-anchor="middle" font-weight="bold">−12</text>
+<rect x="608" y="280" width="54" height="36" rx="5" fill="#dc2626" opacity="0.13" stroke="#dc2626"/>
+<text x="635.0" y="303.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#dc2626" text-anchor="middle" font-weight="bold">−29</text>
+<rect x="668" y="280" width="54" height="36" rx="5" fill="#dc2626" opacity="0.13" stroke="#dc2626"/>
+<text x="695.0" y="303.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#dc2626" text-anchor="middle" font-weight="bold">−32</text>
+<rect x="728" y="280" width="54" height="36" rx="5" fill="#dc2626" opacity="0.13" stroke="#dc2626"/>
+<text x="755.0" y="303.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#dc2626" text-anchor="middle" font-weight="bold">−1</text>
+<polyline points="215.0,228 215.0,278" fill="none" stroke="#ea580c" stroke-width="1.4" stroke-linejoin="round"/>
+<polygon points="215.0,279 211.0,272.0 219.0,272.0" fill="#ea580c"/>
+<text x="223.0" y="268.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="start" font-weight="bold">−1·112 + 0·118 + 1·132 = 20</text>
+<text x="116.0" y="384.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="bold">ReLU</text>
+<rect x="188" y="360" width="54" height="36" rx="5" fill="#16a34a" opacity="0.13" stroke="#16a34a"/>
+<text x="215.0" y="383.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#16a34a" text-anchor="middle" font-weight="bold">20</text>
+<rect x="248" y="360" width="54" height="36" rx="5" fill="#16a34a" opacity="0.13" stroke="#16a34a"/>
+<text x="275.0" y="383.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#16a34a" text-anchor="middle" font-weight="bold">11</text>
+<rect x="308" y="360" width="54" height="36" rx="5" fill="#6b7280" opacity="0.06" stroke="#6b7280"/>
+<text x="335.0" y="383.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#6b7280" text-anchor="middle" font-weight="bold">0</text>
+<rect x="368" y="360" width="54" height="36" rx="5" fill="#16a34a" opacity="0.13" stroke="#16a34a"/>
+<text x="395.0" y="383.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#16a34a" text-anchor="middle" font-weight="bold">6</text>
+<rect x="428" y="360" width="54" height="36" rx="5" fill="#16a34a" opacity="0.13" stroke="#16a34a"/>
+<text x="455.0" y="383.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#16a34a" text-anchor="middle" font-weight="bold">27</text>
+<rect x="488" y="360" width="54" height="36" rx="5" fill="#16a34a" opacity="0.13" stroke="#16a34a"/>
+<text x="515.0" y="383.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#16a34a" text-anchor="middle" font-weight="bold">13</text>
+<rect x="548" y="360" width="54" height="36" rx="5" fill="#6b7280" opacity="0.06" stroke="#6b7280"/>
+<text x="575.0" y="383.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#6b7280" text-anchor="middle" font-weight="bold">0</text>
+<rect x="608" y="360" width="54" height="36" rx="5" fill="#6b7280" opacity="0.06" stroke="#6b7280"/>
+<text x="635.0" y="383.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#6b7280" text-anchor="middle" font-weight="bold">0</text>
+<rect x="668" y="360" width="54" height="36" rx="5" fill="#6b7280" opacity="0.06" stroke="#6b7280"/>
+<text x="695.0" y="383.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#6b7280" text-anchor="middle" font-weight="bold">0</text>
+<rect x="728" y="360" width="54" height="36" rx="5" fill="#6b7280" opacity="0.06" stroke="#6b7280"/>
+<text x="755.0" y="383.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#6b7280" text-anchor="middle" font-weight="bold">0</text>
+<text x="815.0" y="376.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">max(0, ·)</text>
+<text x="815.0" y="391.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">negatifler 0</text>
+<text x="116.0" y="468.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2937" text-anchor="end" font-weight="bold">MaxPooling1D</text>
+<text x="116.0" y="483.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">(pool_size=2)</text>
+<path d="M192,404 L192,412 L298,412 L298,404" fill="none" stroke="#7c3aed" stroke-width="1.3"/>
+<line x1="245.0" y1="412" x2="245.0" y2="446" stroke="#7c3aed" stroke-width="1.3"/>
+<rect x="218.0" y="450" width="54" height="36" rx="5" fill="#7c3aed" opacity="0.13" stroke="#7c3aed"/>
+<text x="245.0" y="473.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#7c3aed" text-anchor="middle" font-weight="bold">20</text>
+<path d="M312,404 L312,412 L418,412 L418,404" fill="none" stroke="#7c3aed" stroke-width="1.3"/>
+<line x1="365.0" y1="412" x2="365.0" y2="446" stroke="#7c3aed" stroke-width="1.3"/>
+<rect x="338.0" y="450" width="54" height="36" rx="5" fill="#7c3aed" opacity="0.13" stroke="#7c3aed"/>
+<text x="365.0" y="473.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#7c3aed" text-anchor="middle" font-weight="bold">6</text>
+<path d="M432,404 L432,412 L538,412 L538,404" fill="none" stroke="#7c3aed" stroke-width="1.3"/>
+<line x1="485.0" y1="412" x2="485.0" y2="446" stroke="#7c3aed" stroke-width="1.3"/>
+<rect x="458.0" y="450" width="54" height="36" rx="5" fill="#7c3aed" opacity="0.13" stroke="#7c3aed"/>
+<text x="485.0" y="473.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#7c3aed" text-anchor="middle" font-weight="bold">27</text>
+<path d="M552,404 L552,412 L658,412 L658,404" fill="none" stroke="#7c3aed" stroke-width="1.3"/>
+<line x1="605.0" y1="412" x2="605.0" y2="446" stroke="#7c3aed" stroke-width="1.3"/>
+<rect x="578.0" y="450" width="54" height="36" rx="5" fill="#7c3aed" opacity="0.13" stroke="#7c3aed"/>
+<text x="605.0" y="473.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#7c3aed" text-anchor="middle" font-weight="bold">0</text>
+<path d="M672,404 L672,412 L778,412 L778,404" fill="none" stroke="#7c3aed" stroke-width="1.3"/>
+<line x1="725.0" y1="412" x2="725.0" y2="446" stroke="#7c3aed" stroke-width="1.3"/>
+<rect x="698.0" y="450" width="54" height="36" rx="5" fill="#7c3aed" opacity="0.13" stroke="#7c3aed"/>
+<text x="725.0" y="473.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#7c3aed" text-anchor="middle" font-weight="bold">0</text>
+<text x="450.0" y="525.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="middle" font-weight="normal">Pozitif değerler “üç ayda yükseliş” desenini işaretler (Şubat–Mart, Mayıs–Haziran); havuzlama uzunluğu yarıya indirip en güçlü sinyali tutar.</text>
+<text x="450.0" y="543.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="middle" font-weight="normal">Gerçek modelde 64 filtrenin ağırlıkları eğitimle öğrenilir; her filtre kendi özellik haritasını üretir.</text>
+</svg>

@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="480" viewBox="0 0 900 480">
+<title>window() ile pencere kesme</title>
+<rect x="0.5" y="0.5" width="899" height="479" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">window(): Seriden Bir Zaman Penceresi Kesmek</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">window(AirPassengers, start = c(1955, 1), end = c(1957, 12)) → 36 aylık yeni bir ts nesnesi</text>
+<rect x="459.8" y="74" width="201.8" height="156" fill="#ea580c" fill-opacity="0.10" stroke="#ea580c" stroke-dasharray="4 3"/>
+<line x1="60" y1="230" x2="860" y2="230" stroke="#6b7280"/>
+<line x1="60.0" y1="230" x2="60.0" y2="234" stroke="#6b7280"/>
+<text x="60.0" y="247.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1949</text>
+<line x1="127.1" y1="230" x2="127.1" y2="234" stroke="#6b7280"/>
+<text x="127.1" y="247.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1950</text>
+<line x1="194.3" y1="230" x2="194.3" y2="234" stroke="#6b7280"/>
+<text x="194.3" y="247.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1951</text>
+<line x1="261.4" y1="230" x2="261.4" y2="234" stroke="#6b7280"/>
+<text x="261.4" y="247.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1952</text>
+<line x1="328.5" y1="230" x2="328.5" y2="234" stroke="#6b7280"/>
+<text x="328.5" y="247.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1953</text>
+<line x1="395.7" y1="230" x2="395.7" y2="234" stroke="#6b7280"/>
+<text x="395.7" y="247.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1954</text>
+<line x1="462.8" y1="230" x2="462.8" y2="234" stroke="#6b7280"/>
+<text x="462.8" y="247.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1955</text>
+<line x1="529.9" y1="230" x2="529.9" y2="234" stroke="#6b7280"/>
+<text x="529.9" y="247.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1956</text>
+<line x1="597.1" y1="230" x2="597.1" y2="234" stroke="#6b7280"/>
+<text x="597.1" y="247.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1957</text>
+<line x1="664.2" y1="230" x2="664.2" y2="234" stroke="#6b7280"/>
+<text x="664.2" y="247.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1958</text>
+<line x1="731.3" y1="230" x2="731.3" y2="234" stroke="#6b7280"/>
+<text x="731.3" y="247.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1959</text>
+<line x1="798.5" y1="230" x2="798.5" y2="234" stroke="#6b7280"/>
+<text x="798.5" y="247.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1960</text>
+<text x="54.0" y="206.7" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="end" font-weight="normal">200</text>
+<line x1="60" y1="202.7" x2="860" y2="202.7" stroke="#e5e7eb"/>
+<text x="54.0" y="152.2" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="end" font-weight="normal">400</text>
+<line x1="60" y1="148.2" x2="860" y2="148.2" stroke="#e5e7eb"/>
+<text x="54.0" y="97.6" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="end" font-weight="normal">600</text>
+<line x1="60" y1="93.6" x2="860" y2="93.6" stroke="#e5e7eb"/>
+<polyline points="60.0,226.7 65.6,225.1 71.2,221.3 76.8,222.1 82.4,224.3 88.0,220.5 93.6,216.9 99.2,216.9 104.8,220.2 110.3,224.8 115.9,228.9 121.5,225.1 127.1,225.9 132.7,222.9 138.3,218.8 143.9,220.5 149.5,223.2 155.1,216.6 160.7,210.9 166.3,210.9 171.9,214.2 177.5,221.0 183.1,226.2 188.7,219.1 194.3,217.7 199.9,216.4 205.5,208.7 211.0,212.8 216.6,210.4 222.2,208.7 227.8,203.0 233.4,203.0 239.0,207.1 244.6,213.1 250.2,217.5 255.8,212.0 261.4,210.6 267.0,208.2 272.6,204.6 278.2,207.9 283.8,207.4 289.4,197.8 295.0,194.5 300.6,191.3 306.2,200.3 311.7,205.2 317.3,210.4 322.9,204.4 328.5,203.8 334.1,203.8 339.7,192.9 345.3,193.2 350.9,194.8 356.5,191.0 362.1,185.3 367.7,183.1 373.3,192.6 378.9,199.7 384.5,208.2 390.1,202.5 395.7,201.6 401.3,206.0 406.9,193.2 412.4,195.4 418.0,193.5 423.6,185.3 429.2,174.9 434.8,177.4 440.4,186.6 446.0,194.8 451.6,201.9 457.2,194.8 462.8,191.3 468.4,193.7 474.0,184.5 479.6,183.9 485.2,183.6 490.8,171.4 496.4,158.0 502.0,162.6 507.6,172.2 513.1,182.5 518.7,192.6 524.3,181.5 529.9,179.8 535.5,181.7 541.1,170.8 546.7,171.9 552.3,170.5 557.9,155.3 563.5,144.6 569.1,146.8 574.7,160.5 580.3,173.8 585.9,183.4 591.5,173.8 597.1,171.4 602.7,175.2 608.3,160.2 613.8,162.4 619.4,160.5 625.0,142.2 630.6,130.5 636.2,129.9 641.8,147.1 647.4,162.6 653.0,174.1 658.6,165.6 664.2,164.5 669.8,170.5 675.4,158.5 681.0,162.4 686.6,158.3 692.2,138.6 697.8,123.4 703.4,119.5 709.0,147.1 714.5,159.4 720.1,172.7 725.7,165.4 731.3,159.1 736.9,164.0 742.5,146.5 748.1,149.3 753.7,142.7 759.3,128.5 764.9,107.8 770.5,104.8 776.1,131.0 781.7,146.3 787.3,158.5 792.9,146.8 798.5,143.5 804.1,150.6 809.7,143.0 815.2,131.5 820.8,128.5 826.4,111.4 832.0,87.6 837.6,92.0 843.2,118.7 848.8,131.5 854.4,150.9 860.0,139.5" fill="none" stroke="#6b7280" stroke-width="1.6" stroke-linejoin="round"/>
+<polyline points="462.8,191.3 468.4,193.7 474.0,184.5 479.6,183.9 485.2,183.6 490.8,171.4 496.4,158.0 502.0,162.6 507.6,172.2 513.1,182.5 518.7,192.6 524.3,181.5 529.9,179.8 535.5,181.7 541.1,170.8 546.7,171.9 552.3,170.5 557.9,155.3 563.5,144.6 569.1,146.8 574.7,160.5 580.3,173.8 585.9,183.4 591.5,173.8 597.1,171.4 602.7,175.2 608.3,160.2 613.8,162.4 619.4,160.5 625.0,142.2 630.6,130.5 636.2,129.9 641.8,147.1 647.4,162.6 653.0,174.1 658.6,165.6" fill="none" stroke="#ea580c" stroke-width="2.4" stroke-linejoin="round"/>
+<text x="68.0" y="88.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="bold">AirPassengers (1949–1960, 144 ay)</text>
+<text x="462.8" y="68.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="bold">start = c(1955, 1)</text>
+<text x="658.6" y="68.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="bold">end = c(1957, 12)</text>
+<line x1="462.8" y1="230" x2="200" y2="292" stroke="#ea580c" stroke-dasharray="3 3"/>
+<line x1="658.6" y1="230" x2="720" y2="292" stroke="#ea580c" stroke-dasharray="3 3"/>
+<rect x="190" y="292" width="540" height="146" rx="6" fill="#ea580c" fill-opacity="0.05" stroke="#ea580c"/>
+<line x1="200.0" y1="300" x2="200.0" y2="430" stroke="#e5e7eb"/>
+<text x="204.0" y="452.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="start" font-weight="normal">1955</text>
+<line x1="378.3" y1="300" x2="378.3" y2="430" stroke="#e5e7eb"/>
+<text x="382.3" y="452.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="start" font-weight="normal">1956</text>
+<line x1="556.6" y1="300" x2="556.6" y2="430" stroke="#e5e7eb"/>
+<text x="560.6" y="452.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="start" font-weight="normal">1957</text>
+<polyline points="200.0,419.0 214.9,423.5 229.7,406.5 244.6,405.5 259.4,405.0 274.3,382.5 289.1,358.0 304.0,366.5 318.9,384.0 333.7,403.0 348.6,421.5 363.4,401.0 378.3,398.0 393.1,401.5 408.0,381.5 422.9,383.5 437.7,381.0 452.6,353.0 467.4,333.5 482.3,337.5 497.1,362.5 512.0,387.0 526.9,404.5 541.7,387.0 556.6,382.5 571.4,389.5 586.3,362.0 601.1,366.0 616.0,362.5 630.9,329.0 645.7,307.5 660.6,306.5 675.4,338.0 690.3,366.5 705.1,387.5 720.0,372.0" fill="none" stroke="#ea580c" stroke-width="2.2" stroke-linejoin="round"/>
+<circle cx="200.0" cy="419.0" r="2.4" fill="#ea580c"/>
+<circle cx="214.9" cy="423.5" r="2.4" fill="#ea580c"/>
+<circle cx="229.7" cy="406.5" r="2.4" fill="#ea580c"/>
+<circle cx="244.6" cy="405.5" r="2.4" fill="#ea580c"/>
+<circle cx="259.4" cy="405.0" r="2.4" fill="#ea580c"/>
+<circle cx="274.3" cy="382.5" r="2.4" fill="#ea580c"/>
+<circle cx="289.1" cy="358.0" r="2.4" fill="#ea580c"/>
+<circle cx="304.0" cy="366.5" r="2.4" fill="#ea580c"/>
+<circle cx="318.9" cy="384.0" r="2.4" fill="#ea580c"/>
+<circle cx="333.7" cy="403.0" r="2.4" fill="#ea580c"/>
+<circle cx="348.6" cy="421.5" r="2.4" fill="#ea580c"/>
+<circle cx="363.4" cy="401.0" r="2.4" fill="#ea580c"/>
+<circle cx="378.3" cy="398.0" r="2.4" fill="#ea580c"/>
+<circle cx="393.1" cy="401.5" r="2.4" fill="#ea580c"/>
+<circle cx="408.0" cy="381.5" r="2.4" fill="#ea580c"/>
+<circle cx="422.9" cy="383.5" r="2.4" fill="#ea580c"/>
+<circle cx="437.7" cy="381.0" r="2.4" fill="#ea580c"/>
+<circle cx="452.6" cy="353.0" r="2.4" fill="#ea580c"/>
+<circle cx="467.4" cy="333.5" r="2.4" fill="#ea580c"/>
+<circle cx="482.3" cy="337.5" r="2.4" fill="#ea580c"/>
+<circle cx="497.1" cy="362.5" r="2.4" fill="#ea580c"/>
+<circle cx="512.0" cy="387.0" r="2.4" fill="#ea580c"/>
+<circle cx="526.9" cy="404.5" r="2.4" fill="#ea580c"/>
+<circle cx="541.7" cy="387.0" r="2.4" fill="#ea580c"/>
+<circle cx="556.6" cy="382.5" r="2.4" fill="#ea580c"/>
+<circle cx="571.4" cy="389.5" r="2.4" fill="#ea580c"/>
+<circle cx="586.3" cy="362.0" r="2.4" fill="#ea580c"/>
+<circle cx="601.1" cy="366.0" r="2.4" fill="#ea580c"/>
+<circle cx="616.0" cy="362.5" r="2.4" fill="#ea580c"/>
+<circle cx="630.9" cy="329.0" r="2.4" fill="#ea580c"/>
+<circle cx="645.7" cy="307.5" r="2.4" fill="#ea580c"/>
+<circle cx="660.6" cy="306.5" r="2.4" fill="#ea580c"/>
+<circle cx="675.4" cy="338.0" r="2.4" fill="#ea580c"/>
+<circle cx="690.3" cy="366.5" r="2.4" fill="#ea580c"/>
+<circle cx="705.1" cy="387.5" r="2.4" fill="#ea580c"/>
+<circle cx="720.0" cy="372.0" r="2.4" fill="#ea580c"/>
+<text x="742.0" y="320.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="bold">sonuç hâlâ bir ts:</text>
+<text x="742.0" y="342.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">start: 1955 1</text>
+<text x="742.0" y="361.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">end:   1957 12</text>
+<text x="742.0" y="380.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">frequency: 12</text>
+<text x="742.0" y="399.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">36 gözlem</text>
+<text x="178.0" y="320.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="end" font-weight="bold">Tipik kullanım:</text>
+<text x="178.0" y="342.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="end" font-weight="normal">dönem seçmek</text>
+<text x="178.0" y="361.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="end" font-weight="normal">eğitim/test ayırmak</text>
+<text x="178.0" y="380.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="end" font-weight="normal">kırılma öncesi/sonrası</text>
+</svg>
