@@ -30,41 +30,210 @@ Bu ders boyunca şu temel sorulara yanıt arayacağız:
 
 ## 2. Zaman Serisinin Temel Kavramları ve Bileşenleri
 
-Bir zaman serisini analiz etmeden önce, onun temel kavramlarını anlamamız şart. İşte en temel kavramlar:
+Bir zaman serisini analiz etmeden önce, onu anlatırken kullanacağımız ortak dili öğrenmemiz gerekir. Bu bölümde önce temel kavramları (gözlem, zaman dizini, gecikme vb.) tanımlayacağız. Ardından bir serinin hangi "parçalardan" oluştuğunu, yani **bileşenlerini** inceleyeceğiz.
 
-- **Gözlem (Observation):** $x_t$ ile gösterilir ve $t$ anındaki veri noktasını ifade eder. Örneğin, 15. gündeki işlem sayısı $x_{15} = 120$.
-- **Zaman Dizini (Time Index):** $t = 1, 2, ..., T$ şeklinde, gözlemlerin sıralandığı zaman noktalarıdır.
-- **Trend:** Serideki uzun vadeli artış veya azalış eğilimidir. Bir e-ticaret sitesinin yıllık satışlarının sürekli artması pozitif bir trend örneğidir.
-- **Mevsimsellik (Seasonality):** Belirli ve sabit periyotlarda (günlük, haftalık, yıllık) tekrar eden dalgalanmalardır. Yaz aylarında artan dondurma satışları klasik bir mevsimsellik örneğidir.
-- **Döngüsellik (Cyclicity):** Mevsimsellik gibi periyodiktir ancak periyotları sabit değildir ve genellikle daha uzun vadelidir. Ekonomideki iş döngüleri (genişleme ve daralma dönemleri) bu duruma örnektir.
-- **Durağanlık (Stationarity):** Bu, dersin en kritik kavramlarından biridir. Bir serinin ortalama, varyans gibi istatistiksel özelliklerinin zamanla değişmemesi durumudur. Bunu anlamadan modelleme yapamazsınız. Birçok klasik model, serinin durağan olmasını veya durağanlaştırılmasını gerektirir.
+Bunu bir müzik parçasına benzetebiliriz: Kulağımıza tek bir ses gelir, ama o ses aslında bas gitar (yavaş ve uzun vadeli hareket), davul (düzenli tekrar eden ritim) ve birkaç rastgele tınının toplamıdır. Zaman serisi analizinde de gözlediğimiz tek bir çizginin arkasındaki bu "enstrümanları" birbirinden ayırmaya çalışırız.
 
-### 2.1. Zaman Serisi Bileşenleri
+---
 
-Bir zaman serisini, genellikle dört ana bileşenin birleşimi olarak düşünebiliriz. Amacımız, bu bileşenleri ayrıştırarak serinin yapısını ortaya çıkarmaktır:
+### 2.1. Temel Kavramlar
+
+![Bir zaman serisinin anatomisi](images/ts_anatomy.svg)
+
+*Şekil 2.1 — Bir zaman serisinin temel kavramları: gözlem ($`x_t`$), zaman dizini ($`t`$), örnekleme aralığı ($`\Delta t`$) ve gecikme ($`h`$).*
+
+**Açıklama:** Zaman serisi, bir büyüklüğün zaman içinde **sırayla** kaydedilmiş değerleridir. Sıra çok önemlidir: Sıradan bir veri setinde satırların yerini değiştirmek sonucu değiştirmez. Bir zaman serisinde ise satırları karıştırmak, bir filmin karelerini karıştırmak gibidir; hikâye kaybolur.
+
+**Tanım:** Bir zaman serisi, zaman dizinine göre sıralanmış gözlemler kümesidir:
 
 $$
-x_t = \text{Trend}_t + \text{Mevsimsellik}_t + \text{Döngü}_t + \text{Rastgele Gürültü}_t
+\lbrace x_t\rbrace _{t=1}^{T} = \lbrace x_1, x_2, \dots, x_T\rbrace 
 $$
+
+Bu gösterimdeki kavramlar şunlardır:
+
+| Kavram | Gösterim | Anlamı | Örnek |
+| --- | --- | --- | --- |
+| **Gözlem** (observation) | $x_t$ | $t$ anında ölçülen değer | 15. gündeki işlem sayısı: $x_{15} = 120$ |
+| **Zaman dizini** (time index) | $t = 1, 2, \dots, T$ | Gözlemlerin sıra numarası | 1. ay, 2. ay, … |
+| **Seri uzunluğu** | $T$ | Toplam gözlem sayısı | `AirPassengers`: $T = 144$ ay |
+| **Örnekleme aralığı** | $\Delta t$ | Ardışık iki gözlem arasındaki süre | 1 ay, 1 gün, 1 saat |
+| **Frekans** (frequency) | $s$ | Bir mevsimlik döngüdeki gözlem sayısı | Aylık veride $s = 12$, çeyreklik veride $s = 4$ |
+| **Gecikme** (lag) | $x_{t-h}$ | $h$ adım önceki gözlem | $h = 1$: bir önceki ay, $h = 12$: geçen yılın aynı ayı |
+
+> **Gecikme neden bu kadar önemli?** Zaman serisi analizinin temel varsayımı, **geçmişin geleceği hakkında bilgi taşıdığıdır.** Bugünkü değer ($x_t$) ile gecikmeli değerler ($x_{t-1}, x_{t-2}, \dots$) arasındaki ilişki, ACF/PACF grafiklerinin (Bölüm 6.3), ARIMA modellerinin (Bölüm 7.1) ve LSTM gibi derin öğrenme modellerinin (Bölüm 8.3) temelini oluşturur.
+
+Sık kullanılan iki operatör, formülleri kısaltmamızı sağlar:
+
+- **Gecikme (backshift) operatörü:** $B x_t = x_{t-1}$ ve genel olarak $B^h x_t = x_{t-h}$.
+- **Fark operatörü:** $\nabla x_t = x_t - x_{t-1} = (1 - B) x_t$. Mevsimsel fark ise $\nabla_s x_t = x_t - x_{t-s} = (1 - B^s) x_t$ şeklindedir.
+
+---
+
+### 2.2. Zaman Serisinin Bileşenleri
+
+**Açıklama:** Bir dondurmacının aylık satışlarını düşünelim. Satışlar:
+
+- dükkân tanındıkça yıldan yıla **artıyor** (trend),
+- her yıl yazın **zirve**, kışın **dip** yapıyor (mevsimsellik),
+- ekonomi iyi giderken biraz yükselip kriz yıllarında biraz düşüyor (döngü),
+- bazı aylarda da açıklanamayan küçük iniş çıkışlar gösteriyor (gürültü).
+
+Gözlediğimiz satış rakamı, bu dört etkinin **üst üste binmiş** hâlidir.
+
+**Tanım (toplamsal ayrıştırma):**
+
 $$
 x_t = T_t + S_t + C_t + I_t
 $$
 
-- $T_t$: Trend (Uzun vadeli yön)
-- $S_t$: Mevsimsellik (Sabit periyotlu dalgalanmalar)
-- $C_t$: Döngü (Değişken periyotlu dalgalanmalar)
-- $I_t$: Rastgele Gürültü (Açıklanamayan, öngörülemeyen dalgalanmalar)
+![Zaman serisinin bileşenlerine ayrıştırılması](images/ts_decomposition.svg)
 
-Bu ayrıştırma işlemi, serinin yapısını anlamamızda ve doğru modeli seçmemizde bize yol gösterir.
+*Şekil 2.2 — Gözlenen seri (en üstte), altındaki dört bileşenin toplamıdır. Tek başına bakıldığında karmaşık görünen seri, ayrıştırılınca basit parçalara dönüşür.*
 
-```mermaid
-graph TD
-    subgraph "Zaman Serisi Ayrıştırması"
-        A[Orijinal Seri: x_t] --> B[Trend: T_t];
-        A --> C[Mevsimsellik: S_t];
-        A --> D[Artıklar/Gürültü: I_t];
-    end
+| Bileşen | Sembol | Ne anlatır? | Zaman ölçeği | Örnek |
+| --- | --- | --- | --- | --- |
+| **Trend** | $T_t$ | Uzun vadeli yön: artış, azalış ya da sabitlik | Yıllar | E-ticaret satışlarının sürekli büyümesi |
+| **Mevsimsellik** | $S_t$ | Takvime bağlı, **sabit periyotla** tekrar eden desen | Gün, hafta, yıl içi | Yazın artan dondurma, kışın artan doğalgaz tüketimi |
+| **Döngü** | $C_t$ | **Periyodu sabit olmayan**, genellikle uzun dalgalanmalar | Genellikle 2 yıldan uzun | Ekonomik genişleme ve daralma dönemleri |
+| **Düzensiz bileşen** | $I_t$ | Diğer bileşenlerle açıklanamayan rastgele kısım | Her gözlem | Grev, beklenmedik hava olayı, ölçüm hatası |
+
+**Bileşenlerin özellikleri:**
+
+- **Trend** doğrusal olmak zorunda değildir. Üstel büyüme, doygunluğa ulaşan S-eğrisi ya da yön değiştiren bir trend de olabilir.
+- **Mevsimsellik** için $S_t \approx S_{t-s}$ geçerlidir: desen her $s$ adımda bir tekrar eder. Toplamsal modelde mevsimsel etkilerin bir periyot boyunca toplamı sıfırdır ($\sum_{j=1}^{s} S_j = 0$). Böylece mevsimsellik seviyeyi değil, yalnızca yıl içindeki dağılımı etkiler.
+- **Bir seride birden fazla mevsimsellik olabilir.** Örneğin saatlik elektrik tüketiminde hem günlük (24 saat) hem haftalık (168 saat) desen bulunur.
+- **Düzensiz bileşen**, ideal durumda ortalaması sıfır olan ve kendi içinde ilişki taşımayan **beyaz gürültüdür**: $I_t \sim \text{iid}(0, \sigma^2)$. Ayrıştırma sonrasında artıklarda hâlâ bir desen görüyorsak, bazı yapıları yakalayamamışız demektir.
+
+> **Uygulamada trend ve döngü genellikle birleştirilir.** Döngünün periyodu değişken olduğu için onu trendden güvenilir biçimde ayırmak zordur. Bu yüzden R'daki `decompose()` ve `stl()` gibi yöntemler seriyi **üç** bileşene ayırır: *trend-döngü* ($T_t$, döngüyü de içerir), *mevsimsellik* ($S_t$) ve *kalan* ($R_t$ ya da $I_t$). Bölüm 6.2'deki `decompose()` çıktısında bu yüzden yalnızca üç bileşen görürüz.
+
+---
+
+### 2.3. Mevsimsellik ile Döngüsellik Arasındaki Fark
+
+Bu iki kavram, ikisi de "iniş çıkış" olduğu için en sık karıştırılan kavramlardır.
+
+![Mevsimsellik ve döngüsellik](images/ts_seasonal_vs_cyclic.svg)
+
+*Şekil 2.3 — (a) Mevsimsellikte tepeler arası mesafe hep aynıdır (12 ay). (b) Döngüde ise tepeler arası mesafe (46, 36, 28 ay) ve dalgaların yüksekliği değişir.*
+
+| Özellik | Mevsimsellik | Döngüsellik |
+| --- | --- | --- |
+| Periyot | **Sabit** ve bilinir (12 ay, 7 gün, 24 saat) | **Değişken**, önceden bilinmez |
+| Kaynağı | Takvim, iklim, gelenek (tatiller, bayramlar) | Ekonomik, sosyal ya da doğal süreçler |
+| Süresi | Genellikle bir yıl veya daha kısa | Genellikle 2 yıldan uzun |
+| Genlik | Görece istikrarlı | Döngüden döngüye değişir |
+| Tahmin edilebilirlik | Yüksek: "gelecek temmuz da zirve olacak" | Düşük: "bir sonraki kriz ne zaman?" |
+
+**Pratik bir test:** Kendinize şunu sorun: *"Bir sonraki tepenin hangi tarihte olacağını takvime bakarak söyleyebilir miyim?"* Cevap evetse mevsimselliktir, hayırsa döngüdür.
+
+---
+
+### 2.4. Toplamsal ve Çarpımsal Model
+
+Bileşenler her zaman toplanarak bir araya gelmez. Bazı serilerde birbirleriyle **çarpılarak** birleşirler.
+
+![Toplamsal ve çarpımsal model](images/ts_additive_multiplicative.svg)
+
+*Şekil 2.4 — (a) Toplamsal modelde mevsimsel dalgaların yüksekliği trendden bağımsızdır. (b) Çarpımsal modelde dalgalar seviyeyle birlikte büyür: seri "huni" gibi açılır.*
+
+**Tanım 1 (toplamsal model):**
+
+$$
+x_t = T_t + S_t + I_t
+$$
+
+Mevsimsel etki **sabit bir miktardır.** Örneğin "Temmuz'da satışlar ortalamadan her yıl yaklaşık 500 birim fazladır."
+
+**Tanım 2 (çarpımsal model):**
+
+$$
+x_t = T_t \times S_t \times I_t
+$$
+
+Mevsimsel etki **bir orandır.** Örneğin "Temmuz'da satışlar ortalamadan her yıl yaklaşık %20 fazladır." Trend yükseldikçe bu %20'nin mutlak karşılığı da büyür. Çarpımsal modelde mevsimsel katsayıların ortalaması 1'dir. Örneğin $S_{\text{Temmuz}} = 1.20$, %20 fazlalık anlamına gelir.
+
+**Hangisini seçmeliyim?**
+
+| Grafikte ne görüyorsunuz? | Model |
+| --- | --- |
+| Mevsimsel dalgaların yüksekliği zaman içinde yaklaşık sabit | Toplamsal |
+| Dalgalar seviye yükseldikçe büyüyor ("huni" şekli) | Çarpımsal |
+
+**Log dönüşümü ile köprü kurmak:** Çarpımsal bir modelin logaritması alınınca model toplamsal hâle gelir:
+
+$$
+\log x_t = \log T_t + \log S_t + \log I_t
+$$
+
+Bu nedenle çarpımsal yapıdaki serilerde (örneğin `AirPassengers`) önce `log()` dönüşümü uygulanır, ardından toplamsal yöntemler kullanılır. Bölüm 7.1'deki SARIMA uygulamasında `log(AirPassengers)` kullanmamızın nedeni budur.
+
+---
+
+### 2.5. Durağanlık: Kısa Bir Ön Bakış
+
+Bileşenler kavramı bizi doğrudan dersin en kritik kavramına götürür: **durağanlık** (stationarity).
+
+**Açıklama:** Durağan bir seride trend ve mevsimsellik yoktur. Serinin hangi zaman diliminden bir parça alırsanız alın, ortalama ve dalgalanma düzeyi aynıdır. Yani kabaca, **durağan bir seri, yalnızca düzensiz bileşenden oluşan bir seriye benzer.**
+
+Bu yüzden ayrıştırma ile durağanlık birbirine sıkı sıkıya bağlıdır: Klasik modellerin (ARIMA vb.) çoğu durağan seri ister. Seriyi durağanlaştırmak için yaptığımız işlemler de aslında bileşenleri temizlemektir:
+
+- Fark alma ($\nabla x_t$) **trendi**,
+- Mevsimsel fark alma ($\nabla_s x_t$) **mevsimselliği**,
+- Log dönüşümü ise **çarpımsal yapıyı ve artan varyansı** ortadan kaldırır.
+
+Durağanlığın matematiksel tanımı ve testleri Bölüm 3.2'de ayrıntılı olarak ele alınmaktadır.
+
+---
+
+### 2.6. Mini Uygulama: `AirPassengers` Serisini Ayrıştırmak
+
+`AirPassengers` serisinde mevsimsel dalgalar yıllar içinde büyüdüğü için çarpımsal model uygundur. Aşağıdaki kod iki yaklaşımı karşılaştırır.
+
+```r
+data("AirPassengers")
+
+# 1) Çarpımsal ayrıştırma: xt = Tt x St x It
+ayr_carp <- decompose(AirPassengers, type = "multiplicative")
+plot(ayr_carp)
+
+# Mevsimsel katsayılar (ortalaması 1): Temmuz ~1.23 -> ortalamadan ~%23 fazla
+round(ayr_carp$figure, 3)
+
+# 2) Log dönüşümü + toplamsal ayrıştırma: log(xt) = log(Tt) + log(St) + log(It)
+ayr_log <- decompose(log(AirPassengers), type = "additive")
+plot(ayr_log)
+
+# 3) Daha modern ve sağlam bir yöntem: STL (Seasonal-Trend decomposition using Loess)
+ayr_stl <- stl(log(AirPassengers), s.window = "periodic")
+plot(ayr_stl)
 ```
+
+**Grafikleri yorumlarken:**
+
+- **trend** panelinde yolcu sayısının 1949–1960 arasında istikrarlı biçimde arttığını,
+- **seasonal** panelinde her yıl Temmuz–Ağustos'ta zirve, Kasım'da dip olduğunu,
+- **random** panelinde belirgin bir desen kalmadığını, yani ayrıştırmanın yapıyı büyük ölçüde yakaladığını görürüz.
+
+<details>
+<summary><b>Kendinizi test edin (cevaplar için tıklayın)</b></summary>
+
+1. **Bir alışveriş merkezinin günlük ziyaretçi sayısında hafta sonları sürekli artış görülüyor. Bu hangi bileşendir? Periyodu nedir?**
+   → Mevsimsellik. Periyot 7 gündür (günlük veride $s = 7$).
+
+2. **Bir ülkenin GSYH serisinde 1990–2020 arasında 3, 7 ve 5 yıl arayla gerçekleşen üç durgunluk dönemi var. Bu hangi bileşendir?**
+   → Döngü. Periyot sabit değildir ve takvimden önceden tahmin edilemez.
+
+3. **Bir seride mevsimsel dalgaların yüksekliği 10 yılda iki katına çıkmış. Hangi model uygundur, ne yapılmalıdır?**
+   → Çarpımsal model. Ya doğrudan `type = "multiplicative"` kullanılır ya da seriye `log()` uygulanıp toplamsal yöntemlerle devam edilir.
+
+4. **Ayrıştırma sonrasında düzensiz bileşende hâlâ her yıl tekrar eden bir desen görüyorsunuz. Bu ne anlama gelir?**
+   → Mevsimsellik tam olarak yakalanamamıştır. Model türü (toplamsal/çarpımsal) yanlış seçilmiş olabilir, mevsimsel desen zamanla değişiyor olabilir (bu durumda `stl()` ile `s.window` ayarlanmalıdır) ya da ikinci bir mevsimsellik bulunuyor olabilir.
+
+5. **$`\nabla_{12}  x_t`$ ifadesi ne anlama gelir?**
+   → $x_t - x_{t-12}$: Aylık bir seride her ayın geçen yılın aynı ayından farkı, yani mevsimsel fark.
+
+</details>
 
 ---
 
@@ -98,7 +267,7 @@ Zaman serilerini sınıflandırırken **dört bağımsız eksen** kullanırız. 
 - **Tek değişkenli (univariate) seri:** Her $t$ anında tek bir skaler gözlem vardır.
 
 $$
-\{x_t\}_{t=1}^{T}, \qquad x_t \in \mathbb{R}
+\lbrace x_t\rbrace _{t=1}^{T}, \qquad x_t \in \mathbb{R}
 $$
 
 - **Çok değişkenli (multivariate) seri:** Her $t$ anında $k$ değişkenden oluşan bir **gözlem vektörü** vardır.
@@ -107,7 +276,7 @@ $$
 \mathbf{x}_t = (x_{1t}, x_{2t}, \dots, x_{kt})^\top \in \mathbb{R}^k
 $$
 
-Çok değişkenli analizde yalnızca her serinin kendi geçmişi değil, seriler **arasındaki** ilişkiler de modellenir. Örneğin faizdeki bir artışın birkaç ay sonra enflasyonu etkilemesi gibi. Bu ilişkiler çapraz kovaryans ile ölçülür: $\operatorname{Cov}(x_{i,t},\, x_{j,t-h})$.
+Çok değişkenli analizde yalnızca her serinin kendi geçmişi değil, seriler **arasındaki** ilişkiler de modellenir. Örneğin faizdeki bir artışın birkaç ay sonra enflasyonu etkilemesi gibi. Bu ilişkiler çapraz kovaryans ile ölçülür: $\mathrm{Cov}(x_{i,t}, x_{j,t-h})$.
 
 ![Tek değişkenli ve çok değişkenli seri](images/ts_univariate_multivariate.svg)
 
@@ -132,15 +301,15 @@ Bu ayrım, klasik zaman serisi analizinin **en kritik** kavramıdır.
 
 Kısacası durağan bir seride, **serinin hangi zaman diliminden bir parça alırsanız alın, istatistiksel olarak benzer görünür.**
 
-**Tanım 1 (zayıf / kovaryans durağanlığı):** Bir $\{x_t\}$ süreci aşağıdaki üç koşulu sağlıyorsa *zayıf durağandır*:
+**Tanım 1 (zayıf / kovaryans durağanlığı):** Bir $\lbrace x_t\rbrace$ süreci aşağıdaki üç koşulu sağlıyorsa *zayıf durağandır*:
 
-$$
+```math
 \begin{aligned}
 &1)\quad E[x_t] = \mu && \text{(ortalama sabit, } t\text{'ye bağlı değil)}\\
-&2)\quad \operatorname{Var}(x_t) = \sigma^2 < \infty && \text{(varyans sabit ve sonlu)}\\
-&3)\quad \operatorname{Cov}(x_t,\, x_{t+h}) = \gamma(h) && \text{(kovaryans yalnızca gecikme } h\text{'ye bağlı)}
+&2)\quad \mathrm{Var}(x_t) = \sigma^2 < \infty && \text{(varyans sabit ve sonlu)}\\
+&3)\quad \mathrm{Cov}(x_t, x_{t+h}) = \gamma(h) && \text{(kovaryans yalnızca gecikme } h\text{'ye bağlı)}
 \end{aligned}
-$$
+```
 
 Üçüncü koşul şunu söyler: bugün ile yarın arasındaki ilişki, geçen yılın aynı iki ardışık günü arasındaki ilişkiyle aynıdır. İlişki "saatin" kaç olduğuna değil, yalnızca **aradaki mesafeye** bağlıdır.
 
@@ -148,7 +317,7 @@ $$
 
 ![Durağan ve durağan olmayan seriler](images/ts_stationarity.svg)
 
-*Şekil 3.3 — (a) Beyaz gürültü: ortalama ve varyans sabit. (b) Trend: ortalama zamanla artıyor. (c) Varyans zamanla büyüyor. (d) Rastgele yürüyüş: ortalama sabit görünse de varyans $t\sigma^2$ şeklinde büyür; bu nedenle durağan değildir.*
+*Şekil 3.3 — (a) Beyaz gürültü: ortalama ve varyans sabit. (b) Trend: ortalama zamanla artıyor. (c) Varyans zamanla büyüyor. (d) Rastgele yürüyüş: ortalama sabit görünse de varyans $`t\sigma^2`$ şeklinde büyür; bu nedenle durağan değildir.*
 
 **Durağanlığı bozan başlıca nedenler:**
 
@@ -162,7 +331,7 @@ $$
 **Not — iki farklı "durağan olmayan" türü:**
 
 - **Trend-durağan (trend-stationary):** $x_t = \beta_0 + \beta_1 t + \varepsilon_t$. Deterministik trend çıkarılınca seri durağan olur. Şoklar geçicidir, seri trende geri döner.
-- **Fark-durağan (difference-stationary, birim köklü):** $x_t = x_{t-1} + \varepsilon_t$ (rastgele yürüyüş). Burada $\operatorname{Var}(x_t) = t\sigma^2$ olur. Şoklar **kalıcıdır**, bu yüzden seriyi durağanlaştırmak için fark almak gerekir: $\nabla x_t = \varepsilon_t$.
+- **Fark-durağan (difference-stationary, birim köklü):** $x_t = x_{t-1} + \varepsilon_t$ (rastgele yürüyüş). Burada $\mathrm{Var}(x_t) = t\sigma^2$ olur. Şoklar **kalıcıdır**, bu yüzden seriyi durağanlaştırmak için fark almak gerekir: $\nabla x_t = \varepsilon_t$.
 
 Bu ayrım önemlidir çünkü yanlış dönüşüm (trend-durağan seriden fark almak ya da birim köklü seriden sadece trend çıkarmak) hatalı modellere yol açar. ARIMA'daki "I" (Integrated) harfi tam olarak bu fark alma işlemini temsil eder.
 
@@ -199,8 +368,8 @@ adf.test(diff(rastgele_yuruyus))  # farkı alınınca durağanlaşır
 
 **Tanım:**
 
-- **Sürekli zamanlı seri:** $\{x(t) : t \in \mathbb{R}\}$. Zaman ekseni kesintisizdir.
-- **Kesikli zamanlı seri:** $\{x_t : t \in \mathbb{Z}\}$. Gözlemler yalnızca belirli anlarda vardır. Sürekli bir süreçten $\Delta t$ aralıklarla **örnekleme (sampling)** yapılarak elde edilir:
+- **Sürekli zamanlı seri:** $\lbrace x(t) : t \in \mathbb{R}\rbrace$. Zaman ekseni kesintisizdir.
+- **Kesikli zamanlı seri:** $\lbrace x_t : t \in \mathbb{Z}\rbrace$. Gözlemler yalnızca belirli anlarda vardır. Sürekli bir süreçten $\Delta t$ aralıklarla **örnekleme (sampling)** yapılarak elde edilir:
 
 $$
 x_t = x(t \cdot \Delta t), \qquad t = 0, 1, 2, \dots
@@ -208,7 +377,7 @@ $$
 
 ![Sürekli ve kesikli zaman](images/ts_discrete_continuous.svg)
 
-*Şekil 3.4 — Solda sürekli bir sinyal, sağda aynı sinyalin $\Delta t$ aralıklarla örneklenmiş kesikli hâli.*
+*Şekil 3.4 — Solda sürekli bir sinyal, sağda aynı sinyalin $`\Delta t`$ aralıklarla örneklenmiş kesikli hâli.*
 
 Bu dersteki ve gerçek dünyadaki analizlerin **büyük çoğunluğu kesikli zamanlıdır**, çünkü bilgisayarlar yalnızca sonlu sayıda ölçümü saklayabilir. EKG, sismograf veya ses sinyali gibi doğası gereği sürekli olan süreçler bile analizden önce örneklenerek kesikli seriye dönüştürülür.
 
@@ -232,10 +401,10 @@ Bu dersteki ve gerçek dünyadaki analizlerin **büyük çoğunluğu kesikli zam
 - **Deterministik seri:** Tamamen bilinen bir fonksiyonla ifade edilir, hiçbir belirsizlik içermez:
 
 $$
-x_t = f(t), \qquad \text{örneğin} \quad x_t = A \sin\!\left(\frac{2\pi t}{P}\right) + \beta t
+x_t = f(t), \qquad \text{örneğin} \quad x_t = A \sin\left(\frac{2\pi t}{P}\right) + \beta t
 $$
 
-- **Stokastik seri:** Bir **stokastik sürecin** (rastgele değişkenler ailesi $\{X_t\}$) bir gerçekleşmesidir. Genellikle sistematik bir kısım ile rastgele bir kısmın toplamı olarak yazılır:
+- **Stokastik seri:** Bir **stokastik sürecin** (rastgele değişkenler ailesi $\lbrace X_t\rbrace$) bir gerçekleşmesidir. Genellikle sistematik bir kısım ile rastgele bir kısmın toplamı olarak yazılır:
 
 $$
 x_t = f(t) + \varepsilon_t, \qquad \varepsilon_t \sim \text{iid}(0, \sigma^2)
@@ -250,7 +419,7 @@ $$
 1. Tahminler her zaman **belirsizlik** içerir. Bu nedenle `forecast()` çıktılarında %80 ve %95'lik **tahmin aralıkları** görürüz.
 2. Sürecin özelliklerini (ortalama, varyans, ACF) **tek bir gerçekleşmeden** tahmin etmek zorundayız. Bu ancak süreç durağan (ve ergodik) ise mümkündür. İşte durağanlığın bu kadar önemli olmasının asıl nedeni budur.
 
-> **Gerçek dünyada** serilerin neredeyse tamamı stokastiktir. Deterministik bileşenler (trend, mevsimsellik) genellikle stokastik bir gürültüyle birlikte bulunur. Bölüm 2.1'deki $x_t = T_t + S_t + C_t + I_t$ ayrıştırması tam olarak bu fikre dayanır: $T_t$ ve $S_t$ büyük ölçüde sistematik, $I_t$ ise stokastik kısımdır.
+> **Gerçek dünyada** serilerin neredeyse tamamı stokastiktir. Deterministik bileşenler (trend, mevsimsellik) genellikle stokastik bir gürültüyle birlikte bulunur. Bölüm 2.2'deki $x_t = T_t + S_t + C_t + I_t$ ayrıştırması tam olarak bu fikre dayanır: $T_t$ ve $S_t$ büyük ölçüde sistematik, $I_t$ ise stokastik kısımdır.
 
 ---
 
@@ -282,7 +451,7 @@ Derste kullanacağımız serilerin sınıflandırması:
    → Çok değişkenli ($k=3$), kesikli (günlük), stokastik. Yaz-kış mevsimselliği nedeniyle büyük olasılıkla durağan değildir.
 
 2. **Rastgele yürüyüşün ortalaması sabit (0) olduğu halde neden durağan değildir?**
-   → Çünkü varyansı $\operatorname{Var}(x_t) = t\sigma^2$ zamanla büyür. Durağanlık için ortalamanın yanında varyansın ve öz-kovaryansın da sabit olması gerekir.
+   → Çünkü varyansı $\mathrm{Var}(x_t) = t\sigma^2$ zamanla büyür. Durağanlık için ortalamanın yanında varyansın ve öz-kovaryansın da sabit olması gerekir.
 
 3. **Hisse fiyatı durağan değilken günlük getirisi neden yaklaşık durağandır?**
    → Getiri, fiyatın (log) farkıdır: $r_t = \ln P_t - \ln P_{t-1}$. Fark alma işlemi birim kökü ortadan kaldırır.
@@ -691,8 +860,6 @@ Yukarıdaki çıktı, `lag()` fonksiyonunun seriyi zamanda nasıl kaydırdığı
 
 Bu gecikmeli değerler, "geçen ayki tüketim" veya "geçen yılın aynı ayındaki tüketim" gibi bilgileri modelimize birer özellik olarak eklememizi sağlar.
 
-```
-
 - **`decompose()`:** Şimdi, bir serinin iç yapısını, adeta bir motorun parçalarını ayırır gibi incelememizi sağlayan `decompose()` fonksiyonuna bakalım. Bu fonksiyon, bir zaman serisini üç temel bileşenine ayırır: trend, mevsimsellik ve geriye kalan rastgele gürültü. Bu ayrıştırma, serinin hangi dinamiklerden etkilendiğini anlamak için kritik bir adımdır.
 
 Örneğin, `USgas` veri setini ele alalım. Bu seride hem yıllar içinde artan bir tüketim (trend) hem de her yıl kış aylarında zirve yapan bir dalgalanma (mevsimsellik) olduğunu gözlemlemiştik. `decompose()` fonksiyonu bu gözlemlerimizi matematiksel olarak doğrular ve görselleştirir.
@@ -860,13 +1027,13 @@ Mavi kesikli çizgiler ise istatistiksel anlamlılık sınırlarını temsil ede
 
     3.  **Sonucu Bul:** Formülün pay ve payda kısımlarını tablodan alıp bölelim.
 
-        $$
+        ```math
         \begin{align*}
         \rho_1 &= \frac{\sum_{t=2}^{5} (x_t - \bar{x})(x_{t-1} - \bar{x})}{\sum_{t=1}^{5} (x_t - \bar{x})^2} \\
                &= \frac{-11}{34} \\
                &\approx -0.324
         \end{align*}
-        $$
+        ```
 
 **Peki, bu `-0.324` ne anlama geliyor?**
 <p align="justify">
@@ -4718,12 +4885,12 @@ Gençler, burada ihtiyaç duyulan şey, sadece “geçmişine bakarak kendini ta
 
 VAR(1) modeli:
 
-$$
+```math
 \begin{aligned}
 y_{1,t} &= c_1 + a_{11} y_{1,t-1} + a_{12} y_{2,t-1} + u_{1,t} \\
 y_{2,t} &= c_2 + a_{21} y_{1,t-1} + a_{22} y_{2,t-1} + u_{2,t}
 \end{aligned}
-$$
+```
 
 Her bir denklemde:
 
@@ -4732,7 +4899,7 @@ Her bir denklemde:
 
 Vektör ve matris biçiminde yazarsak:
 
-$$
+```math
 \mathbf{y}_t =
 \begin{bmatrix}
 y_{1,t} \\
@@ -4756,7 +4923,7 @@ a_{21} & a_{22}
 u_{1,t} \\
 u_{2,t}
 \end{bmatrix}
-$$
+```
 
 Genel form:
 
