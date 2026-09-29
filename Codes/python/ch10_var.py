@@ -142,10 +142,12 @@ print(f"  BIC : {lag_order_results.selected_orders['bic']}")
 print(f"  HQIC: {lag_order_results.selected_orders['hqic']}")
 
 # Genel kural: öngörü amaçlıysa AIC, tutumlu model isteniyorsa BIC.
-selected_lag = lag_order_results.selected_orders['aic']
+# Bu veride AIC 7 gecikme önerir; 3 değişkenli VAR(7) denklem başına 22 parametre
+# demektir ve model stabil çıkmaz. Bu yüzden tutucu BIC'nin önerisini kullanıyoruz.
+selected_lag = lag_order_results.selected_orders['bic']
 # Kriter 0 gecikme önerirse VAR kurulamaz; en az 1 gecikme kullanıyoruz.
 selected_lag = max(1, selected_lag)
-print(f"\nSeçilen gecikme (AIC'ye göre): {selected_lag}")
+print(f"\nSeçilen gecikme (BIC'ye göre): {selected_lag}")
 
 # %%
 # fit(): her denklem OLS ile ayrı ayrı tahmin edilir. VAR'da tüm denklemler
@@ -176,7 +178,7 @@ is_stable = results.is_stable()
 print(f"Model stabil mi? {is_stable}")
 
 if is_stable:
-    print("Tüm kökler birim çemberin içinde - model stabil.")
+    print("Tüm öz değerler birim çemberin içinde - model stabil.")
 else:
     print("UYARI: Köklerden bazıları birim çember dışında!")
     print("Model yeniden gözden geçirilmeli:")
@@ -184,10 +186,10 @@ else:
     print("  - Seriler fark alınarak durağanlaştırılabilir")
     print("  - Aykırı gözlemler incelenebilir")
 
-# Bu veri setinde (data/macro.csv) AIC'nin önerdiği VAR(7) stabil çıkmaz (bir öz değerin
-# modülü 1'i biraz aşar; seriler durağan olmadığı için beklenen bir durum). Alıştırma: 4. adımda BIC'nin önerdiği gecikmeyi kullanın
-#   selected_lag = lag_order_results.selected_orders['bic']
-# ve sonucu karşılaştırın; ya da serilerin farkını alarak modeli yeniden kurun.
+# Alıştırma: 4. adımda AIC'nin önerdiği gecikmeyi kullanın
+#   selected_lag = lag_order_results.selected_orders['aic']
+# ve stabilite sonucunu karşılaştırın. Bu veride VAR(7) stabil çıkmaz: seriler durağan
+# olmadığı için bir öz değerin modülü 1'i aşar. Serilerin farkını alarak da deneyin.
 
 # DİKKAT: statsmodels'ta results.roots, karakteristik polinomun
 # köklerini verir; bunlar eşlik (companion) matrisinin öz değerlerinin

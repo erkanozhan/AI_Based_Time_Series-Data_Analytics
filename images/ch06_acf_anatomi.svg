@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="520" viewBox="0 0 900 520">
+<title>ACF grafiğinin anatomisi</title>
+<rect x="0.5" y="0.5" width="899" height="519" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">ACF Grafiğinin Anatomisi: Neye Bakacağız?</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">USgas serisinin ilk 36 gecikmesi (R'daki acf() çıktısının aynısı)</text>
+<rect x="110" y="140" width="640" height="250" fill="#f9fafb" stroke="#e5e7eb"/>
+<rect x="110" y="295.9" width="640" height="45.4" fill="#2563eb" opacity="0.08"/>
+<line x1="110" y1="295.9" x2="750" y2="295.9" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.2"/>
+<line x1="110" y1="341.3" x2="750" y2="341.3" stroke="#2563eb" stroke-dasharray="5 4" stroke-width="1.2"/>
+<line x1="110" y1="318.6" x2="750" y2="318.6" stroke="#6b7280" stroke-width="1"/>
+<text x="105.0" y="144.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">1</text>
+<text x="105.0" y="322.6" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">0</text>
+<text x="105.0" y="394.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">-0.4</text>
+<rect x="122.2" y="140.0" width="9.3" height="178.6" fill="#2563eb"/>
+<text x="126.8" y="404.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<rect x="139.1" y="178.9" width="9.3" height="139.7" fill="#2563eb"/>
+<text x="143.7" y="404.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<rect x="155.9" y="244.8" width="9.3" height="73.8" fill="#2563eb"/>
+<rect x="172.7" y="307.0" width="9.3" height="11.6" fill="#9ca3af"/>
+<rect x="189.6" y="318.6" width="9.3" height="22.5" fill="#9ca3af"/>
+<rect x="206.4" y="318.6" width="9.3" height="30.2" fill="#2563eb"/>
+<rect x="223.3" y="318.6" width="9.3" height="30.8" fill="#2563eb"/>
+<text x="227.9" y="404.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">6</text>
+<rect x="240.1" y="318.6" width="9.3" height="29.0" fill="#2563eb"/>
+<rect x="256.9" y="318.6" width="9.3" height="24.3" fill="#2563eb"/>
+<rect x="273.8" y="312.0" width="9.3" height="6.5" fill="#9ca3af"/>
+<rect x="290.6" y="253.3" width="9.3" height="65.3" fill="#2563eb"/>
+<rect x="307.5" y="192.8" width="9.3" height="125.8" fill="#2563eb"/>
+<rect x="324.3" y="164.1" width="9.3" height="154.5" fill="#ea580c"/>
+<text x="328.9" y="404.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">12</text>
+<rect x="341.2" y="197.3" width="9.3" height="121.2" fill="#2563eb"/>
+<rect x="358.0" y="256.9" width="9.3" height="61.7" fill="#2563eb"/>
+<rect x="374.8" y="315.7" width="9.3" height="2.9" fill="#9ca3af"/>
+<rect x="391.7" y="318.6" width="9.3" height="27.8" fill="#2563eb"/>
+<rect x="408.5" y="318.6" width="9.3" height="32.8" fill="#2563eb"/>
+<rect x="425.4" y="318.6" width="9.3" height="32.3" fill="#2563eb"/>
+<text x="430.0" y="404.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">18</text>
+<rect x="442.2" y="318.6" width="9.3" height="31.2" fill="#2563eb"/>
+<rect x="459.1" y="318.6" width="9.3" height="28.0" fill="#2563eb"/>
+<rect x="475.9" y="318.6" width="9.3" height="0.8" fill="#9ca3af"/>
+<rect x="492.7" y="263.4" width="9.3" height="55.2" fill="#2563eb"/>
+<rect x="509.6" y="207.9" width="9.3" height="110.7" fill="#2563eb"/>
+<rect x="526.4" y="181.7" width="9.3" height="136.9" fill="#ea580c"/>
+<text x="531.1" y="404.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">24</text>
+<rect x="543.3" y="211.7" width="9.3" height="106.9" fill="#2563eb"/>
+<rect x="560.1" y="268.2" width="9.3" height="50.4" fill="#2563eb"/>
+<rect x="576.9" y="318.6" width="9.3" height="4.4" fill="#9ca3af"/>
+<rect x="593.8" y="318.6" width="9.3" height="31.6" fill="#2563eb"/>
+<rect x="610.6" y="318.6" width="9.3" height="34.9" fill="#2563eb"/>
+<rect x="627.5" y="318.6" width="9.3" height="34.5" fill="#2563eb"/>
+<text x="632.1" y="404.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">30</text>
+<rect x="644.3" y="318.6" width="9.3" height="32.9" fill="#2563eb"/>
+<rect x="661.2" y="318.6" width="9.3" height="29.1" fill="#2563eb"/>
+<rect x="678.0" y="318.6" width="9.3" height="0.8" fill="#9ca3af"/>
+<rect x="694.8" y="265.6" width="9.3" height="52.9" fill="#2563eb"/>
+<rect x="711.7" y="213.1" width="9.3" height="105.5" fill="#2563eb"/>
+<rect x="728.5" y="188.0" width="9.3" height="130.5" fill="#ea580c"/>
+<text x="733.2" y="404.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">36</text>
+<text x="430.0" y="424.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="middle" font-weight="bold">Yatay eksen: gecikme h (ay) — kaç adım geriye bakıldığı</text>
+<text x="52.0" y="257.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="bold">Dikey eksen:</text>
+<text x="52.0" y="273.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="bold">korelasyon ρ̂ₕ</text>
+<text x="52.0" y="289.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">(−1 … +1)</text>
+<line x1="150.0" y1="95.0" x2="128.8" y2="137.0" stroke="#6b7280" stroke-width="1.4"/>
+<polygon points="128.8,137.0 129.4,129.0 134.9,131.8" fill="#6b7280"/>
+<text x="140.0" y="80.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="bold">① h = 0: seri kendisiyle karşılaştırılır, çubuk her zaman 1'dir.</text>
+<text x="140.0" y="95.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="start" font-weight="normal">Bilgi taşımaz; okumaya h = 1'den başlayın.</text>
+<text x="155.7" y="180.9" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2563eb" text-anchor="start" font-weight="bold">← ② Bandın dışında (ρ̂₁ = 0.78):</text>
+<text x="173.7" y="195.9" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2563eb" text-anchor="start" font-weight="bold">gerçek bir ilişki</text>
+<text x="531.1" y="128.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="bold">③ 12, 24 ve 36'da tepeler → yıllık mevsimsellik</text>
+<line x1="328.9" y1="133.0" x2="328.9" y2="161.1" stroke="#ea580c" stroke-width="1.2"/>
+<polygon points="328.9,161.1 325.8,153.7 332.1,153.7" fill="#ea580c"/>
+<line x1="531.1" y1="133.0" x2="531.1" y2="178.7" stroke="#ea580c" stroke-width="1.2"/>
+<polygon points="531.1,178.7 527.9,171.3 534.2,171.3" fill="#ea580c"/>
+<line x1="733.2" y1="133.0" x2="733.2" y2="185.0" stroke="#ea580c" stroke-width="1.2"/>
+<polygon points="733.2,185.0 730.0,177.7 736.3,177.7" fill="#ea580c"/>
+<line x1="287.9" y1="372.0" x2="230.9" y2="351.4" stroke="#dc2626" stroke-width="1.4"/>
+<polygon points="230.9,351.4 238.9,351.0 236.8,356.8" fill="#dc2626"/>
+<text x="291.9" y="370.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#dc2626" text-anchor="start" font-weight="bold">④ Sıfırın altında (ρ̂₆ = -0.17): zıt yönde hareket</text>
+<text x="291.9" y="385.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="start" font-weight="normal">(6 ay önce kış ise bugün yaz)</text>
+<line x1="750" y1="295.9" x2="762" y2="295.9" stroke="#2563eb"/>
+<line x1="750" y1="341.3" x2="762" y2="341.3" stroke="#2563eb"/>
+<line x1="762" y1="295.9" x2="762" y2="341.3" stroke="#2563eb"/>
+<text x="768.0" y="296.6" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2563eb" text-anchor="start" font-weight="bold">⑤ Mavi bant</text>
+<text x="768.0" y="311.6" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#2563eb" text-anchor="start" font-weight="normal">±1.96/√T = ±0.127</text>
+<text x="768.0" y="327.6" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="start" font-weight="normal" font-style="italic">"tesadüf bölgesi"</text>
+<line x1="177.4" y1="434.0" x2="177.4" y2="324.6" stroke="#6b7280" stroke-width="1.4"/>
+<polygon points="177.4,324.6 180.5,331.9 174.3,331.9" fill="#6b7280"/>
+<text x="169.4" y="450.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#4b5563" text-anchor="start" font-weight="bold">⑥ Gri çubuklar (ör. h = 3): bandın içinde → tesadüften ayırt edilemez, yok sayılır</text>
+<text x="450.0" y="505.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="middle" font-weight="bold">Okuma sırası: ① h = 0'ı atla → ⑤ bandı bul → ②/⑥ hangi çubuklar dışarıda? → ③/④ desen ne: sönüyor mu, tekrarlıyor mu?</text>
+</svg>

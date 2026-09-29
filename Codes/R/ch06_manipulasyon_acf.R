@@ -68,15 +68,30 @@ plot(USgas_ayristir)
 # Her ayın mevsimsel etkisi (12 değer)
 print(round(USgas_ayristir$figure))
 
-# ---- 6.3.3 Elle Hesaplama Örneği ----
+# ---- 6.3.2 ACF Grafiği Nasıl Elde Edilir? ----
+# h = 1 çubuğunu elle üretelim: seriyi 1 adım kaydır, çiftleri eşle, korelasyonu hesapla
+x <- as.numeric(USgas)
+T_ <- length(x)
+bugun <- x[2:T_]          # x_t
+dun   <- x[1:(T_ - 1)]    # x_{t-1}
+cat("Çift sayısı (T - h):", length(bugun), "\n")
+# acf() ile aynı formül (Bölüm 6.3.3, Tanım 2): tüm serinin ortalaması ve T terimli payda
+xm <- mean(x)
+rho1_elle <- sum((bugun - xm) * (dun - xm)) / sum((x - xm)^2)
+cat("rho_1 (elle):", round(rho1_elle, 2), " acf():", round(acf(x, plot = FALSE)$acf[2], 2), "\n")
+
+# ---- 6.3.4 Elle Hesaplama Örneği ----
 # x = [10, 12, 15, 11, 17] için lag-1 otokorelasyonu (elle: -11/34 = -0.324)
 print(acf(c(10, 12, 15, 11, 17), plot = FALSE)$acf[2])
 
-# ---- 6.3.4 Python ve R ile ACF ----
+# ---- 6.3.7 Python ve R ile ACF ----
 data <- c(20, 22, 21, 23, 24)          # Örnek bir zaman serisi vektörü oluştur
 acf_result <- acf(data, plot = FALSE)  # Grafik çizmeden ACF değerlerini hesapla
 # R'da acf() çıktısının ilk elemanı lag-0'dır (her zaman 1), bu yüzden lag-1 için 2. elemanı alırız.
 cat("Lag-1 ACF:", round(acf_result$acf[2], 3), "\n")
+
+# ACF grafiğini çizmek: acf() grafiği varsayılan olarak çizer
+acf(AirPassengers, lag.max = 36, main = "AirPassengers ACF")
 
 # ---- 6.4.3 Python ve R ile PACF ----
 data <- c(20, 22, 21, 23, 24)
