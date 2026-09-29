@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="470" viewBox="0 0 900 470">
+<title>Zaman serisi tipleri genel bakış</title>
+<rect x="0.5" y="0.5" width="899" height="469" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">Zaman Serisi Tipleri: Dört Bağımsız Sınıflandırma Ekseni</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Her seri, her eksenden bir etiket alır (ör. AirPassengers: tek değişkenli · durağan değil · kesikli · stokastik)</text>
+<rect x="30" y="215" width="150" height="60" rx="10" fill="#1f2937"/>
+<text x="105.0" y="242.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">ZAMAN</text>
+<text x="105.0" y="261.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#fff" text-anchor="middle" font-weight="bold">SERİSİ</text>
+<path d="M180,245 C215,245 215,105 250,105" fill="none" stroke="#6b7280" stroke-width="1.5"/>
+<rect x="250" y="85" width="240" height="40" rx="8" fill="#2563eb" opacity="0.12" stroke="#2563eb"/>
+<text x="370.0" y="110.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#2563eb" text-anchor="middle" font-weight="bold">1. Değişken sayısına göre</text>
+<path d="M490,105 C545,105 545,96 580,96" fill="none" stroke="#2563eb" stroke-width="1.4" opacity="0.7"/>
+<rect x="580" y="77" width="290" height="38" rx="8" fill="#ffffff" stroke="#2563eb" stroke-width="1.5"/>
+<text x="594.0" y="101.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#1f2937" text-anchor="start" font-weight="bold">Tek değişkenli</text>
+<text x="856.0" y="101.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="end" font-weight="normal">Univariate · xₜ ∈ ℝ</text>
+<path d="M490,105 C545,105 545,141 580,141" fill="none" stroke="#2563eb" stroke-width="1.4" opacity="0.7"/>
+<rect x="580" y="122" width="290" height="38" rx="8" fill="#ffffff" stroke="#2563eb" stroke-width="1.5"/>
+<text x="594.0" y="146.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#1f2937" text-anchor="start" font-weight="bold">Çok değişkenli</text>
+<text x="856.0" y="146.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="end" font-weight="normal">Multivariate · xₜ ∈ ℝᵏ</text>
+<path d="M180,245 C215,245 215,202 250,202" fill="none" stroke="#6b7280" stroke-width="1.5"/>
+<rect x="250" y="182" width="240" height="40" rx="8" fill="#16a34a" opacity="0.12" stroke="#16a34a"/>
+<text x="370.0" y="207.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#16a34a" text-anchor="middle" font-weight="bold">2. İstatistiksel özelliğe göre</text>
+<path d="M490,202 C545,202 545,193 580,193" fill="none" stroke="#16a34a" stroke-width="1.4" opacity="0.7"/>
+<rect x="580" y="174" width="290" height="38" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.5"/>
+<text x="594.0" y="198.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#1f2937" text-anchor="start" font-weight="bold">Durağan</text>
+<text x="856.0" y="198.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="end" font-weight="normal">Stationary · μ, σ² sabit</text>
+<path d="M490,202 C545,202 545,238 580,238" fill="none" stroke="#16a34a" stroke-width="1.4" opacity="0.7"/>
+<rect x="580" y="219" width="290" height="38" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="1.5"/>
+<text x="594.0" y="243.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#1f2937" text-anchor="start" font-weight="bold">Durağan olmayan</text>
+<text x="856.0" y="243.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="end" font-weight="normal">Non-stationary</text>
+<path d="M180,245 C215,245 215,299 250,299" fill="none" stroke="#6b7280" stroke-width="1.5"/>
+<rect x="250" y="279" width="240" height="40" rx="8" fill="#ea580c" opacity="0.12" stroke="#ea580c"/>
+<text x="370.0" y="304.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#ea580c" text-anchor="middle" font-weight="bold">3. Ölçüm zamanına göre</text>
+<path d="M490,299 C545,299 545,290 580,290" fill="none" stroke="#ea580c" stroke-width="1.4" opacity="0.7"/>
+<rect x="580" y="271" width="290" height="38" rx="8" fill="#ffffff" stroke="#ea580c" stroke-width="1.5"/>
+<text x="594.0" y="295.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#1f2937" text-anchor="start" font-weight="bold">Kesikli zaman</text>
+<text x="856.0" y="295.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="end" font-weight="normal">Discrete · t ∈ ℤ</text>
+<path d="M490,299 C545,299 545,335 580,335" fill="none" stroke="#ea580c" stroke-width="1.4" opacity="0.7"/>
+<rect x="580" y="316" width="290" height="38" rx="8" fill="#ffffff" stroke="#ea580c" stroke-width="1.5"/>
+<text x="594.0" y="340.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#1f2937" text-anchor="start" font-weight="bold">Sürekli zaman</text>
+<text x="856.0" y="340.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="end" font-weight="normal">Continuous · t ∈ ℝ</text>
+<path d="M180,245 C215,245 215,396 250,396" fill="none" stroke="#6b7280" stroke-width="1.5"/>
+<rect x="250" y="376" width="240" height="40" rx="8" fill="#7c3aed" opacity="0.12" stroke="#7c3aed"/>
+<text x="370.0" y="401.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#7c3aed" text-anchor="middle" font-weight="bold">4. Rastgeleliğe göre</text>
+<path d="M490,396 C545,396 545,387 580,387" fill="none" stroke="#7c3aed" stroke-width="1.4" opacity="0.7"/>
+<rect x="580" y="368" width="290" height="38" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+<text x="594.0" y="392.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#1f2937" text-anchor="start" font-weight="bold">Deterministik</text>
+<text x="856.0" y="392.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="end" font-weight="normal">xₜ = f(t)</text>
+<path d="M490,396 C545,396 545,432 580,432" fill="none" stroke="#7c3aed" stroke-width="1.4" opacity="0.7"/>
+<rect x="580" y="413" width="290" height="38" rx="8" fill="#ffffff" stroke="#7c3aed" stroke-width="1.5"/>
+<text x="594.0" y="437.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#1f2937" text-anchor="start" font-weight="bold">Stokastik</text>
+<text x="856.0" y="437.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="end" font-weight="normal">xₜ = f(t) + εₜ</text>
+</svg>

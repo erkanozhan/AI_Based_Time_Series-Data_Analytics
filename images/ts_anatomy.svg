@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="400" viewBox="0 0 900 400">
+<title>Bir zaman serisinin anatomisi</title>
+<rect x="0.5" y="0.5" width="899" height="399" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">Bir Zaman Serisinin Anatomisi</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Gözlem, zaman dizini, örnekleme aralığı ve gecikme (lag) kavramları</text>
+<rect x="70" y="95" width="780" height="210" fill="#f9fafb" stroke="none"/>
+<line x1="70" y1="305" x2="858" y2="305" stroke="#6b7280" stroke-width="1.2"/>
+<line x1="70" y1="305" x2="70" y2="89" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="858,301 865,305 858,309" fill="#6b7280"/>
+<polygon points="66,89 70,82 74,89" fill="#6b7280"/>
+<polyline points="70.0,235.5 103.9,213.0 137.8,181.3 171.7,195.8 205.7,179.8 239.6,206.0 273.5,194.0 307.4,215.5 341.3,215.9 375.2,231.5 409.1,215.6 443.0,203.6 477.0,184.8 510.9,155.5 544.8,149.2 578.7,133.2 612.6,125.9 646.5,140.5 680.4,158.6 714.3,152.6 748.3,178.9 782.2,184.9 816.1,170.2 850.0,158.2" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" opacity="1.0"/>
+<circle cx="70.0" cy="235.5" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<text x="70.0" y="323.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<circle cx="103.9" cy="213.0" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<circle cx="137.8" cy="181.3" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<text x="137.8" y="323.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">3</text>
+<circle cx="171.7" cy="195.8" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<circle cx="205.7" cy="179.8" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<text x="205.7" y="323.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">5</text>
+<circle cx="239.6" cy="206.0" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<circle cx="273.5" cy="194.0" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<text x="273.5" y="323.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">7</text>
+<circle cx="307.4" cy="215.5" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<circle cx="341.3" cy="215.9" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<text x="341.3" y="323.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">9</text>
+<circle cx="375.2" cy="231.5" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<circle cx="409.1" cy="215.6" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<text x="409.1" y="323.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">11</text>
+<circle cx="443.0" cy="203.6" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<circle cx="477.0" cy="184.8" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<text x="477.0" y="323.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">13</text>
+<circle cx="510.9" cy="155.5" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<circle cx="544.8" cy="149.2" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<text x="544.8" y="323.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">15</text>
+<circle cx="578.7" cy="133.2" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<circle cx="612.6" cy="125.9" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<text x="612.6" y="323.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">17</text>
+<circle cx="646.5" cy="140.5" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<circle cx="680.4" cy="158.6" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<text x="680.4" y="323.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">19</text>
+<circle cx="714.3" cy="152.6" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<circle cx="748.3" cy="178.9" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<text x="748.3" y="323.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">21</text>
+<circle cx="782.2" cy="184.9" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<circle cx="816.1" cy="170.2" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<text x="816.1" y="323.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">23</text>
+<circle cx="850.0" cy="158.2" r="4" fill="#2563eb" stroke="#fff" stroke-width="1.2"/>
+<text x="850.0" y="323.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">24</text>
+<text x="864.0" y="323.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="bold" font-style="italic">t</text>
+<text x="60.0" y="83.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#6b7280" text-anchor="end" font-weight="bold">xₜ</text>
+<circle cx="544.8" cy="149.2" r="9" fill="none" stroke="#dc2626" stroke-width="2"/>
+<line x1="544.8" y1="158.2" x2="544.8" y2="305" stroke="#dc2626" stroke-dasharray="3 3"/>
+<text x="558.8" y="177.2" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#dc2626" text-anchor="start" font-weight="bold">Gözlem: x₁₅ = 129</text>
+<path d="M443.0,195.6 C443.0,111.2 544.8,111.2 544.8,138.2" fill="none" stroke="#7c3aed" stroke-width="1.8"/>
+<polygon points="540.8,130.2 544.8,138.2 548.8,130.2" fill="#7c3aed"/>
+<text x="493.9" y="113.2" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#7c3aed" text-anchor="middle" font-weight="bold">gecikme h = 3:  x₁₂ → x₁₅</text>
+<line x1="137.8" y1="291" x2="171.7" y2="291" stroke="#ea580c" stroke-width="1.5"/>
+<line x1="137.8" y1="286" x2="137.8" y2="296" stroke="#ea580c" stroke-width="1.5"/>
+<line x1="171.7" y1="286" x2="171.7" y2="296" stroke="#ea580c" stroke-width="1.5"/>
+<text x="154.8" y="283.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#ea580c" text-anchor="middle" font-weight="bold">Δt = 1 ay</text>
+<rect x="70" y="352" width="12" height="12" rx="3" fill="#dc2626"/>
+<text x="88.0" y="362.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">Gözlem xₜ: t anındaki değer</text>
+<rect x="270" y="352" width="12" height="12" rx="3" fill="#6b7280"/>
+<text x="288.0" y="362.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">Zaman dizini t = 1, 2, …, T</text>
+<rect x="470" y="352" width="12" height="12" rx="3" fill="#ea580c"/>
+<text x="488.0" y="362.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">Δt: iki gözlem arası süre</text>
+<rect x="670" y="352" width="12" height="12" rx="3" fill="#7c3aed"/>
+<text x="688.0" y="362.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">Gecikme h: h adım önceki değer</text>
+</svg>

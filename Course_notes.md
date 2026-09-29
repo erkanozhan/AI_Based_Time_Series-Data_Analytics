@@ -70,23 +70,227 @@ graph TD
 
 ## 3. Zaman Serisi Tipleri
 
-Analize başlamadan önce, elinizdeki verinin türünü doğru sınıflandırmanız gerekir. Çünkü her seriye aynı yöntem uygulanmaz.
+Bir doktor tedaviye başlamadan önce teşhis koyar. Zaman serisi analizinde de durum aynıdır: **modeli seçmeden önce serinin "tipini" belirlemeliyiz.** Çünkü her seriye aynı yöntem uygulanmaz; yanlış tipe uygun bir model seçmek, grip hastasına kırık kol tedavisi uygulamaya benzer.
 
-1.  **Değişken Sayısına Göre:**
-    - **Tek Değişkenli (Univariate):** Tek bir değişkenin zaman içindeki değişimini inceleriz. Örnek: Sadece altın fiyatları.
-    - **Çok Değişkenli (Multivariate):** İki veya daha fazla değişkenin eş zamanlı değişimini inceleriz. Örnek: Altın fiyatları, enflasyon oranı ve faiz oranlarının birlikte analizi.
+Zaman serilerini sınıflandırırken **dört bağımsız eksen** kullanırız. Buradaki kilit fikir şudur: bu eksenler birbirini dışlamaz. Her seri, her eksenden **birer etiket** alır. Örneğin derste sık kullanacağımız `AirPassengers` serisi aynı anda *tek değişkenli*, *durağan olmayan*, *kesikli zamanlı* ve *stokastik* bir seridir.
 
-2.  **İstatistiksel Özelliklere Göre:**
-    - **Durağan (Stationary):** İstatistiksel özellikleri zamanla değişmeyen seriler.
-    - **Durağan Olmayan (Non-Stationary):** Trend veya mevsimsellik gibi nedenlerle istatistiksel özellikleri zamanla değişen seriler.
+![Zaman serisi tiplerine genel bakış](images/ts_types_overview.svg)
 
-3.  **Ölçüm Zamanına Göre:**
-    - **Kesikli (Discrete-Time):** Gözlemlerin belirli zaman aralıklarında (saatlik, günlük, aylık) yapıldığı seriler. Analiz ettiğimiz serilerin büyük çoğunluğu bu tiptedir.
-    - **Sürekli (Continuous-Time):** Gözlemlerin zamanın her anında mevcut olduğu teorik seriler. EKG sinyalleri gibi.
+*Şekil 3.1 — Zaman serilerini sınıflandırmanın dört ekseni. Her seri her eksenden bir etiket alır.*
 
-4.  **Rastgelelik Durumuna Göre:**
-    - **Deterministik:** Gelecek değerleri hatasız tahmin edilebilen, matematiksel bir fonksiyonla ifade edilebilen seriler.
-    - **Stokastik:** Gelecek değerleri belirsizlik içeren ve rastgele bir bileşene sahip olan seriler. Gerçek dünyadaki serilerin neredeyse tamamı stokastiktir.
+> **Neden önemli?** Serinin tipi, kullanılacak araç setini doğrudan belirler:
+>
+> | Serinin tipi | Tipik soru | Örnek yöntemler (bu derste) |
+> |---|---|---|
+> | Tek değişkenli | "Bu serinin geçmişi geleceği hakkında ne söylüyor?" | ARIMA/SARIMA, Üstel Düzeltme, Prophet |
+> | Çok değişkenli | "Seriler birbirini nasıl etkiliyor?" | VAR, çok girdili LSTM/GRU, XGBoost |
+> | Durağan olmayan | "Seriyi nasıl durağan hale getiririm?" | Fark alma, log dönüşümü, ADF/KPSS testleri |
+> | Stokastik | "Tahminim ne kadar belirsiz?" | Tahmin aralıkları, olasılıksal modeller |
+
+---
+
+### 3.1. Değişken Sayısına Göre: Tek Değişkenli ve Çok Değişkenli
+
+**Açıklama:** Bir öğrencinin notlarını tahmin etmek istediğinizi düşünün. Yalnızca öğrencinin geçmiş notlarına bakarsanız *tek değişkenli*, geçmiş notlarının yanında çalışma saatini, devam durumunu ve uyku süresini de birlikte izlerseniz *çok değişkenli* bir analiz yapmış olursunuz.
+
+**Tanım:**
+
+- **Tek değişkenli (univariate) seri:** Her $t$ anında tek bir skaler gözlem vardır.
+
+$$
+\{x_t\}_{t=1}^{T}, \qquad x_t \in \mathbb{R}
+$$
+
+- **Çok değişkenli (multivariate) seri:** Her $t$ anında $k$ değişkenden oluşan bir **gözlem vektörü** vardır.
+
+$$
+\mathbf{x}_t = (x_{1t}, x_{2t}, \dots, x_{kt})^\top \in \mathbb{R}^k
+$$
+
+Çok değişkenli analizde yalnızca her serinin kendi geçmişi değil, seriler **arasındaki** ilişkiler de modellenir. Örneğin faizdeki bir artışın birkaç ay sonra enflasyonu etkilemesi gibi. Bu ilişkiler çapraz kovaryans ile ölçülür: $\operatorname{Cov}(x_{i,t},\, x_{j,t-h})$.
+
+![Tek değişkenli ve çok değişkenli seri](images/ts_univariate_multivariate.svg)
+
+*Şekil 3.2 — (a) Tek değişkenli seride her an tek bir sayı vardır. (b) Çok değişkenli seride her an bir vektördür (kesikli çizgi ile gösterilen kesit).*
+
+| | Tek değişkenli | Çok değişkenli |
+|---|---|---|
+| Her andaki gözlem | Bir sayı: $x_t$ | Bir vektör: $\mathbf{x}_t$ |
+| Örnek | Aylık yolcu sayısı (`AirPassengers`) | Altın fiyatı + enflasyon + faiz |
+| Güçlü yanı | Basit, az veri ister, yorumlaması kolay | Değişkenler arası etkileşimi yakalar |
+| Zayıf yanı | Dış etkenleri görmez | Parametre sayısı hızla artar, daha çok veri ister |
+
+> **Dikkat, sık yapılan bir karışıklık:** Bir hedef seriyi dış değişkenlerle birlikte tahmin etmek (ör. ARIMAX, Prophet'a regresör eklemek) *her zaman* tam çok değişkenli modelleme değildir. Orada ilişki **tek yönlüdür** (dış değişken → hedef). VAR gibi gerçek çok değişkenli modellerde ise tüm seriler **birbirini karşılıklı olarak** etkiler.
+
+---
+
+### 3.2. İstatistiksel Özelliklere Göre: Durağan ve Durağan Olmayan
+
+Bu ayrım, klasik zaman serisi analizinin **en kritik** kavramıdır.
+
+**Açıklama:** Sakin bir göl yüzeyini düşünün. Dalgacıklar vardır ama su seviyesi (ortalama) ve dalgaların büyüklüğü (varyans) hep aynıdır. Hangi saatte fotoğraf çekerseniz çekin, göl "aynı karakterde" görünür. Bu **durağan** bir seridir. Şimdi yağmur mevsiminde yükselen bir nehri düşünün: su seviyesi sürekli değişir. Bu da **durağan olmayan** bir seridir.
+
+Kısacası durağan bir seride, **serinin hangi zaman diliminden bir parça alırsanız alın, istatistiksel olarak benzer görünür.**
+
+**Tanım 1 (zayıf / kovaryans durağanlığı):** Bir $\{x_t\}$ süreci aşağıdaki üç koşulu sağlıyorsa *zayıf durağandır*:
+
+$$
+\begin{aligned}
+&1)\quad E[x_t] = \mu && \text{(ortalama sabit, } t\text{'ye bağlı değil)}\\
+&2)\quad \operatorname{Var}(x_t) = \sigma^2 < \infty && \text{(varyans sabit ve sonlu)}\\
+&3)\quad \operatorname{Cov}(x_t,\, x_{t+h}) = \gamma(h) && \text{(kovaryans yalnızca gecikme } h\text{'ye bağlı)}
+\end{aligned}
+$$
+
+Üçüncü koşul şunu söyler: bugün ile yarın arasındaki ilişki, geçen yılın aynı iki ardışık günü arasındaki ilişkiyle aynıdır. İlişki "saatin" kaç olduğuna değil, yalnızca **aradaki mesafeye** bağlıdır.
+
+> **Tanım 2 (katı / strict durağanlık):** Daha güçlü bir koşuldur; $(x_{t_1}, \dots, x_{t_n})$ vektörünün **ortak olasılık dağılımının** tamamı zaman kaymasına karşı değişmezdir. Uygulamada "durağan" dendiğinde neredeyse her zaman *zayıf durağanlık* kastedilir.
+
+![Durağan ve durağan olmayan seriler](images/ts_stationarity.svg)
+
+*Şekil 3.3 — (a) Beyaz gürültü: ortalama ve varyans sabit. (b) Trend: ortalama zamanla artıyor. (c) Varyans zamanla büyüyor. (d) Rastgele yürüyüş: ortalama sabit görünse de varyans $t\sigma^2$ şeklinde büyür; bu nedenle durağan değildir.*
+
+**Durağanlığı bozan başlıca nedenler:**
+
+| Neden | Ne değişir? | Tipik çözüm |
+|---|---|---|
+| Trend | Ortalama ($\mu_t$) | Fark alma: $\nabla x_t = x_t - x_{t-1}$ ya da trendi çıkarma |
+| Mevsimsellik | Ortalama, periyodik olarak | Mevsimsel fark: $x_t - x_{t-s}$ (aylık veride $s=12$) |
+| Değişen varyans | Varyans ($\sigma_t^2$) | Log veya Box-Cox dönüşümü |
+| Birim kök (rastgele yürüyüş) | Varyans zamanla büyür | Fark alma |
+
+**Not — iki farklı "durağan olmayan" türü:**
+
+- **Trend-durağan (trend-stationary):** $x_t = \beta_0 + \beta_1 t + \varepsilon_t$. Deterministik trend çıkarılınca seri durağan olur. Şoklar geçicidir, seri trende geri döner.
+- **Fark-durağan (difference-stationary, birim köklü):** $x_t = x_{t-1} + \varepsilon_t$ (rastgele yürüyüş). Burada $\operatorname{Var}(x_t) = t\sigma^2$ olur. Şoklar **kalıcıdır**, bu yüzden seriyi durağanlaştırmak için fark almak gerekir: $\nabla x_t = \varepsilon_t$.
+
+Bu ayrım önemlidir çünkü yanlış dönüşüm (trend-durağan seriden fark almak ya da birim köklü seriden sadece trend çıkarmak) hatalı modellere yol açar. ARIMA'daki "I" (Integrated) harfi tam olarak bu fark alma işlemini temsil eder.
+
+**Durağanlığı nasıl anlarız?**
+
+1. **Göz ile:** Seriyi çizin. Belirgin bir trend, mevsimsellik ya da açılan bir "huni" varsa seri büyük olasılıkla durağan değildir.
+2. **ACF grafiği ile:** Durağan olmayan serilerde ACF çok yavaş söner (bkz. Bölüm 6.3).
+3. **İstatistiksel testlerle:** ADF testi ($H_0$: birim kök var, yani seri durağan değil) ve KPSS testi ($H_0$: seri durağan). İki test zıt hipotezler kurduğu için birlikte kullanılması önerilir (bkz. Bölüm 7.1).
+
+**Mini uygulama (R):** Beyaz gürültü ile rastgele yürüyüşü üretip karşılaştıralım.
+
+```r
+set.seed(42)
+beyaz_gurultu <- rnorm(200)             # durağan
+rastgele_yuruyus <- cumsum(rnorm(200))  # durağan değil (birim kök)
+
+par(mfrow = c(1, 2))
+plot.ts(beyaz_gurultu, main = "Beyaz Gürültü (durağan)")
+plot.ts(rastgele_yuruyus, main = "Rastgele Yürüyüş (durağan değil)")
+par(mfrow = c(1, 1))
+
+# install.packages("tseries")
+library(tseries)
+adf.test(beyaz_gurultu)           # küçük p-değeri -> H0 reddedilir -> durağan
+adf.test(rastgele_yuruyus)        # büyük p-değeri -> birim kök var
+adf.test(diff(rastgele_yuruyus))  # farkı alınınca durağanlaşır
+```
+
+---
+
+### 3.3. Ölçüm Zamanına Göre: Kesikli ve Sürekli Zaman
+
+**Açıklama:** Bir odadaki sıcaklık, zamanın **her anında** bir değere sahiptir. Bu *sürekli* bir süreçtir. Ancak bir termometre bu sıcaklığı yalnızca belirli anlarda, örneğin her saat başı, kaydeder. Bilgisayara giren veri artık *kesikli* bir seridir. Film de böyledir: gerçek hareket süreklidir ama kamera saniyede 24 kare kaydeder.
+
+**Tanım:**
+
+- **Sürekli zamanlı seri:** $\{x(t) : t \in \mathbb{R}\}$. Zaman ekseni kesintisizdir.
+- **Kesikli zamanlı seri:** $\{x_t : t \in \mathbb{Z}\}$. Gözlemler yalnızca belirli anlarda vardır. Sürekli bir süreçten $\Delta t$ aralıklarla **örnekleme (sampling)** yapılarak elde edilir:
+
+$$
+x_t = x(t \cdot \Delta t), \qquad t = 0, 1, 2, \dots
+$$
+
+![Sürekli ve kesikli zaman](images/ts_discrete_continuous.svg)
+
+*Şekil 3.4 — Solda sürekli bir sinyal, sağda aynı sinyalin $\Delta t$ aralıklarla örneklenmiş kesikli hâli.*
+
+Bu dersteki ve gerçek dünyadaki analizlerin **büyük çoğunluğu kesikli zamanlıdır**, çünkü bilgisayarlar yalnızca sonlu sayıda ölçümü saklayabilir. EKG, sismograf veya ses sinyali gibi doğası gereği sürekli olan süreçler bile analizden önce örneklenerek kesikli seriye dönüştürülür.
+
+**Kesikli serilerde iki önemli ayrıntı:**
+
+1. **Örnekleme frekansı:** $\Delta t$'nin seçimi hangi desenleri görebileceğimizi belirler. Aylık veride haftalık bir döngüyü asla göremezsiniz. R'daki `ts` nesnesinin `frequency` parametresi tam olarak bu bilgiyi tutar (bkz. Bölüm 5.1).
+2. **Düzenli ve düzensiz aralıklı seriler:**
+    - *Düzenli (regular):* Gözlemler eşit aralıklıdır (her ay, her saat). Klasik modellerin (ARIMA vb.) çoğu bunu varsayar.
+    - *Düzensiz (irregular):* Aralıklar eşit değildir (borsa yalnızca iş günleri açıktır, sensör ara sıra veri kaçırır). Bu tür veriler için `xts` gibi araçlar gerekir (bkz. Bölüm 5.3).
+
+> **Not — örtüşme (aliasing):** Örnekleme teoremine (Nyquist-Shannon) göre, bir süreçteki $f$ frekanslı bir salınımı doğru yakalayabilmek için örnekleme frekansının en az $2f$ olması gerekir. Daha seyrek örneklenirse hızlı döngüler yanlışlıkla yavaş döngüler gibi görünür. Örneğin günde bir kez, hep öğlen ölçülen sıcaklık serisinde gece-gündüz döngüsü tamamen kaybolur.
+
+---
+
+### 3.4. Rastgelelik Durumuna Göre: Deterministik ve Stokastik
+
+**Açıklama:** Güneşin yarın saat kaçta doğacağını saniyesine kadar hesaplayabiliriz. Bu **deterministik** bir olaydır. Ama yarın kaç kişinin otobüse bineceğini kesin olarak bilemeyiz. En iyi ihtimalle "büyük olasılıkla 900 ile 1100 arasında" diyebiliriz. Bu da **stokastik** (rastlantısal) bir olaydır.
+
+**Tanım:**
+
+- **Deterministik seri:** Tamamen bilinen bir fonksiyonla ifade edilir, hiçbir belirsizlik içermez:
+
+$$
+x_t = f(t), \qquad \text{örneğin} \quad x_t = A \sin\!\left(\frac{2\pi t}{P}\right) + \beta t
+$$
+
+- **Stokastik seri:** Bir **stokastik sürecin** (rastgele değişkenler ailesi $\{X_t\}$) bir gerçekleşmesidir. Genellikle sistematik bir kısım ile rastgele bir kısmın toplamı olarak yazılır:
+
+$$
+x_t = f(t) + \varepsilon_t, \qquad \varepsilon_t \sim \text{iid}(0, \sigma^2)
+$$
+
+![Deterministik ve stokastik seriler](images/ts_deterministic_stochastic.svg)
+
+*Şekil 3.5 — (a) Deterministik seride gelecek tek bir çizgidir. (b) Stokastik seride ise aynı geçmişten birçok farklı gelecek doğabilir. Bu yüzden tahmin, bir **nokta** değil bir **aralık** olarak verilir.*
+
+**Önemli kavram — gerçekleşme (realization):** Elimizdeki gözlenmiş seri (ör. 1949–1960 yolcu sayıları), olası sonsuz sayıda yoldan **yalnızca biridir**. Tarihi geri sarıp yeniden oynatabilseydik, biraz farklı bir seri görecektik. Bu bakış açısı iki önemli sonuç doğurur:
+
+1. Tahminler her zaman **belirsizlik** içerir. Bu nedenle `forecast()` çıktılarında %80 ve %95'lik **tahmin aralıkları** görürüz.
+2. Sürecin özelliklerini (ortalama, varyans, ACF) **tek bir gerçekleşmeden** tahmin etmek zorundayız. Bu ancak süreç durağan (ve ergodik) ise mümkündür. İşte durağanlığın bu kadar önemli olmasının asıl nedeni budur.
+
+> **Gerçek dünyada** serilerin neredeyse tamamı stokastiktir. Deterministik bileşenler (trend, mevsimsellik) genellikle stokastik bir gürültüyle birlikte bulunur. Bölüm 2.1'deki $x_t = T_t + S_t + C_t + I_t$ ayrıştırması tam olarak bu fikre dayanır: $T_t$ ve $S_t$ büyük ölçüde sistematik, $I_t$ ise stokastik kısımdır.
+
+---
+
+### 3.5. Özet: Bir Seriyi Sınıflandırmak
+
+Yeni bir veri setiyle karşılaştığınızda aşağıdaki dört soruyu sırayla sorun:
+
+1. **Kaç değişken var?** → Tek değişkenli mi, çok değişkenli mi?
+2. **Ortalama, varyans ve ilişkiler zamanla değişiyor mu?** → Durağan mı, değil mi?
+3. **Veri nasıl ölçülmüş?** → Kesikli mi, sürekli mi? Aralıklar düzenli mi?
+4. **Gelecek kesin olarak hesaplanabilir mi?** → Deterministik mi, stokastik mi?
+
+Derste kullanacağımız serilerin sınıflandırması:
+
+| Seri | Değişken sayısı | Durağanlık | Ölçüm zamanı | Rastgelelik |
+|---|---|---|---|---|
+| `AirPassengers` (aylık yolcu) | Tek | Durağan değil (trend + mevsimsellik + artan varyans) | Kesikli, düzenli (aylık) | Stokastik |
+| `USgas` (aylık gaz tüketimi) | Tek | Durağan değil (mevsimsellik) | Kesikli, düzenli (aylık) | Stokastik |
+| Günlük hisse kapanış fiyatları | Tek | Durağan değil (birim kök) | Kesikli, düzensiz (yalnızca iş günleri) | Stokastik |
+| Hisse fiyatının günlük getirisi | Tek | Genellikle yaklaşık durağan | Kesikli, düzensiz | Stokastik |
+| Altın + enflasyon + faiz | Çok (3) | Genellikle durağan değil | Kesikli, düzenli (aylık) | Stokastik |
+| EKG sinyali | Tek | Yaklaşık durağan (kısa pencerede) | Doğası sürekli, örneklenmiş hâli kesikli | Stokastik |
+| $x_t = \sin(2\pi t / 12)$ | Tek | Durağan değil (ortalama $t$'ye bağlı) | Kesikli | Deterministik |
+
+<details>
+<summary><b>Kendinizi test edin (cevaplar için tıklayın)</b></summary>
+
+1. **Bir şehirdeki günlük sıcaklık, nem ve elektrik tüketimi birlikte kaydediliyor. Bu seri hangi tiptir?**
+   → Çok değişkenli ($k=3$), kesikli (günlük), stokastik. Yaz-kış mevsimselliği nedeniyle büyük olasılıkla durağan değildir.
+
+2. **Rastgele yürüyüşün ortalaması sabit (0) olduğu halde neden durağan değildir?**
+   → Çünkü varyansı $\operatorname{Var}(x_t) = t\sigma^2$ zamanla büyür. Durağanlık için ortalamanın yanında varyansın ve öz-kovaryansın da sabit olması gerekir.
+
+3. **Hisse fiyatı durağan değilken günlük getirisi neden yaklaşık durağandır?**
+   → Getiri, fiyatın (log) farkıdır: $r_t = \ln P_t - \ln P_{t-1}$. Fark alma işlemi birim kökü ortadan kaldırır.
+
+4. **Saatlik ölçülen bir seride 30 dakikalık bir döngü görülebilir mi?**
+   → Hayır. 30 dakikalık döngünün frekansı saatte 2'dir; bunu yakalamak için saatte en az 4 ölçüm gerekir (Nyquist). Saatlik örneklemede bu döngü kaybolur ya da örtüşme nedeniyle yanıltıcı görünür.
+
+</details>
 
 ---
 

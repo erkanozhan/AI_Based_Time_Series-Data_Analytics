@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="360" viewBox="0 0 900 360">
+<title>Tek değişkenli ve çok değişkenli zaman serisi</title>
+<rect x="0.5" y="0.5" width="899" height="359" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">Tek Değişkenli ve Çok Değişkenli Zaman Serisi</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Soldaki seri kendi geçmişiyle açıklanır; sağdaki seriler birbirini de etkiler</text>
+<rect x="50" y="90" width="360" height="190" fill="#f9fafb" stroke="none"/>
+<line x1="50" y1="280" x2="418" y2="280" stroke="#6b7280" stroke-width="1.2"/>
+<line x1="50" y1="280" x2="50" y2="84" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="418,276 425,280 418,284" fill="#6b7280"/>
+<polygon points="46,84 50,77 54,84" fill="#6b7280"/>
+<text x="410.0" y="298.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">Zaman (t)</text>
+<polyline points="50.0,214.8 56.1,207.0 62.2,210.3 68.3,203.8 74.4,203.7 80.5,203.6 86.6,192.6 92.7,190.4 98.8,189.2 104.9,184.0 111.0,176.9 117.1,175.6 123.2,171.2 129.3,174.7 135.4,175.2 141.5,176.0 147.6,181.3 153.7,187.5 159.8,194.3 165.9,194.1 172.0,193.6 178.1,193.8 184.2,192.0 190.3,197.3 196.4,196.3 202.5,193.7 208.6,188.4 214.7,191.3 220.8,191.9 226.9,200.7 233.1,201.8 239.2,211.5 245.3,217.3 251.4,210.3 257.5,220.0 263.6,214.5 269.7,211.4 275.8,211.6 281.9,207.9 288.0,203.8 294.1,197.0 300.2,196.8 306.3,198.4 312.4,200.0 318.5,203.6 324.6,202.4 330.7,204.9 336.8,198.1 342.9,206.1 349.0,210.2 355.1,213.7 361.2,222.8 367.3,211.8 373.4,222.5 379.5,222.6 385.6,223.8 391.7,214.0 397.8,222.6 403.9,215.8 410.0,218.0" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" opacity="1.0"/>
+<text x="60.0" y="102.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#2563eb" text-anchor="start" font-weight="bold">Altın fiyatı</text>
+<text x="230.0" y="310.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="middle" font-weight="bold">(a) Tek değişkenli (univariate)</text>
+<text x="230.0" y="332.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">xₜ ∈ ℝ  —  her t anında tek bir sayı</text>
+<rect x="500" y="90" width="360" height="190" fill="#f9fafb" stroke="none"/>
+<line x1="500" y1="280" x2="868" y2="280" stroke="#6b7280" stroke-width="1.2"/>
+<line x1="500" y1="280" x2="500" y2="84" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="868,276 875,280 868,284" fill="#6b7280"/>
+<polygon points="496,84 500,77 504,84" fill="#6b7280"/>
+<text x="860.0" y="298.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">Zaman (t)</text>
+<polyline points="500.0,183.6 506.1,177.8 512.2,180.2 518.3,175.4 524.4,175.3 530.5,175.2 536.6,166.9 542.7,165.3 548.8,164.4 554.9,160.5 561.0,155.2 567.1,154.2 573.2,150.9 579.3,153.5 585.4,153.9 591.5,154.5 597.6,158.5 603.7,163.1 609.8,168.2 615.9,168.1 622.0,167.7 628.1,167.8 634.2,166.5 640.3,170.5 646.4,169.7 652.5,167.7 658.6,163.8 664.7,166.0 670.8,166.4 676.9,173.0 683.1,173.9 689.2,181.1 695.3,185.5 701.4,180.2 707.5,187.5 713.6,183.4 719.7,181.1 725.8,181.2 731.9,178.4 738.0,175.3 744.1,170.3 750.2,170.1 756.3,171.3 762.4,172.5 768.5,175.2 774.6,174.3 780.7,176.2 786.8,171.1 792.9,177.1 799.0,180.2 805.1,182.7 811.2,189.6 817.3,181.3 823.4,189.4 829.5,189.4 835.6,190.3 841.7,183.0 847.8,189.5 853.9,184.3 860.0,186.0" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" opacity="1.0"/>
+<polyline points="500.0,232.9 506.1,231.8 512.2,225.5 518.3,228.0 524.4,222.6 530.5,219.2 536.6,212.9 542.7,223.2 548.8,210.4 554.9,210.8 561.0,213.8 567.1,210.8 573.2,212.6 579.3,206.4 585.4,210.6 591.5,212.2 597.6,212.9 603.7,213.7 609.8,214.6 615.9,217.8 622.0,210.8 628.1,223.5 634.2,229.7 640.3,221.2 646.4,222.7 652.5,222.5 658.6,225.4 664.7,226.2 670.8,225.7 676.9,224.5 683.1,228.9 689.2,228.8 695.3,222.1 701.4,225.6 707.5,229.2 713.6,218.8 719.7,221.9 725.8,224.2 731.9,224.0 738.0,217.8 744.1,218.8 750.2,217.1 756.3,215.2 762.4,210.4 768.5,203.2 774.6,205.0 780.7,205.3 786.8,196.7 792.9,196.1 799.0,191.6 805.1,188.6 811.2,190.7 817.3,189.1 823.4,187.5 829.5,189.6 835.6,183.7 841.7,181.2 847.8,184.5 853.9,185.8 860.0,186.2" fill="none" stroke="#ea580c" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" opacity="1.0"/>
+<polyline points="500.0,265.5 506.1,263.7 512.2,261.0 518.3,259.8 524.4,256.9 530.5,256.9 536.6,251.0 542.7,249.5 548.8,249.7 554.9,249.9 561.0,243.7 567.1,240.0 573.2,242.0 579.3,240.2 585.4,239.3 591.5,236.1 597.6,238.5 603.7,234.5 609.8,236.9 615.9,234.7 622.0,236.7 628.1,237.7 634.2,240.8 640.3,240.2 646.4,240.4 652.5,239.8 658.6,241.8 664.7,244.8 670.8,243.9 676.9,244.0 683.1,247.2 689.2,248.8 695.3,249.6 701.4,248.0 707.5,249.1 713.6,252.2 719.7,249.8 725.8,251.3 731.9,251.5 738.0,247.1 744.1,247.1 750.2,248.9 756.3,246.1 762.4,243.8 768.5,244.3 774.6,241.5 780.7,238.0 786.8,240.6 792.9,234.5 799.0,231.5 805.1,229.8 811.2,231.2 817.3,226.0 823.4,226.3 829.5,221.7 835.6,220.0 841.7,219.2 847.8,219.8 853.9,218.4 860.0,214.8" fill="none" stroke="#16a34a" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" opacity="1.0"/>
+<rect x="510" y="93" width="14" height="4" fill="#2563eb"/>
+<text x="529.0" y="99.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#2563eb" text-anchor="start" font-weight="bold">Altın</text>
+<rect x="605" y="93" width="14" height="4" fill="#ea580c"/>
+<text x="624.0" y="99.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#ea580c" text-anchor="start" font-weight="bold">Enflasyon</text>
+<rect x="700" y="93" width="14" height="4" fill="#16a34a"/>
+<text x="719.0" y="99.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#16a34a" text-anchor="start" font-weight="bold">Faiz</text>
+<line x1="744.1" y1="108" x2="744.1" y2="280" stroke="#6b7280" stroke-dasharray="4 3"/>
+<circle cx="744.1" cy="170.3" r="4.5" fill="#2563eb" stroke="#fff" stroke-width="1.5"/>
+<circle cx="744.1" cy="218.8" r="4.5" fill="#ea580c" stroke="#fff" stroke-width="1.5"/>
+<circle cx="744.1" cy="247.1" r="4.5" fill="#16a34a" stroke="#fff" stroke-width="1.5"/>
+<text x="750.1" y="274.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="start" font-weight="normal">t anı: 3 değerli vektör</text>
+<text x="680.0" y="310.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="middle" font-weight="bold">(b) Çok değişkenli (multivariate)</text>
+<text x="680.0" y="332.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">xₜ = (x₁ₜ, x₂ₜ, x₃ₜ)ᵀ ∈ ℝ³  —  her t anında bir vektör</text>
+</svg>
