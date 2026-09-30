@@ -66,13 +66,17 @@
 <text x="140.0" y="95.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="start" font-weight="normal">Bilgi taşımaz; okumaya h = 1'den başlayın.</text>
 <text x="155.7" y="180.9" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2563eb" text-anchor="start" font-weight="bold">← ② Bandın dışında (ρ̂₁ = 0.78):</text>
 <text x="173.7" y="195.9" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#2563eb" text-anchor="start" font-weight="bold">gerçek bir ilişki</text>
-<text x="531.1" y="128.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="bold">③ 12, 24 ve 36'da tepeler → yıllık mevsimsellik</text>
-<line x1="328.9" y1="133.0" x2="328.9" y2="161.1" stroke="#ea580c" stroke-width="1.2"/>
+<text x="531.1" y="124.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="bold">③ 12, 24 ve 36'da tepeler → yıllık mevsimsellik (tepeler arası 12 ay)</text>
+<line x1="328.9" y1="133" x2="733.2" y2="133" stroke="#ea580c" stroke-width="1.4"/>
+<line x1="531.1" y1="128" x2="531.1" y2="133" stroke="#ea580c" stroke-width="1.4"/>
+<line x1="328.9" y1="133.0" x2="328.9" y2="161.1" stroke="#ea580c" stroke-width="1.4"/>
 <polygon points="328.9,161.1 325.8,153.7 332.1,153.7" fill="#ea580c"/>
-<line x1="531.1" y1="133.0" x2="531.1" y2="178.7" stroke="#ea580c" stroke-width="1.2"/>
+<line x1="531.1" y1="133.0" x2="531.1" y2="178.7" stroke="#ea580c" stroke-width="1.4"/>
 <polygon points="531.1,178.7 527.9,171.3 534.2,171.3" fill="#ea580c"/>
-<line x1="733.2" y1="133.0" x2="733.2" y2="185.0" stroke="#ea580c" stroke-width="1.2"/>
+<line x1="733.2" y1="133.0" x2="733.2" y2="185.0" stroke="#ea580c" stroke-width="1.4"/>
 <polygon points="733.2,185.0 730.0,177.7 736.3,177.7" fill="#ea580c"/>
+<text x="430.0" y="147.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#ea580c" text-anchor="middle" font-weight="normal">12 ay</text>
+<text x="632.1" y="147.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#ea580c" text-anchor="middle" font-weight="normal">12 ay</text>
 <line x1="287.9" y1="372.0" x2="230.9" y2="351.4" stroke="#dc2626" stroke-width="1.4"/>
 <polygon points="230.9,351.4 238.9,351.0 236.8,356.8" fill="#dc2626"/>
 <text x="291.9" y="370.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#dc2626" text-anchor="start" font-weight="bold">④ Sıfırın altında (ρ̂₆ = -0.17): zıt yönde hareket</text>
