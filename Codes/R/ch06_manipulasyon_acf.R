@@ -30,7 +30,8 @@ df_gg <- data.frame(
 )
 
 # Zaman serisi grafiği ve yumuşatılmış trend çizgisi
-# (Rscript ile çalıştırırken ggplot nesnesinin çizilmesi için print() kullanıyoruz)
+# (Dosya source() ile ya da RStudio'nun Source düğmesiyle çalıştırıldığında
+# ggplot nesnesi kendiliğinden çizilmez; bu yüzden print() kullanıyoruz)
 p <- ggplot(df_gg, aes(x = tarih, y = deger)) +
   geom_line(color = "blue", linewidth = 0.8) +
   geom_smooth(method = "loess", formula = y ~ x,

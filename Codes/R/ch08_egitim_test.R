@@ -99,7 +99,8 @@ plot_data <- rbind(
   data.frame(Tarih = test_tarihler,   Deger = predicted,              Tur = "SARIMA tahmini")
 )
 
-# (Rscript ile çalıştırırken ggplot nesnesinin çizilmesi için print() kullanıyoruz)
+# (Dosya source() ile ya da RStudio'nun Source düğmesiyle çalıştırıldığında
+# ggplot nesnesi kendiliğinden çizilmez; bu yüzden print() kullanıyoruz)
 p <- ggplot(plot_data, aes(x = Tarih, y = Deger, color = Tur)) +
   geom_line(linewidth = 0.7) +
   labs(title = "AirPassengers: Eğitim, Test ve SARIMA Tahmini (Orijinal Ölçek)",

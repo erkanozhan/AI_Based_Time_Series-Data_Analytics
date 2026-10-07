@@ -376,7 +376,7 @@ Durağanlığın matematiksel tanımı ve testleri Bölüm 3.2'de ayrıntılı o
 > Bu bölümdeki R kodlarının tamamı bu dosyada. RStudio'da açıp satır satır çalıştırabilir ya da depo kök dizininde `Rscript Codes/R/ch02_ayristirma.R` komutunu kullanabilirsiniz.
 
 
-`AirPassengers` serisinde mevsimsel dalgalar yıllar içinde büyüdüğü için çarpımsal model uygundur. Aşağıdaki kod üç yolu karşılaştırır: doğrudan çarpımsal ayrıştırma, log dönüşümünden sonra toplamsal ayrıştırma ve STL.
+Bu bölümde anlattığımız ayrıştırmayı şimdi gerçek bir seriye uygulayalım.
 
 ```r
 data("AirPassengers")
@@ -398,15 +398,20 @@ ayr_stl <- stl(log(AirPassengers), s.window = "periodic")
 plot(ayr_stl)
 ```
 
-Kodu satır satır okuyalım:
+Kod, `AirPassengers` serisini aynı amaçla üç farklı yoldan bileşenlerine ayırır: doğrudan çarpımsal ayrıştırma, log dönüşümünden sonra toplamsal ayrıştırma ve STL. Bu seride mevsimsel dalgalar yıllar içinde büyüdüğü için çarpımsal model uygundur (2.4); üç yolun aynı mevsimsel deseni bulduğunu görmek, sonucun seçilen yönteme bağlı olmadığını gösterir. Koddaki `#` ile başlayan satırlar **yorumdur**; R onları çalıştırmaz, okuyucuya açıklama içindir. `#>` ile başlayan satır da kodun parçası değildir: R'ın o satırda ekrana yazdığı çıktıyı gösterir ve notta okunabilsin diye kodun altına eklenmiştir. Kodu satır satır okuyalım:
 
-1. `data("AirPassengers")`, R ile birlikte gelen bu veri setini çalışma ortamına yükler. Seri, aylık frekansta (`frequency = 12`) bir `ts` nesnesidir; `ts` nesnelerini Bölüm 5'te ayrıntılı göreceğiz. `#` ile başlayan satırlar **yorumdur**; R onları çalıştırmaz, okuyucuya açıklama içindir.
-2. `ayr_carp <- decompose(...)` satırındaki `<-` **atama** işaretidir: sağdaki hesabın sonucunu soldaki isimle saklar. `decompose()` bir **fonksiyondur**; parantez içindeki değerlere **argüman** denir. İlk argüman ayrıştırılacak seri, `type = "multiplicative"` ise modelin çarpımsal olacağını söyler (varsayılan değer `"additive"`, yani toplamsaldır).
-3. `decompose()` üç basit adımda çalışır. Önce **trendi** 12 aylık merkezlenmiş hareketli ortalamayla bulur: Her ay için çevresindeki bir yıllık değerlerin ortalaması alınır; bir yıllık pencerede yaz tepeleriyle kış dipleri birbirini götürdüğü için geriye trend kalır. Pencere ayın iki yanına altışar ay uzandığı için serinin ilk ve son 6 ayında trend hesaplanamaz (`NA`, yani "değer yok"). Sonra her gözlem kendi trendine bölünür. Örneğin Temmuz 1949'da gözlem 148, trend 126.79'dur ve oran $148 / 126.79 \approx 1.167$ çıkar. Tüm yılların Temmuz oranlarının ortalaması alınıp katsayılar ortalamaları 1 olacak şekilde ölçeklenince Temmuz'un **mevsimsel katsayısı** bulunur. Son olarak kalan bileşen $x_t / (T_t \times S_t)$ olarak hesaplanır.
-4. `ayr_carp$figure` ifadesindeki `$` işareti, `decompose()` sonucunun içindeki bir parçayı adıyla çağırır. Sonuç nesnesinde `x`, `trend`, `seasonal`, `random` ve `figure` adlı parçalar vardır; `figure`, 12 ayın mevsimsel katsayısıdır. `round(..., 3)` sayıları üç ondalık basamağa yuvarlar. Çıktı Ocak'tan Aralık'a sıralıdır. Temmuz katsayısı 1.227'dir: Temmuz ayları trend seviyesinin yaklaşık %23 üstündedir. Kasım katsayısı 0.801'dir: Kasım ayları trendin yaklaşık %20 altındadır. 12 katsayının toplamı 12, ortalaması tam 1'dir.
-5. İkinci yolda önce `log()` alınır, sonra `type = "additive"` ile toplamsal ayrıştırma yapılır. Bu durumda Temmuz'un mevsimsel bileşeni 0.211 çıkar. Bu sayı log ölçeğindedir; `exp()` ile, yani logaritmanın tersiyle geri çevrilince $e^{0.211} \approx 1.235$ elde edilir. Bu, birinci yoldaki 1.227'ye çok yakındır: İki yol aynı yapıyı bulur.
-6. `stl()`, **STL** (*Seasonal-Trend decomposition using Loess*) yöntemini uygular. Loess, her noktanın çevresindeki komşu gözlemlere küçük bir eğri uydurarak çalışan bir **yerel düzeltme** yöntemidir. STL yalnızca toplamsal ayrıştırma yaptığı için seriye önce `log()` uygulanır. `s.window = "periodic"` argümanı, mevsimsel desenin her yıl aynı kaldığını varsayar. Bunun yerine `s.window = 13` gibi tek bir sayı verilirse desenin yıllar içinde yavaşça değişmesine izin verilir. STL, `decompose()`'dan farklı olarak serinin başında ve sonunda da trend üretir (`NA` kalmaz). `robust = TRUE` argümanıyla aykırı değerlere karşı daha dayanıklı hâle getirilebilir. Bu seride STL'nin Temmuz bileşeni 0.216'dır ($e^{0.216} \approx 1.24$), yani üç yol da aynı sonuca varır.
-7. `plot()` her nesne türü için uygun grafiği kendisi seçer. `decompose()` sonucu için alt alta dört panel (`observed`, `trend`, `seasonal`, `random`), `stl()` sonucu için de dört panel (`data`, `seasonal`, `trend`, `remainder`) çizer.
+1. `data("AirPassengers")`: R ile birlikte gelen `AirPassengers` veri setini çalışma alanına yükler; bundan sonra `AirPassengers` yazdığımızda bu seri kullanılır. Seri, 1949–1960 arasındaki aylık uluslararası havayolu yolcu sayılarını (bin kişi) tutar ve aylık frekansta (`frequency = 12`) bir `ts` (zaman serisi) nesnesidir; `ts` nesnelerini Bölüm 5'te ayrıntılı göreceğiz. Veri setinin adı burada tırnak içinde, yani bir metin olarak verilmiştir; `data(AirPassengers)` diye tırnaksız yazmak da aynı işi yapar (5.2.3). Bu seri, R açılırken kendiliğinden yüklenen `datasets` paketinde bulunduğu için bu satır olmadan da kullanılabilir; satır, verinin nereden geldiğini açıkça göstermek için yazılmıştır.
+2. `ayr_carp <- decompose(AirPassengers, type = "multiplicative")`: Buradaki `<-` **atama** işaretidir: sağdaki hesabın sonucunu soldaki isimle (`ayr_carp`, "çarpımsal ayrıştırma"nın kısaltması) saklar. `decompose()` bir **fonksiyondur**: adının ardındaki parantezin içine verilen değerlerle bir iş yapar ve bir sonuç döndürür. Parantez içindeki değerlere **argüman** denir ve virgülle ayrılır. İlk argüman ayrıştırılacak seridir; adı yazılmadan, yalnızca sırasıyla verilmiştir (*konumsal argüman*: fonksiyonun ilk argümanının yerine geçer). İkincisi `type = "multiplicative"` biçiminde adıyla verilmiştir (*adlandırılmış argüman*) ve modelin çarpımsal olacağını söyler. `"multiplicative"` tırnak içinde olduğu için bir nesne adı değil, düz bir metin değeridir. Bu argüman hiç yazılmasaydı varsayılan değer olan `"additive"`, yani toplamsal model kullanılırdı. Sonuç, `decomposed.ts` sınıfında, birkaç parçayı bir arada tutan bir nesnedir (parçalarına 4. maddede bakacağız).
+
+   `decompose()` üç basit adımda çalışır. Önce **trendi** 12 aylık merkezlenmiş hareketli ortalamayla bulur: Her ay için çevresindeki bir yıllık değerlerin ortalaması alınır; bir yıllık pencerede yaz tepeleriyle kış dipleri birbirini götürdüğü için geriye trend kalır. Pencere ayın iki yanına altışar ay uzandığı için serinin ilk ve son 6 ayında trend hesaplanamaz (`NA`, yani "değer yok"). Sonra her gözlem kendi trendine bölünür. Örneğin Temmuz 1949'da gözlem 148, trend 126.79'dur ve oran $148 / 126.79 \approx 1.167$ çıkar. Tüm yılların Temmuz oranlarının ortalaması alınıp katsayılar ortalamaları 1 olacak şekilde ölçeklenince Temmuz'un **mevsimsel katsayısı** bulunur. Son olarak kalan bileşen $x_t / (T_t \times S_t)$ olarak hesaplanır.
+3. `plot(ayr_carp)`: `plot()` R'ın genel çizim fonksiyonudur ve kendisine verilen nesnenin türüne uygun grafiği kendisi seçer. `decompose()` sonucu için "Decomposition of multiplicative time series" başlıklı, alt alta dört panelden oluşan bir grafik çizer: `observed` (gözlenen seri), `trend`, `seasonal` (mevsimsel bileşen) ve `random` (düzensiz bileşen). Grafiğin nasıl okunacağı aşağıdadır.
+4. `round(ayr_carp$figure, 3)`: İç içe yazılmış ifadeler içten dışa okunur: önce `ayr_carp$figure` alınır, sonra `round()` ile yuvarlanır. `$` işareti, bir nesnenin içindeki parçayı adıyla çağırır. `decompose()` sonucunda `x` (orijinal seri), `seasonal`, `trend`, `random`, `figure` ve `type` adlı parçalar vardır; `figure`, 12 ayın mevsimsel katsayısını tutan 12 sayılık bir vektördür. `round(..., 3)` sayıları ikinci argümanda verilen kadar, yani üç ondalık basamağa yuvarlar. Bu satırda `<-` olmadığı için sonuç bir isimle saklanmaz, doğrudan ekrana yazılır.
+5. `ayr_log <- decompose(log(AirPassengers), type = "additive")`: Yine içten dışa okuyalım. Önce `log()` serinin her değerinin logaritmasını alır (R'da `log()` varsayılan olarak tabanı $e \approx 2.718$ olan doğal logaritmayı hesaplar); sonuç yine aylık bir `ts`'dir. Sonra bu log serisi `type = "additive"` ile toplamsal olarak ayrıştırılır ve sonuç `ayr_log` adıyla saklanır. Log alınmasının nedeni, logaritmanın çarpmayı toplamaya çevirmesidir: Kodun yorum satırındaki $`\log(x_t) = \log(T_t) + \log(S_t) + \log(I_t)`$ formülü, çarpımsal modelin log alınınca toplamsal modele dönüştüğünü söyler (2.4). Bu ayrıştırmada Temmuz'un mevsimsel bileşeni 0.211 çıkar. Bu sayı log ölçeğindedir; `exp()` ile, yani logaritmanın tersiyle geri çevrilince $e^{0.211} \approx 1.235$ elde edilir. Bu, birinci yoldaki 1.227'ye çok yakındır: İki yol aynı yapıyı bulur.
+6. `plot(ayr_log)`: Aynı dört paneli bu kez log ölçeğinde ve "Decomposition of additive time series" başlığıyla çizer. Gözlenen panelde değerler yaklaşık 4.6 ile 6.4 arasındadır; bunlar en küçük (104) ve en büyük (622) yolcu sayılarının logaritmalarıdır. Log ölçeğinde mevsimsel dalgaların yüksekliği yıllar içinde belirgin biçimde büyümez; toplamsal modelin varsaydığı da budur.
+7. `ayr_stl <- stl(log(AirPassengers), s.window = "periodic")`: `stl()`, **STL** (*Seasonal-Trend decomposition using Loess*) yöntemini uygular. Loess, her noktanın çevresindeki komşu gözlemlere küçük bir eğri uydurarak çalışan bir **yerel düzeltme** yöntemidir. STL yalnızca toplamsal ayrıştırma yaptığı için seriye önce `log()` uygulanır. `s.window` (*seasonal window*, mevsimsel pencere) argümanının varsayılan değeri yoktur; yazılmazsa R `argument "s.window" is missing, with no default` hatası verir. Buradaki `"periodic"` değeri, mevsimsel desenin her yıl aynı kaldığını varsayar. Bunun yerine `s.window = 13` gibi tek bir sayı verilirse desenin yıllar içinde yavaşça değişmesine izin verilir. STL, `decompose()`'dan farklı olarak serinin başında ve sonunda da trend üretir (`NA` kalmaz). `robust = TRUE` argümanıyla aykırı değerlere karşı daha dayanıklı hâle getirilebilir (varsayılan `FALSE`). Sonuç `stl` sınıfında bir nesnedir ve `ayr_stl` adıyla saklanır; bileşenler bu nesnenin `time.series` parçasında `seasonal`, `trend` ve `remainder` (kalan) adlı üç sütun olarak durur. Bu seride STL'nin Temmuz bileşeni 0.216'dır ($e^{0.216} \approx 1.24$), yani üç yol da aynı sonuca varır.
+8. `plot(ayr_stl)`: `stl()` sonucu için de alt alta dört panel çizer: `data` (log alınmış seri), `seasonal`, `trend` ve `remainder`. Her panelin sağında açık gri bir çubuk bulunur. Bu çubukların hepsi veri biriminde aynı uzunluğu temsil eder; bu yüzden çubuğu kendi paneline göre uzun görünen bileşen, aslında küçük bir değişim aralığına sahiptir. Çubuklar, panellerin dikey ölçeklerinin farklı olduğunu unutmamak için konmuştur.
+
+Kodun ekrana yazdığı tek sayısal çıktı `round()` satırınındır. Çıktının başındaki `[1]`, o satırın vektörün 1. elemanıyla başladığını gösteren sıra numarasıdır; değerin bir parçası değildir. Ardından gelen 12 sayı, Ocak'tan Aralık'a sıralı mevsimsel katsayılardır. Temmuz katsayısı 1.227'dir: Temmuz ayları trend seviyesinin yaklaşık %23 üstündedir. Kasım katsayısı 0.801'dir: Kasım ayları trendin yaklaşık %20 altındadır. 12 katsayının toplamı 12, ortalaması tam 1'dir.
 
 **Grafikleri yorumlarken:**
 
@@ -658,7 +663,14 @@ Mod(polyroot(c(1, -1.5, 0.5)))    # 1 - 1.5z + 0.5z^2 = 0
 #> [1] 1 2
 ```
 
-`c()` fonksiyonu sayıları bir vektörde birleştirir. `polyroot()` bu vektörü sabit terimden başlayan bir polinomun katsayıları olarak okur ve köklerini döndürür. Kökler genel olarak karmaşık sayı olabileceği için `polyroot()` sonucu `2+0i` gibi karmaşık biçimde yazar. `Mod()` her kökün sıfıra uzaklığını (mutlak değerini) verir; bu, birim çember kuralı için tam ihtiyaç duyduğumuz sayıdır. Üçüncü komutun çıktısındaki 1, iki gecikmeli modeldeki birim kökü gösterir.
+Bu kod, yukarıda elle bulduğumuz kökleri R'a hesaplatır ve kural için gereken sayıyı, yani her kökün sıfıra uzaklığını verir. Model uzadıkça kökleri elle bulmak zorlaştığı için pratikte bu iş R'a bırakılır. Kodu satır satır okuyalım:
+
+1. `# Katsayılar sabit terimden başlayarak verilir ...`: R'ın çalıştırmadığı bir yorum satırıdır (2.6) ve aşağıdaki satırları okumak için gereken kuralı hatırlatır.
+2. `Mod(polyroot(c(1, -0.5)))`: İç içe fonksiyonlar içten dışa okunur. Önce `c()` (*combine*, birleştir) fonksiyonu 1 ve −0.5 sayılarını iki elemanlı bir **vektörde**, yani sıralı bir sayı listesinde birleştirir. Sonra `polyroot()` bu vektörü sabit terimden başlayan bir polinomun katsayıları olarak okur: 1. eleman sabit terim, 2. eleman $z$'nin katsayısı, (varsa) 3. eleman $z^2$'nin katsayısıdır. Yani `c(1, -0.5)` vektörü $1 - 0.5z$ polinomu demektir ve `polyroot()` $1 - 0.5z = 0$ denkleminin kökünü bulur. Kökler genel olarak karmaşık sayı olabileceği için (3.2'deki yan not) `polyroot()` sonucu her zaman karmaşık sayı biçiminde verir: Tek başına çalıştırılsaydı `2+0i` yazardı, yani gerçel kısmı 2, sanal kısmı 0 olan sayı. En dıştaki `Mod()` her kökün sıfıra uzaklığını (karmaşık sayının mutlak değerini) hesaplar; `2+0i` için bu uzaklık 2'dir. Birim çember kuralı için tam ihtiyaç duyduğumuz sayı budur. Satır sonundaki `# AR(1), phi = 0.5` da bir yorumdur: `#` işaretinden sonra satırın geri kalanını R okumaz.
+3. `Mod(polyroot(c(1, -1)))`: Aynı işi $1 - z$ polinomu, yani $\phi = 1$ olan rastgele yürüyüş için yapar.
+4. `Mod(polyroot(c(1, -1.5, 0.5)))`: Vektörde üç katsayı olduğu için polinom ikinci derecedendir: $1 - 1.5z + 0.5z^2$. İkinci dereceden bir polinomun iki kökü olduğu için sonuç iki elemanlı bir vektördür. `polyroot()` sonucu tek başına yazdırılırsa `1+3.56945e-20i` ve `2-3.56945e-20i` gibi değerler görülebilir. Buradaki `e-20` "çarpı 10 üzeri −20" demektir; bu kadar küçük sanal kısımlar, bilgisayarın ondalıklı sayılarla hesap yaparken bıraktığı yuvarlama kırıntılarıdır ve aslında sıfırdır. `Mod()` bu kırıntıları da temizleyip düz uzaklıkları verir.
+
+Kodun altındaki `#>` satırları çıktılardır. `[1]`, satırın vektörün 1. elemanıyla başladığını gösteren sıra numarasıdır (2.6). İlk çıktı `[1] 2`: $1 - 0.5z = 0$ denkleminin kökü 2'dir, tablodaki $1 / 0.5 = 2$ ile aynıdır ve 1'den büyük olduğu için seri durağandır. İkinci çıktı `[1] 1`: Kök tam 1'dir, yani birim kök. Üçüncü çıktı `[1] 1 2` iki sayı içerir, çünkü iki kök vardır: 1 ve 2. Bu, yukarıda çarpanlara ayırarak bulduğumuz köklerle aynıdır. Köklerden biri tam 1 olduğu, yani birim çemberin dışında değil tam üzerinde olduğu için iki gecikmeli model de birim köklüdür.
 
 **ADF testi: hipotezler ve p-değeri.** Gerçek veride $\phi$'yi bilmeyiz; elimizde yalnızca gözlenmiş seri vardır. Bu seriden tahmin edilen katsayı, şans eseri 1'den biraz küçük ya da büyük çıkabilir. "Bu fark gerçek mi, yoksa tesadüf mü?" sorusunu yanıtlayan araca **hipotez testi** denir. Birim kök için en yaygın test **ADF** (*Augmented Dickey-Fuller*, genişletilmiş Dickey-Fuller) testidir. ADF iki iddiayı karşı karşıya koyar:
 
@@ -732,17 +744,33 @@ adf.test(diff(rastgele_yuruyus))  # farkı alınınca durağanlaşır
 #> Warning: p-value smaller than printed p-value
 ```
 
-Kodun önemli satırları şunlardır:
+Bu kodda durağan seriyi ve birim köklü seriyi bilerek biz üretiyoruz. Doğru cevabı önceden bildiğimiz için hem iki serinin grafikte nasıl farklı göründüğünü görebilir hem de ADF testinin doğru karar verip vermediğini kontrol edebiliriz. Kodu satır satır okuyalım:
 
-1. `set.seed(42)`, rastgele sayı üretecinin başlangıç noktasını sabitler. Böylece kodu her çalıştıran aynı "rastgele" sayıları alır ve yukarıdaki çıktıları aynen görür. 42 sayısının özel bir anlamı yoktur; başka bir sayı farklı ama yine tekrarlanabilir sonuçlar verir.
-2. `rnorm(200)`, ortalaması 0 ve standart sapması 1 olan **normal dağılımdan** (çan eğrisi biçimli dağılım) 200 bağımsız sayı üretir. Bunlar $\varepsilon_t$ şoklarıdır, yani beyaz gürültüdür.
-3. `cumsum()`, **birikimli toplam** alır: `cumsum(c(1, -2, 3))` sonucu `1, -1, 2` olur. Her eleman, kendisine kadarki tüm sayıların toplamıdır. Bu, $x_t = x_{t-1} + \varepsilon_t$ (başlangıç $x_0 = 0$) formülünün aynısıdır; yani `cumsum(rnorm(200))` bir rastgele yürüyüş üretir ($\phi = 1$).
-4. `par(mfrow = c(1, 2))`, grafik alanını 1 satır ve 2 sütuna böler; böylece iki grafik yan yana çizilir. `c(1, 2)` iki sayıyı bir vektörde birleştirir. Son satırdaki `par(mfrow = c(1, 1))` ayarı eski hâline döndürür. `plot.ts()` vektörü zaman serisi grafiği olarak çizer, `main` argümanı grafiğin başlığıdır.
-5. `library(tseries)`, `adf.test()` fonksiyonunu içeren paketi yükler. Paket bilgisayarda yoksa önce bir kez `install.packages("tseries")` ile kurulur.
-6. `adf.test()` ADF testini uygular. Bu fonksiyon regresyona bir sabit ve doğrusal trend de ekler; bu yüzden $H_1$ burada "seri bir trend çevresinde durağandır" anlamına gelir (Bölüm 7.5). Kaç gecikmeli fark terimi kullanılacağını kendisi seçer: `Lag order = 5`, 200 gözlem için varsayılan formül olan $(n - 1)^{1/3} = 199^{1/3} \approx 5.84$ sayısının tam kısmıdır.
-7. `diff()`, birinci farkı alır: $\nabla x_t = x_t - x_{t-1}$. Rastgele yürüyüşün farkı, onu oluşturan şokların kendisidir.
+1. `set.seed(42)`: Bilgisayarın ürettiği "rastgele" sayılar aslında bir formülle, bir başlangıç noktasından yola çıkarak üretilir. `set.seed()` bu başlangıç noktasını (*tohum*, seed) sabitler. Böylece kodu her çalıştıran aynı "rastgele" sayıları alır ve aşağıdaki çıktıları aynen görür. 42 sayısının özel bir anlamı yoktur; başka bir sayı farklı ama yine tekrarlanabilir sonuçlar verir.
+2. `beyaz_gurultu <- rnorm(200)`: `rnorm()`, **normal dağılımdan** (çan eğrisi biçimli dağılım) rastgele sayılar üretir. Tek argümanı olan 200, kaç sayı üretileceğidir. Fonksiyonun `mean` (ortalama) ve `sd` (standart sapma) argümanları yazılmadığı için varsayılan değerleri, yani ortalama 0 ve standart sapma 1 kullanılır. Sonuç 200 sayılık bir vektördür ve `<-` ile `beyaz_gurultu` adıyla saklanır. Bu sayılar birbirinden bağımsız $\varepsilon_t$ şoklarıdır, yani beyaz gürültüdür. Satır sonundaki `# durağan` bir yorumdur.
+3. `rastgele_yuruyus <- cumsum(rnorm(200))`: İçten dışa okuyalım. Önce `rnorm(200)` 200 yeni sayı üretir; üreteç kaldığı yerden devam ettiği için bunlar 2. satırdaki sayılardan farklıdır. Sonra `cumsum()` bu sayıların **birikimli toplamını** alır: `cumsum(c(1, -2, 3))` sonucu `1, -1, 2` olur. Her eleman, kendisine kadarki tüm sayıların toplamıdır. Bu, $x_t = x_{t-1} + \varepsilon_t$ (başlangıç $x_0 = 0$) formülünün aynısıdır; yani `cumsum(rnorm(200))` bir rastgele yürüyüş üretir ($\phi = 1$). Sonuç yine 200 sayılık bir vektördür.
+4. `par(mfrow = c(1, 2))`: `par()` grafik ayarlarını değiştirir. `mfrow` ayarı grafik alanını satır ve sütunlara böler; `c(1, 2)` "1 satır, 2 sütun" demektir. Böylece sonraki iki grafik yan yana çizilir.
+5. `plot.ts(beyaz_gurultu, main = "Beyaz Gürültü (durağan)")` ve bir sonraki satır: `plot.ts()` bir vektörü zaman serisi grafiği olarak, yani değerleri sırayla çizgiyle birleştirerek çizer. Bu vektörlerin tarih bilgisi olmadığı için yatay eksen gözlem sıra numarasıdır (1'den 200'e, eksen adı `Time`). `main` argümanı grafiğin başlığıdır ve tırnak içinde metin olarak verilir.
+6. `par(mfrow = c(1, 1))`: Grafik alanını yeniden tek parçaya döndürür; aksi hâlde sonraki grafikler de yan yana çizilmeye devam ederdi.
+7. `# install.packages("tseries")`: Başındaki `#` yüzünden çalışmayan bir satırdır. `tseries` paketi bilgisayarınızda kurulu değilse `#` işaretini silip bu satırı **bir kez** çalıştırırsınız; `install.packages()` paketi internetten (CRAN'dan) indirip kurar. Paket adı tırnak içinde yazılır.
+8. `library(tseries)`: `adf.test()` fonksiyonunu içeren `tseries` paketini bu oturuma yükler. Kurulum bir kez yapılır, `library()` ise R'ı her açtığınızda yeniden çalıştırılır. Yükleme sırasında bazı kurulumlarda `Registered S3 method overwritten by 'quantmod'` gibi bir bilgi mesajı görülebilir; hata değildir.
+9. `adf.test(beyaz_gurultu)`: ADF testini uygular. Bu fonksiyon regresyona bir sabit ve doğrusal trend de ekler; bu yüzden $H_1$ burada "seri bir trend çevresinde durağandır" anlamına gelir (Bölüm 7.5). Yalnızca seri verilmiştir, diğer iki argüman varsayılan değerlerini alır. `alternative` argümanının varsayılanı `"stationary"`dir; $H_1$'in "durağan" olması buradan gelir. `k` argümanı, regresyona kaç gecikmeli fark terimi ekleneceğidir; varsayılanı $(n - 1)^{1/3}$ sayısının tam kısmıdır ($n$: gözlem sayısı). 200 gözlem için $199^{1/3} \approx 5.84$, tam kısmı 5'tir; çıktıdaki `Lag order = 5` budur. Sonuç bir test nesnesidir (`htest` sınıfı); bir isme atanmadığı için doğrudan ekrana yazılır.
+10. `adf.test(rastgele_yuruyus)`: Aynı testi rastgele yürüyüşe uygular.
+11. `adf.test(diff(rastgele_yuruyus))`: İçten dışa: Önce `diff()` birinci farkı alır, $\nabla x_t = x_t - x_{t-1}$. Her eleman bir öncekinden çıkarıldığı için sonuç 199 sayılık bir vektördür. Rastgele yürüyüşün farkı, onu oluşturan şokların kendisidir. Sonra bu farklar ADF testine verilir. Gecikme sayısı yine 5'tir ($198^{1/3} \approx 5.83$).
 
-Her `adf.test()` çıktısında en önemli satır `p-value` değeridir. `Dickey-Fuller` istatistiği, test regresyonundan hesaplanan sayıdır; ne kadar negatifse birim kök aleyhine delil o kadar güçlüdür ve p-değeri o kadar küçük çıkar. Beyaz gürültüde istatistik −5.64, p-değeri 0.01'dir: $H_0$ reddedilir, seri durağandır. Rastgele yürüyüşte istatistik yalnızca −1.92, p-değeri 0.61'dir: Bu sonuç $H_0$ altında hiç şaşırtıcı değildir, birim kök hipotezi reddedilemez. Farkı alınmış seride istatistik −6.09'a düşer ve p-değeri yeniden 0.01 olur. Bu, $\nabla x_t = \varepsilon_t$ ilişkisinin uygulamadaki karşılığıdır: Tek bir fark, birim kökü ortadan kaldırmıştır. `adf.test()` p-değerini hazır bir tablodan okuduğu için sonucu 0.01 ile 0.99 arasına sıkıştırır. Gerçek p-değeri 0.01'den küçük olduğunda 0.01 yazar ve "p-value smaller than printed p-value" uyarısı verir. Bu bir hata değildir; "p-değeri en fazla 0.01" diye okunur.
+İki grafik yan yana çıkar. Solda beyaz gürültü, yaklaşık −3 ile +2.7 arasında, hep sıfır çizgisinin çevresinde ve serinin başından sonuna aynı genişlikte dalgalanır. Sağda rastgele yürüyüş sabit bir düzeye bağlı değildir: uzun süre aşağı inip yaklaşık −8'e kadar düşer, sonra yeniden +2 dolayına çıkar. Durağan olmayan bir serinin "dönülecek bir çizgisi olmaması" bu görüntüdür.
+
+Her `adf.test()` çıktısı aynı satırlardan oluşur (notta yer kazanmak için ikinci ve üçüncü çıktıda ilk iki satır, yani test adı ve `data:` satırı gösterilmemiştir):
+
+- `Augmented Dickey-Fuller Test`: Uygulanan testin adı.
+- `data: beyaz_gurultu`: Testin hangi veriye uygulandığı.
+- `Dickey-Fuller = -5.6389`: Test regresyonundan hesaplanan istatistik. Ne kadar negatifse birim kök aleyhine delil o kadar güçlüdür ve p-değeri o kadar küçük çıkar.
+- `Lag order = 5`: Kullanılan gecikmeli fark terimi sayısı (9. madde).
+- `p-value = 0.01`: Karar için bakacağımız asıl sayı.
+- `alternative hypothesis: stationary`: Testin **sonucu değil**, sınanan alternatif hipotezdir ($H_1$: seri durağandır). Bu satır her çıktıda aynıdır; seri durağan olsa da olmasa da yazılır. Kararı p-değeri verir.
+- `Warning: p-value smaller than printed p-value`: R bu uyarıyı ekranda `Warning message: In adf.test(beyaz_gurultu) : p-value smaller than printed p-value` biçiminde yazar. `adf.test()` p-değerini hazır bir tablodan okuduğu için sonucu 0.01 ile 0.99 arasına sıkıştırır. Gerçek p-değeri 0.01'den küçük olduğunda 0.01 yazar ve bu uyarıyı verir. Bu bir hata değildir; "p-değeri en fazla 0.01" diye okunur.
+
+Beyaz gürültüde istatistik −5.64, p-değeri 0.01'dir: $H_0$ reddedilir, seri durağandır. Rastgele yürüyüşte istatistik yalnızca −1.92, p-değeri 0.61'dir: Bu sonuç $H_0$ altında hiç şaşırtıcı değildir, birim kök hipotezi reddedilemez. Farkı alınmış seride istatistik −6.09'a düşer ve p-değeri yeniden 0.01 olur. Bu, $\nabla x_t = \varepsilon_t$ ilişkisinin uygulamadaki karşılığıdır: Tek bir fark, birim kökü ortadan kaldırmıştır. Üç sonuç da bildiğimiz doğru cevapla örtüşür.
 
 ---
 
@@ -987,15 +1015,25 @@ lt$year + 1900
 #> [1] 2024
 ```
 
-**Açıklama:** Kod adım adım şunları yapar:
+Bu kod, aynı tarihi önce `Date`, sonra `POSIXct`, en son `POSIXlt` olarak oluşturup her birinin içine bakar. Amaç, yukarıdaki tablonun "İçeride nasıl saklanır?" sütununu kendi gözümüzle doğrulamaktır. Kodu satır satır okuyalım:
 
-1. `d <- as.Date("2024-02-01")`: `<-` atama işaretidir; sağdaki işlemin sonucunu soldaki ada (`d`) kaydeder ("d'ye ata" diye okunur). `as.Date()` bir fonksiyondur: parantez içine verilen girdiyi (*argüman*) alır ve metni `Date` nesnesine çevirir. `class(d)` nesnenin sınıfını, yani türünü söyler.
-2. `as.numeric(d)` sınıf etiketini kaldırıp içerideki çıplak sayıyı gösterir: `19754`. Yani 1 Şubat 2024, 1970-01-01'den 19 754 gün sonradır. `as.Date(19754)` ters yönde sayıdan tarih üretir; `d + 1` ise içerideki sayıya 1 ekleyip bir sonraki günü verir.
-3. `as.POSIXct("2024-02-01 14:30:00", tz = "UTC")`: `tz` (*time zone*, saat dilimi) argümanı, metindeki saatin hangi saat dilimine göre okunacağını söyler. Burada saat **UTC'ye göre** 14:30'dur; bu an, Türkiye saatiyle 17:30'a karşılık gelir. `class(ct)` iki sınıf adı yazar: `POSIXct` ve ortak üst sınıf `POSIXt`. İçerideki saniye sayısı adım adım şöyle bulunur:
+1. `d <- as.Date("2024-02-01")`: `as.Date()` bir *fonksiyondur*: parantez içine verilen girdiyi (*argüman*) alır ve bir sonuç üretir. Buradaki argüman tırnak içindeki `"2024-02-01"` metnidir; tırnak, bunun bir nesne adı değil düz metin (*karakter dizisi*) olduğunu söyler. `as.Date()` bu ISO 8601 metnini okuyup bir `Date` nesnesine çevirir. `<-` atama işaretidir: sağdaki işlemin sonucunu soldaki ada (`d`) kaydeder ("d'ye ata" diye okunur); bundan sonra `d` yazdığımızda bu tarih kullanılır. Atama satırları ekrana bir şey yazmaz, bu yüzden altında `#>` satırı yoktur.
+2. `class(d)`: `class()` bir nesnenin sınıfını, yani türünü söyler. Sonuç `"Date"`'tir.
+3. `as.numeric(d)`: `as.numeric()` nesneyi düz sayıya çevirir; böylece sınıf etiketi kalkar ve içerideki çıplak sayı görünür: `19754`. Yani 1 Şubat 2024, 1970-01-01'den 19 754 gün sonradır.
+4. `as.Date(19754)`: Aynı fonksiyonun ters yönde kullanımıdır. Argüman metin değil sayı olduğunda `as.Date()` onu "1970-01-01'den bu yana geçen gün sayısı" olarak yorumlar ve yeniden 1 Şubat 2024'ü verir. (R 4.3'ten eski sürümlerde bu kullanımda başlangıç noktasını `origin = "1970-01-01"` diye ayrıca yazmak gerekiyordu.)
+5. `d + 1`: Bir `Date` nesnesine 1 eklemek, içerideki gün sayısına 1 eklemektir (19 755). Sonuç yine bir `Date`'tir ve bir sonraki günü gösterir.
+6. `ct <- as.POSIXct("2024-02-01 14:30:00", tz = "UTC")`: `as.POSIXct()` tarih ve saat içeren bir metni `POSIXct` nesnesine çevirir; metindeki saat `saat:dakika:saniye` düzenindedir. İkinci argüman *adlı argüman* biçiminde verilmiştir: `ad = değer` yazımı, fonksiyonun hangi ayarını değiştirdiğimizi açıkça söyler. `tz` (*time zone*, saat dilimi) argümanı, metindeki saatin hangi saat dilimine göre okunacağını belirler. Burada saat **UTC'ye göre** 14:30'dur; bu an, Türkiye saatiyle 17:30'a karşılık gelir. UTC'yi seçmemizin nedeni, sonucun her bilgisayarda aynı çıkmasıdır (aşağıdaki nota bakın). Sonuç `ct` adıyla saklanır.
+7. `class(ct)`: Bu kez iki sınıf adı yazılır: `POSIXct` ve onun ortak üst sınıfı `POSIXt`. Bir R nesnesinin birden fazla sınıfı olabilir; `POSIXt`, `POSIXct` ile `POSIXlt`'nin ortak davranışlarını (ör. iki zamanı birbirinden çıkarmayı) taşıyan sınıftır.
+8. `as.numeric(ct)`: İçerideki saniye sayısını gösterir. Bu sayı adım adım şöyle bulunur:
    - Bir gün $`24 \times 60 \times 60 = 86\,400`$ saniyedir. 1 Şubat 2024 gece yarısına kadar geçen tam günler: $`19\,754 \times 86\,400 = 1\,706\,745\,600`$ saniye.
    - Gece yarısından 14:30'a kadar 14,5 saat geçer: $`14{,}5 \times 3\,600 = 52\,200`$ saniye.
    - Toplam: $`1\,706\,745\,600 + 52\,200 = 1\,706\,797\,800`$. Çıktıdaki `1706797800` tam olarak budur.
-4. `lt <- as.POSIXlt(ct)` aynı anı parçalara ayırır. `lt$hour` yazımındaki dolar işareti, bir listenin adı verilmiş bir parçasına erişir ("`lt`'nin `hour` parçası"). İki tuzağa dikkat edin: ay 0'dan sayılır (`mon = 1` Şubat demektir), yıl ise 1900'den itibaren sayılır (`124 + 1900 = 2024`). Bu alışkanlık, R'ın bu yapıyı C programlama dilinden devralmasından gelir.
+9. `lt <- as.POSIXlt(ct)`: Aynı anı parçalarına ayrılmış bir `POSIXlt` listesine çevirir ve `lt` adıyla saklar. `ct` UTC'de olduğu için parçalar da UTC saatine göredir.
+10. `lt$hour` ve `lt$mday`: Dolar işareti (`$`), bir listenin adı verilmiş bir parçasına erişir; `lt$hour` "`lt`'nin `hour` parçası" diye okunur. `hour` saati (14), `mday` (*month day*) ayın gününü (1) verir.
+11. `lt$mon` ve `lt$year`: Burada iki tuzak vardır. Ay 0'dan sayılır (`0` = Ocak, dolayısıyla `1` Şubat demektir); yıl ise 1900'den itibaren sayılır (`124`). Bu alışkanlık, R'ın bu yapıyı C programlama dilinden devralmasından gelir.
+12. `lt$year + 1900`: Yıl parçasına 1900 ekleyerek gerçek yılı bulur: $`124 + 1900 = 2024`$.
+
+Çıktıları okurken: her sonuç tek bir değer olduğu için her satır `[1]` ile başlar. Tarihler çıktıda tırnak içinde görünür (`"2024-02-01"`); bu yalnızca R'ın `Date` nesnelerini ekrana yazma biçimidir, nesne metne dönüşmüş değildir (`class(d)` bunu doğrular). `class()` çıktılarındaki tırnaklı adlar ise gerçekten metindir. `19754`, `1706797800`, `14` gibi tırnaksız değerler sayıdır.
 
 **Not —** `tz` argümanını vermeseydik R, metindeki saati bilgisayarın saat dilimine göre yorumlardı. Saat dilimi Türkiye olan bir bilgisayarda `as.numeric(as.POSIXct("2024-02-01 14:30:00"))` sonucu `1706787000` olur: Türkiye'de 14:30, UTC'de 11:30'dur ve bu sayı yukarıdakinden 3 saat (10 800 saniye) küçüktür. Aynı kod başka bir ülkedeki bilgisayarda başka bir sayı üretir; bu farkı 4.2.2'de ayrıntılı göreceğiz.
 
@@ -1008,7 +1046,12 @@ Sys.time()     # Şu anki zaman (POSIXct)
 #> [1] "2024-10-26 15:30:00 +03"
 ```
 
-`Sys.Date()` ve `Sys.time()` parantezleri boş olan, yani argüman almayan fonksiyonlardır; bilgisayarın saatini okurlar. Yukarıdaki çıktılar yalnızca örnektir: siz çalıştırdığınızda o anın tarihi ve saati, bilgisayarınızın saat diliminde gösterilir. Sondaki `+03`, saatin UTC'den 3 saat ileride olduğunu söyler. Türkiye 2016'dan beri yıl boyu UTC+3 kullanır ve R'ın kullandığı saat dilimi veritabanında bu saat için harfli bir kısaltma (`EET` gibi) bulunmadığından R kısaltma yerine `+03` yazar.
+Bu iki satır, bilgisayarın saatini okuyarak bugünün tarihini ve şu anki zamanı R nesnesi olarak verir; bir analizin çalıştırıldığı anı kaydetmek ya da "bugüne kadar kaç gün geçti?" gibi hesaplar için gerekir. Kodu satır satır okuyalım:
+
+1. `Sys.Date()`: Bugünün tarihini `Date` olarak verir. Parantezler boştur, çünkü fonksiyon hiçbir argüman almaz; ama fonksiyonun çalışması için parantezleri yine de yazmak gerekir (parantezsiz `Sys.Date` yazmak fonksiyonu çalıştırmaz, onun kodunu ekrana döker).
+2. `Sys.time()`: Şu anki zamanı saniyesine kadar `POSIXct` olarak verir.
+
+Çıktıları okurken: yukarıdaki değerler yalnızca örnektir; siz çalıştırdığınızda o anın tarihi ve saati, bilgisayarınızın saat diliminde gösterilir. İkinci çıktı `YYYY-MM-DD HH:MM:SS` düzenindedir; sondaki `+03`, saatin UTC'den 3 saat ileride olduğunu söyler. Türkiye 2016'dan beri yıl boyu UTC+3 kullanır ve R'ın kullandığı saat dilimi veritabanında bu saat için harfli bir kısaltma (`EET` gibi) bulunmadığından R kısaltma yerine `+03` yazar.
 
 #### 4.2.1. Metni Tarihe Çevirmek: `as.Date()` ve Format Kodları
 
@@ -1035,16 +1078,36 @@ as.Date("2024-02-30", format = "%Y-%m-%d")   # Takvimde olmayan gün
 #> [1] NA
 ```
 
+Bu kod, aynı `as.Date()` fonksiyonunun biçim verildiğinde ve verilmediğinde nasıl davrandığını karşılaştırır; amaç, 4.1'de anlatılan sessiz yanlış okumayı R'da kendi gözümüzle görmek ve doğru okumanın `format` argümanıyla nasıl yapıldığını öğrenmektir. Kodu satır satır okuyalım:
+
+1. `as.Date("2024-02-01")`: Biçim verilmemiştir. R sırasıyla `"%Y-%m-%d"` ve `"%Y/%m/%d"` biçimlerini dener; ISO metni ilk biçime uyduğu için sorunsuz okunur.
+2. `as.Date("01/02/2024")`: Yine biçim yoktur; bu kez metin yanlış okunur ve hata da çıkmaz (nedeni aşağıdaki notta).
+3. `as.Date("01/02/2024", format = "%d/%m/%Y")`: İlk argüman adsız (*konumsal*) verilmiştir, yani yazıldığı sıradan anlaşılır: okunacak metin. İkinci argüman adlıdır: `format`. Biçim metni şunu söyler: `%d` ayın günü (iki hane), ardından aynen bir `/`, ardından `%m` ay numarası (iki hane), ardından `/`, ardından `%Y` dört haneli yıl. Böylece metin Türkiye/Avrupa düzeniyle okunur: 1 Şubat 2024.
+4. `as.Date("01/02/2024", format = "%m/%d/%Y")`: Aynı metin, `%m` ile `%d`'nin yeri değiştirilerek ABD düzeniyle (ay/gün/yıl) okunur: 2 Ocak 2024. Metin aynı, sonuç farklı: R'a hangi okumayı istediğimizi ancak `format` söyler.
+5. `as.Date("01.02.2024", format = "%d.%m.%Y")`: Metinde ayraç nokta olduğu için biçimde de nokta yazılır. Biçimdeki ayraç metindekiyle birebir aynı olmalıdır; `"%d/%m/%Y"` ile bu metin `NA` olurdu.
+6. `as.Date("15/03/2024", format = "%m/%d/%Y")`: `%m` ilk parçayı ay olarak okumaya çalışır, ama 15. ay yoktur. Sonuç hata değil, sessizce `NA` (değer yok) olur.
+7. `as.Date("2024-02-30", format = "%Y-%m-%d")`: Biçim metne uyar ama 30 Şubat takvimde yoktur; sonuç yine `NA`'dır.
+
+Çıktıları okurken: girdi hangi düzende yazılmış olursa olsun, R okuduğu tarihi her zaman ISO 8601 (`YYYY-MM-DD`) biçiminde gösterir; bu yüzden 3. ve 5. satırların çıktıları aynıdır. Tırnaksız `[1] NA` ise "bu değer okunamadı" demektir; `NA` bir metin değil, R'ın eksik değer işaretidir.
+
 **Not —** İkinci satırdaki sonuç, bu bölümün en önemli uyarısıdır. R, `"01/02/2024"` metnini denediği ikinci biçim olan `%Y/%m/%d` ile okumuştur: `%Y` ilk parçadaki `01`'i yıl (1. yıl), `%m` ikinci parçadaki `02`'yi ay olarak almış; `%d` en fazla iki rakam okuduğu için `2024`'ün ilk iki rakamını (`20`) gün saymış ve geriye kalan `24`'ü sessizce atmıştır. Sonuç, 1. yılın 20 Şubat'ıdır ve hiçbir uyarı yoktur. (Metin iki biçimden hiçbirine uymasaydı, örneğin `as.Date("15.03.2024")`, R bu kez `character string is not in a standard unambiguous format` hatasını verirdi; yani hata almamanız, okumanın doğru olduğu anlamına gelmez.) Sondan ikinci satır da 4.1'deki durumu gösterir: ay/gün kuralıyla okunamayan `15/03/2024` hata üretmez, `NA` olur.
 
 Bu yüzden veri okurken biçimi **her zaman** açıkça belirtin ve okuduktan sonra iki basit kontrol yapın: `range(tarihler)` en küçük ve en büyük tarihi verir; `0001` gibi bir yıl ya da `NA NA` sonucu okumanın bozuk olduğunu hemen ele verir. `sum(is.na(tarihler))` ise kaç değerin okunamadığını sayar (`is.na()` her değer için "NA mı?" sorusunu `TRUE`/`FALSE` olarak cevaplar, `sum()` de `TRUE`'ları sayar).
 
-Tarih ve saati birlikte okumak için `as.POSIXct()` kullanılır; yine `format` ve saat dilimi (`tz`) verilir. `%H` saati (00–23), `%M` dakikayı okur:
+Tarih ve saati birlikte okumak için `as.POSIXct()` kullanılır; yine `format` ve saat dilimi (`tz`) verilir:
 
 ```r
 as.POSIXct("01.02.2024 14:30", format = "%d.%m.%Y %H:%M", tz = "Europe/Istanbul")
 #> [1] "2024-02-01 14:30:00 +03"
 ```
+
+Bu tek satır, Türkçe düzende yazılmış bir tarih-saat metnini `POSIXct` nesnesine çevirir; saatli verilerde (ör. sensör kayıtları) her satır bu şekilde okunur. Satırı argüman argüman okuyalım:
+
+1. `"01.02.2024 14:30"`: Okunacak metin. Önce gün.ay.yıl, ardından bir boşluk ve saat:dakika gelir; saniye yazılmamıştır.
+2. `format = "%d.%m.%Y %H:%M"`: `%d.%m.%Y` kısmı tarihi az önceki gibi okur. Biçimdeki boşluk, metindeki boşluğa karşılık gelir. `%H` saati 24 saat düzeninde (00–23) okur, ardından aynen bir `:` gelir, `%M` (büyük M) de dakikayı okur. Küçük `%m` ay, büyük `%M` dakikadır; karıştırmak sık yapılan bir hatadır. Saniye biçimde olmadığı için 0 kabul edilir.
+3. `tz = "Europe/Istanbul"`: Metindeki saatin Türkiye saati olduğunu söyler. Bu "Kıta/Şehir" biçimindeki saat dilimi adlarını 4.2.2'de açıklıyoruz.
+
+Sonuç bir ada atanmadığı için doğrudan ekrana yazılır. Çıktıda R saati her zaman `YYYY-MM-DD HH:MM:SS` düzeninde gösterir: metinde olmayan saniye `:00` olarak eklenmiştir, sondaki `+03` de saatin UTC'den 3 saat ileride (Türkiye saati) olduğunu gösterir.
 
 Ters yönde, bir tarihi istediğimiz biçimde metne çevirmek için `format()` kullanılır. Aynı yer tutucular bu kez "buraya günü / ayı / yılı yaz" anlamına gelir:
 
@@ -1058,7 +1121,14 @@ format(ct, "%Y-%m-%dT%H:%M:%SZ")   # ISO 8601 (UTC)
 #> [1] "2024-02-01T14:30:00Z"
 ```
 
-`%j` yılın kaçıncı günü olduğunu üç haneyle yazar: Ocak'ın 31 günü + 1 = 32. gün. Son satır, 4.2'de oluşturduğumuz `ct` nesnesini ISO 8601 biçiminde yazar. Biçimdeki `T` ve `Z` harfleri yer tutucu değildir, metne aynen eklenir; bu yüzden sondaki `Z` yalnızca `ct` gerçekten UTC olduğu için doğrudur. Türkiye saatindeki bir zamanı yazarken `Z` yerine UTC farkını yazan `%z` kodunu kullanın (`"%Y-%m-%dT%H:%M:%S%z"` → `2024-02-01T14:30:00+0300`).
+Bu kod, bir tarihi rapor, tablo ya da dosya adı için istediğimiz biçimde yazdırmayı gösterir; okuma işinin tersidir. Kodu satır satır okuyalım:
+
+1. `d <- as.Date("2024-02-01")`: 4.2'deki `d` nesnesini yeniden oluşturur; böylece bu parça tek başına çalıştırıldığında da çalışır.
+2. `format(d, "%d.%m.%Y")`: `format()` ilk argümandaki tarihi, ikinci argümandaki biçim metnine göre yazıya çevirir. İkinci argüman adsız verilmiştir; `format(d, format = "%d.%m.%Y")` yazmakla aynıdır. `%d`, `%m`, `%Y` yerlerine gün (`01`), ay (`02`) ve yıl (`2024`) yazılır, aradaki noktalar aynen kalır.
+3. `format(d, "%j")`: `%j` yılın kaçıncı günü olduğunu üç haneyle (başına sıfır ekleyerek) yazar: Ocak'ın 31 günü + 1 = 32. gün, yani `032`.
+4. `format(ct, "%Y-%m-%dT%H:%M:%SZ")`: 4.2'de oluşturduğumuz `ct` nesnesini ISO 8601 biçiminde yazar. `%H`, `%M`, `%S` sırasıyla saati, dakikayı ve saniyeyi (00–59) yazar. Biçimdeki `T` ve `Z` harfleri ise yer tutucu değildir (önlerinde `%` yoktur), metne aynen eklenir; bu yüzden sondaki `Z` yalnızca `ct` gerçekten UTC olduğu için doğrudur. Türkiye saatindeki bir zamanı yazarken `Z` yerine, UTC farkını `+0300` biçiminde (işaret, iki hane saat, iki hane dakika) yazan `%z` kodunu kullanın: `"%Y-%m-%dT%H:%M:%S%z"` → `2024-02-01T14:30:00+0300`.
+
+Çıktıları okurken: `format()` her zaman metin (karakter dizisi) döndürür. Buradaki tırnaklar 4.2'deki `Date` çıktılarından farklı olarak gerçekten metin olduğunu gösterir: `"032"` bir sayı değil, üç karakterlik bir yazıdır; onunla toplama yapılamaz.
 
 **Ezberlemeniz gereken format kodları:** Bu kodlar, R'a metnin hangi parçasının yıl, ay, gün, saat olduğunu anlatır. Hem okurken (`as.Date`, `as.POSIXct`, `strptime`) hem yazarken (`format`) aynı kodlar kullanılır.
 
@@ -1116,13 +1186,24 @@ format(ist, tz = "UTC", usetz = TRUE)   # Aynı anı UTC olarak göster
 #> [1] "2024-02-01 11:30:00 UTC"
 ```
 
-**Açıklama:** İki nesneye de aynı metni (`14:30`) verdik ama farklı `tz` değerleri yüzünden R bunları farklı anlar olarak sakladı. *Duvar saati*, o şehirde duvardaki saatin gösterdiği yerel saattir; *an* ise dünyanın her yerinde aynı olan tek bir zaman noktasıdır (içerideki UTC saniyesi). Hesap şöyledir:
+Bu kod, aynı duvar saatini (14:30) iki farklı saat dilimiyle okuyup bunların aslında farklı anlar olduğunu sayılarla gösterir. *Duvar saati*, o şehirde duvardaki saatin gösterdiği yerel saattir; *an* ise dünyanın her yerinde aynı olan tek bir zaman noktasıdır (içerideki UTC saniyesi). Kodu satır satır okuyalım:
+
+1. `ist <- as.POSIXct("2024-02-01 14:30:00", tz = "Europe/Istanbul")`: Metni Türkiye saatine göre okur ve `ist` adıyla saklar.
+2. `ny  <- as.POSIXct("2024-02-01 14:30:00", tz = "America/New_York")`: Aynı metni New York saatine göre okur ve `ny` adıyla saklar. `ny`'den sonraki fazladan boşluk yalnızca iki satırı alt alta hizalamak içindir; R boşlukları önemsemez.
+3. `ist` ve `ny`: Bir nesnenin adını tek başına yazmak, onu ekrana yazdırır. Her iki nesne de kendi saat diliminde 14:30 olarak görünür.
+4. `ny - ist`: İki zamanı çıkarır. Sonuç bir süre (`difftime`, *time difference*) nesnesidir; R birimi farkın büyüklüğüne göre kendisi seçer (burada saat).
+5. `as.numeric(ist)` ve `as.numeric(ny)`: İki nesnenin içindeki UTC saniyelerini gösterir; görünüşte aynı olan iki zamanın içeride farklı sayılar olduğu burada açıkça görülür.
+6. `format(ist, tz = "UTC", usetz = TRUE)`: `format()` biçim metni verilmeden çağrıldığında zamanı standart `YYYY-MM-DD HH:MM:SS` düzeninde yazar. Burada `tz` argümanı "okuma" değil "gösterme" ayarıdır: anı değiştirmeden UTC saatiyle yaz demektir. `usetz = TRUE` (*use time zone*) sona saat dilimi adını ekler. `TRUE` ("doğru/evet") ve `FALSE` ("yanlış/hayır") R'ın mantıksal değerleridir; tırnaksız ve büyük harfle yazılırlar.
+
+Çıktıları okurken: `ist` ve `ny` çıktılarının sonundaki `+03` ve `EST` (*Eastern Standard Time*, ABD doğu kış saati), zamanın hangi yerel saatle gösterildiğini söyler. `Time difference of 8 hours` "zaman farkı: 8 saat" demektir. Bu 8 saat şöyle hesaplanır:
 
 - İstanbul'da 14:30 → UTC'de 14:30 − 3 saat = 11:30.
 - New York'ta 14:30 (Şubat'ta EST, UTC−5) → UTC'de 14:30 + 5 saat = 19:30.
-- Fark: 19:30 − 11:30 = 8 saat. `ny - ist` iki zamanı çıkarır ve sonucu birimiyle birlikte bir süre (`difftime`) nesnesi olarak yazar. Aynı fark içerideki sayılarda da görülür: $`1\,706\,815\,800 - 1\,706\,787\,000 = 28\,800`$ saniye $`= 8 \times 3\,600`$.
+- Fark: 19:30 − 11:30 = 8 saat. Aynı fark içerideki sayılarda da görülür: $`1\,706\,815\,800 - 1\,706\,787\,000 = 28\,800`$ saniye $`= 8 \times 3\,600`$.
 
-`ist` nesnesindeki sayı (`1706787000`), 4.2'deki `ct` nesnesinin sayısından (`1706797800`) tam 10 800 saniye (3 saat) küçüktür. Bu bir çelişki değildir: `ct` UTC'ye göre 14:30'u (Türkiye'de 17:30), `ist` ise Türkiye'ye göre 14:30'u (UTC'de 11:30) temsil eder; ikisi farklı anlardır. `format(ist, tz = "UTC", usetz = TRUE)` anı değiştirmeden UTC saatiyle yazar; `usetz = TRUE` sona saat dilimi adını ekler. Ekranda görünen `+03` ve `EST` kısaltmaları da hangi yerel saatle gösterildiğini söyler.
+Son çıktı, `ist` anının UTC'de 11:30 olduğunu doğrular; sondaki `UTC` yazısını `usetz = TRUE` eklemiştir.
+
+`ist` nesnesindeki sayı (`1706787000`), 4.2'deki `ct` nesnesinin sayısından (`1706797800`) tam 10 800 saniye (3 saat) küçüktür. Bu bir çelişki değildir: `ct` UTC'ye göre 14:30'u (Türkiye'de 17:30), `ist` ise Türkiye'ye göre 14:30'u (UTC'de 11:30) temsil eder; ikisi farklı anlardır.
 
 ![Aynı duvar saati farklı anlar; with_tz ve force_tz farkı](images/ch04_saat_dilimi.svg)
 
@@ -1146,7 +1227,14 @@ force_tz(x, "UTC")     # Aynı DUVAR SAATİ, farklı an (saat dilimi yanlış gi
 #> [1] "2024-02-01 14:30:00 UTC"
 ```
 
-`with_tz()` anı (içerideki sayıyı) değiştirmez, yalnızca etiketini değiştirir: İstanbul'daki 14:30, UTC'de 11:30 olarak gösterilir. Bunu, aynı olayı farklı ülkedeki bir okura onun saatiyle anlatmak gibi düşünebilirsiniz. `force_tz()` ise ekrandaki duvar saatini (14:30) olduğu gibi bırakıp ona yeni bir saat dilimi yapıştırır; içerideki sayı 3 saat (10 800 saniye) değişir. Bu, veri yanlış saat dilimiyle okunduğunda (örneğin aslında UTC olan sensör kayıtları yerel saat sanılarak okunduysa) düzeltmek için kullanılır; doğru okunmuş bir veriye uygulanırsa veriyi bozar. Şekil 4.2'deki mavi çizgi `with_tz()` sonucunu, mor çizgi `force_tz()` sonucunu gösterir.
+Bu kod, bir zamanın saat dilimini değiştirmenin iki farklı anlamını karşılaştırır: anı koruyup yalnızca gösterimi değiştirmek ya da duvar saatini koruyup anı değiştirmek. Kodu satır satır okuyalım:
+
+1. `library(lubridate)`: `lubridate` paketini bu oturuma yükler; `ymd_hms()`, `with_tz()` ve `force_tz()` bu paketten gelir (paket kavramı ve kurulumu 4.3'te). Yükleme sırasında R, `The following objects are masked from 'package:base': date, intersect, setdiff, union` gibi bir mesaj yazabilir. Bu bir hata değildir; paketin, base R'daki aynı adlı birkaç fonksiyonun yerine kendi sürümlerini kullanacağını haber verir.
+2. `x <- ymd_hms("2024-02-01 14:30:00", tz = "Europe/Istanbul")`: `ymd_hms()` metni yıl-ay-gün saat:dakika:saniye sırasıyla okuyup `POSIXct` üretir (4.3'te ayrıntılı). `tz` argümanı saatin Türkiye saati olduğunu söyler; yani `x`, yukarıdaki `ist` ile aynı andır.
+3. `with_tz(x, "UTC")`: İkinci argüman (fonksiyondaki adı `tzone`) adsız verilmiştir: hangi saat diliminde gösterileceği. `with_tz()` anı (içerideki sayıyı) değiştirmez, yalnızca gösterim etiketini değiştirir: İstanbul'daki 14:30, UTC'de 11:30 olarak gösterilir. Bunu, aynı olayı farklı ülkedeki bir okura onun saatiyle anlatmak gibi düşünebilirsiniz.
+4. `force_tz(x, "UTC")`: Ekrandaki duvar saatini (14:30) olduğu gibi bırakıp ona yeni bir saat dilimi yapıştırır; içerideki sayı 3 saat (10 800 saniye) değişir. Bu, veri yanlış saat dilimiyle okunduğunda (örneğin aslında UTC olan sensör kayıtları yerel saat sanılarak okunduysa) düzeltmek için kullanılır; doğru okunmuş bir veriye uygulanırsa veriyi bozar.
+
+Çıktıları okurken: iki satırın sonunda da `UTC` yazar, ama saatler farklıdır. İlki (11:30) `x` ile aynı anı, ikincisi (14:30) 3 saat sonraki başka bir anı gösterir. Şekil 4.2'deki mavi çizgi `with_tz()` sonucunu, mor çizgi `force_tz()` sonucunu gösterir.
 
 ### 4.3. `lubridate` Paketi: Tarihlerle Rahat Çalışmak
 
@@ -1180,7 +1268,18 @@ ymd_hms("2024-03-15T14:30:00+03:00")      # ISO 8601 ve saat farkı tanınır
 #> [1] "2024-03-15 11:30:00 UTC"
 ```
 
-İlk dört satır, aynı günü (15 Mart 2024) dört farklı yazımdan okur; hangi fonksiyonu seçeceğiniz, metindeki sıraya bağlıdır. Beşinci satırda `ymd()`'ye yıl-ay-gün sırasına uymayan bir metin verdik; `as.Date()`'in aksine `0001-02-20` gibi uydurma bir tarih üretmedi, `NA` döndürüp uyarı yazdı. Son satırda `ymd_hms()`, metnin sonundaki `+03:00` ekini görüp saati UTC'ye çevirmiştir: 14:30 − 3 = 11:30.
+Bu kod, `lubridate`'in okuma fonksiyonlarını tanıtır: aynı günü farklı yazımlardan okur, uymayan bir metinde ne olduğunu gösterir ve saatli metinlerle biter. Kodu satır satır okuyalım:
+
+1. `# install.packages("lubridate") # Yüklü değilse`: Satır `#` ile başladığı için yorumdur, çalıştırılmaz. Paket bilgisayarınızda kurulu değilse baştaki `#` işaretini silip satırı bir kez çalıştırırsınız; paket internetten indirilip kurulur. Tırnak gerekir, çünkü henüz var olmayan bir paketin adını metin olarak veriyoruz.
+2. `library(lubridate)`: Kurulu paketi bu oturuma yükler (4.2.2'deki blokta yüklediyseniz tekrar çalıştırmak zararsızdır).
+3. `ymd("2024-03-15")`: Fonksiyon adındaki `ymd` harfleri metindeki sırayı söyler: yıl-ay-gün. Biçim metni yazmaya gerek yoktur; ayraç (`-`) kendiliğinden tanınır. Saat dilimi verilmediği için sonuç bir `Date` nesnesidir.
+4. `dmy("15.03.2024")` ve `mdy("03/15/2024")`: Aynı işi gün-ay-yıl (Türkçe yazım, noktalı) ve ay-gün-yıl (ABD yazımı, eğik çizgili) sırası için yapar. Ayraçların farklı olması sorun değildir.
+5. `ymd("20240315")`: Ayraçsız ISO 8601 temel biçimini de okur; dört haneli yıl, iki haneli ay ve iki haneli gün sırasıyla ayrılır.
+6. `ymd("01/02/2024")`: Metin yıl-ay-gün sırasına uymaz (son parçadaki `2024` bir gün olamaz). `ymd()`, `as.Date()`'in aksine `0001-02-20` gibi uydurma bir tarih üretmez; `NA` döndürür ve uyarı yazar.
+7. `ymd_hms("2024-03-15 14:30:00")`: Alt çizgiden sonraki `hms` saat (*hour*), dakika (*minute*), saniye (*second*) sırasını söyler. Sonuç bir `POSIXct` nesnesidir. `tz` argümanı verilmediği için saat UTC kabul edilir.
+8. `ymd_hms("2024-03-15T14:30:00+03:00")`: ISO 8601'in tam yazımını okur: tarih ile saat arasındaki `T` harfini ve sondaki `+03:00` UTC farkını tanır. Saat, Türkiye saati olarak yorumlanıp UTC'ye çevrilir: 14:30 − 3 = 11:30.
+
+Çıktıları okurken: ilk dört satırın çıktısı aynıdır (`"2024-03-15"`): dört farklı yazım aynı günü verir; hangi fonksiyonu seçeceğiniz yalnızca metindeki sıraya bağlıdır. Beşinci satırda `[1] NA`'nın altında bir uyarı (*warning*) vardır. Uyarı, hatadan farklı olarak kodu durdurmaz, yalnızca dikkat çeker. `All formats failed to parse. No formats found.` "Hiçbir biçimle okunamadı; uyan biçim bulunamadı" demektir. Son iki satırdaki `UTC` eki sonucun hangi saat diliminde gösterildiğini söyler.
 
 **Not —** `lubridate`, okuyamadığı metinlerde sessizce yanlış tarih üretmez; `NA` döndürür ve "failed to parse" (okunamadı) içeren bir uyarı verir. Bu uyarıyı ciddiye alın. Ancak sırayı yanlış seçerseniz (Türkçe yazılmış `01.02.2024` için `mdy()`) iki okuma da geçerli bir tarih olduğundan uyarı çıkmaz; sırayı veriye bakarak doğru seçmek yine sizin işinizdir. Ayrıca `ymd_hms()` saat dilimi verilmezse **UTC** varsayar (base R'daki `as.POSIXct()` ise sistemin saat dilimini varsayar); yerel saatle çalışıyorsanız `tz = "Europe/Istanbul"` yazmayı unutmayın.
 
@@ -1200,7 +1299,18 @@ wday(t1, week_start = 1)    # 5   (1 = Pazartesi olacak şekilde)
 wday(t1, label = TRUE)      # Cum (Türkçe sistemde) / Fri (İngilizce sistemde)
 ```
 
-Bu blokta çıktılar, kısalık için satır sonundaki yorumlarda verilmiştir. 15 Mart 2024 cumadır. `yday()` yılın kaçıncı günü olduğunu verir: Ocak (31) + Şubat (2024 artık yıl olduğu için 29) + 15 = 75. `quarter()` yılı üçer aylık dört çeyreğe böler (Ocak–Mart 1. çeyrek). `isoweek()` 4.1'deki ISO hafta numarasını verir: 11. hafta 1 + 10 × 7 = 11 Mart pazartesi başlar, 15 Mart da bu haftadadır. `wday()` haftanın gününü sayı olarak verir; varsayılan ABD alışkanlığıdır (hafta pazar başlar, cuma 6. gündür). `week_start = 1` argümanı haftayı pazartesiden başlatır, böylece cuma 5 olur. `label = TRUE` sayı yerine gün adını yazar (`TRUE` "doğru/evet" anlamına gelen mantıksal değerdir); ad, 4.2'deki nota göre sistemin dil ayarına bağlıdır.
+Bu kod, tek bir tarihten yıl, ay, gün, yılın günü, çeyrek, hafta numarası ve haftanın günü gibi bileşenleri ayrı ayrı çeker; zaman serisinde mevsimsel desenleri ararken kullanılacak değişkenler tam olarak bunlardır. Bu blokta çıktılar, kısalık için satır sonundaki yorumlarda verilmiştir; örnek tarih olan 15 Mart 2024 bir cumadır. Kodu satır satır okuyalım:
+
+1. `t1 <- ymd("2024-03-15")`: Örnek tarihi `Date` olarak oluşturup `t1` adıyla saklar.
+2. `year(t1)`, `month(t1)`, `day(t1)`: Yılı (2024), ay numarasını (3) ve ayın gününü (15) düz sayı olarak verir. `POSIXlt`'deki tuzaklar burada yoktur: ay 1'den, yıl olduğu gibi sayılır.
+3. `yday(t1)`: Yılın kaçıncı günü olduğunu verir (*year day*; `format(..., "%j")` ile aynı bilgi, ama metin değil sayı olarak): Ocak (31) + Şubat (2024 artık yıl olduğu için 29) + 15 = 75.
+4. `quarter(t1)`: Yılı üçer aylık dört çeyreğe böler (Ocak–Mart 1., Nisan–Haziran 2., Temmuz–Eylül 3., Ekim–Aralık 4. çeyrek); Mart 1. çeyrektir.
+5. `isoweek(t1)`: 4.1'deki ISO hafta numarasını verir: 11. hafta 1 + 10 × 7 = 11 Mart pazartesi başlar, 15 Mart da bu haftadadır.
+6. `wday(t1)`: Haftanın gününü (*week day*) sayı olarak verir. Varsayılan ABD alışkanlığıdır: hafta pazar başlar (pazar 1, ..., cumartesi 7), bu yüzden cuma 6. gündür.
+7. `wday(t1, week_start = 1)`: `week_start` argümanı haftanın hangi günle başlayacağını söyler; `1` pazartesi demektir (varsayılan değer `7`, yani pazar). Türkiye'deki alışkanlığa uyan bu ayarla cuma 5 olur.
+8. `wday(t1, label = TRUE)`: `label = TRUE` sayı yerine gün adını yazdırır; ad varsayılan olarak kısaltılmıştır (`Cum`). Ad, 4.2'deki nota göre sistemin dil ayarına bağlıdır.
+
+Kodu çalıştırdığınızda ilk yedi satırın her biri `[1] 2024`, `[1] 3` gibi tek bir sayı yazar. Son satır ise iki satırlık bir çıktı verir: `[1] Cum` ve altında `Levels: Paz < Pzt < Sal < Çar < Per < Cum < Cmt` (İngilizce sistemde `Sun < Mon < ...`). Bunun nedeni, sonucun bir *faktör* olmasıdır: R'da sınırlı sayıda kategoriden birini tutan veri tipi. `Levels` satırı olası bütün kategorileri, aradaki `<` işaretleri de bunların sırasını gösterir (pazar, pazartesiden önce gelir). Sıralı olması, gün adlarına göre gruplanmış sonuçların alfabetik değil haftanın sırasıyla dizilmesini sağlar.
 
 **Yuvarlama fonksiyonları:** Günlük veriyi aylık ya da haftalık gruplara toplamak için tarihleri dönem başına yuvarlamak işe yarar. Mantık, sayılardaki aşağı ve yukarı yuvarlamayla aynıdır: 3,7 aşağı yuvarlanınca 3, yukarı yuvarlanınca 4 olur; bir tarih de içinde bulunduğu ayın başına (aşağı) ya da sonraki ayın başına (yukarı) yuvarlanır.
 
@@ -1213,7 +1323,13 @@ ceiling_date(t1, "month")                # Sonraki ayın ilk günü
 #> [1] "2024-04-01"
 ```
 
-`floor_date()` (taban) aşağı, `ceiling_date()` (tavan) yukarı yuvarlar; ikinci argüman dönemin birimidir (`"week"`, `"month"`, `"year"` ...). Bir ayın bütün günlerini `floor_date(..., "month")` ile aynı tarihe (ayın 1'ine) çevirirseniz, aylık toplam ya da ortalama almak için gruplama anahtarı elde etmiş olursunuz. Haftalık yuvarlamada `week_start = 1` vermezseniz hafta yine pazar başlar ve sonuç `2024-03-10` olur.
+Bu kod, önceki bloktaki `t1` tarihini (15 Mart 2024) içinde bulunduğu ayın ve haftanın başına, bir de sonraki ayın başına yuvarlar. Kodu satır satır okuyalım:
+
+1. `floor_date(t1, "month")`: `floor_date()` (*floor*: taban) tarihi aşağı, yani dönemin başına yuvarlar. İkinci argüman (adı `unit`) dönemin birimidir ve tırnak içinde metin olarak verilir: `"day"`, `"week"`, `"month"`, `"quarter"`, `"year"` gibi. Sonuç ayın ilk günüdür.
+2. `floor_date(t1, "week", week_start = 1)`: Bu kez birim haftadır; `week_start = 1` haftanın pazartesi başladığını söyler (önceki bloktaki `wday()` ile aynı argüman). Sonuç, 15 Mart'ın içinde bulunduğu haftanın pazartesisidir: 11 Mart. `week_start = 1` vermezseniz hafta pazar başlar ve sonuç `2024-03-10` olur.
+3. `ceiling_date(t1, "month")`: `ceiling_date()` (*ceiling*: tavan) yukarı yuvarlar; sonuç sonraki dönemin başıdır, yani 1 Nisan.
+
+Üç çıktı da `Date` nesnesidir. Bir ayın bütün günlerini `floor_date(..., "month")` ile aynı tarihe (ayın 1'ine) çevirirseniz, aylık toplam ya da ortalama almak için bir gruplama anahtarı elde etmiş olursunuz: Mart'ın 31 gününün hepsi `2024-03-01` olur.
 
 ### 4.4. Tarih Aritmetiği ve Tarih Dizileri
 
@@ -1247,7 +1363,19 @@ difftime(bitis, baslangic, units = "weeks")       # Farklı birimde
 #> Time difference of 52.14286 weeks
 ```
 
-**Açıklama:** Base R'da (yani ek paket olmadan) bir `Date` nesnesine sayı eklemek, içerideki gün sayısına eklemek demektir: 1 Ocak + 30 gün = 31 Ocak. `lubridate`'in `days()`, `weeks()`, `months()`, `years()` fonksiyonları aynı işi okunur hâle getirir; ay ve yıl eklerken takvimi izlerler (1 Ocak + 3 ay = 1 Nisan, ayların kaç gün çektiğine bakmadan). İki tarihi çıkarmak, aradaki gün *adımlarının* sayısını verir: 1 Ocak'tan 2 Ocak'a 1 adım, ..., 31 Aralık'a 365 adım vardır. 2024 artık yıldır, yani 366 gün sürer; 366. adım bizi 2025'in 1 Ocak'ına götürürdü. Sonuç bir `difftime` (zaman farkı) nesnesidir; `as.numeric()` birimini atıp çıplak sayıyı verir. `difftime(..., units = "weeks")` aynı farkı hafta cinsinden verir: $365 / 7 \approx 52{,}14286$.
+Bu kod, bir tarihe gün, hafta, ay ve yıl eklemeyi ve iki tarih arasındaki farkı farklı birimlerle ölçmeyi gösterir. Kodu satır satır okuyalım:
+
+1. `baslangic <- as.Date("2024-01-01")`: Başlangıç tarihini `Date` olarak oluşturup `baslangic` adıyla saklar. (R'da nesne adlarında Türkçe karakterler kullanılabilir, ama başka bilgisayarlarda sorun çıkmasın diye `ı`, `ş`, `ğ` yerine `i`, `s`, `g` yazmak yaygın bir alışkanlıktır.)
+2. `baslangic + 30`: Base R'da (yani ek paket olmadan) bir `Date` nesnesine sayı eklemek, içerideki gün sayısına eklemek demektir: 1 Ocak + 30 gün = 31 Ocak.
+3. `baslangic + days(30)`: `lubridate`'in `days(30)` fonksiyonu "30 gün" uzunluğunda bir süre nesnesi (*period*, 4.4.2'de) üretir; sonuç bir önceki satırla aynıdır ama kod ne eklendiğini açıkça söyler.
+4. `baslangic + weeks(2)`: 2 hafta = 14 gün ekler: 1 + 14 = 15 Ocak.
+5. `baslangic + months(3)`: Takvimde 3 ay ileri gider: 1 Ocak + 3 ay = 1 Nisan, ayların kaç gün çektiğine bakmadan. (`months()` adlı bir fonksiyon base R'da da vardır ve bir tarihin ay adını yazar; `lubridate` yüklüyken ona sayı verildiğinde ay uzunluğunda bir süre üretir.)
+6. `baslangic + years(1)`: Takvimde 1 yıl ileri gider: 1 Ocak 2025.
+7. `bitis <- as.Date("2024-12-31")` ve `fark <- bitis - baslangic`: Bitiş tarihini oluşturur ve iki tarihi çıkarır. Sonuç, birimi gün olan bir `difftime` (zaman farkı) nesnesidir ve `fark` adıyla saklanır; alttaki `fark` satırı onu ekrana yazar.
+8. `as.numeric(fark)`: Birimi atıp çıplak sayıyı (365) verir; sayıyla başka hesaplara devam etmek için gerekir.
+9. `difftime(bitis, baslangic, units = "weeks")`: `difftime()` iki zamanın farkını, ilk argümandan ikinciyi çıkararak hesaplar (sıra önemlidir; ters yazılırsa sonuç eksi olur). `units` argümanı sonucun birimini seçer: `"secs"`, `"mins"`, `"hours"`, `"days"` ya da `"weeks"`. Burada hafta istedik.
+
+Çıktıları okurken: ilk beş çıktı yeni tarihlerdir (hepsi `Date`). `Time difference of 365 days`, "zaman farkı: 365 gün" demektir. Neden 366 değil? İki tarihi çıkarmak, aradaki gün *adımlarının* sayısını verir: 1 Ocak'tan 2 Ocak'a 1 adım, ..., 31 Aralık'a 365 adım vardır. 2024 artık yıldır, yani 366 gün sürer; 366. adım bizi 2025'in 1 Ocak'ına götürürdü. Son çıktı aynı farkın hafta cinsinden değeridir: $365 / 7 \approx 52{,}14286$ (R ondalık ayırıcı olarak nokta kullanır: `52.14286`).
 
 **Tanım (artık yıl):** Dünya'nın Güneş etrafındaki bir turu yaklaşık 365,25 gün sürer. Aradaki çeyrek günler birikmesin diye 4'e bölünebilen yıllara 29 Şubat eklenir ve yıl 366 gün olur (2024 gibi). İstisna: 100'e bölünüp 400'e bölünemeyen yıllar artık yıl değildir (1900 değil, 2000 artık yıldır). `lubridate::leap_year(2024)` bunu sizin yerinize kontrol eder.
 
@@ -1268,7 +1396,13 @@ seq(as.Date("2024-01-01"), by = "week", length.out = 4)
 #> [1] "2024-01-01" "2024-01-08" "2024-01-15" "2024-01-22"
 ```
 
-`seq()` (*sequence*, dizi) bir başlangıçtan (`from`) itibaren sabit adımlarla (`by`) ilerleyen bir dizi üretir. Dizinin ne zaman duracağını ya bir bitiş tarihi (`to`) ya da eleman sayısı (`length.out`) belirler. Sonuç 12 tarihlik bir *vektördür*, yani aynı türden değerlerin sıralı bir listesidir. Çıktı ekrana sığmadığı için alt satırlara bölünmüştür; satır başlarındaki `[6]` ve `[11]`, o satırın vektörün 6. ve 11. elemanıyla başladığını gösterir. Bir veri setindeki tarihleri bu tam diziyle karşılaştırarak (`setdiff(tam_dizi, tarihler)`) eksik dönemleri bulabilirsiniz.
+Bu kod, düzenli aralıklı tarih dizilerini iki yoldan üretir: başlangıç ve bitiş vererek, ya da başlangıç ve eleman sayısı vererek. Kodu satır satır okuyalım:
+
+1. `aylik_dizi <- seq(from = ..., to = ..., by = "month")`: `seq()` (*sequence*, dizi) bir başlangıçtan (`from`) itibaren sabit adımlarla (`by`) ilerleyen bir dizi üretir ve `to` tarihini geçmeden durur. Çağrı üç satıra yayılmıştır: parantez kapanmadığı sürece R satırın devam ettiğini anlar; bölmek yalnızca okunurluk içindir. İç içe çağrılar içten dışa okunur: önce iki `as.Date()` metinleri tarihe çevirir, sonra `seq()` bu tarihleri kullanır. `by = "month"` her adımın bir takvim ayı olduğunu söyler; `"day"`, `"week"`, `"quarter"`, `"year"` ya da gün sayısı olarak bir sayı da verilebilir. Sonuç `aylik_dizi` adıyla saklanır.
+2. `aylik_dizi`: Diziyi ekrana yazdırır.
+3. `seq(as.Date("2024-01-01"), by = "week", length.out = 4)`: İlk argüman adsızdır; `seq()`'in ilk argümanı `from` olduğu için başlangıç tarihi olarak anlaşılır. Bu kez bitiş tarihi yerine `length.out = 4` (çıktının uzunluğu) verilmiştir: haftalık adımlarla 4 tarih üretilir. Tahmin dönemi için "bundan sonraki 12 ay" gibi tarihler üretirken bu biçim kullanışlıdır.
+
+Çıktıları okurken: ilk sonuç 12 tarihlik bir *vektördür*, yani aynı türden değerlerin sıralı bir listesidir (4.2'deki tek değerli sonuçlar da aslında bir elemanlı vektörlerdir). Çıktı ekrana sığmadığı için alt satırlara bölünmüştür; satır başlarındaki `[1]`, `[6]` ve `[11]`, o satırın vektörün 1., 6. ve 11. elemanıyla başladığını gösterir. İkinci çıktı 7'şer gün arayla 4 pazartesidir. Bir veri setindeki tarihleri böyle bir tam diziyle karşılaştırarak (`setdiff(tam_dizi, tarihler)`: ilk vektörde olup ikincide olmayan değerler) eksik dönemleri bulabilirsiniz.
 
 #### 4.4.1. Ay Sonu Tuzağı ve `%m+%`
 
@@ -1287,9 +1421,14 @@ seq(as.Date("2024-01-31"), by = "month", length.out = 4)
 #> [1] "2024-01-31" "2024-03-02" "2024-03-31" "2024-05-01"
 ```
 
-**Açıklama:** Düz `+ months(1)` takvimde olmayan bir güne (31 Şubat) varınca `NA` döndürür. `%m+%`, `lubridate`'in tanımladığı özel bir toplama işlemcisidir (R'da `%...%` biçiminde yazılan işaretler, iki değer arasına yazılan özel işlemlerdir; `+` gibi kullanılırlar). Bu işlemci ay eklerken sonuç ayda o gün yoksa ayın son gününde durur: 31 Ocak + 1 ay = 29 Şubat (2024 artık yıl). `months(0:3)` yazımındaki `0:3`, 0'dan 3'e kadar tam sayıları (`0, 1, 2, 3`) üretir; böylece tek satırda 0, 1, 2 ve 3 ay sonrası hesaplanır ve her ayın son gününden oluşan bir dizi elde edilir. Çıkarma için `%m-%` kullanılır.
+Bu kod, ayın son gününden başlayarak ay eklemenin üç farklı sonucunu karşılaştırır: `NA`, ay sonuna yuvarlama ve sonraki aya taşma. Kodu satır satır okuyalım:
 
-Base R'ın `seq()` fonksiyonu ise olmayan günü sayıp taşırır: "31 Şubat", 29 Şubat'tan 2 gün sonrası olarak 2 Mart'a; "31 Nisan", 30 Nisan'dan 1 gün sonrası olarak 1 Mayıs'a kayar. Ay sonu verileriyle (ör. aylık finansal kapanışlar) çalışırken `%m+%` kullanın; `"2024-03-02"` gibi kaymalar fark edilmesi zor hatalara yol açar.
+1. `ymd("2024-01-31") + months(1)`: İç içe çağrı içten dışa okunur: önce `ymd()` 31 Ocak'ı `Date` yapar, `months(1)` "1 ay" süresini üretir, sonra `+` ikisini toplar. Düz `+` takvimde olmayan bir güne (31 Şubat) varınca `NA` döndürür.
+2. `ymd("2024-01-31") %m+% months(1)`: `%m+%`, `lubridate`'in tanımladığı özel bir toplama işlemcisidir (R'da `%...%` biçiminde yazılan işaretler, iki değerin arasına yazılan özel işlemlerdir ve `+` gibi kullanılırlar; *m* burada *month*, ay demektir). Bu işlemci ay eklerken, sonuç ayda o gün yoksa ayın son gününde durur: 31 Ocak + 1 ay = 29 Şubat (2024 artık yıl).
+3. `ymd("2024-01-31") %m+% months(0:3)`: `0:3` yazımı 0'dan 3'e kadar tam sayıları içeren bir vektör (`0, 1, 2, 3`) üretir. `months(0:3)` böylece dört ayrı süre (0, 1, 2 ve 3 ay) olur ve `%m+%` her birini başlangıç tarihine ayrı ayrı ekler. Tek satırda, her ayın son gününden oluşan 4 elemanlı bir tarih vektörü elde edilir. Çıkarma için `%m-%` kullanılır.
+4. `seq(as.Date("2024-01-31"), by = "month", length.out = 4)`: Base R'ın `seq()` fonksiyonuyla (4.4'te anlatıldı) aynı ay sonu dizisini üretmeyi dener.
+
+Çıktıları okurken: ilk satırdaki `NA`, sonucun okunamadığını değil, böyle bir günün takvimde olmadığını söyler. Üçüncü satır 31 Ocak, 29 Şubat, 31 Mart ve 30 Nisan'ı verir; hepsi ay sonudur. Son satırda ise base R'ın `seq()` fonksiyonu olmayan günü sayıp taşırır: "31 Şubat", 29 Şubat'tan 2 gün sonrası olarak 2 Mart'a; "31 Nisan", 30 Nisan'dan 1 gün sonrası olarak 1 Mayıs'a kayar. Ay sonu verileriyle (ör. aylık finansal kapanışlar) çalışırken `%m+%` kullanın; `"2024-03-02"` gibi kaymalar hata mesajı üretmediği için fark edilmesi zor hatalara yol açar.
 
 #### 4.4.2. Period ve Duration: İki Farklı "Süre" Kavramı
 
@@ -1319,12 +1458,16 @@ ymd("2024-02-29") + dyears(1)    # 365,25 gün sonrası
 #> [1] "2025-02-28 06:00:00 UTC"
 ```
 
-**Açıklama:** İlk iki satır iki türün nasıl yazıldığını gösterir: period gün-saat-dakika-saniye parçalarıyla (`1d 0H 0M 0S`), duration ise saniye olarak (`86400s`). Berlin örneğinde başlangıç 30 Mart 12:00 kış saatidir (CET, UTC+1). O gece saat 02:00 olduğunda saatler 03:00'e alınır ve Berlin yaz saatine (CEST, UTC+2) geçer; yani 31 Mart günü yalnızca 23 saat sürer.
+Bu kod, period ile duration'ın önce nasıl yazıldığını, sonra iki kritik durumda (yaz saatine geçiş günü ve artık yıl) nasıl farklı sonuç verdiğini gösterir. Kodu satır satır okuyalım:
 
-- `x + days(1)` (period) takvime bakar: "ertesi gün, yine 12:00". Duvar saati korunur ama gerçekte 12 + 11 = 23 saat geçmiştir (30 Mart 12:00'den gece yarısına 12 saat, gece yarısından 31 Mart 12:00'ye kaybolan saat yüzünden 11 saat).
-- `x + ddays(1)` (duration) kronometreye bakar: tam 24 saat = 86 400 saniye ekler. Kaybolan saat yüzünden duvar saati 13:00'ü gösterir.
+1. `days(1)` ve `ddays(1)`: Aynı "1 gün" bilgisini iki türde üretir: `days()` bir period, başında `d` (*duration*) olan `ddays()` bir duration verir. Bir ada atanmadıkları için doğrudan ekrana yazılırlar.
+2. `x <- ymd_hms("2024-03-30 12:00:00", tz = "Europe/Berlin")`: Berlin saatiyle 30 Mart 2024 öğle 12:00'yi `POSIXct` olarak oluşturur. `x` adı 4.2.2'de de kullanılmıştı; aynı ada yeniden atama yapmak eski değeri siler ve yenisini yazar. Berlin'i seçmemizin nedeni, Türkiye'nin artık yaz saati uygulamamasıdır: farkı göstermek için saat değiştiren bir bölge gerekir. Başlangıç anı kış saatidir (CET, UTC+1). O gece saat 02:00 olduğunda saatler 03:00'e alınır ve Berlin yaz saatine (CEST, UTC+2) geçer; yani 31 Mart günü yalnızca 23 saat sürer.
+3. `x + days(1)` (period) takvime bakar: "ertesi gün, yine 12:00". Duvar saati korunur ama gerçekte 12 + 11 = 23 saat geçmiştir (30 Mart 12:00'den gece yarısına 12 saat, gece yarısından 31 Mart 12:00'ye kaybolan saat yüzünden 11 saat).
+4. `x + ddays(1)` (duration) kronometreye bakar: tam 24 saat = 86 400 saniye ekler. Kaybolan saat yüzünden duvar saati 13:00'ü gösterir.
+5. `ymd("2024-02-29") + years(1)`: `years(1)` "gelecek yıl aynı gün" der ama 29 Şubat 2025 olmadığı için `NA` döner (4.4.1'deki `+ months(1)` ile aynı durum).
+6. `ymd("2024-02-29") + dyears(1)`: `dyears(1)` 365,25 gün ekler: 2024-02-29'dan 365 gün sonrası 2025-02-28'dir, kalan 0,25 gün de $`0{,}25 \times 24 = 6`$ saattir; sonuç 2025-02-28 06:00'dır.
 
-Artık yıl örneğinde `years(1)` "gelecek yıl aynı gün" der ama 29 Şubat 2025 olmadığı için `NA` döner. `dyears(1)` ise 365,25 gün ekler: 2024-02-29'dan 365 gün sonrası 2025-02-28'dir, kalan 0,25 gün de $0{,}25 \times 24 = 6$ saattir; sonuç 2025-02-28 06:00'dır. Saat içeren bir süre eklendiği için sonuç `Date` olmaktan çıkıp `POSIXct` olur ve `ymd()` saat dilimi bilgisi taşımadığından UTC ile gösterilir.
+Çıktıları okurken: period gün-saat-dakika-saniye parçalarıyla yazılır (`1d 0H 0M 0S`: 1 gün, 0 saat, 0 dakika, 0 saniye); duration ise saniye olarak yazılır (`86400s`), parantez içindeki `~1 days` de "yaklaşık 1 gün" diye okunur ve yalnızca kolay okuma içindir. Berlin çıktılarındaki `CEST`, sonucun yaz saatinde olduğunu gösterir. Son satırda saat içeren bir süre eklendiği için sonuç `Date` olmaktan çıkıp `POSIXct` olmuştur; `ymd()` saat dilimi bilgisi taşımadığından UTC ile gösterilir.
 
 ![Period ve duration farkı](images/ch04_period_duration.svg)
 
@@ -1369,9 +1512,18 @@ Ben 1918 gündür hayattayım.
 Ben 5 kış gördüm.
 ```
 
-**Açıklama:** `today()` bugünün tarihini `Date` olarak verir (base R'daki `Sys.Date()` gibi). `bugun - dogum` bir `difftime` (gün farkı) verir; `as.numeric()` onu çıplak sayıya çevirir. `cat()` (*concatenate*, birleştir) kendisine verilen metin ve sayıları aralarına boşluk koyarak ekrana yazar; sondaki `"\n"` satır sonu karakteridir. 1918 sayısını elle doğrulayalım: 29 Haziran 2021'den 29 Haziran 2026'ya 5 yıl vardır; bunun içinde bir 29 Şubat (2024) bulunduğundan $5 \times 365 + 1 = 1826$ gün eder. 29 Haziran'dan 29 Eylül'e ise $30 + 31 + 31 = 92$ gün vardır (Haziran 30, Temmuz ve Ağustos 31'er gün çeker). Toplam $1826 + 92 = 1918$.
+Bu kod, bir doğum tarihi ile bugün arasındaki süreyi iki farklı biçimde ölçer: önce gün sayısı olarak, sonra tam yıl sayısı olarak. İkisi farklı araçlar gerektirir, çünkü gün sabit uzunlukta bir ölçüdür, yıl ise takvime bağlıdır (4.4.2). Kodu satır satır okuyalım:
 
-`%/%` operatörü *tam sayı bölmesidir*: bölümün yalnızca tam kısmını verir ($7$ `%/%` $2 = 3$, çünkü $7 / 2 = 3{,}5$). Burada aralığın içine kaç tam "1 yıllık takvim dönemi" sığdığını sayar: 29 Haziran 2021'den 29 Eylül 2026'ya 5 tam yıl sığar, 6. yıl henüz dolmamıştır. Bu hesap artık yılları doğru hesaba katar; gün sayısını 365'e bölmekten daha güvenlidir.
+1. `library(lubridate)`: `lubridate` paketini bu oturuma yükler; `ymd()`, `today()`, `interval()` ve `years()` bu paketten gelir. Paket bilgisayarda kurulu değilse önce bir kez `install.packages("lubridate")` çalıştırılır (4.3).
+2. `dogum <- ymd("2021-06-29")`: Tırnak içindeki metni yıl-ay-gün sırasıyla okuyup bir `Date` nesnesine çevirir (4.3) ve `dogum` adıyla saklar.
+3. `bugun <- today()`: Bilgisayarın saatine bakarak bugünün tarihini `Date` olarak verir (base R'daki `Sys.Date()` gibi). Parantez içi boştur; isteğe bağlı `tzone` argümanı verilmediği için "bugün" bilgisayarın saat dilimine göre belirlenir. Bu yüzden çıktı, kodu çalıştırdığınız güne göre değişir.
+4. `yasanan_gun_sayisi <- bugun - dogum`: İki `Date` nesnesinin farkı, aradaki gün sayısını tutan bir `difftime` nesnesidir (ekrana yazdırılsaydı `Time difference of 1918 days` gibi görünürdü).
+5. `cat("Ben", as.numeric(yasanan_gun_sayisi), "gündür hayattayım.\n")`: `as.numeric()` farkı birimsiz düz sayıya (1918) çevirir. `cat()` (*concatenate*, birleştir) kendisine virgülle verilen parçaları aralarına birer boşluk koyarak ekrana yazar; `print()`'ten farkı, başa `[1]` ve metinlerin etrafına tırnak koymamasıdır. Sondaki `"\n"` "yeni satıra geç" anlamına gelen özel karakterdir.
+6. `yas_araligi <- interval(dogum, bugun)`: Başlangıcı ve bitişi ayrı ayrı hatırlayan bir *aralık* (`Interval`) nesnesi oluşturur. Gün farkından farkı, hangi takvim günleri arasında olduğunu bilmesidir; artık yıllar ancak böyle doğru sayılabilir.
+7. `gorulen_kis_sayisi <- yas_araligi %/% years(1)`: `years(1)` "1 takvim yılı" uzunluğunda bir period'dur. `%/%` *tam sayı bölmesidir*: bölümün yalnızca tam kısmını verir (7 `%/%` 2 = 3, çünkü 7 / 2 = 3,5). Sonuç, aralığa kaç **tam** takvim yılının sığdığını gösteren düz bir sayıdır.
+8. `cat("Ben", gorulen_kis_sayisi, "kış gördüm.\n")`: Bu sayıyı cümle içinde yazar.
+
+Çıktıdaki ilk satır gün sayısını, ikinci satır tam yıl sayısını verir; `cat()` kullanıldığı için satırlarda `[1]` ya da tırnak yoktur. 1918 sayısını elle doğrulayalım: 29 Haziran 2021'den 29 Haziran 2026'ya 5 yıl vardır; bunun içinde bir 29 Şubat (2024) bulunduğundan $5 \times 365 + 1 = 1826$ gün eder. 29 Haziran'dan 29 Eylül'e ise $30 + 31 + 31 = 92$ gün vardır (29 Haziran'dan 29 Temmuz'a Haziran'ın 30 günü, sonraki iki adımda Temmuz ve Ağustos'un 31'er günü). Toplam $1826 + 92 = 1918$. İkinci satırdaki 5 ise şöyle bulunur: 29 Haziran 2021'den 29 Eylül 2026'ya 5 tam takvim yılı sığar, 6. yıl henüz dolmamıştır. Bu hesap artık yılları doğru hesaba katar; gün sayısını 365'e bölmekten daha güvenlidir.
 
 #### 4.5.2. Örnek 2: Atatürk Kaç Gün Yaşadı ve Hangi Gün Vefat Etti?
 
@@ -1399,9 +1551,17 @@ cat("Vefat ettiği gün:", as.character(vefat_gunu), "\n")
 #> Vefat ettiği gün: Perşembe
 ```
 
-**Açıklama:** 1970 öncesi tarihler de sorunsuz çalışır; içeride negatif gün sayısı olarak saklanırlar (`as.numeric(ymd("1881-05-19"))` sonucu `-32368`'dir, yani 1970-01-01'den 32 368 gün öncesi). İki tarihin farkı 20 993 gündür. `as.period(interval(...))` aynı aralığı takvim birimlerine böler (`y` yıl, `m` ay, `d` gün, `H` saat, `M` dakika, `S` saniye). Elle kontrol: 19 Mayıs 1881 + 57 yıl = 19 Mayıs 1938; + 5 ay = 19 Ekim 1938; Ekim 31 gün çektiği için 19 Ekim'den 10 Kasım'a 22 gün vardır. Sonuç: 57 yıl 5 ay 22 gün.
+Bu kod, iki tarihî tarih arasındaki süreyi önce gün, sonra yıl-ay-gün olarak hesaplar ve son tarihin haftanın hangi gününe denk geldiğini bulur; böylece 4.3 ve 4.4'teki araçları tek bir örnekte birleştirir. Kodu satır satır okuyalım:
 
-`wday(..., label = TRUE, abbr = FALSE)` haftanın gününü kısaltmasız ad olarak verir (`abbr`: *abbreviate*, kısalt). Sonuç bir *faktördür* (R'da sınırlı sayıda kategoriden birini tutan veri tipi; burada yedi gün adı); `as.character()` onu düz metne çevirir ki `cat()` adı yazsın. Gösterilen çıktı Türkçe dil ayarına aittir; İngilizce ayarlı bir sistemde `Thursday` yazılır (4.2'deki nota bakın). Atatürk 10 Kasım 1938 Perşembe günü vefat etmiştir.
+1. `library(lubridate)`: Paketi yükler (4.5.1'deki gibi).
+2. `ataturk_dogum <- ymd("1881-05-19")` ve `ataturk_vefat <- ymd("1938-11-10")`: İki tarihi `Date` olarak oluşturur. 1970 öncesi tarihler de sorunsuz çalışır; içeride negatif gün sayısı olarak saklanırlar (`as.numeric(ymd("1881-05-19"))` sonucu `-32368`'dir, yani 1970-01-01'den 32 368 gün öncesi).
+3. `yasadigi_gun <- ataturk_vefat - ataturk_dogum`: İki tarihin farkını gün birimli bir `difftime` olarak saklar (4.4).
+4. `cat("Mustafa Kemal Atatürk", as.numeric(yasadigi_gun), "gün yaşamıştır.\n")`: Farkı düz sayıya çevirip cümle içinde yazar (4.5.1).
+5. `as.period(interval(ataturk_dogum, ataturk_vefat))`: İçten dışa okunur: önce `interval()` iki tarih arasındaki aralığı kurar (4.5.1), sonra `as.period()` bu aralığı takvim birimlerine (yıl, ay, gün ...) böler. Aralık gerekir, çünkü "kaç ay" sorusunun cevabı hangi aylardan geçildiğine bağlıdır; düz gün sayısı bunu bilmez.
+6. `vefat_gunu <- wday(ataturk_vefat, label = TRUE, abbr = FALSE)`: `wday()` (4.3) haftanın gününü verir; `label = TRUE` sayı yerine ad ister, `abbr = FALSE` (*abbreviate*, kısalt; varsayılanı `TRUE`) da adın kısaltılmamasını sağlar: `Per` değil `Perşembe`. Sonuç bir faktördür (4.3) ve `vefat_gunu` adıyla saklanır.
+7. `cat("Vefat ettiği gün:", as.character(vefat_gunu), "\n")`: `as.character()` faktörü düz metne çevirir ki `cat()` gün adını yazsın (`cat()` bir faktörü doğrudan alırsa adı değil, içerideki sıra numarasını yazar).
+
+Çıktıları okurken: ilk satırdaki 20 993 gün içerideki sayılardan da doğrulanabilir: 10 Kasım 1938'in sayısı `-11375`'tir ve $`-11\,375 - (-32\,368) = 20\,993`$. İkinci satırdaki `"57y 5m 22d 0H 0M 0S"` bir period yazımıdır: `y` yıl, `m` ay, `d` gün, `H` saat, `M` dakika, `S` saniye. Elle kontrol: 19 Mayıs 1881 + 57 yıl = 19 Mayıs 1938; + 5 ay = 19 Ekim 1938; Ekim 31 gün çektiği için 19 Ekim'den 10 Kasım'a 22 gün vardır. Sonuç: 57 yıl 5 ay 22 gün. Saat, dakika ve saniye 0'dır, çünkü `Date` nesneleri saat bilgisi taşımaz. Üçüncü satırdaki gün adı Türkçe dil ayarına aittir; İngilizce ayarlı bir sistemde `Thursday` yazılır (4.2'deki nota bakın). Atatürk 10 Kasım 1938 Perşembe günü vefat etmiştir.
 
 #### 4.5.3. Örnek 3: Toplam Kaç Saat Yaşadınız?
 
@@ -1423,7 +1583,15 @@ cat("1995-04-23 14:30'da doğan bir kişi, yaklaşık olarak",
     round(yasanan_saat), "saattir hayattadır.\n")
 ```
 
-**Açıklama:** `now(tzone = ...)` şu anı verilen saat diliminde bir `POSIXct` olarak döndürür. `difftime(..., units = "hours")` farkı doğrudan saat biriminde verir, `round()` ise sonucu en yakın tam sayıya yuvarlar. Çıktı çalıştırdığınız ana göre değişir; örneğin kod 2026-09-29 saat 14:30'da çalıştırılsaydı aradaki 11 482 gün için $11\,482 \times 24 = 275\,568$ saat yazılırdı.
+Bu kod, 4.5.1'deki hesabı saat düzeyine indirir: tarihle birlikte doğum saatini de kullanarak şimdiye kadar geçen toplam saati bulur. Kodu satır satır okuyalım:
+
+1. `library(lubridate)`: Paketi yükler (4.5.1'deki gibi).
+2. `dogum_zamani <- ymd_hms("1995-04-23 14:30:00", tz = "Europe/Istanbul")`: Doğum anını Türkiye saatiyle `POSIXct` olarak oluşturur (4.3). `tz` burada önemlidir: verilmeseydi `ymd_hms()` saati UTC kabul ederdi.
+3. `simdi <- now(tzone = "Europe/Istanbul")`: `now()` şu anı, verilen saat diliminde bir `POSIXct` olarak döndürür (`Sys.time()`'ın `lubridate` karşılığı). Argümanın adı burada `tz` değil `tzone`'dur; aynı paketin fonksiyonlarında bile argüman adları farklı olabilir, bu yüzden emin olmadığınızda `args(now)` ile fonksiyonun argümanlarını görebilirsiniz.
+4. `yasanan_saat <- as.numeric(difftime(simdi, dogum_zamani, units = "hours"))`: İçten dışa okunur: `difftime()` (4.4) `simdi`'den `dogum_zamani`'nı çıkarır ve `units = "hours"` sayesinde sonucu doğrudan saat biriminde verir; dıştaki `as.numeric()` birimi atıp düz sayı bırakır. Sonuç genellikle ondalıklı bir sayıdır, çünkü dakika ve saniyeler de saatin kesirleri olarak hesaba girer.
+5. `cat("1995-04-23 14:30'da doğan bir kişi, yaklaşık olarak", round(yasanan_saat), "saattir hayattadır.\n")`: Çağrı iki satıra yayılmıştır; parantez kapanmadığı için R ikinci satırı aynı komutun devamı sayar. `round()` sayıyı en yakın tam sayıya yuvarlar (kaç ondalık kalacağını söyleyen `digits` argümanının varsayılanı 0'dır); cümledeki "yaklaşık olarak" ifadesi bu yüzdendir.
+
+Çıktı, `1995-04-23 14:30'da doğan bir kişi, yaklaşık olarak ... saattir hayattadır.` biçiminde tek satırlık bir cümledir; noktaların yerindeki sayı çalıştırdığınız ana göre değişir. Örneğin kod 2026-09-29 saat 14:30'da çalıştırılsaydı aradaki 11 482 gün için $11\,482 \times 24 = 275\,568$ saat yazılırdı.
 
 İki zaman damgası da `POSIXct` olduğu için fark, içerideki UTC saniyeleri üzerinden hesaplanır; yani aradaki yaz saati geçişleri ve saat dilimi değişiklikleri (Türkiye 2016'ya kadar yaz saati uyguluyordu; 23 Nisan 1995'te saatler yaz saatindeydi, UTC+3) otomatik olarak doğru hesaba katılır. `tz` belirtilmeseydi `ymd_hms()` doğum saatini UTC kabul edecek ve sonuç 3 saat kayacaktı.
 
@@ -1540,14 +1708,24 @@ tapply(satis_ts, cycle(satis_ts), mean)
 #> 100 105  98 112 108 115 120 118 125 130 128 135 
 ```
 
-**Açıklama:** Kod adım adım şunları yapar:
+Bu kod, on iki aylık satış değerini zaman bilgisi taşıyan bir `ts` nesnesine dönüştürür ve 5.1'de anlattığımız `start` ve `frequency` bilgisinin nesnede nasıl saklandığını, nasıl geri okunduğunu gösterir. Kodu satır satır okuyalım:
 
-1. `veri <- c(...)` on iki aylık satış değerini tek bir vektörde toplar ve `veri` adıyla saklar. Bu vektör yalnızca sayılardan oluşur; hangi aya ait olduklarını bilmez.
-2. `ts(data = veri, start = c(2024, 1), frequency = 12)` zaman bilgisini ekler: ilk değer Ocak 2024'tür ve yılda 12 gözlem vardır. Geri kalan her değerin ayı bu iki bilgiden hesaplanır.
-3. `print()` çıktısında R, frekansın 12 olduğunu bildiği için değerleri ay adlarıyla bir tabloya yerleştirir (ay kısaltmaları R'ın kendi İngilizce etiketleridir, dil ayarına bağlı değildir).
-4. `start()` ve `end()` zamanı `c(yıl, ay)` biçiminde iki sayılık bir vektör olarak verir: `2024 1` Ocak 2024, `2024 12` Aralık 2024 demektir. Bitiş, 12 değer olduğu için başlangıçtan 11 adım sonrası olarak hesaplanmıştır.
-5. `tsp()` (*time series properties*) içeride gerçekte saklanan üç sayıyı gösterir: başlangıç, bitiş ve frekans. `2024.917` değeri, Aralık 2024'ün ondalıklı yıl karşılığıdır ($`2024 + 11/12`$).
-6. `cycle()` her gözlemin döngü içindeki sırasını (ayın numarasını) verir. Mevsimsel analizde çok işe yarar: `tapply(satis_ts, cycle(satis_ts), mean)` değerleri ay numarasına göre gruplar ve her grubun ortalamasını (`mean`) alır. Bu tek yıllık örnekte her grupta yalnızca bir değer olduğu için ortalamalar değerlerin kendisidir; çok yıllık bir seride (ör. `AirPassengers`) aynı satır "ortalama bir Ocak, ortalama bir Temmuz" gibi mevsimsel profili verir.
+1. `veri <- c(100, 105, 98, ...)`: `c()` (5.1) on iki aylık satış değerini tek bir vektörde toplar; `<-` (atama, 2.6) bu vektörü `veri` adıyla saklar. Bu vektör yalnızca sayılardan oluşur; hangi aya ait olduklarını bilmez. Üstteki `#` satırı bir yorumdur (2.6).
+2. `satis_ts <- ts(data = veri, start = c(2024, 1), frequency = 12)`: `ts()` vektöre zaman bilgisini ekleyip bir `ts` nesnesi oluşturur; sonuç `satis_ts` adıyla saklanır. Üç argüman da adıyla verilmiştir: `data = veri` serinin değerleri, `start = c(2024, 1)` ilk değerin zamanı (2024'ün 1. ayı, yani Ocak 2024), `frequency = 12` bir yıldaki gözlem sayısıdır (veri aylık). `end` verilmediği için bitiş, veri uzunluğundan hesaplanır. Geri kalan her değerin ayı bu iki bilgiden hesaplanır; ayrıca saklanmaz (Şekil 5.1).
+3. `print(satis_ts)`: Nesneyi ekrana yazar. Konsolda yalnızca `satis_ts` yazmak da aynı işi yapar. R, frekansın 12 olduğunu bildiği için değerleri ay adlarıyla bir tabloya yerleştirir (ay kısaltmaları R'ın kendi İngilizce etiketleridir, dil ayarına bağlı değildir).
+4. `start(satis_ts)` ve `end(satis_ts)`: Serinin başlangıç ve bitiş zamanını `c(yıl, ay)` biçiminde iki sayılık bir vektör olarak verir. Bitiş, 12 değer olduğu için başlangıçtan 11 adım sonrası olarak hesaplanmıştır.
+5. `frequency(satis_ts)`: Nesnenin frekansını tek bir sayı olarak verir.
+6. `tsp(satis_ts)`: `tsp` (*time series properties*, zaman serisi özellikleri) içeride gerçekte saklanan üç sayıyı gösterir: başlangıç, bitiş ve frekans. Başlangıç ve bitiş, 5.1'deki ondalıklı yıl biçimindedir.
+7. `cycle(satis_ts)`: Her gözlemin döngü içindeki sırasını (ayın numarasını: 1 = Ocak, ..., 12 = Aralık) verir. Sonuç, aynı zaman bilgisini taşıyan yeni bir `ts` nesnesidir.
+8. `tapply(satis_ts, cycle(satis_ts), mean)`: `tapply()` üç argümanı sırayla (adları yazılmadan) alır: değerler (`satis_ts`), bu değerleri gruplara ayıracak etiketler (`cycle(satis_ts)`, yani ay numaraları) ve her gruba uygulanacak fonksiyon (`mean`, ortalama). Yani değerleri ay numarasına göre gruplar ve her grubun ortalamasını alır. `mean` parantezsiz yazılmıştır: Ortalamayı burada biz hesaplamıyoruz, fonksiyonun kendisini `tapply()`'ye veriyoruz; `tapply()` onu her grup için ayrı ayrı çağırır. Bu tek yıllık örnekte her grupta yalnızca bir değer olduğu için ortalamalar değerlerin kendisidir; çok yıllık bir seride (ör. `AirPassengers`) aynı satır "ortalama bir Ocak, ortalama bir Temmuz" gibi mevsimsel profili verir. Bu yüzden mevsimsel analizde sık kullanılır.
+
+Çıktıları sırayla okuyalım:
+
+- `print()` çıktısında üst satır sütun başlıklarıdır (aylar), soldaki `2024` satır başlığıdır (yıl); tablonun içi değerlerdir.
+- `[1] 2024    1`: Baştaki `[1]`, satırın vektörün 1. elemanıyla başladığını gösteren sıra numarasıdır (2.6). `2024 1` Ocak 2024 demektir; sayılar arasındaki fazla boşluklar yalnızca hizalama içindir. `[1] 2024   12` aynı biçimde Aralık 2024'tür. `[1] 12` frekanstır.
+- `[1] 2024.000 2024.917   12.000`: Başlangıç (2024.000, yani Ocak 2024), bitiş ve frekans. `2024.917` değeri, Aralık 2024'ün ondalıklı yıl karşılığıdır ($`2024 + 11/12`$). R aynı vektördeki sayıları aynı ondalık basamak sayısıyla yazdığı için frekans da `12.000` görünür; değeri 12'dir.
+- `cycle()` çıktısı, `print()` tablosuyla aynı düzendedir; yalnızca değerlerin yerinde ay numaraları (1–12) vardır.
+- `tapply()` çıktısında `[1]` yoktur, çünkü sonuç **adlandırılmış** bir vektördür (teknik olarak tek boyutlu bir dizi, `array`): üst satır grup adlarını (ay numaraları 1–12), alt satır her grubun ortalamasını gösterir.
 
 Başlangıç noktası döngünün ortasında olabilir. Aşağıda 2023'ün 3. çeyreğinden başlayan çeyreklik bir seri var:
 
@@ -1561,7 +1739,13 @@ end(ceyrek_ts)
 #> [1] 2024    4
 ```
 
-Altı değer, 2023'ün 3. çeyreğinden başlayarak sırayla çeyreklere yerleşir: 2023'ün 3. ve 4. çeyreği, ardından 2024'ün dört çeyreği. Bu yüzden 2023 satırının ilk iki hücresi boştur ve seri 2024'ün 4. çeyreğinde biter. Ondalıklı yıl olarak başlangıç $2023 + 2/4 = 2023{,}5$, bitiş $2023{,}5 + 5/4 = 2024{,}75$'tir (`tsp(ceyrek_ts)` bu sayıları verir).
+Bu örnek, `ts()`'nin değerleri başlangıç noktasından itibaren çeyreklere nasıl yerleştirdiğini ve bitişi nasıl hesapladığını gösterir. Kodu satır satır okuyalım:
+
+1. `ceyrek_ts <- ts(c(50, 52, 55, 53, 58, 60), start = c(2023, 3), frequency = 4)`: Bu kez değerler önce bir isme atanmamış, `c()` ile doğrudan `ts()`'nin içinde verilmiştir. Bu ilk argüman adı yazılmadan (konumsal olarak) verildiği için `ts()`'nin ilk argümanı olan `data`'nın yerine geçer. `frequency = 4` yılda dört gözlem, yani çeyreklik veri demektir; `start = c(2023, 3)` ilk değerin 2023'ün 3. çeyreği olduğunu söyler. Sonuç `ceyrek_ts` adlı bir `ts` nesnesidir.
+2. `print(ceyrek_ts)`: Seriyi yıl satırları ve çeyrek sütunları olan bir tablo olarak yazar. `Qtr1`–`Qtr4` başlıkları İngilizce *quarter* (çeyrek) kelimesinin kısaltmasıdır.
+3. `end(ceyrek_ts)`: Bitiş zamanını `c(yıl, çeyrek)` biçiminde verir.
+
+Altı değer, 2023'ün 3. çeyreğinden başlayarak sırayla çeyreklere yerleşir: 2023'ün 3. ve 4. çeyreği, ardından 2024'ün dört çeyreği. Bu yüzden tablodaki 2023 satırının ilk iki hücresi boştur (`Qtr1` ve `Qtr2` için veri yoktur) ve `end()` çıktısı `[1] 2024    4`, yani 2024'ün 4. çeyreğidir. Ondalıklı yıl olarak başlangıç $2023 + 2/4 = 2023{,}5$, bitiş $2023{,}5 + 5/4 = 2024{,}75$'tir; `tsp(ceyrek_ts)` bu sayıları `2023.50 2024.75 4.00` olarak verir.
 
 #### 5.2.2. Paketten Gelen Veri Seti: `USgas`
 
@@ -1583,7 +1767,15 @@ end(USgas)         # [1] 2019   10
 frequency(USgas)   # [1] 12
 ```
 
-`library(TSstudio)` paketi yükler, `data(USgas)` paketle gelen veri setini çalışma alanına getirir. `ts_info()` serinin özetini tek seferde yazar: tek değişkenli (*1 variable*), 238 gözlemli, aylık (frekans 12), Ocak 2000'de başlayıp Ekim 2019'da biten bir seri. Gözlem sayısını kontrol edelim: 2000–2018 arası 19 tam yıl $19 \times 12 = 228$ ay eder, 2019'un ilk 10 ayıyla $228 + 10 = 238$.
+Bu kod, hazır bir veri setini bir paketten yükler ve zaman bilgisini kontrol eder. Bir seriyle çalışmaya başlamadan önce nerede başlayıp bittiğine ve frekansına bakmak, yanlış ayarlanmış zaman bilgisini erkenden yakalamanın en kolay yoludur. Kodu satır satır okuyalım:
+
+1. `# install.packages("TSstudio") # Yüklü değilse`: Başındaki `#` yüzünden çalışmayan bir satırdır. `TSstudio` kurulu değilse baştaki `#` silinip satır **bir kez** çalıştırılır; `install.packages()` paketi internetten (CRAN'dan) indirip kurar (3.2).
+2. `library(TSstudio)`: `TSstudio` paketini bu oturuma yükler; `USgas` verisi ve `ts_info()` fonksiyonu bu paketten gelir. Yüklerken `package 'TSstudio' was built under R version ...` gibi bir uyarı görebilirsiniz; paketin sizin R'ınızdan biraz farklı bir sürümle hazırlandığını söyler ve kodu etkilemez.
+3. `data(USgas)`: Paketle gelen `USgas` veri setini çalışma alanına getirir. Ad burada tırnaksız yazılmıştır; `data("USgas")` ile aynıdır (2.6).
+4. `ts_info(USgas)`: Bir `ts` nesnesinin özetini tek seferde ekrana yazar. Bu fonksiyon yalnızca yazdırır; saklanacak bir sonuç döndürmez.
+5. `start(USgas)`, `end(USgas)`, `frequency(USgas)`: 5.2.1'deki fonksiyonlardır. Bu kez beklenen çıktılar ayrı `#>` satırları yerine her satırın sonuna yorum olarak yazılmıştır (`# [1] 2000    1` gibi).
+
+`ts_info()` çıktısı dört satırdır. İlk satır serinin tek değişkenli (*1 variable*) ve 238 gözlemli bir `ts` nesnesi olduğunu, `Frequency: 12` aylık olduğunu söyler. `Start time: 2000 1` Ocak 2000, `End time: 2019 10` Ekim 2019 demektir; `start()` ve `end()` aynı bilgiyi `[1] 2000    1` ve `[1] 2019   10` biçiminde verir. Gözlem sayısını kontrol edelim: 2000–2018 arası 19 tam yıl $19 \times 12 = 228$ ay eder, 2019'un ilk 10 ayıyla $228 + 10 = 238$.
 
 **Not —** Paketin eski sürümlerinde `USgas` Kasım 2018'de biten 227 gözlemlik bir seriydi; kitaplarda ve eski kaynaklarda bu değerleri görebilirsiniz. Yukarıdaki çıktı güncel `TSstudio` sürümüne aittir.
 
@@ -1614,7 +1806,16 @@ plot(AirPassengers,
 grid()
 ```
 
-**Açıklama:** `AirPassengers` R ile birlikte gelir (paket kurmak gerekmez) ve zaten bir `ts` nesnesidir. `length()` gözlem sayısını verir: 1949'dan 1960'a 12 yıl × 12 ay = 144. `plot()` bir `ts` nesnesini gördüğünde x eksenini otomatik olarak zaman ekseni (yıllar) olarak çizer; `main` grafik başlığını, `ylab` ve `xlab` eksen adlarını, `col` çizgi rengini belirler. `grid()` arka plana yardımcı ızgara çizgileri ekler. Grafikte hem artan bir trend (yıllar içinde yolcu sayısının artması) hem de belirgin bir mevsimsellik (her yıl yaz aylarında zirve) görülür; ayrıca mevsimsel dalgalanmaların genliği seviyeyle birlikte büyür, bu da çarpımsal bir yapıya işaret eder (bkz. 2.4).
+Bu kod, ders boyunca kullanacağımız `AirPassengers` serisinin zaten bir `ts` olduğunu ve zaman bilgisinin doğru ayarlandığını kontrol eder; sonra seriyi çizerek trendi ve mevsimselliği gözle görmemizi sağlar. Kodu satır satır okuyalım:
+
+1. `data(AirPassengers)`: R ile birlikte gelen veri setini çalışma alanına yükler (2.6); paket kurmak gerekmez.
+2. `class(AirPassengers)`: Nesnenin sınıfını, yani R'ın onu hangi tür nesne olarak gördüğünü verir. Seri zaten `ts` olduğu için `ts()` ile dönüştürmeye gerek yoktur.
+3. `start(AirPassengers)`, `end(AirPassengers)`, `frequency(AirPassengers)`: 5.2.1'deki fonksiyonlardır.
+4. `length(AirPassengers)`: Nesnedeki eleman, yani gözlem sayısını verir.
+5. `plot(AirPassengers, main = ..., ylab = ..., xlab = ..., col = "darkblue")`: Bu, beş satıra bölünmüş **tek** bir komuttur. R, açılan parantez kapanana kadar sonraki satırları aynı komutun devamı olarak okur; bu yüzden argümanları ayıran virgüller satır sonlarında durur. `plot()` (2.6) bir `ts` nesnesi gördüğünde yatay ekseni otomatik olarak zaman ekseni (yıllar) yapar ve gözlemleri çizgiyle birleştirir. `main` grafik başlığını, `ylab` dikey (y) eksenin adını, `xlab` yatay (x) eksenin adını, `col` çizgi rengini belirler. Bu dört argümanın değerleri tırnak içinde metindir; `"darkblue"` R'ın tanıdığı renk adlarından biridir (koyu mavi). `col  =` yazımındaki fazladan boşluk yalnızca satırları hizalamak içindir, sonucu değiştirmez.
+6. `grid()`: Var olan grafiğin arka planına açık gri, noktalı yardımcı ızgara çizgileri ekler. Yeni bir grafik açmaz, mevcut grafiğin üzerine çizer; bu yüzden `plot()`'tan sonra çalıştırılır.
+
+İlk çıktı `[1] "ts"`: Değerin tırnak içinde yazılması, sonucun bir sayı değil bir metin olduğunu gösterir. `[1] 1949    1` Ocak 1949, `[1] 1960   12` Aralık 1960, `[1] 12` aylık frekanstır. `[1] 144` gözlem sayısıdır: 1949'dan 1960'a 12 yıl × 12 ay = 144. Grafikte hem artan bir trend (yıllar içinde yolcu sayısının artması) hem de belirgin bir mevsimsellik (her yıl yaz aylarında zirve) görülür; ayrıca mevsimsel dalgalanmaların genliği seviyeyle birlikte büyür, bu da çarpımsal bir yapıya işaret eder (bkz. 2.4).
 
 ### 5.3. `ts` Nesnesinin Ötesi: `xts` ile Gerçek Dünya Verileri
 
@@ -1663,9 +1864,17 @@ diff(index(veri_xts))    # Gözlemler arası süre: hafta sonunda 3 gün
 #> [1] 1 3 1 1 1 1
 ```
 
-**Açıklama:** `degerler` yedi sayıdan, `tarihler` ise `as.Date()` ile `Date`'e çevrilmiş yedi tarihten oluşan iki vektördür; iki vektörün aynı uzunlukta olması gerekir, çünkü i'inci değer i'inci tarihle eşleşir. `xts(x = degerler, order.by = tarihler)` bu ikisini birleştirir: `x` verinin kendisi, `order.by` ("şuna göre sırala") zaman indeksidir. Tarihler karışık sırada verilse bile `xts` satırları tarihe göre sıralar.
+Bu kod, hafta sonu boşluğu olan küçük bir iş günü serisini `xts` nesnesi olarak kurar ve gözlemler arasındaki süreleri hesaplayarak bu boşluğun nesnede kaybolmadığını gösterir. Kodu satır satır okuyalım:
 
-Çıktıda sol sütundaki tarihler verinin bir sütunu değil, nesnenin **indeksidir**; `index(veri_xts)` ile indekse, `coredata(veri_xts)` ile yalın veri matrisine erişilir. `[,1]` başlığı, matrisin 1. sütununun bir adı olmadığını gösterir (`colnames(veri_xts) <- "fiyat"` ile ad verilebilir). `diff()` ardışık elemanların farkını alır: 26 − 25 = 1 gün, 29 − 26 = 3 gün (hafta sonu), sonrakiler 1'er gün. Bu satır, `ts`'nin göremediği boşluğun `xts`'te açıkça durduğunu gösterir.
+1. `# install.packages("xts") # Yüklü değilse`: Çalışmayan bir yorum satırıdır; paket kurulu değilse `#` silinip bir kez çalıştırılır (3.2).
+2. `library(xts)`: `xts` paketini yükler. `xts`, `zoo` paketi üzerine kurulu olduğu için R `zoo`'yu da kendiliğinden yükler. Ekranda `Loading required package: zoo` ve `The following objects are masked from 'package:base': as.Date, as.Date.numeric` gibi mesajlar görülebilir. İkincisi, `zoo`'nun bu fonksiyonların kendi sürümünü devreye aldığını söyler; ikisi de bilgi mesajıdır, hata değildir.
+3. `degerler <- c(101, 103, 102, 105, 104, 107, 106)`: Yedi gözlemi bir sayı vektöründe toplar ve `degerler` adıyla saklar.
+4. `tarihler <- as.Date(c("2024-01-25", ...))`: İçten dışa okuyalım. `c()` tırnak içindeki yedi tarih metnini bir metin vektöründe toplar; `as.Date()` bu metinleri `Date` nesnelerine çevirir (Bölüm 4). Komut iki satıra bölünmüştür; R parantez kapanana kadar okumaya devam eder. Tarihler 25 Ocak 2024 Perşembe'den başlar; 27–28 Ocak hafta sonu olduğu için listede yoktur. İki vektörün aynı uzunlukta (7) olması gerekir, çünkü i'inci değer i'inci tarihle eşleşir.
+5. `veri_xts <- xts(x = degerler, order.by = tarihler)`: `xts()` bu ikisini birleştirir: `x` verinin kendisi, `order.by` ("şuna göre sırala") zaman indeksidir. Tarihler karışık sırada verilse bile `xts` satırları tarihe göre sıralar. Sonuç 7 satır ve 1 sütunluk bir `xts` nesnesidir ve `veri_xts` adıyla saklanır (`class(veri_xts)` hem `"xts"` hem `"zoo"` verir, çünkü `xts` bir tür `zoo` nesnesidir).
+6. `print(veri_xts)`: Nesneyi tablo olarak yazar.
+7. `diff(index(veri_xts))`: İçten dışa okuyalım. `index()` nesnenin zaman indeksini, yani yedi tarihlik `Date` vektörünü çıkarır. `diff()` (3.2) ardışık elemanların farkını alır. İki tarihin farkı bir süredir; sonuç bu yüzden süre tutan bir `difftime` nesnesidir.
+
+`print()` çıktısında sol sütundaki tarihler verinin bir sütunu değil, nesnenin **indeksidir**; `index(veri_xts)` ile indekse, `coredata(veri_xts)` ile yalın veri matrisine erişilir. `[,1]` başlığı, matrisin 1. sütununun bir adı olmadığını gösterir (`colnames(veri_xts) <- "fiyat"` ile ad verilebilir; o zaman başlıkta `fiyat` yazar). `diff()` çıktısının ilk satırı `Time differences in days`, sonucun gün cinsinden süreler olduğunu söyler. `[1] 1 3 1 1 1 1` ise altı farktır, çünkü yedi tarih arasında altı aralık vardır: 26 − 25 = 1 gün, 29 − 26 = 3 gün (hafta sonu), sonrakiler 1'er gün. Aradaki 3, `ts`'nin göremediği hafta sonu boşluğunun `xts`'te açıkça durduğunu gösterir.
 
 #### 5.3.1. Tarih Bazlı Filtreleme
 
@@ -1692,7 +1901,13 @@ veri_xts["/2024-01-26"]
 #> 2024-01-26  103
 ```
 
-`"2024-01-26/2024-01-30"` iki uç da dahil olmak üzere bu tarihler arasındaki satırları seçer; arada hafta sonu olduğu için üç satır gelir. `"2024-02"` ISO 8601'in yalnızca yıl-ay yazımıdır ve Şubat 2024'e düşen bütün satırları seçer. `/` işaretinin bir tarafı boş bırakılırsa aralık o yönde açık uçlu olur: `"/2024-01-26"` serinin başından 26 Ocak'a kadar, `"2024-01-29/"` ise 29 Ocak'tan serinin sonuna kadar demektir.
+Bu kod, aynı `xts` nesnesinden üç farklı tarih seçimiyle alt küme alır. Satır numarası hesaplamadan doğrudan tarih yazarak veri seçebilmek, `xts`'in günlük işlerde en çok işe yarayan özelliğidir. Kodu satır satır okuyalım:
+
+1. `veri_xts["2024-01-26/2024-01-30"]`: Köşeli parantez içindeki metin bir tarih aralığıdır: `/` işaretinin solu başlangıç, sağı bitiştir ve iki uç da dahildir. Arada hafta sonu olduğu için üç satır gelir (26, 29 ve 30 Ocak).
+2. `veri_xts["2024-02"]`: `"2024-02"` ISO 8601'in yalnızca yıl-ay yazımıdır ve Şubat 2024'e düşen bütün satırları seçer. Yalnızca yıl yazılırsa (yorumdaki `veri_xts["2024"]`) o yılın bütün satırları gelir.
+3. `veri_xts["/2024-01-26"]`: `/` işaretinin sol tarafı boş bırakıldığı için aralık o yönde açık uçludur: serinin başından 26 Ocak'a kadar. Tersine, `"2024-01-29/"` 29 Ocak'tan serinin sonuna kadar demektir.
+
+Bu satırlar bir isme atanmadığı için sonuçlar doğrudan ekrana yazılır. Her sonuç yine bir `xts` nesnesidir; bu yüzden çıktılar `veri_xts`'in kendisiyle aynı biçimdedir: solda indeks (tarihler), üstte `[,1]` sütun başlığı, sağda değerler. Yalnızca seçilen tarihlerin satırları gelir: ilk çıktıda 3, ikinci ve üçüncü çıktıda 2'şer satır.
 
 #### 5.3.2. Dönem Dönüştürme
 
@@ -1715,11 +1930,18 @@ print(aylik_ortalama)
 #> 2024-02-02 106.5
 ```
 
-**Açıklama:** `to.period()` borsa dünyasından gelen dört özeti üretir: dönemin ilk değeri (*Open*, açılış), en yüksek değeri (*High*), en düşük değeri (*Low*) ve son değeri (*Close*, kapanış). İlk hafta (25–26 Ocak) değerleri 101 ve 103'tür: açılış 101, en yüksek 103, en düşük 101, kapanış 103. İkinci hafta (29 Ocak – 2 Şubat) değerleri 102, 105, 104, 107, 106'dır: açılış 102, en yüksek 107, en düşük 102, kapanış 106. Her dönem, o dönemin **son gözleminin tarihiyle** etiketlenir: ilk hafta 26 Ocak ile, ikinci hafta 2 Şubat ile.
+Bu kod, günlük `xts` verisini daha kaba dönemlere özetler: önce haftalara, sonra aylara. Günlük veriden haftalık ya da aylık seriye geçmek, hem gürültüyü azaltmak hem de farklı sıklıktaki verileri karşılaştırabilmek için sık yapılan bir ön işlemedir. Kodu satır satır okuyalım:
 
-`apply.monthly(veri_xts, FUN = colMeans)` veriyi aylara böler ve her aya `FUN` argümanıyla verilen fonksiyonu uygular; `colMeans` her sütunun ortalamasını alır. Ocak ayının ortalaması $(101 + 103 + 102 + 105 + 104) / 5 = 515 / 5 = 103$, Şubat'ınki $(107 + 106) / 2 = 106{,}5$'tir. `FUN = mean` da aynı sonucu verir, ancak güncel `xts` sürümleri çok sütunlu verilerde karışıklığı önlemek için `colMeans` kullanılmasını öneren bir bilgi notu (*NOTE*) yazdırır.
+1. `haftalik_veri <- to.period(veri_xts, period = "weeks")`: `to.period()` seriyi `period` argümanında verilen dönemlere böler ve her dönemi dört sayıyla özetler (üstteki iki yorum satırı bu dört özeti hatırlatır). `period = "weeks"` haftalık dönemler demektir; haftalar pazartesi başlar, pazar biter. Aynı yere `"months"` (aylar; varsayılan değer), `"quarters"` (çeyrekler) ya da `"years"` (yıllar) da yazılabilir. Sonuç `haftalik_veri` adlı yeni bir `xts` nesnesidir.
+2. `print(haftalik_veri)`: Sonucu ekrana yazar.
+3. `aylik_ortalama <- apply.monthly(veri_xts, FUN = colMeans)`: `apply.monthly()` veriyi takvim aylarına böler ve her aya `FUN` (*function*, fonksiyon) argümanıyla verilen fonksiyonu uygular. `colMeans` (*column means*) her sütunun ortalamasını alır. 5.2.1'deki `mean` gibi parantezsiz yazılır, çünkü burada fonksiyonun kendisi verilir; onu her ay için `apply.monthly()` çağırır. Sonuç `aylik_ortalama` adlı bir `xts` nesnesidir.
+4. `print(aylik_ortalama)`: Sonucu ekrana yazar.
 
-Bir `ts` nesnesini `xts`'e dönüştürmek için `as.xts()` kullanılır; aylık seriler için indeks `yearmon` ("Jan 1949") sınıfında olur:
+`to.period()` çıktısının dört sütunu borsa dünyasından gelen dört özettir: dönemin ilk değeri (*Open*, açılış), en yüksek değeri (*High*), en düşük değeri (*Low*) ve son değeri (*Close*, kapanış). Sütun adlarının başındaki `veri_xts.` öneki, fonksiyona verilen nesnenin adından gelir. İlk hafta (25–26 Ocak) değerleri 101 ve 103'tür: açılış 101, en yüksek 103, en düşük 101, kapanış 103. İkinci hafta (29 Ocak – 2 Şubat) değerleri 102, 105, 104, 107, 106'dır: açılış 102, en yüksek 107, en düşük 102, kapanış 106. Her dönem, o dönemin **son gözleminin tarihiyle** etiketlenir: ilk hafta 26 Ocak ile, ikinci hafta 2 Şubat ile.
+
+`apply.monthly()` çıktısında da her ay, verideki son tarihiyle etiketlenir: Ocak `2024-01-31`, Şubat `2024-02-02`. Ocak ayının ortalaması $(101 + 103 + 102 + 105 + 104) / 5 = 515 / 5 = 103$, Şubat'ınki $(107 + 106) / 2 = 106{,}5$'tir. R aynı sütundaki sayıları aynı ondalık basamak sayısıyla yazdığı için 103 de `103.0` olarak görünür. `FUN = mean` da aynı sonucu verir, ancak güncel `xts` sürümleri çok sütunlu verilerde karışıklığı önlemek için `colMeans` kullanılmasını öneren bir bilgi notu (*NOTE*) yazdırır.
+
+Bir `ts` nesnesini `xts`'e dönüştürmek için `as.xts()` kullanılır:
 
 ```r
 head(as.xts(AirPassengers), 3)
@@ -1729,7 +1951,12 @@ head(as.xts(AirPassengers), 3)
 #> Mar 1949  132
 ```
 
-`head(x, 3)` bir nesnenin ilk 3 satırını gösterir. `yearmon` (*year-month*, yıl-ay), `zoo` paketinin yalnızca yıl ve aydan oluşan zaman sınıfıdır; aylık veride gün bilgisi anlamsız olduğu için `ts`'den dönüştürülen aylık seriler bu sınıfı kullanır.
+Bu tek satır, bir `ts` serisini `xts`'e çevirmenin ne kadar kolay olduğunu ve aylık bir seride indeksin nasıl göründüğünü gösterir. İç içe yazıldığı için içten dışa okuyalım:
+
+1. `as.xts(AirPassengers)`: `as.xts()` (`xts` paketinden) bir `ts` nesnesini `xts` nesnesine dönüştürür. `ts`'nin `start` ve `frequency` bilgisinden hesapladığı her zaman, artık her satırın yanında açıkça duran bir zaman damgasına, yani indekse dönüşür.
+2. `head(..., 3)`: Bir nesnenin ilk satırlarını gösterir; ikinci argüman kaç satır gösterileceğidir (yazılmazsa 6). 144 satırın hepsini basmak yerine yalnızca başına bakmak için kullanılır.
+
+Çıktıda sol sütun indekstir: `Jan 1949`, `Feb 1949`, `Mar 1949`. Bu indeks `yearmon` (*year-month*, yıl-ay) sınıfındadır; `yearmon`, `zoo` paketinin yalnızca yıl ve aydan oluşan zaman sınıfıdır. Aylık veride gün bilgisi anlamsız olduğu için `ts`'den dönüştürülen aylık seriler bu sınıfı kullanır. `[,1]` başlığı yine adı olmayan tek sütunu gösterir; 112, 118 ve 132 ilk üç ayın yolcu sayılarıdır (bin kişi).
 
 Özetle: elinizdeki veri düzenli aralıklı ve boşluksuz klasik bir zaman serisiyse `ts` nesnesi işinizi görür ve klasik modellerle doğrudan uyumludur. Düzensiz, yüksek frekanslı ya da üzerinde karmaşık tarih/saat işlemleri yapmanız gereken bir veriyle çalışıyorsanız `xts` daha doğru ve güçlü bir araçtır. Pratikte sık izlenen yol, ön işlemeyi `xts` ile yapıp modelleme öncesinde düzenli hâle getirilmiş seriyi `ts`'ye çevirmektir.
 
@@ -1764,7 +1991,17 @@ length(test)
 #> [1] 24
 ```
 
-**Açıklama:** İlk örnek Ocak 1955'ten Aralık 1957'ye kadar olan 3 yıl × 12 ay = 36 gözlemi keser; çıktı yine ay adlı bir tablo olarak basılır, çünkü sonuç da frekansı 12 olan bir `ts`'dir. `USgas` için 2010–2015 arası 6 yıl × 12 ay = 72 gözlem gelir. Son iki satırda yalnızca bir uç verilmiştir: `egitim` için `start` verilmediği için seri başından (Ocak 1949) Aralık 1958'e kadar 10 yıl × 12 = 120 gözlem, `test` için `end` verilmediği için Ocak 1959'dan seri sonuna kadar 2 yıl × 12 = 24 gözlem alınır. 120 + 24 = 144, yani iki parça seriyi örtüşmeden ve boşluk bırakmadan tamamen kapsar.
+Bu kod `window()` ile üç kesim yapar: `AirPassengers`'tan üç yıllık bir dönem, `USgas`'tan altı yıllık bir dönem ve modelleme için eğitim/test ayrımı. Kodu satır satır okuyalım:
+
+1. `ap_pencere <- window(AirPassengers, start = c(1955, 1), end = c(1957, 12))`: İlk argüman (konumsal) kesilecek seridir. `start = c(1955, 1)` Ocak 1955'ten, `end = c(1957, 12)` Aralık 1957'ye kadar kesileceğini söyler; iki uç da dahildir. Sonuç `ap_pencere` adlı yeni bir `ts` nesnesidir; `AirPassengers`'ın kendisi değişmez.
+2. `print(ap_pencere)` ve `length(ap_pencere)`: Kesilen seriyi tablo olarak yazar ve gözlem sayısını verir (5.2.1, 5.2.3).
+3. `subset_gas <- window(USgas, start = c(2010, 1), end = c(2015, 12))`: `USgas`'tan Ocak 2010 – Aralık 2015 dönemini keser. Bu satır `USgas`'ı kullandığı için 5.2.2'deki `library(TSstudio)` ve `data(USgas)` satırlarının önceden çalıştırılmış olması gerekir.
+4. `length(subset_gas)`: Kesilen dönemin gözlem sayısıdır; satır sonundaki yorum hesabı hatırlatır.
+5. `egitim <- window(AirPassengers, end = c(1958, 12))`: Yalnızca `end` verilmiştir; `start` yazılmadığı için serinin başı (Ocak 1949) kabul edilir. Satır sonundaki `# 1949-1958` bir yorumdur.
+6. `test   <- window(AirPassengers, start = c(1959, 1))`: Yalnızca `start` verilmiştir; `end` yazılmadığı için serinin sonuna (Aralık 1960) kadar gider. `test` ile `<-` arasındaki fazladan boşluklar yalnızca iki satırı hizalamak içindir.
+7. `length(egitim)` ve `length(test)`: İki parçanın gözlem sayılarını verir.
+
+`print(ap_pencere)` çıktısı 1955, 1956 ve 1957 satırlarından ve Jan–Dec sütunlarından oluşan bir tablodur; sonuç da frekansı 12 olan bir `ts` olduğu için ay adlarıyla basılır. `[1] 36` bu dönemin gözlem sayısıdır: 3 yıl × 12 ay = 36. `USgas` için `[1] 72`: 2010–2015 arası 6 yıl × 12 ay = 72 gözlem. `[1] 120`: Ocak 1949 – Aralık 1958 arası 10 yıl × 12 ay = 120 gözlem. `[1] 24`: Ocak 1959 – Aralık 1960 arası 2 yıl × 12 ay = 24 gözlem. 120 + 24 = 144, yani iki parça seriyi örtüşmeden ve boşluk bırakmadan tamamen kapsar.
 
 ![window() ile seriden pencere kesme](images/ch05_window.svg)
 
@@ -1832,9 +2069,19 @@ plot(USgas,
 grid()
 ```
 
-İlk iki satır veriyi hazırlar: `library(TSstudio)` paketi oturuma yükler (paketin fonksiyonları ve veri setleri ancak bundan sonra kullanılabilir), `data(USgas)` ise paketle gelen `USgas` veri setini çalışma alanına getirir. `plot()` R'ın genel çizim fonksiyonudur; kendisine verilen nesnenin sınıfına bakar ve bir `ts` nesnesi gördüğünde çizgi grafiği çizer, yatay ekseni de nesnenin zaman bilgisinden (2000, 2005, …) üretir. Parantez içindeki `ad = değer` biçimindeki ifadeler fonksiyonun **argümanlarıdır**, yani ayarlarıdır: `main` grafik başlığı, `ylab` ve `xlab` eksen adları, `col` çizgi rengi. Ayrı satırdaki `grid()` mevcut grafiğin üzerine açık gri bir ızgara ekler ve değerleri gözle okumayı kolaylaştırır; çizilmiş bir grafiğe eklendiği için `plot()`'tan sonra çalıştırılmalıdır.
+Bu kod `USgas` serisini tek komutla çizer ve okumayı kolaylaştırmak için grafiğe başlık, eksen adları ve bir ızgara ekler. Analize başlamadan önce yukarıdaki dört soruya gözle cevap aramanın en hızlı yolu budur. Kodu satır satır okuyalım:
 
-`USgas` grafiğinde hem yavaş yükselen bir **trend** hem de her kış zirve yapan güçlü bir **mevsimsellik** görülür. Mevsimsel dalgaların genliği seviyeyle birlikte belirgin biçimde büyümediği için toplamsal model makul bir başlangıçtır.
+1. `library(TSstudio)`: `TSstudio` paketini bu oturuma yükler. Paket, zaman serisi grafik araçlarıyla birlikte `USgas` veri setini de içerir; paketin fonksiyonları ve veri setleri ancak bu satırdan sonra kullanılabilir. Paket bilgisayarda kurulu değilse önce bir kez `install.packages("TSstudio")` çalıştırılır. Kurulumda paket adı tırnak içinde yazılır, çünkü henüz R'ın tanıdığı bir nesne değil, düz bir metindir; `library()` içinde tırnaksız yazmak da kabul edilir.
+2. `data(USgas)`: Paketle gelen `USgas` veri setini çalışma alanına (RStudio'daki *Environment* paneli) kopyalar. Sonuç, Ocak 2000'de başlayan, frekansı 12 olan ve 238 aylık gözlemden oluşan bir `ts` nesnesidir (Bölüm 5.2.2). `TSstudio` yüklendiğinde `USgas` adı aslında zaten görünür olur; bu satır veriyi açıkça çalışma alanına koyar ve kodun hangi veriyi kullandığını belli eder.
+3. `plot(USgas, main = ..., ylab = ..., xlab = ..., col = "blue")`: `plot()` R'ın genel çizim fonksiyonudur. Kendisine verilen nesnenin sınıfına bakar; bir `ts` nesnesi gördüğünde gözlemleri sırayla birleştiren bir çizgi grafiği çizer ve yatay ekseni nesnenin `start` ve `frequency` bilgisinden (2000, 2005, …) kendisi üretir. İlk argüman `USgas` adı yazılmadan, yalnızca ilk sıraya konarak verilmiştir (*konumsal argüman*: "çizilecek nesne" her zaman ilk sıradadır). Diğerleri `ad = değer` biçiminde adıyla verilen ayarlardır (*adlandırılmış argüman*); adları yazıldığı için sıraları önemli değildir:
+   - `main`: grafiğin üstündeki başlık;
+   - `ylab` ve `xlab` (*y label*, *x label*): dikey ve yatay eksenin adı;
+   - `col` (*color*): çizginin rengi.
+
+   Tırnak içindeki metinler (`"Yıl"` gibi) R için düz yazıdır ve olduğu gibi grafiğe basılır; tırnaksız `USgas` ise bir nesnenin adıdır ve R onun içeriğini kullanır. Komut beş satıra bölünmüştür; açılan parantez kapanmadan R komutun bittiğini kabul etmediği için bu bölme yalnızca okunabilirlik içindir.
+4. `grid()`: Az önce çizilen grafiğin üzerine, eksen işaretleriyle hizalı açık gri (`"lightgray"`), noktalı çizgilerden bir ızgara ekler. Parantezin içi boştur, yani bu varsayılan ayarlar kullanılır. `grid()` yeni bir grafik açmaz, var olan grafiğe ekleme yapar; bu yüzden `plot()`'tan sonra çalıştırılmalıdır.
+
+Kod ekrana sayı yazdırmaz, yalnızca bir grafik açar (RStudio'da *Plots* panelinde; `Rscript` ile çalıştırıldığında grafik, çalışma klasöründeki `Rplots.pdf` dosyasına yazılır). Yatay eksende yıllar, dikey eksende milyar kübik fit cinsinden aylık tüketim vardır. `USgas` grafiğinde hem yavaş yükselen bir **trend** hem de her kış zirve yapan güçlü bir **mevsimsellik** görülür. Mevsimsel dalgaların genliği seviyeyle birlikte belirgin biçimde büyümediği için toplamsal model makul bir başlangıçtır.
 
 #### 6.1.2. Gelişmiş Görselleştirme: `ggplot2`
 
@@ -1861,26 +2108,38 @@ ggplot(df_gg, aes(x = tarih, y = deger)) +
   theme_minimal()
 ```
 
-Kod iki aşamadan oluşur. İlk aşamada `data.frame()` iki sütunlu bir tablo kurar ve `<-` işareti bu tabloyu `df_gg` adına atar. `tarih` sütunu için `seq(as.Date("2000-01-01"), by = "month", length.out = length(USgas))`, 1 Ocak 2000'den başlayıp birer ay artan ve serinin uzunluğu kadar (238) tarihten oluşan bir dizi üretir (`as.Date()` metni tarihe çevirir, bkz. Bölüm 4.2.1). `deger` sütunu için `as.numeric(USgas)`, `ts` nesnesinin zaman bilgisini atıp yalnızca 238 sayıyı bırakır.
+Bu kod aynı `USgas` grafiğini `ggplot2` ile daha özenli biçimde çizer ve üzerine mevsimsel dalgaları bastıran yumuşatılmış bir trend eğrisi ekler. Kod iki aşamadan oluşur: Önce `ts` nesnesi `ggplot2`'nin anladığı tabloya çevrilir, sonra grafik katman katman kurulur. Kodu satır satır okuyalım:
 
-İkinci aşama `ggplot2`'nin **katmanlı** yazımıdır: Grafik, üst üste konan saydam katmanlar gibi `+` işaretiyle parça parça kurulur.
+1. `library(ggplot2)`: `ggplot2` paketini oturuma yükler; `ggplot()`, `aes()`, `geom_line()`, `geom_smooth()`, `labs()` ve `theme_minimal()` bu paketten gelir. Kurulu değilse önce bir kez `install.packages("ggplot2")` çalıştırılır.
+2. `# USgas ts nesnesini data.frame'e dönüştür`: `#` işaretiyle başlayan satırlar **yorum**dur; R bunları okumaz, yalnızca kodu okuyan insana not düşer. Bir satırın sonundaki `#` de (ör. `# Aylık tarih dizisi`) aynı işi görür: `#`'ten sonrası yok sayılır.
+3. `df_gg <- data.frame(tarih = ..., deger = ...)`: `data.frame()` virgülle ayrılmış her `ad = değer` çiftinden bir sütun kurar; ad sütunun başlığı, değer de sütunun içeriği olur. `<-` (atama işareti) sağda oluşan tabloyu soldaki `df_gg` adına kaydeder. Komut dört satıra yayılmıştır, çünkü parantez kapanana kadar R okumaya devam eder. İki sütunun içeriği şöyle üretilir:
+   - `tarih = seq(as.Date("2000-01-01"), by = "month", length.out = length(USgas))`: İç içe çağrılar içten dışa okunur. `as.Date("2000-01-01")` tırnak içindeki metni bir `Date` (tarih) nesnesine çevirir (Bölüm 4.2.1); `length(USgas)` serideki gözlem sayısını, yani 238'i verir. `seq()` (*sequence*, dizi) ilk argümandaki başlangıç tarihinden itibaren `by = "month"` ile birer ay ilerleyen ve `length.out = 238` ile tam 238 elemanda duran bir tarih **vektörü** üretir (Bölüm 4.4): 2000-01-01, 2000-02-01, …, 2019-10-01. Uzunluğu `length(USgas)` ile yazmak, sayıyı elle girmekten daha güvenlidir: `TSstudio` sürümü değişip seri kısalsa ya da uzasa bile tarih sütunu seriyle aynı uzunlukta kalır.
+   - `deger = as.numeric(USgas)`: `as.numeric()` `ts` nesnesinin zaman bilgisini (başlangıç, frekans) atar ve geriye yalnızca 238 sayıdan oluşan düz bir vektör bırakır: 2510.5, 2330.7, 2050.6, …
 
-1. `ggplot(df_gg, aes(x = tarih, y = deger))` boş bir tuval açar. Hangi tablonun kullanılacağını ve `aes()` (*aesthetics*, estetik eşleme) ile hangi sütunun hangi eksene gideceğini söyler; henüz hiçbir şey çizilmez.
-2. `geom_line(...)` ilk katmandır: Noktaları mavi bir çizgiyle birleştirir; `linewidth` çizgi kalınlığıdır.
-3. `geom_smooth(...)` ikinci katman olarak trend eğrisini ekler. `method = "loess"` yumuşatma yöntemini seçer, `formula = y ~ x` "dikey eksendeki değeri yatay eksene göre yumuşat" demektir (yazılmazsa R aynı şeyi bir bilgi mesajıyla varsayar), `se = FALSE` eğrinin etrafındaki gri belirsizlik şeridini kapatır, `linetype = "dashed"` çizgiyi kesikli yapar.
-4. `labs(...)` başlık, alt başlık ve eksen adlarını; `theme_minimal()` ise sade bir arka plan temasını ekler.
+   Sonuç 238 satır ve 2 sütunluk bir veri çerçevesidir: Her satır bir aydır; ilk satırda `tarih` 2000-01-01, `deger` 2510.5'tir. İki sütunun aynı uzunlukta olması zorunludur, aksi hâlde `data.frame()` hata verir.
+4. `ggplot(df_gg, aes(x = tarih, y = deger))`: Boş bir tuval açar; henüz hiçbir şey çizilmez. İlk argüman, verinin hangi tablodan alınacağını söyler. İkinci argüman `aes()` (*aesthetics*, estetik eşleme), tablodaki sütunları grafiğin görsel özelliklerine bağlar: `x = tarih` "`tarih` sütunu yatay eksene", `y = deger` "`deger` sütunu dikey eksene" demektir. `aes()` içindeki `tarih` ve `deger` tırnaksız yazılır, çünkü bunlar metin değil, `df_gg` tablosundaki sütunların adlarıdır. `tarih` sütunu `Date` türünde olduğu için `ggplot2` yatay ekseni kendiliğinden tarih ekseni olarak (2000, 2005, …) düzenler. Burada verilen eşleme sonraki bütün katmanlara geçer; bu yüzden `geom_line()` ve `geom_smooth()` içinde `x` ve `y`'yi yeniden yazmayız.
+5. Satır sonlarındaki `+`: `ggplot2`'de grafik, üst üste konan saydam katmanlar gibi parça parça kurulur ve her parça bir öncekine `+` ile eklenir. `+` işareti mutlaka satırın **sonunda** durmalıdır: R, `ggplot(...)` satırını tek başına tamamlanmış bir komut sayar; `+` bir sonraki satırın başına yazılırsa grafik orada biter ve sonraki satır hata verir ("Did you accidentally put `+` on a new line?").
+6. `geom_line(color = "blue", linewidth = 0.8)`: İlk çizim katmanıdır (*geom*, geometrik nesne). Noktaları yatay eksendeki sıraya göre bir çizgiyle birleştirir. `color = "blue"` çizgiyi maviye boyar; bu ayar `aes()` dışında yazıldığı için veriye bağlı değildir, bütün çizgi için sabit bir renktir. `linewidth = 0.8` çizgi kalınlığıdır (varsayılan 0.5); çizgi biraz kalınlaştırılarak öne çıkarılmıştır.
+7. `geom_smooth(method = "loess", formula = y ~ x, color = "red", se = FALSE, linetype = "dashed")`: İkinci katman olarak verinin üzerine yumuşatılmış bir trend eğrisi çizer. Komut iki satıra bölünmüştür; sondaki `# Trend çizgisi ekle` bir yorumdur. Argümanlar:
+   - `method = "loess"`: Yumuşatma yöntemini seçer (yöntem aşağıdaki **Açıklama**'da). Yazılmazsa 1000'den az gözlemde zaten `loess` seçilir, ama R bunu bir bilgi mesajıyla bildirir; açıkça yazmak hem mesajı önler hem de okuyana yöntemi söyler.
+   - `formula = y ~ x`: `~` (tilde) işareti R'da **formül** kurar ve "solundaki, sağındakine göre açıklanır" diye okunur. Buradaki `y` ve `x` tablodaki sütunlar değil, `aes()` ile eşlenen eksenlerdir: "dikey eksendeki değeri yatay eksene göre yumuşat". Yazılmazsa R aynı formülü kullanır ve "`geom_smooth()` using formula = 'y ~ x'" mesajını basar.
+   - `color = "red"`: Eğrinin rengi.
+   - `se = FALSE`: `se` (*standard error*) varsayılan olarak `TRUE`'dur ve eğrinin çevresine gri bir %95 belirsizlik şeridi çizer. `FALSE` bu şeridi kapatır; burada amacımız trendin yalnızca biçimini görmektir. `TRUE` ve `FALSE` R'ın mantıksal (evet/hayır) değerleridir ve tırnaksız, büyük harfle yazılır.
+   - `linetype = "dashed"`: Eğriyi kesikli çizer; böylece gözlem çizgisinden kolayca ayırt edilir.
+8. `labs(title = ..., subtitle = ..., x = "Tarih", y = "Milyar Kübik Fit")`: Grafiğin yazılarını (*labels*) belirler: `title` başlık, `subtitle` başlığın altındaki küçük alt başlık, `x` ve `y` eksen adları. Buradaki `x` ve `y` veri değil, yalnızca eksenlere yazılacak metinlerdir.
+9. `theme_minimal()`: Grafiğin genel görünümünü belirleyen hazır bir temadır. `ggplot2`'nin varsayılan gri arka planını, çerçeveyi ve eksen çentiklerini kaldırır, yalnızca açık gri ızgara çizgilerini bırakır. Sonunda `+` olmadığı için grafik tanımı burada biter.
 
-Sonra eklenen katman öncekinin üzerine çizilir ve herhangi bir satırı silmek yalnızca o katmanı kaldırır. Bu yüzden `ggplot2` ile bir grafiği adım adım geliştirmek kolaydır.
+Kod ekrana sayı ya da mesaj yazdırmaz (`method` ve `formula` açıkça verildiği için bilgi mesajı da çıkmaz); yalnızca grafiği çizer. Grafikte mavi çizgi aylık gözlemleri, kırmızı kesikli eğri ise trendi gösterir. Sonra eklenen katman öncekinin üzerine çizilir ve herhangi bir katman satırını (ve önündeki `+`'yı) silmek yalnızca o katmanı kaldırır. Bu yüzden `ggplot2` ile bir grafiği adım adım geliştirmek kolaydır.
 
-**Açıklama:** `loess` (*locally estimated scatterplot smoothing*, yerel regresyonla yumuşatma) her tarih için yalnızca o tarihe yakın gözlemlere bakar, yakın olanlara daha fazla ağırlık vererek bu gözlemlere bir doğru uydurur ve doğrunun o tarihteki değerini alır. Pencere birkaç yıl genişliğinde olduğu için kış zirveleri ile yaz dipleri birbirini dengeler; mevsimsel dalgalar "bastırılır" ve geriye trend kalır. Kırmızı kesikli çizgi, `USgas` serisindeki yükselişin özellikle 2010 sonrasında hızlandığını gösterir.
+**Açıklama:** `loess` (*locally estimated scatterplot smoothing*, yerel regresyonla yumuşatma) her tarih için yalnızca o tarihin çevresindeki gözlemlere bakar, yakın olanlara daha fazla ağırlık vererek bu gözlemlere basit bir eğri (küçük bir parabol) uydurur ve eğrinin o tarihteki değerini alır. `geom_smooth()` varsayılan olarak her noktada verinin %75'ini kullanır (`span = 0.75`); `USgas` için bu, her tarihin çevresindeki yaklaşık 178 ay, yani 15 yıl kadar gözlem demektir. Pencere bu kadar geniş olduğu için kış zirveleri ile yaz dipleri birbirini dengeler; mevsimsel dalgalar "bastırılır" ve geriye trend kalır. Kırmızı kesikli çizgi, 2000'lerin ortasına kadar hafifçe gerileyip yaklaşık 1850 düzeyine inen tüketimin, 2010 sonrasında hızlanarak yükseldiğini gösterir (2017 sonunda yaklaşık 2400).
 
-> **Not —** `as.Date(time(USgas))` gibi bir dönüşüm doğrudan çalışmaz; `time()` ondalıklı yıl (ör. 2000.083) döndürür. Bu yüzden tarih dizisini `seq(..., by = "month")` ile üretiyoruz. `zoo` paketi yüklüyse `as.Date(zoo::as.yearmon(time(USgas)))` da aynı sonucu verir. `ggplot2` 3.4 ve sonrasında çizgi kalınlığı `size` yerine `linewidth` ile verilir. RStudio'da bir `ggplot(...)` ifadesi çalıştırıldığında grafik kendiliğinden çizilir; `Rscript` ile ya da bir fonksiyonun içinde çalışırken ise grafiği bir nesneye atayıp `print()` ile çizdirmek gerekir (uygulama dosyasında `p <- ggplot(...)` ve `print(p)` böyle kullanılmıştır).
+> **Not —** `as.Date(time(USgas))` gibi bir dönüşüm doğrudan çalışmaz; `time()` ondalıklı yıl (ör. 2000.083) döndürür. Bu yüzden tarih dizisini `seq(..., by = "month")` ile üretiyoruz. `zoo` paketi yüklüyse `as.Date(zoo::as.yearmon(time(USgas)))` da aynı sonucu verir. `ggplot2` 3.4 ve sonrasında çizgi kalınlığı `size` yerine `linewidth` ile verilir. Bir `ggplot(...)` ifadesi konsolda çalıştırıldığında ya da dosya `Rscript dosya.R` komutuyla çalıştırıldığında grafik kendiliğinden çizilir. Dosya `source()` ile (RStudio'daki *Source* düğmesi de bunu kullanır) ya da ifade bir fonksiyon veya döngü içinde çalıştırıldığında ise R sonucu otomatik olarak ekrana basmaz; grafiği bir nesneye atayıp `print()` ile çizdirmek gerekir. Uygulama dosyasında `p <- ggplot(...)` ve `print(p)` bu yüzden kullanılmıştır.
 
 ### 6.2. Zaman Serisi Manipülasyonu
 
 #### 6.2.1. Frekansı Düşürmek: `aggregate()`
 
-`aggregate()`, yüksek frekanslı veriyi daha düşük bir frekansa toplar. Örneğin aylık veriyi yıllık toplamlara çevirebiliriz. `nfrequency` yeni frekansı (yıllık için 1, çeyreklik için 4), `FUN` ise her dönemdeki değerlerin nasıl birleştirileceğini belirtir.
+`aggregate()`, yüksek frekanslı veriyi daha düşük bir frekansa toplar. Örneğin aylık veriyi yıllık toplamlara çevirebiliriz.
 
 ```r
 # Aylık veriyi yıllık toplam tüketime çevirelim
@@ -1900,7 +2159,17 @@ Frequency = 1
 [19] 30075.3
 ```
 
-`aggregate()` seriyi baştan başlayarak eski frekans / yeni frekans = 12 / 1 = 12 gözlemlik ardışık bloklara böler ve her bloğa `FUN` ile verilen fonksiyonu uygular. `FUN = sum` blok toplamını alır: İlk değer olan 22538.6, Ocak–Aralık 2000'in toplamıdır (2510.5 + 2330.7 + … + 2587.5). Sonuç da bir `ts` nesnesidir; çıktının başındaki `Start = 2000`, `End = 2018` ve `Frequency = 1` satırları bunun yılda bir gözlem içeren bir seri olduğunu söyler. Satır başlarındaki `[1]`, `[10]`, `[19]` ise o satırdaki ilk değerin kaçıncı eleman olduğunu gösteren R işaretleridir.
+Bu kod aylık `USgas` serisini yıllık toplam tüketim serisine çevirir; amaç mevsimsel dalgaları ortadan kaldırıp uzun vadeli eğilimi tek bakışta görmektir. Kodu satır satır okuyalım:
+
+1. `USgas_yillik <- aggregate(USgas, nfrequency = 1, FUN = sum)`: `aggregate()` seriyi baştan başlayarak eski frekans / yeni frekans = 12 / 1 = 12 gözlemlik ardışık bloklara böler ve her bloğa `FUN` ile verilen fonksiyonu uygular. Argümanlar:
+   - `USgas`: Toplanacak seri (konumsal argüman, ilk sırada).
+   - `nfrequency = 1`: Yeni frekans (*new frequency*), yani yılda kaç gözlem olacağı. Yıllık seri istediğimiz için 1; çeyreklik seri isteseydik 4 yazardık (o zaman 3'er aylık bloklar oluşurdu).
+   - `FUN = sum`: Her bloğa uygulanacak fonksiyon (*function*). `sum` bir bloktaki 12 değeri toplar. Fonksiyonun adı tırnaksız ve parantezsiz yazılır: Burada `sum`'ı çalıştırmıyor, fonksiyonun kendisini `aggregate()`'e teslim ediyoruz; onu her blok için `aggregate()` çağırır.
+
+   Sonuç yine bir `ts` nesnesidir (frekansı 1) ve `<-` ile `USgas_yillik` adına kaydedilir.
+2. `USgas_yillik`: Bir nesnenin adını tek başına yazmak, R'da onu ekrana yazdırır (`print(USgas_yillik)` ile aynıdır). Uygulama dosyasında açıkça `print()` yazılır, çünkü dosya `source()` ile ya da RStudio'nun *Source* düğmesiyle çalıştırıldığında nesnenin adını tek başına yazmak ekrana bir şey basmaz.
+
+Çıktının ilk dört satırı serinin kimlik bilgisidir: `Time Series:` bir `ts` nesnesine bakıldığını, `Start = 2000` ve `End = 2018` ilk ve son yılı, `Frequency = 1` yılda bir gözlem olduğunu söyler. Sonraki satırlar 19 yıllık toplamdır (2000–2018). Satır başlarındaki `[1]`, `[10]`, `[19]` o satırdaki ilk değerin kaçıncı eleman olduğunu gösteren R işaretleridir: İkinci satır 10. eleman (2009), üçüncü satır 19. eleman (2018) ile başlar. İlk değer olan 22538.6, Ocak–Aralık 2000'in toplamıdır (2510.5 + 2330.7 + … + 2587.5).
 
 **Yorum:** Seri Ekim 2019'da bittiği halde çıktı 2018'de bitiyor. `aggregate()` yalnızca **tam** dönemleri toplar; 2019 yılında yalnızca 10 ay bulunduğu için bu yıl atılır. Bu davranış önemlidir: Eksik bir yılın toplamını diğer yıllarla karşılaştırmak yanıltıcı olurdu. Bloklar serinin ilk gözleminden itibaren sayıldığı için, Ocak'ta başlayan `USgas` serisinde bloklar takvim yıllarıyla çakışır; Nisan'da başlayan bir seride ise her blok Nisan–Mart dönemini kapsardı. Yıllık seride mevsimsellik tamamen kaybolur ve geriye yalnızca trend kalır: Tüketim 2000'lerin ortasına kadar yatay seyredip 2010 sonrasında belirgin şekilde artmıştır. Ortalama almak için `FUN = mean` kullanılabilir. Hangisinin anlamlı olduğu verinin türüne bağlıdır: Tüketim, satış gibi dönem boyunca biriken büyüklüklerde toplam; faiz oranı, sıcaklık gibi bir anın düzeyini ölçen büyüklüklerde ortalama kullanılır.
 
@@ -1955,9 +2224,14 @@ Feb 2001   2309.5 2677.0 2330.7
 Mar 2001   2246.6 2309.5 2050.6
 ```
 
-`stats::lag` yazımındaki `stats::` ön eki "`stats` paketindeki `lag` fonksiyonu" demektir (`paket::fonksiyon` yazımı, paketi yüklemeden ya da başka bir paketle ad çakışmasını önleyerek bir fonksiyonu çağırır). `stats::lag()` değerlere dokunmaz; yalnızca serinin **zaman etiketlerini** kaydırır. `k = -1` ile aynı 238 değer bir ay ileri tarihlere taşınır: Yeni seri Ocak 2000 yerine Şubat 2000'de başlar, Ekim 2019 yerine Kasım 2019'da biter. Böylece Şubat 2000 tarihinde Ocak 2000'in değeri durur; yani her $t$ tarihinde $x_{t-1}$ okunur. `k = -12` aynı işi 12 ay için yapar ve seri Ocak 2001'de başlar.
+Bu kod `USgas` serisinin bir ay ve on iki ay gecikmeli kopyalarını üretir ve orijinal seriyle yan yana koyar; böylece kaydırmanın her tarihe hangi geçmiş değeri getirdiğini tabloda doğrudan görürüz. Kodu satır satır okuyalım:
 
-`cbind()` (*column bind*, sütunları birleştir) birden fazla seriyi yan yana sütunlar hâlinde birleştirir; `Original = USgas` gibi yazımlar sütunlara ad verir. `ts` nesneleri birleştirilirken satırlar **tarihe göre** hizalanır: `USgas_lag1` serisinin Şubat 2000 değeri, tablonun Şubat 2000 satırına yerleşir. Üç seri farklı tarihlerde başlayıp bittiği için `cbind()` bütün tarihleri kapsayan bir tablo kurar ve boş kalan hücrelere `NA` yazar. Sonuç 238 + 12 = 250 satırlıktır: `Lag12` sütunu Ekim 2020'ye kadar uzadığı için tablonun son 12 satırında `Original` boştur. `head(comparison_df, 15)` tablonun yalnızca ilk 15 satırını gösterir. Yalnızca üç sütunun da dolu olduğu tarihleri (Ocak 2001 – Ekim 2019, 226 satır) isterseniz `cbind()` yerine `ts.intersect()` kullanabilirsiniz.
+1. `USgas_lag1 <- stats::lag(USgas, k = -1)`: `stats::` ön eki "`stats` paketindeki `lag` fonksiyonu" demektir. `paket::fonksiyon` yazımı bir fonksiyonu hangi paketten aldığımızı açıkça söyler; paketi `library()` ile yüklemeden de çalışır ve aynı adı taşıyan başka bir paketin fonksiyonuyla karışmayı önler (aşağıdaki nota bakın). `stats::lag()` değerlere dokunmaz; yalnızca serinin **zaman etiketlerini** kaydırır. `k` kaç dönem ve hangi yönde kaydırılacağını belirler; `k = -1` ile aynı 238 değer bir ay ileri tarihlere taşınır: Yeni seri Ocak 2000 yerine Şubat 2000'de başlar, Ekim 2019 yerine Kasım 2019'da biter. Böylece Şubat 2000 tarihinde Ocak 2000'in değeri durur; yani her $t$ tarihinde $x_{t-1}$ okunur. Sonuç yine 238 değerli bir `ts` nesnesidir ve `USgas_lag1` adına kaydedilir.
+2. `USgas_lag12 <- stats::lag(USgas, k = -12)`: Aynı işi 12 ay için yapar; aylık veride 12 dönem "geçen yılın aynı ayı" demektir. Seri Ocak 2001'de başlar, Ekim 2020'de biter.
+3. `comparison_df <- cbind(Original = USgas, Lag1 = USgas_lag1, Lag12 = USgas_lag12)`: `cbind()` (*column bind*, sütunları birleştir) birden fazla seriyi yan yana sütunlar hâlinde birleştirir. `Original = USgas` gibi yazımlarda eşittirin solundaki ad sütunun başlığı olur. `ts` nesneleri birleştirilirken satırlar **tarihe göre** hizalanır: `USgas_lag1` serisinin Şubat 2000 değeri, tablonun Şubat 2000 satırına yerleşir. Üç seri farklı tarihlerde başlayıp bittiği için `cbind()` bütün tarihleri kapsayan bir tablo kurar ve boş kalan hücrelere `NA` (*Not Available*, mevcut değil) yazar. Sonuç 238 + 12 = 250 satır ve 3 sütunluk, çok değişkenli bir zaman serisidir (sınıfı `mts`, *multiple time series*); adında `df` geçse de bir `data.frame` değildir. `Lag12` sütunu Ekim 2020'ye kadar uzadığı için tablonun son 12 satırında `Original` boştur (`Lag1` ise Kasım 2019'da biter). Satırlardaki fazladan boşluklar (`Lag1  =`) yalnızca hizalama içindir, R için anlamı yoktur.
+4. `head(comparison_df, 15)`: `head()` bir nesnenin yalnızca baş kısmını gösterir; ikinci argüman (15) kaç satır gösterileceğidir (yazılmasaydı varsayılan 6 satır gösterilirdi). İlk 15 satır, `Lag12` sütununun ilk dolu değere ulaştığı Ocak 2001'i de içerdiği için kaydırmayı açıkça gösterir.
+
+Çıktıda sütun başlıkları `cbind()` içinde verdiğimiz adlardır. Satır başlarındaki `Jan 2000`, `Feb 2000`, … etiketleri, tablonun hâlâ bir zaman serisi olduğunu ve her satırın bir aya karşılık geldiğini gösterir (R ay adlarını İngilizce kısaltmayla yazar). Değerlerin ve `NA` hücrelerinin nasıl okunacağı aşağıdaki **Yorum**'dadır. Yalnızca üç sütunun da dolu olduğu tarihleri (Ocak 2001 – Ekim 2019, 226 satır) isterseniz `cbind()` yerine aynı argümanlarla `ts.intersect()` (*intersect*, kesişim) kullanabilirsiniz; bu fonksiyon yalnızca bütün serilerin ortak olduğu tarihleri tutar. Uygulama dosyası bu iki tablonun boyutlarını `dim()` ile yazdırır (250 × 3 ve 226 × 3) ve kaydırmanın yönünü `tsp()` (başlangıç, bitiş, frekans) ile gösterir.
 
 > **Not — `lag()` fonksiyonlarında yön karışıklığa açıktır.** `stats::lag()` fonksiyonunda geçmiş değeri getirmek için `k` **negatif** verilir: `k = -1` her tarihe bir dönem önceki değeri ($`x_{t-1}`$) getirir. Pozitif `k` ters yönde çalışır: `stats::lag(USgas, k = 1)` seriyi Aralık 1999'da başlatır ve her tarihe bir dönem **sonraki** değeri ($`x_{t+1}`$, "öncü" değer) getirir. Bu, R'ın varsayılanıdır: `stats::lag(USgas)` yazarsanız gecikme değil öncü değer elde edersiniz. `dplyr` paketindeki `lag()` ise ters işaret kuralını kullanır: `dplyr::lag(x, n = 1)` geçmiş değeri verir (pozitif `n` = geriye). Üstelik `dplyr::lag()` tarihlere değil yalnızca sıradaki konuma bakar ve güncel sürümlerinde (ör. 1.1.4) bir `ts` nesnesi verildiğinde "do you want `stats::lag()`?" hatası verir. `dplyr` yüklendiğinde onun `lag()` fonksiyonu R'ınkini gölgelediği için fonksiyonu her zaman `stats::` ön ekiyle çağırıyoruz. Python'daki karşılığı pandas'ın `.shift(1)` metodudur (Bölüm 12.1).
 
@@ -1994,9 +2268,21 @@ round(USgas_ayristir$figure)
  [1]  766  453  278 -174 -352 -366 -203 -181 -385 -295  -34  491
 ```
 
-`decompose()` tek bir seri değil, birkaç parçadan oluşan bir **liste** döndürür. Listenin parçalarına `$` işaretiyle ulaşılır: `USgas_ayristir$trend` trend bileşenini, `$seasonal` her aya karşılık gelen mevsimsel etkiyi (238 değer), `$random` kalanı, `$figure` ise 12 aylık mevsimsel deseni tek bir kez (Ocak'tan Aralık'a 12 sayı) verir. `plot(USgas_ayristir)` bu parçaları dört panel hâlinde çizer; `round()` sayıları en yakın tam sayıya yuvarlar.
+Bu kod `USgas` serisini trend, mevsimsel etki ve kalan olarak üç bileşene ayırır, bileşenleri çizer ve her ayın tipik mevsimsel etkisini sayı olarak yazdırır. Kodu satır satır okuyalım:
 
-Grafik dört panelden oluşur: `observed` (orijinal seri), `trend` (12 aylık merkezî hareketli ortalama), `seasonal` (her yıl aynen tekrar eden mevsimsel desen) ve `random` (kalan). `decompose()` bu bileşenleri üç adımda hesaplar:
+1. `USgas_ayristir <- decompose(USgas)`: `decompose()` seriyi hareketli ortalamalarla bileşenlerine ayırır (yöntem aşağıda). `type` argümanı yazılmadığı için varsayılan `type = "additive"` (toplamsal model) kullanılır; çarpımsal model için `type = "multiplicative"` yazılırdı. Fonksiyon tek bir seri değil, altı parçadan oluşan bir **liste** döndürür (sınıfı `decomposed.ts`) ve bu liste `USgas_ayristir` adına kaydedilir. Liste, farklı türde nesneleri tek bir kapta tutan bir yapıdır; parçalarına `$` işaretiyle, `nesne$parça` biçiminde ulaşılır:
+   - `$x`: orijinal seri;
+   - `$trend`: trend bileşeni (238 değerli `ts`);
+   - `$seasonal`: her aya karşılık gelen mevsimsel etki (238 değer; aynı 12 sayı her yıl tekrar eder);
+   - `$random`: kalan (düzensiz) bileşen;
+   - `$figure`: 12 aylık mevsimsel deseni tek bir kez veren 12 sayı (Ocak'tan Aralık'a);
+   - `$type`: kullanılan modelin adı (`"additive"`).
+2. `plot(USgas_ayristir)`: `plot()` yine nesnenin sınıfına bakar; `decomposed.ts` gördüğünde bileşenleri alt alta dört panel hâlinde, "Decomposition of additive time series" başlığıyla çizer.
+3. `round(USgas_ayristir$figure)`: İçten dışa okunur: Önce `$figure` ile 12 aylık mevsimsel desen alınır, sonra `round()` bu sayıları en yakın tam sayıya yuvarlar (ondalık basamak sayısı verilmediğinde varsayılan 0'dır; `round(x, 1)` bir basamak bırakırdı). Yuvarlama yalnızca ekranda okumayı kolaylaştırır, `USgas_ayristir` içindeki değerler değişmez.
+
+Çıktıdaki `[1]`, satırın vektörün 1. elemanıyla başladığını gösterir. 12 sayı sırasıyla Ocak, Şubat, …, Aralık aylarının tipik etkisidir: Pozitif sayı o ayda tüketimin trendin üzerinde, negatif sayı altında olduğunu söyler. Yuvarlanmamış 12 değerin toplamı sıfırdır (yuvarlanmış sayılarda −2 çıkar); yani mevsimsel etki yıl boyunca dengelenir. Sayıların ayrıntılı yorumu aşağıdadır.
+
+Grafik dört panelden oluşur: `observed` (orijinal seri), `trend` (12 aylık merkezî hareketli ortalama), `seasonal` (her yıl aynen tekrar eden mevsimsel desen) ve `random` (kalan). Bu dört panelin dikey eksenleri farklı ölçeklerdedir; bileşenlerin büyüklüğünü karşılaştırırken eksen değerlerine bakın. `decompose()` bu bileşenleri üç adımda hesaplar:
 
 1. **Trend:** Her ay için, o ayı ortaya alan 13 aylık bir pencerenin ortalaması alınır. Penceredeki iki uç ay yarım, aradaki 11 ay tam ağırlıkla sayılır; böylece toplam ağırlık tam 12 aya, yani bir yıla denk gelir (buna 2×12 merkezî hareketli ortalama denir). Bir yılın bütün ayları ortalamaya girdiği için kış ve yaz birbirini dengeler ve geriye trend kalır.
 2. **Mevsimsel etki:** Her gözlemden trend çıkarılır (gözlem − trend). Sonra her takvim ayı için bu farkların bütün yıllardaki ortalaması alınır ve 12 değerin toplamı sıfır olacak şekilde küçük bir düzeltme yapılır. `$figure` bu 12 sayıdır.
@@ -2282,7 +2568,22 @@ cat("Lag-1 ACF:", round(acf_result$acf[2], 3))
 Lag-1 ACF: 0.1
 ```
 
-R kodunda `acf(data, plot = FALSE)` grafik çizmek yerine sonuçları bir liste olarak döndürür; `acf_result$acf` bu listenin korelasyon değerlerini içeren parçasıdır. R'da sayma 1'den başladığı ve ilk eleman lag-0 olduğu için lag-1 değeri `[2]`'dedir. `round(..., 3)` sayıyı üç basamağa yuvarlar; R sondaki sıfırları yazmadığı için çıktı `0.100` yerine `0.1` olarak görünür. `cat()` metni ve sayıyı aralarında bir boşlukla yan yana basar.
+Bu R kodu, Python kodunun yaptığını yapar: Beş sayılık seri için örneklem otokorelasyonlarını hesaplar ve bunlardan yalnızca lag-1 değerini ekrana yazar. Kodu satır satır okuyalım:
+
+1. `data <- c(20, 22, 21, 23, 24)`: `c()` (*combine*, birleştir) virgülle ayrılmış değerleri tek bir **vektörde**, yani aynı türden değerlerin sıralı listesinde toplar. Sonuç beş sayılık bir vektördür ve `data` adına kaydedilir. Bu sıradan bir vektördür, `ts` nesnesi değildir; `acf()` ikisiyle de çalışır. (`data`, R'daki `data()` fonksiyonuyla aynı adı taşır. R, parantezli kullanımda fonksiyonu, parantezsiz kullanımda bu vektörü bulduğu için sorun çıkmaz; yine de kendi kodlarınızda `veri` gibi ayrı bir ad seçmek karışıklığı önler.) Satır sonundaki `#` ile başlayan kısım yorumdur.
+2. `acf_result <- acf(data, plot = FALSE)`: `acf()` otokorelasyonları Bölüm 6.3.3'teki Tanım 2 ile hesaplar. Argümanlar:
+   - `data`: Otokorelasyonu hesaplanacak seri (konumsal argüman).
+   - `plot = FALSE`: Varsayılan `plot = TRUE` grafiği çizer; `FALSE` grafik çizmeden yalnızca sonuçları döndürür, çünkü burada sayıya ihtiyacımız var.
+   - `lag.max` (yazılmamış): Kaç gecikmeye kadar hesaplanacağı. Verilmezse yaklaşık $10 \log_{10} T$ alınır, ama bu sayı hiçbir zaman $T - 1$'i aşamaz; beş gözlemde en fazla 4 gecikme hesaplanabilir. Sonuç lag-0'dan lag-4'e beş değerdir: 1.0, 0.1, 0.0, −0.2, −0.4.
+
+   Dönen nesne `acf` sınıfında bir **liste**dir ve `acf_result` adına kaydedilir. Parçalarından `$acf` korelasyon değerlerini, `$lag` bunların hangi gecikmeye ait olduğunu, `$n.used` kullanılan gözlem sayısını (5) tutar.
+3. `cat("Lag-1 ACF:", round(acf_result$acf[2], 3))`: İçten dışa okunur:
+   - `acf_result$acf`: Listenin korelasyon değerlerini içeren parçası. `acf()` birden fazla seriyi birlikte de işleyebildiği için bu parça 5 × 1 × 1 boyutlu bir dizi (*array*) olarak saklanır; tek seride bunu sıradan bir sayı listesi gibi düşünebilirsiniz.
+   - `[2]`: Köşeli parantez, bir vektörden sıra numarasıyla eleman seçer. R'da sayma 1'den başlar ve 1. eleman lag-0 olduğu için lag-1 değeri 2. sıradadır.
+   - `round(..., 3)`: Sayıyı üç ondalık basamağa yuvarlar.
+   - `cat()`: Kendisine virgülle verilen parçaları (burada tırnak içindeki metin ve sayı) aralarına birer boşluk koyarak ekrana yazar. Satır sonuna kendiliğinden yeni satır eklemez; uygulama dosyasında bu yüzden sona `"\n"` (yeni satır karakteri) eklenmiştir.
+
+Çıktı `Lag-1 ACF: 0.1` satırıdır. `round(..., 3)` üç basamak bıraksa da R sondaki sıfırları yazmadığı için değer `0.100` yerine `0.1` olarak görünür; Python ise `:.3f` biçimiyle sıfırları da yazmıştı. Sonucun tamamını görmek isterseniz `acf_result` yazın: R, "Autocorrelations of series 'data', by lag" başlığının altına gecikmeleri (0, 1, 2, 3, 4) ve değerlerini iki satır hâlinde basar.
 
 **Yorum:** Elle kontrol edelim: $\bar{x} = 110/5 = 22$, sapmalar $[-2, 0, -1, 1, 2]$. Pay, ardışık sapmaların çarpımlarının toplamıdır: $(0)(-2) + (-1)(0) + (1)(-1) + (2)(1) = 0 + 0 - 1 + 2 = 1$. Payda, sapmaların karelerinin toplamıdır: $4 + 0 + 1 + 1 + 4 = 10$. Dolayısıyla $\hat{\rho}_1 = 1/10 = 0.1$. Her iki dil de aynı formülü kullandığı için aynı sonucu verir. Değer 0'a çok yakındır: Dünkü değer bugünkü değer hakkında neredeyse hiç doğrusal bilgi taşımaz. 5 gözlemde güven sınırı $\pm 0.88$ olduğundan bu korelasyon da anlamsızdır.
 
@@ -2294,7 +2595,14 @@ R'da `acf()` grafiği varsayılan olarak çizer:
 acf(AirPassengers, lag.max = 36, main = "AirPassengers ACF")
 ```
 
-`AirPassengers` R ile birlikte gelen aylık bir seridir (Bölüm 5.2.3). `lag.max = 36` grafiğin kaç gecikmeye kadar çizileceğini (burada üç yıl), `main` başlığı belirler.
+Bu tek satır, R ile birlikte gelen aylık `AirPassengers` serisinin (Bölüm 5.2.3) korelogramını çizer. Paket yüklemeye gerek yoktur; hem `acf()` hem de veri, R açıldığında hazırdır. Argümanlar:
+
+1. `AirPassengers`: Korelogramı çizilecek seri (konumsal argüman).
+2. `lag.max = 36`: Grafiğin kaç gecikmeye kadar çizileceği. Aylık veride 36 gecikme üç yıl demektir; böylece 12, 24 ve 36. gecikmelerdeki mevsimsel tepeler görünür. Yazılmasaydı $10 \log_{10} 144 \approx 21$ gecikme çizilirdi.
+3. `main = "AirPassengers ACF"`: Grafiğin başlığı.
+4. `plot` (yazılmamış): Varsayılanı `TRUE` olduğu için grafik çizilir. Bu durumda `acf()` hesapladığı değerleri ekrana yazmaz; isterseniz `a <- acf(...)` ile bir ada kaydedip sonra `a` yazarak görebilirsiniz.
+
+Ekranda sayı çıkmaz, yalnızca grafik açılır. Her gecikme için dikey bir çubuk, yatay eksende gecikme, dikey eksende (`ACF` etiketiyle) korelasyon vardır; mavi kesikli çizgiler $\pm 1.96/\sqrt{T}$ güven sınırlarıdır (Bölüm 6.3.3). Seri bir `ts` nesnesi olduğu için yatay eksen gecikme sayısıyla değil **yıl** cinsinden etiketlenir: 1.0 işareti lag-12'yi, 3.0 işareti lag-36'yı gösterir (Bölüm 6.5'teki nota bakın). Grafikte bütün çubukların bandın çok üstünde başlayıp yavaş azaldığı (lag-1 0.95) ve 1.0, 2.0, 3.0 konumlarında yeniden yükseldiği (lag-12 0.76) görülür: Bu, Bölüm 6.3.6'daki "trend + mevsimsellik" desenidir.
 
 Python'da `statsmodels` kütüphanesinin `plot_acf()` fonksiyonu kullanılır:
 
@@ -2398,7 +2706,13 @@ cat("Lag-2 PACF:", round(pacf_result$acf[2], 3))
 Lag-2 PACF: -0.01
 ```
 
-R'daki `pacf()` de sonuçlarını `$acf` adlı parçada saklar (adı kafa karıştırıcıdır ama içindeki değerler kısmi otokorelasyonlardır). `acf()`'ten farklı olarak lag-0'ı içermez; bu yüzden lag-2 değeri `[2]`'dedir.
+Bu kod aynı beş sayılık seri için kısmi otokorelasyonları hesaplar ve lag-2 değerini yazar. Yapısı Bölüm 6.3.7'deki ACF koduyla aynıdır; tek fark, sonuçtan eleman seçerken ortaya çıkar. Kodu satır satır okuyalım:
+
+1. `data <- c(20, 22, 21, 23, 24)`: Aynı beş sayılık vektörü yeniden kurar (Bölüm 6.3.7). Önceki kodu aynı oturumda çalıştırdıysanız `data` zaten vardır; bu satır, kodun tek başına da çalışmasını sağlar.
+2. `pacf_result <- pacf(data, plot = FALSE)`: `pacf()` kısmi otokorelasyonları ACF değerlerinden hesaplar (Bölüm 6.4.2'deki Durbin-Levinson özyinelemesiyle). `plot = FALSE` yine grafik yerine sayıları döndürür; `lag.max` yazılmadığı için `acf()`'teki kural geçerlidir ve beş gözlemde 4 gecikme hesaplanır. Sonuç `acf()`'inkiyle aynı yapıda bir listedir ve `pacf_result` adına kaydedilir. Değerler yine `$acf` adlı parçada saklanır (adı kafa karıştırıcıdır ama içindeki değerler kısmi otokorelasyonlardır): lag-1'den lag-4'e 0.100, −0.010, −0.201, −0.379.
+3. `cat("Lag-2 PACF:", round(pacf_result$acf[2], 3))`: `acf()`'ten farklı olarak `pacf()` sonucunda lag-0 **yoktur** (lag-0 değeri her zaman 1 olup bilgi taşımadığı için R onu hiç vermez); dizi doğrudan lag-1 ile başlar. Bu yüzden lag-2 değeri `[2]`'dedir; yorum satırı da bu farkı hatırlatır. `round()` ve `cat()` önceki koddaki gibi çalışır.
+
+Çıktı `Lag-2 PACF: -0.01` satırıdır. Gerçek değer −0.0101'dir; üç basamağa yuvarlanınca −0.010 olur ve R sondaki sıfırı yazmadığı için −0.01 görünür. Python ise aynı satırda −0.016 vermişti; bu farkın nedeni aşağıda.
 
 **Yorum:** Önce elle hesaplayalım. Bu seride $\hat{\rho}_1 = 0.1$ (Bölüm 6.3.7) ve $\hat{\rho}_2 = 0$'dır: Sapmalar $[-2, 0, -1, 1, 2]$ için iki adım arayla eşleşen çarpımlar $(-1)(-2) + (1)(0) + (2)(-1) = 2 + 0 - 2 = 0$'dır. Formülden:
 
@@ -2435,7 +2749,14 @@ pacf(USgas, lag.max = 36, main = "Kısmi Otokorelasyon Fonksiyonu (PACF)")
 par(mfrow = c(1, 1))  # Grafik düzenini eski hâline getir
 ```
 
-`par()` R'ın grafik ayarlarını değiştirir. `mfrow = c(2, 1)` çizim alanını 2 satır ve 1 sütundan oluşan bir ızgaraya böler; ardından gelen iki grafik bu kutulara sırayla, alt alta yerleşir. `lag.max = 36` üç yıllık gecikmeye kadar bakmamızı sağlar; böylece 12, 24 ve 36. gecikmelerdeki mevsimsel tepeler görünür. Son satır düzeni tek grafiğe geri döndürür; unutulursa sonraki grafikler de yarım ekrana çizilir. Uygulama dosyası ayrıca yorumda geçen sayıları `acf(as.numeric(USgas), lag.max = 36, plot = FALSE)` ile yazdırır.
+Bu kod `USgas` serisinin ACF ve PACF grafiklerini aynı pencerede alt alta çizer; iki grafiği birlikte okumak, Bölüm 6.6'da göreceğimiz model imzalarını tanımanın temelidir. Kodu satır satır okuyalım:
+
+1. `par(mfrow = c(2, 1))`: `par()` (*parameters*) R'ın temel grafik ayarlarını değiştirir. `mfrow` (*multi-figure by row*) çizim alanını bir ızgaraya böler; değeri `c(2, 1)` iki sayılık bir vektördür: 2 satır, 1 sütun. Ardından çizilen grafikler bu kutulara satır satır, yani burada alt alta yerleşir. Ayar, değiştirilene kadar geçerli kalır.
+2. `acf(USgas, lag.max = 36, main = "Otokorelasyon Fonksiyonu (ACF)")`: Üst kutuya ACF grafiğini çizer (Bölüm 6.3.7). `lag.max = 36` üç yıllık gecikmeye kadar bakmamızı sağlar; böylece 12, 24 ve 36. gecikmelerdeki mevsimsel tepeler görünür. `main` başlığı belirler. `USgas,` sonrasındaki fazladan boşluk yalnızca alt satırla hizalama içindir.
+3. `pacf(USgas, lag.max = 36, main = "Kısmi Otokorelasyon Fonksiyonu (PACF)")`: Aynı ayarlarla alt kutuya PACF grafiğini çizer. PACF lag-0 içermediği için (Bölüm 6.4.3) bu grafikte $h = 0$ çubuğu yoktur; çubuklar lag-1'den başlar.
+4. `par(mfrow = c(1, 1))`: Düzeni tek grafiğe geri döndürür; unutulursa sonraki grafikler de yarım ekrana çizilir.
+
+Kod ekrana sayı yazmaz; iki panelli bir grafik açar. Her panelde dikey çubuklar korelasyonları, mavi kesikli çizgiler $\pm 1.96/\sqrt{238} \approx \pm 0.127$ güven sınırlarını gösterir; dikey eksen üstte `ACF`, altta `Partial ACF` diye etiketlenir. Uygulama dosyası ayrıca yorumda geçen sayıları `acf(as.numeric(USgas), lag.max = 36, plot = FALSE)` ve aynı biçimde `pacf(...)` ile yazdırır.
 
 ![USgas ACF ve PACF](images/ch06_usgas_acf_pacf.svg)
 
@@ -2562,7 +2883,27 @@ acf(ma1, lag.max = 15, main = "MA(1): ACF");          pacf(ma1, lag.max = 15, ma
 par(mfrow = c(1, 1))
 ```
 
-`set.seed(42)` rastgele sayı üretecinin başlangıç noktasını sabitler; böylece kodu her çalıştırdığınızda aynı "rastgele" seriler üretilir ve sonuçlar tekrarlanabilir olur (42 yerine başka bir sayı farklı ama yine sabit seriler verir). `rnorm(400)` ortalaması 0, standart sapması 1 olan normal dağılımdan 400 bağımsız sayı çeker; bu bir beyaz gürültüdür. `arima.sim()` verilen modelden seri üretir: `model = list(ar = 0.7)` "katsayısı 0.7 olan AR(1)", `list(ma = 0.8)` "katsayısı 0.8 olan MA(1)" demektir (`list()` adlandırılmış ayarları bir arada tutar), `n = 400` seri uzunluğudur. `par(mfrow = c(3, 2))` çizim alanını 3 × 2'lik bir ızgaraya böler; her satırdaki `;` iki komutu aynı satıra yazmamızı sağlar, böylece her süreç için ACF solda, PACF sağda yer alır. Uygulama dosyası ayrıca iki serinin lag-1 ACF değerlerini (0.72 ve 0.48) yazdırır.
+Bu kod üç yapay seri üretir (beyaz gürültü, AR(1) ve MA(1)) ve her birinin ACF ve PACF grafiğini tek bir pencerede, altı panel hâlinde yan yana çizer. Modeli bildiğimiz serilerle çalıştığımız için, Bölüm 6.6.2 ve 6.6.3'teki kuralların sonlu bir örneklemde nasıl göründüğünü doğrudan kontrol edebiliriz. Kodu satır satır okuyalım:
+
+1. `set.seed(42)`: Bilgisayarın ürettiği "rastgele" sayılar aslında bir başlangıç değerinden (*seed*, tohum) hesaplanan uzun bir sayı dizisidir. `set.seed()` bu başlangıç noktasını sabitler; böylece kodu her çalıştırdığınızda aynı seriler üretilir ve sonuçlar (ör. 0.72 ve 0.48) tekrarlanabilir olur. 42 yerine başka bir sayı farklı ama yine sabit seriler verir. Tohum bir kez ayarlanır ve sonraki üç satırın hepsini etkiler: Üç seri aynı sayı dizisinin art arda gelen parçalarını kullanır, bu yüzden satırların sırası değişirse seriler de değişir.
+2. `wn <- rnorm(400)`: `rnorm()` (*random normal*) normal dağılımdan bağımsız rastgele sayılar çeker. Tek argüman `400` kaç sayı çekileceğidir; ortalama (`mean`) ve standart sapma (`sd`) yazılmadığı için varsayılanları, yani 0 ve 1 kullanılır. Sonuç 400 sayılık sıradan bir vektördür ve `wn` (*white noise*, beyaz gürültü) adına kaydedilir. Sayılar birbirinden bağımsız çekildiği için bu seri tanım gereği beyaz gürültüdür (Bölüm 6.6.1).
+3. `ar1 <- arima.sim(model = list(ar = 0.7), n = 400)`: `arima.sim()` (*simulate*, benzetim) kendisine verilen modelden yapay bir seri üretir. Argümanlar:
+   - `model = list(ar = 0.7)`: Modelin tarifi. `list()` farklı ayarları adlarıyla bir arada tutan bir kaptır; içindeki `ar = 0.7` "tek AR katsayısı 0.7 olan model", yani $\phi = 0.7$ ile AR(1) demektir. İki katsayılı bir AR(2) için `ar = c(0.5, 0.2)` yazılırdı. AR(1) katsayısının mutlak değeri 1'den küçük olmalıdır (Bölüm 6.6.1); durağan olmayan bir model verilirse (ör. `ar = 1.1`) fonksiyon "'ar' part of model is not stationary" hatasıyla durur.
+   - `n = 400`: Üretilecek serinin uzunluğu.
+
+   Şokları `arima.sim()` kendisi `rnorm()` ile çeker (`rand.gen` argümanının varsayılanı). Serinin başı sıfırdan başlamanın etkisini taşımasın diye fonksiyon önce bize gösterilmeyen bir "ısınma" (*burn-in*) bölümü üretip atar; uzunluğunu kendisi seçer (`n.start` argümanı). Sonuç 400 değerli bir `ts` nesnesidir (1'den 400'e, frekansı 1) ve `ar1` adına kaydedilir.
+4. `ma1 <- arima.sim(model = list(ma = 0.8), n = 400)`: Aynı işi `ma = 0.8`, yani $\theta = 0.8$ ile MA(1) modeli için yapar.
+5. `par(mfrow = c(3, 2))`: Çizim alanını 3 satır × 2 sütunluk bir ızgaraya böler (Bölüm 6.5). Grafikler satır satır yerleştiği için her satırdaki ilk grafik sola, ikincisi sağa düşer.
+6. `acf(wn, lag.max = 15, main = "Beyaz gürültü: ACF");  pacf(wn, lag.max = 15, main = "Beyaz gürültü: PACF")` ve sonraki iki benzer satır: Her satırda iki komut vardır; `;` işareti "komut burada bitti, aynı satırda bir sonraki başlıyor" demektir. Böylece her süreç ızgarada bir satır kaplar: ACF solda, PACF sağda. `lag.max = 15` ilk 15 gecikmeye bakar; kesilme ve sönme desenleri ilk birkaç gecikmede ortaya çıktığı için bu yeterlidir. `main` her panele hangi süreç ve hangi fonksiyon olduğunu yazar. Komutlardan sonraki boşluklar yalnızca hizalama içindir.
+7. `par(mfrow = c(1, 1))`: Düzeni tek grafiğe geri döndürür.
+
+Kod ekrana sayı yazmaz; altı panelli bir grafik açar. `wn` sıradan bir vektör, `ar1` ve `ma1` ise frekansı 1 olan `ts` nesneleri olduğu için yatay eksen doğrudan gecikme sayısını (1, 2, …, 15) gösterir. Güven sınırları $\pm 1.96/\sqrt{400} = \pm 0.098$'dir. Grafikte görmeniz gerekenler:
+
+- **Beyaz gürültü (üst satır):** ACF ve PACF'te hiçbir çubuk bandı aşmaz (en büyük değer yaklaşık −0.09).
+- **AR(1) (orta satır):** ACF 0.72, 0.50, 0.34, 0.24, … diye geometrik olarak söner; PACF'te lag-1 çubuğu (0.72) büyüktür, lag-2'den itibaren çubuklar sıfıra yakındır. PACF 1. gecikmeden sonra kesilir: AR(1) imzası. Lag-6 ve lag-11'deki iki küçük negatif çubuk (yaklaşık −0.14) bandı az farkla aşar; bunlar örneklem dalgalanmasıdır (Bölüm 6.3.3'teki "20 çubukta 1" uyarısı).
+- **MA(1) (alt satır):** ACF'de yalnızca lag-1 çubuğu (0.48) büyüktür, sonrası sıfıra yakındır (lag-13'teki 0.10 bandı kıl payı aşar); PACF ise 0.48, −0.31, 0.23, −0.19, … diye işaret değiştirerek söner: MA(1) imzası.
+
+Bu değerler teorik değerlere (AR(1) için ACF 0.7, 0.49, 0.34; MA(1) için ACF 0.49, PACF 0.49, −0.31, 0.22, −0.17) çok yakındır. Uygulama dosyası ayrıca iki serinin lag-1 ACF değerlerini (0.72 ve 0.48) yazdırır.
 
 > **Not —** R'daki `arima.sim()` fonksiyonu MA katsayısını bu bölümdeki gibi **artı** işaretle ($`x_t = \varepsilon_t + \theta \varepsilon_{t-1}`$) kullanır. Bazı kitaplar ve yazılımlar eksi işaretli gösterim tercih eder; katsayıların işaretini yorumlarken bu farka dikkat edin.
 
@@ -2886,7 +3227,16 @@ Mod(polyroot(c(1, -0.6, -0.16)))        # köklerin mutlak değerleri
 #> [1] 1.25 5.00
 ```
 
-`c(1, -0.6, -0.16)` vektöründe sıra sabit terim, $z$'nin katsayısı, $z^2$'nin katsayısıdır; işaretler polinomdaki gibi yazılır. `+0i` kısmı köklerin karmaşık kısmının sıfır olduğunu, yani köklerin sıradan sayılar olduğunu gösterir. `round(..., 4)` bilgisayarın hesaplamada bıraktığı çok küçük yuvarlama kırıntılarını (örneğin `4.5e-15i`) temizlemek için sonucu 4 ondalığa yuvarlar. `Mod()` her kökün mutlak değerini verir; ikisi de 1'den büyük olduğu için model durağandır.
+Bu iki satır, Örnek 1'de elle bulduğumuz kökleri (1.25 ve −5) bilgisayara buldurur ve "bütün kökler birim çemberin dışında mı?" sorusunu doğrudan cevaplar. Elle çarpanlara ayıramayacağımız yüksek dereceli polinomlarda da aynı iki satır işe yarar. Kodu satır satır okuyalım:
+
+1. `round(polyroot(c(1, -0.6, -0.16)), 4)`: İç içe yazılmış fonksiyonlar içten dışa okunur.
+   - `c(1, -0.6, -0.16)`: `c()` (*combine*, birleştir) virgülle ayrılmış sayıları tek bir **vektörde**, yani sıralı bir sayı listesinde toplar. Sıra önemlidir: Birinci eleman sabit terim (1), ikincisi $z$'nin katsayısı (−0.6), üçüncüsü $z^2$'nin katsayısıdır (−0.16); işaretler polinomdaki gibi yazılır. Sırayı ters çevirmek (`c(-0.16, -0.6, 1)`) başka bir polinomun köklerini verir.
+   - `polyroot(...)`: Katsayıları verilen polinomu sıfıra eşitleyen $z$ değerlerini, yani kökleri hesaplar; 2. dereceden polinom için 2 kök döndürür. Sonuç her zaman **karmaşık sayı** (`complex`) türünde bir vektördür, çünkü bazı polinomların kökleri sıradan sayılar arasında bulunmaz (Bölüm 3.2).
+   - `round(..., 4)`: İlk argümandaki sayıları, ikinci argüman kadar ondalık basamağa yuvarlar. Argümanlar burada isimsiz, yani **sıralarına göre** verilmiştir: R ilk değeri yuvarlanacak sayı, ikincisini basamak sayısı (`digits`) olarak anlar; `round(x, digits = 4)` yazmakla aynıdır. Yuvarlamanın nedeni, bilgisayarın ondalık hesaplarda bıraktığı çok küçük kırıntılardır: Yuvarlamadan R kökleri `1.25+4.493859e-15i` ve `-5.00-4.493859e-15i` olarak yazar. `e-15` "çarpı 10 üzeri −15" demektir; yani 0.0000000000000045 gibi pratikte sıfır olan bir sayıdır.
+   - Satırın sonundaki `#` işaretinden sonrası **yorumdur**: R onu çalıştırmaz, yalnızca okuyana not düşer.
+2. `Mod(polyroot(c(1, -0.6, -0.16)))`: Aynı kökleri yeniden hesaplar ve `Mod()` (*modulus*) ile her birinin mutlak değerini, yani sıfıra uzaklığını alır. `Mod()` karmaşık sayılarda da çalıştığı için birim çember kuralını karmaşık kökler için de bu satırla denetleyebiliriz. Sonuç sıradan sayılardan oluşan bir vektördür.
+
+Çıktıyı okuyalım. Satır başındaki `[1]`, o satırın vektörün 1. elemanıyla başladığını gösterir; uzun bir vektör birden çok satıra bölündüğünde sonraki satırlar `[26]` gibi, o satırdaki ilk elemanın sırasıyla başlar. İlk çıktıdaki `1.25+0i` ve `-5.00+0i`, "gerçel kısmı 1.25 (ya da −5), sanal kısmı 0" olan karmaşık sayılardır; `i` sanal birimi gösterir. `+0i`, sanal kısmın sıfır, yani köklerin sıradan sayılar olduğunu söyler ve kökler elle bulduğumuz 1.25 ve −5 ile aynıdır. İkinci çıktıdaki `1.25 5.00` köklerin mutlak değerleridir; ikisi de 1'den büyük olduğu için model durağandır. Örnek 2'deki birim köklü model için `Mod(polyroot(c(1, -1.5, 0.5)))` yazsaydık `[1] 1 2` görürdük: Tam 1'e eşit bir değer birim kökün işaretidir.
 
 **Not —** MA kısmı için de benzer bir koşul vardır: $\theta(z) = 0$ denkleminin kökleri de birim çemberin dışında olmalıdır. Bu koşula **tersinirlik** (*invertibility*) denir ve geçmiş şokların gözlenen veriden tek bir şekilde geri hesaplanabilmesini sağlar. R ve Python model kurarken bu koşulları kendileri denetler.
 
@@ -3159,9 +3509,15 @@ plot(AirPassengers, main = "AirPassengers Verisi: Trend ve Artan Varyans",
      ylab = "Yolcu Sayısı", xlab = "Yıl", col = "darkblue")
 ```
 
-`install.packages(...)` bir paketi bilgisayara yalnızca bir kez indirmek için kullanılır; bu yüzden yorum satırı olarak bırakılmıştır. `library()` ise paketi her oturumda belleğe yükler: `forecast` paketi modelleme ve tahmin fonksiyonlarını (`auto.arima`, `forecast`, `checkresiduals`, `ndiffs`, `nsdiffs`), `tseries` paketi `adf.test` ve `kpss.test` testlerini sağlar. `data(AirPassengers)` R ile birlikte gelen veri setini çalışma alanına çağırır; bu seri zaten aylık bir `ts` nesnesidir (Bölüm 5.2.3). `plot()` fonksiyonuna parantez içinde `isim = değer` biçiminde verilen girdilere **argüman** denir: `main` grafik başlığını, `ylab` ve `xlab` eksen adlarını, `col` çizgi rengini belirler.
+Bu blok, bölüm boyunca kullanacağımız iki paketi yükler, `AirPassengers` verisini çağırır ve seriyi çizer; Box-Jenkins döngüsünün 0. adımı (hazırlık, 7.4) budur. Kodu satır satır okuyalım:
 
-Grafikte (Şekil 7.1a) üç şey hemen göze çarpar:
+1. `# Gerekli paketler` ve `# install.packages(c("forecast", "tseries"))`: İkisi de `#` ile başladığı için yorumdur ve çalıştırılmaz. İkinci satır bilerek yoruma çevrilmiştir: `install.packages()` bir paketi internetten indirip bilgisayara **bir kez** kurar; her çalıştırmada tekrarlamak gereksizdir. Paketler kurulu değilse satır başındaki `#` silinip satır bir kez çalıştırılır. Paket adları tırnak içinde yazılır, çünkü bunlar R'daki nesnelerin adları değil, indirilecek paketlerin adı olan metinlerdir; `c()` iki adı tek bir vektörde toplar, böylece iki paket tek komutla kurulur.
+2. `library(forecast)`: Kurulu `forecast` paketini bu oturuma yükler. Bölümde kullanacağımız `auto.arima()`, `forecast()`, `checkresiduals()`, `ndiffs()` ve `nsdiffs()` bu paketten gelir. Kurulum bir kez yapılır, ama `library()` her yeni R oturumunda yeniden çalıştırılmalıdır.
+3. `library(tseries)`: `adf.test()` ve `kpss.test()` durağanlık testlerini sağlayan `tseries` paketini yükler.
+4. `data(AirPassengers)`: R ile birlikte gelen `AirPassengers` veri setini çalışma alanına çağırır. Bu, Ocak 1949'dan Aralık 1960'a kadar 144 aylık uluslararası havayolu yolcu sayısını (bin kişi) tutan, frekansı 12 olan hazır bir `ts` nesnesidir (Bölüm 5.2.3); ayrıca dönüştürmeye gerek yoktur.
+5. `plot(AirPassengers, main = ..., ylab = ..., xlab = ..., col = "darkblue")`: `plot()` R'ın genel çizim fonksiyonudur; kendisine bir `ts` nesnesi verildiğinde yatay ekseni zaman olan bir çizgi grafiği çizer (Bölüm 6.1.1). Fonksiyona parantez içinde verilen girdilere **argüman** denir. İlk argüman (çizilecek seri) isimsiz, yani sırasıyla verilmiştir; diğerleri `isim = değer` biçiminde **isimli** argümanlardır ve sıraları önemli değildir: `main` grafik başlığını, `ylab` dikey eksenin, `xlab` yatay eksenin adını, `col` çizgi rengini belirler. Tırnak içindeki değerler metindir; `"darkblue"` R'ın tanıdığı renk adlarından biridir (koyu mavi). Komut ilk satırın sonundaki virgülden sonra ikinci satırda sürer: Parantez kapanmadığı sürece R komutun devam ettiğini anlar.
+
+Bu blok ekrana sayı yazmaz; çıktısı bir grafiktir (Şekil 7.1a). Grafikte üç şey hemen göze çarpar:
 
 - Yolcu sayısı yıllar içinde sürekli artıyor: **trend** var.
 - Her yıl yaz aylarında tepe yapan bir desen tekrarlanıyor: **mevsimsellik** var.
@@ -3171,7 +3527,7 @@ Bu üç özellik de serinin ortalamasının ve varyansının zamanla değiştiğ
 
 #### 7.6.2. Durağanlık Testleri
 
-Her iki teste de yalnızca seriyi vermek yeterlidir; diğer ayarlar varsayılan değerlerini alır. `adf.test()` 7.5'teki regresyonu **sabit ve trend terimiyle** kurar ve gecikmeli fark sayısını $k$, $(n - 1)$'in küp kökünün tam sayı kısmı olarak seçer. `kpss.test()` varsayılan olarak seviye durağanlığını (`null = "Level"`) sınar.
+Grafikten edindiğimiz "seri durağan değil" izlenimini şimdi 7.5'teki iki testle sınayalım.
 
 ```r
 adf.test(AirPassengers)
@@ -3191,12 +3547,21 @@ kpss.test(AirPassengers)
 #> Warning: p-value smaller than printed p-value
 ```
 
+Bu blok aynı seriye iki ADF testi ve bir KPSS testi uygular. Amaç hem durağanlık kararını sayılarla desteklemek hem de bir testin ayarlarının sonucu nasıl değiştirebildiğini görmektir. Kodu satır satır okuyalım:
+
+1. `adf.test(AirPassengers)`: `tseries` paketindeki ADF testini çalıştırır. Yalnızca seriyi vermek yeterlidir; yazmadığımız argümanlar **varsayılan** değerlerini, yani fonksiyonun kendiliğinden kullandığı değerleri alır. Bu fonksiyon 7.5'teki regresyonu her zaman **sabit ve trend terimiyle** kurar. Varsayılan `alternative = "stationary"`, 7.5'teki tek yönlü alternatif hipotezi ("seri durağandır") seçer. Gecikmeli fark sayısı `k` ise $(n - 1)$'in küp kökünün tam sayı kısmı olarak belirlenir. Sonuç bir test sonucu nesnesidir (`htest`); bir isme atanmadığı için doğrudan ekrana yazılır.
+2. `adf.test(AirPassengers, k = 13)`: Aynı test, bu kez `k` argümanı elle verilerek çalıştırılır. `k = 13`, regresyona 13 gecikmeli fark ($`\nabla x_{t-1}, \dots, \nabla x_{t-13}`$) ekler. 13'ün seçilme nedeni, 12 aylık mevsim uzunluğunu bir adım aşmasıdır: Böylece bu ayki değişimin bir yıl ve 13 ay önceki değişimlerle ilişkisi de denklemin içinde kalır ve hata terimine sızmaz. Satır sonundaki `#` sonrası bu nedeni not eden yorumdur. Bu testin çıktısı kısaltılmıştır; yalnızca değişen satır gösterilmiştir.
+3. `kpss.test(AirPassengers)`: KPSS testini çalıştırır. Varsayılan `null = "Level"` sıfır hipotezini "seri sabit bir seviye etrafında durağandır" olarak kurar (`null = "Trend"` yazılsaydı "trend çizgisi etrafında durağandır" sınanırdı).
+
 Çıktıyı satır satır okuyalım:
 
+- `Augmented Dickey-Fuller Test` ve `KPSS Test for Level Stationarity`: Hangi testin yapıldığını söyleyen başlıklardır. `data:  AirPassengers` testin hangi seriye uygulandığını gösterir.
 - `Dickey-Fuller = -7.3186`: 7.5'teki $\hat{\gamma} / \mathrm{s.e.}(\hat{\gamma})$ oranıdır ve kritik değerlerle (%1 için −4.03) karşılaştırılır.
-- `Lag order = 5`: denkleme eklenen gecikmeli fark sayısı $k$. $n = 144$ için $(144 - 1)$'in küp kökü yaklaşık 5.23'tür ($5.23^3 \approx 143$); tam sayı kısmı 5'tir.
-- `p-value = 0.01` ve uyarı: Gerçek p-değeri 0.01'den de küçüktür (7.5).
-- `KPSS Level = 2.7395`: KPSS istatistiği. %1 kritik değeri 0.739 olduğundan p-değeri tablonun dışına, 0.01'in altına düşer.
+- `Lag order = 5`: Denkleme eklenen gecikmeli fark sayısı $k$. $n = 144$ için $(144 - 1)$'in küp kökü yaklaşık 5.23'tür ($5.23^3 \approx 143$); tam sayı kısmı 5'tir.
+- `p-value = 0.01` ve `Warning: p-value smaller than printed p-value`: `Warning` satırı R'ın **uyarı** mesajıdır; hata değildir, kod çalışmış ve sonuç üretmiştir. Burada "gerçek p-değeri, yazılan 0.01'den de küçüktür" demektir (7.5).
+- `alternative hypothesis: stationary`: Alternatif hipotezin durağanlık olduğunu hatırlatır (7.5'teki tek yönlü test).
+- İkinci testteki `Dickey-Fuller = -2.1008, Lag order = 13, p-value = 0.5345` satırı aynı biçimde okunur; `Lag order` artık elle verdiğimiz 13'tür. p-değeri 0.01 ile 0.99 arasında kaldığı için uyarı yoktur. Sonucun anlamını aşağıda tartışıyoruz.
+- `KPSS Level = 2.7395`: KPSS istatistiği. %1 kritik değeri 0.739 olduğundan p-değeri tablonun dışına, 0.01'in altına düşer; bu yüzden KPSS de `p-value = 0.01` yazıp aynı uyarıyı verir.
 - `Truncation lag parameter = 4`: KPSS'in serinin oynaklığını hesaplarken hesaba kattığı otokorelasyon gecikmesi sayısı ($4 \cdot (n/100)^{1/4}$'ün tam sayı kısmı; $n = 144$ için 4).
 
 **Çıktının yorumu:** İlk bakışta şaşırtıcı bir sonuç: ADF testi p = 0.01 ile birim kök hipotezini **reddediyor**, KPSS testi ise p = 0.01 ile durağanlık hipotezini **reddediyor**. Yani iki test çelişiyor (7.5'teki tablonun üçüncü satırı).
@@ -3222,21 +3587,39 @@ abline(h = 0, lty = 2)
 adf.test(AP_stationary)
 #> Dickey-Fuller = -5.1993, Lag order = 5, p-value = 0.01
 #> alternative hypothesis: stationary
+#> Warning: p-value smaller than printed p-value
 
 kpss.test(AP_stationary)
 #> KPSS Level = 0.084365, Truncation lag parameter = 4, p-value = 0.1
 #> Warning: p-value greater than printed p-value
 ```
 
-`<-` R'da **atama** işaretidir: Sağdaki hesabın sonucunu soldaki isimle (`AP_stationary`) saklar. İç içe fonksiyonlar içten dışa okunur: Önce `log(AirPassengers)` ile logaritma alınır; sonra `diff(..., lag = 12)` her değerden 12 ay öncekini çıkarır (mevsimsel fark, $\nabla_{12}$); en dıştaki `diff(...)` ise `lag` belirtilmediği için varsayılan `lag = 1` ile normal farkı alır ($\nabla$). Mevsimsel fark ilk 12 ayı, normal fark bir ayı daha kaybettirir; 144 aylık seri 131 aya iner. Sonuç, 7.3'teki $w_t$ serisidir. İlk değerini (Şubat 1950) elle hesaplayalım: Ocak ve Şubat 1949'da 112 ve 118, Ocak ve Şubat 1950'de 115 ve 126 bin yolcu vardır.
+Bu blok, 7.1.4'te anlatılan log dönüşümünü ve iki fark alma işlemini tek satırda uygular, sonucu çizer ve 7.6.2'deki testleri dönüştürülmüş seri üzerinde tekrarlar. Amaç, modele verilecek serinin artık durağan olduğunu göstermektir. Kodu satır satır okuyalım:
+
+1. `AP_stationary <- diff(diff(log(AirPassengers), lag = 12))`: `<-` R'da **atama** işaretidir: Sağdaki hesabın sonucunu soldaki isimle (`AP_stationary`) saklar; ekrana bir şey yazmaz. Sağ taraf iç içe üç fonksiyondan oluşur ve içten dışa okunur:
+   - `log(AirPassengers)`: Her ayın değerinin doğal logaritmasını alır; sonuç yine 144 aylık bir `ts` nesnesidir.
+   - `diff(..., lag = 12)`: `diff()` bir seriden farklar üretir; `lag` argümanı kaç adım önceki değerin çıkarılacağını söyler. `lag = 12`, her aydan 12 ay önceki değeri çıkarır (mevsimsel fark, $`\nabla_{12}`$), çünkü veri aylık ve mevsim 12 aydır.
+   - En dıştaki `diff(...)`: `lag` yazılmadığı için varsayılan `lag = 1` ile her değerden bir önceki ayınkini çıkarır (normal fark, $`\nabla`$).
+
+   Mevsimsel fark ilk 12 ayı, normal fark bir ayı daha kaybettirir; 144 aylık seri Şubat 1950'den başlayan 131 aylık bir `ts` nesnesine iner. Sonuç, 7.3'teki $`w_t`$ serisidir.
+2. `plot(AP_stationary, main = ..., ylab = ..., col = "darkblue")`: Dönüştürülmüş seriyi çizer; argümanlar 7.6.1'deki `plot()` çağrısıyla aynı anlamdadır.
+3. `abline(h = 0, lty = 2)`: Açık olan grafiğin üstüne düz bir çizgi ekler. `h = 0` çizginin 0 yüksekliğinde yatay (*horizontal*) olacağını, `lty = 2` (*line type*, çizgi tipi) kesikli çizileceğini söyler (1 düz, 2 kesikli, 3 noktalı çizgidir). `abline()` yeni grafik açmaz, son çizilen grafiğe ekleme yapar; bu yüzden `plot()`'tan sonra gelir. Durağan serinin bu sıfır çizgisinin çevresinde dalgalanması beklenir.
+4. `adf.test(AP_stationary)` ve `kpss.test(AP_stationary)`: 7.6.2'deki iki testi varsayılan ayarlarıyla bu kez dönüştürülmüş seriye uygular. `# Testleri tekrarlayalım` satırı yorumdur.
+
+Serinin ilk değerini (Şubat 1950) elle hesaplayalım: Ocak ve Şubat 1949'da 112 ve 118, Ocak ve Şubat 1950'de 115 ve 126 bin yolcu vardır.
 
 $$
 w = [\log(126) - \log(118)] - [\log(115) - \log(112)] = 0.0656 - 0.0264 = 0.0392
 $$
 
-Yani Şubat'ın yıllık büyümesi (yaklaşık %6.6), Ocak'ın yıllık büyümesinden (yaklaşık %2.6) yaklaşık 4 puan fazladır. `abline(h = 0, lty = 2)` grafiğe sıfır hizasında yatay (`h`, *horizontal*) ve kesikli (`lty = 2`, *line type*) bir çizgi ekler; durağan serinin bu çizginin çevresinde dalgalanması beklenir.
+Yani Şubat'ın yıllık büyümesi (yaklaşık %6.6), Ocak'ın yıllık büyümesinden (yaklaşık %2.6) yaklaşık 4 puan fazladır. R'da `AP_stationary[1]` yazarsanız aynı 0.0392'yi görürsünüz.
 
-Artık iki test aynı şeyi söylüyor: ADF birim kökü reddediyor (p = 0.01; istatistik −5.20, %1 kritik değeri olan yaklaşık −4.03'ten daha negatif), KPSS durağanlığı reddetmiyor (0.084, %10 kritik değeri 0.347'nin altında; p > 0.1). Seri durağandır ve Şekil 7.1c'deki gibi sıfır çevresinde dalgalanmaktadır.
+Çıktıyı okuyalım:
+
+- `Dickey-Fuller = -5.1993, Lag order = 5, p-value = 0.01`: İstatistik −5.20, %1 kritik değeri olan yaklaşık −4.03'ten daha negatiftir; birim kök reddedilir. Gecikme sayısı yine 5'tir, çünkü $(131 - 1)$'in küp kökü yaklaşık 5.07'dir. Uyarı satırı 7.6.2'dekiyle aynı anlamdadır: Gerçek p-değeri 0.01'den de küçüktür.
+- `KPSS Level = 0.084365, Truncation lag parameter = 4, p-value = 0.1` ve `Warning: p-value greater than printed p-value`: İstatistik %10 kritik değeri olan 0.347'nin altındadır, yani tablonun en "zararsız" ucunun da ötesindedir. R p-değerini tablonun üst sınırı olan 0.1'de keser ve gerçek değerin bundan **büyük** olduğunu uyarır. Durağanlık reddedilmez.
+
+Artık iki test aynı şeyi söylüyor: ADF birim kökü reddediyor, KPSS durağanlığı reddetmiyor (7.5'teki tablonun ilk satırı). Seri durağandır ve grafikte, Şekil 7.1c'deki gibi sıfır çevresinde dalgalanır.
 
 `forecast` paketi gereken fark sayılarını doğrudan da önerebilir:
 
@@ -3247,9 +3630,12 @@ ndiffs(diff(log(AirPassengers), lag = 12))   # mevsimsel farktan sonra gereken n
 #> [1] 1
 ```
 
-`nsdiffs()`, serideki mevsimsel desenin ne kadar güçlü olduğunu ölçer (varsayılan `test = "seas"`: mevsimsellik gücü 0.64 eşiğini aşıyorsa bir mevsimsel fark önerir). `ndiffs()` ise KPSS testini (varsayılan `test = "kpss"`, `alpha = 0.05`) tekrar tekrar uygular: Test durağanlığı reddederse bir fark alır ve yeniden dener; durağanlık reddedilmeyene kadar aldığı fark sayısını döndürür. Sıra önemlidir: Önce mevsimsel fark kararı verilir, `ndiffs()` mevsimsel farkı alınmış seriye uygulanır. Çıktıdaki `[1]`, R'ın sonucun ilk elemanını gösterdiğini belirtir.
+Bu iki satır, fark sayılarına testlere tek tek bakarak karar vermek yerine `forecast` paketinin hazır karar fonksiyonlarına sorar; 7.6.5'teki `auto.arima()` da fark sayılarını içeride bu iki fonksiyonla belirler. Kodu satır satır okuyalım:
 
-Böylece $D = 1$ ve $d = 1$ kararını hem testlerle hem de bu fonksiyonlarla doğrulamış olduk.
+1. `nsdiffs(log(AirPassengers))`: Log seriye kaç kez **mevsimsel** fark ($D$) alınması gerektiğini önerir. Varsayılan `test = "seas"` yönteminde seri trend, mevsim ve kalan bileşenlerine ayrılır (Bölüm 6.2.3'teki `decompose()` fikrine benzer) ve mevsimsel desenin gücü 0 ile 1 arasında bir sayıyla ölçülür: 0 "mevsimsellik yok", 1 "kalan dalgalanmanın neredeyse tamamı mevsimsel" demektir. Güç 0.64 eşiğini aşarsa bir mevsimsel fark önerilir; `log(AirPassengers)` için güç yaklaşık 0.96'dır. Mevsim uzunluğunu (`m`) serinin frekansından (12) kendisi okur ve varsayılan `max.D = 1` nedeniyle en fazla 1 önerir. Satır sonundaki `#` sonrası yorumdur.
+2. `ndiffs(diff(log(AirPassengers), lag = 12))`: Mevsimsel farkı alınmış seriye kaç kez daha **normal** fark ($d$) gerektiğini önerir. İçteki `diff(log(AirPassengers), lag = 12)`, 7.6.3'teki mevsimsel farktır. `ndiffs()` varsayılan olarak KPSS testini (`test = "kpss"`, `alpha = 0.05`) tekrar tekrar uygular: Test durağanlığı reddederse bir fark alır ve yeniden dener; durağanlık reddedilmeyene kadar aldığı fark sayısını döndürür (en fazla `max.d = 2`). Sıra önemlidir: Önce mevsimsel fark kararı verilir, `ndiffs()` mevsimsel farkı alınmış seriye uygulanır.
+
+İki çıktı da `[1] 1`'dir. `[1]`, satırın sonucun 1. elemanıyla başladığını gösterir (burada sonuç tek elemanlıdır); 1 ise önerilen fark sayısıdır. Böylece $D = 1$ ve $d = 1$ kararını hem testlerle hem de bu fonksiyonlarla doğrulamış olduk.
 
 #### 7.6.4. Model Belirleme (ACF ve PACF)
 
@@ -3262,9 +3648,14 @@ pacf(AP_stationary, lag.max = 36, main = "PACF")
 par(mfrow = c(1, 1))
 ```
 
-`par(mfrow = c(1, 2))` grafik penceresini 1 satır ve 2 sütunluk bölmelere ayırır; `c()` iki sayıyı bir vektörde birleştirir. `lag.max = 36` üç yıllık gecikmeyi gösterir; böylece 12, 24 ve 36'daki mevsimsel gecikmeler de görünür. Son satır pencereyi tek grafik düzenine geri döndürür.
+Bu blok, durağanlaştırılmış serinin ACF ve PACF grafiklerini yan yana çizer. Box-Jenkins'in 1. adımında (tanımlama, 7.4) $p$, $q$, $P$, $Q$ için aday değerleri bu grafiklerden okuruz. Kodu satır satır okuyalım:
 
-**Çıktının yorumu:** R, ACF grafiğinin yatay eksenini "yıl" cinsinden gösterir; 1.0 = 12 ay gecikme demektir. Güven bandı $\pm 1.96/\sqrt{131} \approx \pm 0.17$'dir. Bu grafiklerde iki belirgin iz görülür:
+1. `par(mfrow = c(1, 2))`: `par()` (*parameters*) R'ın temel grafik ayarlarını değiştirir. `mfrow` argümanı grafik penceresini satır ve sütun bölmelerine ayırır; `c(1, 2)` ile kurulan iki elemanlı vektör "1 satır, 2 sütun" demektir. Bundan sonra çizilen grafikler bölmeleri soldan sağa doldurur. Satır sonundaki `#` sonrası yorumdur.
+2. `acf(AP_stationary, lag.max = 36, main = "ACF")`: `acf()` serinin otokorelasyonlarını hesaplar ve çubuk grafik olarak çizer (Bölüm 6.3). `lag.max` kaç gecikmeye kadar bakılacağını belirler: 36 ay üç yıl demektir; böylece 12, 24 ve 36'daki mevsimsel gecikmeler de görünür. Yazılmasaydı varsayılan değer $10 \log_{10} 131 \approx 21$ gecikme olurdu ve 24 ile 36 grafiğe girmezdi. `main` grafik başlığıdır.
+3. `pacf(AP_stationary, lag.max = 36, main = "PACF")`: Aynı ayarlarla kısmi otokorelasyonları çizer (Bölüm 6.4) ve ikinci bölmeye yerleşir.
+4. `par(mfrow = c(1, 1))`: Pencereyi yeniden tek grafik düzenine döndürür; bu satır olmasaydı sonraki grafikler de yarım genişlikte çizilirdi.
+
+Bu blok ekrana sayı yazmaz; çıktısı yan yana iki grafiktir. Okurken iki ayrıntıya dikkat edin. Birincisi, R `ts` nesnelerinde yatay ekseni "yıl" cinsinden gösterir; 1.0 = 12 ay, 2.0 = 24 ay gecikme demektir. ACF'nin en soldaki 0 gecikmeli çubuğu serinin kendisiyle korelasyonudur, her zaman 1'dir ve yorumlanmaz; PACF ise 1. gecikmeden başlar. İkincisi, mavi kesikli çizgiler güven bandıdır: $\pm 1.96/\sqrt{131} \approx \pm 0.17$. Bu grafiklerde iki belirgin iz görülür:
 
 - **ACF'de gecikme 1'de** belirgin bir negatif çubuk (yaklaşık −0.34) vardır; 3. gecikmede bandı biraz aşan bir çubuk (yaklaşık −0.20) dışında sonrası kesilir → mevsimsel olmayan kısımda **MA(1)**, yani $q = 1$ adayı.
 - **ACF'de gecikme 12'de** (eksende 1.0) belirgin bir negatif çubuk (yaklaşık −0.39) vardır ve 24'te tekrarlamaz → mevsimsel kısımda **MA(1)**, yani $Q = 1$ adayı.
@@ -3274,7 +3665,7 @@ Bu okuma bizi ARIMA(0,1,1)(0,1,1)[12] adayına götürür. ACF/PACF okumak deney
 
 #### 7.6.5. Model Kurma: `auto.arima()` ve Seçilen Modelin Yorumu
 
-`auto.arima()` fonksiyonu fark sayılarını 7.6.3'teki testlerle belirler, ardından farklı parametre kombinasyonlarını deneyerek en küçük AICc değerine sahip modeli seçer. `seasonal = TRUE` mevsimsel terimlerin de aranmasını sağlar (varsayılan zaten budur; açıkça yazmak kodu okunur kılar). Kodda yazılmayan iki varsayılan argüman da önemlidir: `stepwise = TRUE`, bütün kombinasyonları denemek yerine iyi bir başlangıç modelinden komşu modellere adım adım ilerler; hızlıdır ama nadiren en iyi modeli kaçırabilir. `approximation` ise uzun serilerde (150'den fazla gözlem ya da 12'den büyük frekans) arama sırasında olabilirliği yaklaşık hesaplayarak zaman kazandırır; 144 gözlemli `AirPassengers` için zaten kapalıdır. Tam arama yapan `auto.arima(log(AirPassengers), stepwise = FALSE, approximation = FALSE)` de aynı modeli seçer. Log dönüşümünü kendimiz yapıp modele log seriyi veriyoruz.
+Elle bulduğumuz adayı şimdi otomatik bir aramayla karşılaştıralım.
 
 ```r
 fit <- auto.arima(log(AirPassengers), seasonal = TRUE)
@@ -3291,12 +3682,25 @@ print(fit)
 #> AIC=-483.4   AICc=-483.21   BIC=-474.77
 ```
 
-**Çıktının yorumu:**
+Bu blok, Box-Jenkins'in 1. ve 2. adımlarını (tanımlama ve tahmin) otomatik olarak yapar: Fark sayılarını belirler, aday modelleri dener, en iyisinin katsayılarını kestirir ve sonucu ekrana yazar. Kodu satır satır okuyalım:
 
-- `auto.arima()`, ACF/PACF'den elle çıkardığımız adayla aynı modeli, yani 7.3'teki **havayolu modelini** seçti.
-- `ma1 = -0.4018` katsayısı $\theta_1$, `sma1 = -0.5569` katsayısı $\Theta_1$'dir. Standart hatalar (`s.e.`) katsayıların çok altındadır: Katsayı/standart hata oranları $-0.4018 / 0.0896 \approx -4.5$ ve $-0.5569 / 0.0731 \approx -7.6$'dır. Kabaca "|katsayı| > 2 × s.e." kuralıyla iki katsayı da istatistiksel olarak anlamlıdır.
-- `sigma^2 = 0.001371`, beyaz gürültünün tahmini varyansıdır. Log ölçekte standart sapması $\sqrt{0.001371} \approx 0.037$ olduğundan (log farkı yaklaşık yüzde değişim olduğu için, 7.1.4) tek adımlık tipik hata yaklaşık **%3.7** mertebesindedir.
-- `log likelihood = 244.7` ve `AIC=-483.4` arasındaki bağ 7.4'teki formüldür: $-2 \cdot 244.7 + 2 \cdot 3 = -483.4$ ($k = 3$: ma1, sma1 ve sigma^2). AIC, AICc ve BIC değerleri tek başına anlam taşımaz; **aynı veri üzerindeki** farklı modelleri karşılaştırmak için kullanılır (7.4'teki tablo).
+1. `fit <- auto.arima(log(AirPassengers), seasonal = TRUE)`:
+   - İlk argüman modele verilecek seridir. Log dönüşümünü kendimiz yapıp modele log seriyi veriyoruz; fark alma işlemlerini ise `auto.arima()` kendisi yapar. Bu yüzden `AP_stationary`'yi değil, farkı alınmamış log seriyi veririz.
+   - Fonksiyon önce fark sayılarını 7.6.3'teki `nsdiffs()` ve `ndiffs()` ile belirler ($D = 1$, $d = 1$). Ardından farklı (p, q)(P, Q) kombinasyonlarını dener ve varsayılan `ic = "aicc"` ayarı gereği en küçük AICc değerine sahip modeli seçer (7.4).
+   - `seasonal = TRUE` mevsimsel terimlerin de aranmasını sağlar (varsayılan zaten budur; açıkça yazmak kodu okunur kılar). `TRUE` ve `FALSE`, R'ın "doğru/evet" ve "yanlış/hayır" anlamına gelen **mantıksal** değerleridir; tırnaksız ve büyük harfle yazılır.
+   - Kodda yazılmayan iki varsayılan argüman da önemlidir: `stepwise = TRUE`, bütün kombinasyonları denemek yerine iyi bir başlangıç modelinden komşu modellere adım adım ilerler; hızlıdır ama nadiren en iyi modeli kaçırabilir. `approximation` ise uzun serilerde (150'den fazla gözlem ya da 12'den büyük frekans) arama sırasında olabilirliği yaklaşık hesaplayarak zaman kazandırır; 144 gözlemli `AirPassengers` için zaten kapalıdır. Tam arama yapan `auto.arima(log(AirPassengers), stepwise = FALSE, approximation = FALSE)` de aynı modeli seçer.
+   - Sonuç, `fit` adıyla saklanan bir **model nesnesidir**: İçinde seçilen dereceler, katsayılar, standart hatalar, artıklar ve bilgi kriterleri birlikte durur. Sonraki adımlarda (`checkresiduals()`, `forecast()`) hep bu nesneyi kullanacağız.
+2. `print(fit)`: Model nesnesinin özetini ekrana yazar. Etkileşimli çalışırken yalnızca `fit` yazmak da aynı özeti verir; `print()` bunu açıkça ister.
+
+Çıktıyı satır satır okuyalım:
+
+- `Series: log(AirPassengers)`: Modelin hangi seriye kurulduğunu gösterir. Fonksiyona verdiğimiz ifade aynen yazılır; modelin log ölçekte olduğunu buradan da hatırlarız.
+- `ARIMA(0,1,1)(0,1,1)[12]`: Seçilen model. İlk parantez (p, d, q) = (0, 1, 1) mevsimsel olmayan kısmı, ikinci parantez (P, D, Q) = (0, 1, 1) mevsimsel kısmı, köşeli parantezdeki 12 mevsim uzunluğunu verir (Şekil 7.3). `auto.arima()`, ACF/PACF'den elle çıkardığımız adayla aynı modeli, yani 7.3'teki **havayolu modelini** seçmiştir. İki parçanın ayrıntılı anlamı aşağıdadır.
+- `Coefficients:` başlığının altındaki küçük tablo tahmin edilen katsayılardır. Sütun adları katsayının hangi terime ait olduğunu söyler: `ma1` mevsimsel olmayan MA kısmının 1. katsayısı $\theta_1$, `sma1` mevsimsel (*seasonal*) MA kısmının 1. katsayısı $\Theta_1$'dir. Model AR terimi içermediği için `ar1` ya da `sar1` sütunu yoktur. İlk satır tahminlerdir: $\theta_1 = -0.4018$, $\Theta_1 = -0.5569$. R, MA kısmını artı işaretiyle ($1 + \theta_1 B$) yazdığı için (7.2'deki not) bu sayılar 7.3'teki denkleme doğrudan konur.
+- `s.e.` satırı her katsayının **standart hatasıdır** (7.5): Tahminin ne kadar belirsiz olduğunu gösterir. Standart hatalar katsayıların çok altındadır: Katsayı/standart hata oranları $-0.4018 / 0.0896 \approx -4.5$ ve $-0.5569 / 0.0731 \approx -7.6$'dır. Kabaca "|katsayı| > 2 × s.e." kuralıyla iki katsayı da istatistiksel olarak anlamlıdır, yani sıfırdan belirgin biçimde farklıdır.
+- `sigma^2 = 0.001371`: Beyaz gürültünün ($\varepsilon_t$) tahmini varyansı $\sigma^2$'dir; `^` R'da üs işaretidir. Log ölçekte standart sapması $\sqrt{0.001371} \approx 0.037$ olduğundan (log farkı yaklaşık yüzde değişim olduğu için, 7.1.4) tek adımlık tipik hata yaklaşık **%3.7** mertebesindedir.
+- `log likelihood = 244.7`: Modelin log olabilirliği $\log L$'dir (7.4); büyük olması veriye daha iyi uyum demektir.
+- `AIC=-483.4   AICc=-483.21   BIC=-474.77`: Üç bilgi kriteri. AIC ile log likelihood arasındaki bağ 7.4'teki formüldür: $-2 \cdot 244.7 + 2 \cdot 3 = -483.4$ ($k = 3$: ma1, sma1 ve sigma^2). AICc, AIC'ye küçük örneklem düzeltmesi olarak $2k(k+1)/(n-k-1)$ ekler; burada $n = 131$'dir, çünkü iki fark işleminden sonra modelin kullanabildiği gözlem sayısı budur: $2 \cdot 3 \cdot 4 / (131 - 3 - 1) = 24/127 \approx 0.19$ ve $-483.40 + 0.19 = -483.21$. BIC cezada $2k$ yerine $k \log n$ kullanır: $-489.40 + 3 \cdot 4.875 \approx -474.77$. Üçü de "küçük olan daha iyi" kuralıyla okunur ve tek başına anlam taşımaz; **aynı veri üzerindeki** farklı modelleri karşılaştırmak için kullanılır (7.4'teki tablo).
 
 > **Simge notu:** $`\approx`$ *(yaklaşık eşittir)*: iki değerin yaklaşık olarak eşit olduğunu belirtir · $`\sqrt{\cdot}`$ *(karekök)*: varyanstan standart sapmaya geçiş
 
@@ -3337,7 +3741,18 @@ checkresiduals(fit)
 #> Model df: 2.   Total lags used: 24
 ```
 
-`checkresiduals(fit)` modelin artıklarını alır, üç grafiği tek pencerede çizer ve 7.4'teki Ljung-Box testini yapar. Kaç gecikmeye bakılacağını kendisi seçer: Mevsimsel veride $2s$ ile $n/5$'ten küçük olanı alır; burada $\min(24,\ 144/5 = 28.8) = 24$'tür (`Total lags used: 24`). `Model df: 2`, modelde tahmin edilen katsayı sayısıdır (ma1 ve sma1).
+Bu tek satır, Box-Jenkins'in 3. adımını (teşhis) yapar: Modelin artıklarının yukarıdaki özellikleri taşıyıp taşımadığını hem grafiklerle hem de 7.4'teki Ljung-Box testiyle denetler. Kodu okuyalım:
+
+1. `checkresiduals(fit)`: `forecast` paketindeki bu fonksiyon, 7.6.5'te kurduğumuz `fit` model nesnesinin içinden artıkları alır ($e_t = x_t - \hat{x}_t$; model log seriye kurulduğu için artıklar da log ölçektedir). Ardından iki iş yapar: Üç grafiği tek pencerede çizer (artıkların zaman grafiği, ACF'si ve histogramı) ve Ljung-Box testini uygulayıp sonucunu ekrana yazar. Testte kaç gecikmeye bakılacağını belirleyen `lag` argümanını vermediğimiz için onu kendisi seçer: Mevsimsel veride $2s$ ile $n/5$'ten küçük olanı alır; burada $\min(24,\ 144/5 = 28.8) = 24$'tür. Yalnızca testi görmek isterseniz `checkresiduals(fit, plot = FALSE)` grafikleri kapatır.
+
+Çıktıyı satır satır okuyalım:
+
+- `Ljung-Box test`: Yapılan testin adı. `data:  Residuals from ARIMA(0,1,1)(0,1,1)[12]` testin hangi modelin artıklarına uygulandığını söyler.
+- `Q* = 26.446`: 7.4'teki $Q^{\ast}$ istatistiği; artıkların ilk 24 gecikmedeki otokorelasyonlarının karelerinden kurulan ağırlıklı toplam.
+- `df = 22`: Testin serbestlik derecesi; kullanılan 24 gecikmeden tahmin edilen 2 katsayının düşülmesiyle elde edilir.
+- `p-value = 0.233`: Ljung-Box p-değeri; aşağıda yorumluyoruz.
+- `Model df: 2.`: Modelde tahmin edilen katsayı sayısı (ma1 ve sma1); $\sigma^2$ bu sayıya katılmaz.
+- `Total lags used: 24`: Testte kullanılan gecikme sayısı, yani 7.4'teki formüldeki $h$.
 
 Grafikler (Şekil 7.6) şöyle okunur:
 
@@ -3345,7 +3760,7 @@ Grafikler (Şekil 7.6) şöyle okunur:
 - **Artıkların ACF grafiği:** Çubukların neredeyse tamamı mavi kesikli güven bandı ($\pm 1.96/\sqrt{144} \approx \pm 0.16$) içinde kalmalı. 23. gecikmedeki bir çubuğun (yaklaşık 0.22) sınırı aşması, %5 anlamlılık düzeyinde tesadüfen beklenen bir durumdur: 24 çubuktan birinin ya da ikisinin bandı aşması normaldir.
 - **Histogram:** Sıfır etrafında, normal dağılıma benzer bir şekil olmalı.
 
-**Çıktının yorumu:** `df = 22`, kullanılan 24 gecikmeden tahmin edilen 2 katsayının düşülmesiyle elde edilir. Artıklar saf gürültü olsaydı $Q^{\ast}$'ın ortalama değeri bu df kadar, yani 22 olurdu; bulunan 26.4 buna yakındır. 22 serbestlik dereceli ki-kare dağılımında %5 düzeyindeki sınır yaklaşık 33.9'dur ve 26.4 bunun altında kalır. Bu yüzden p-değeri 0.233'tür (> 0.05): "Artıklar arasında otokorelasyon yoktur" hipotezini reddedemiyoruz; artıklar beyaz gürültüden ayırt edilemiyor. Model teşhis aşamasını geçmiştir.
+**Çıktının yorumu:** Artıklar saf gürültü olsaydı $Q^{\ast}$'ın ortalama değeri `df` kadar, yani 22 olurdu; bulunan 26.4 buna yakındır. 22 serbestlik dereceli ki-kare dağılımında %5 düzeyindeki sınır yaklaşık 33.9'dur ve 26.4 bunun altında kalır. Bu yüzden p-değeri 0.233'tür (> 0.05): "Artıklar arasında otokorelasyon yoktur" hipotezini reddedemiyoruz; artıklar beyaz gürültüden ayırt edilemiyor. Model teşhis aşamasını geçmiştir.
 
 ![Artık teşhisi](images/ch07_artik_teshisi.svg)
 
@@ -3366,11 +3781,24 @@ round(exp(fc$mean[c(1, 12, 24)]), 1)   # 1., 12. ve 24. ay tahminleri
 #> [1] 450.4 477.2 525.5
 ```
 
-`forecast(fit, h = 24)` modeli 24 adım (ay) ileriye taşır; `h` (*horizon*, ufuk) tahmin uzunluğudur. Sonuç `fc`, içinde birkaç parça barındıran bir nesnedir ve `$` işareti bu parçalara erişir: `fc$mean` nokta tahminlerini, `fc$lower` ve `fc$upper` %80 ve %95 tahmin aralıklarının alt ve üst sınırlarını tutar. `plot(fc)` geçmiş veriyi, tahminleri ve aralıkları birlikte çizer; `grid()` arka plana kılavuz çizgileri ekler. `fc$mean[c(1, 12, 24)]` ifadesindeki köşeli parantez, vektörden 1., 12. ve 24. elemanları seçer. Bu tahminler log ölçektedir (örneğin ilk ay için 6.1102). `exp()` fonksiyonu `log()`'un tersidir ve sayıyı orijinal ölçeğe döndürür: $e^{6.1102} \approx 450.4$. `round(..., 1)` sonucu bir ondalığa yuvarlar.
+Bu blok, Box-Jenkins'in 4. adımını (öngörü) yapar: Teşhisten geçen modelle gelecek 24 ayı tahmin eder, sonucu çizer ve birkaç tahmini log ölçekten yolcu sayısına geri çevirir. Kodu satır satır okuyalım:
+
+1. `fc <- forecast(fit, h = 24)`: `forecast()`, bir model nesnesini alıp geleceğe tahmin üretir. `h` (*horizon*, ufuk) kaç adım ileri gidileceğidir; veri aylık olduğu için 24 adım, Ocak 1961'den Aralık 1962'ye kadar 24 aydır. Tahmin aralıklarının düzeyini `level` argümanı belirler; yazmadığımız için varsayılan `c(80, 95)`, yani %80 ve %95 aralıkları hesaplanır. Model log seriye kurulduğu için tahminler de log ölçektedir. Sonuç, `fc` adıyla saklanan ve içinde birkaç parça barındıran bir `forecast` nesnesidir.
+2. `plot(fc, main = "...")`: `plot()` bir `forecast` nesnesi aldığında ona özel çizim yöntemini kullanır: Geçmiş veriyi, nokta tahminlerini ve tahmin aralıklarını tek grafikte çizer. `main` başlıktır.
+3. `grid()`: Açık grafiğe arka plan kılavuz çizgileri (ızgara) ekler; değerleri eksenlerden okumayı kolaylaştırır.
+4. `round(exp(fc$mean[c(1, 12, 24)]), 1)`: İçten dışa okunur:
+   - `fc$mean`: `$` işareti bir nesnenin içinden adıyla bir parça çeker. `fc$mean` 24 nokta tahmininden oluşan bir `ts` nesnesidir; `fc$lower` ve `fc$upper` ise aralıkların alt ve üst sınırlarını, %80 ve %95 için birer sütun olacak biçimde tutar.
+   - `[c(1, 12, 24)]`: Köşeli parantez bir vektörden eleman seçer; içine verilen `c(1, 12, 24)` vektörü 1., 12. ve 24. elemanları, yani Ocak 1961, Aralık 1961 ve Aralık 1962 tahminlerini seçer. Bu tahminler log ölçektedir (örneğin ilk ay için 6.1102).
+   - `exp()`: `log()`'un tersidir ($e^x$, $e \approx 2.718$) ve sayıyı orijinal ölçeğe döndürür: $e^{6.1102} \approx 450.4$.
+   - `round(..., 1)`: Sonucu bir ondalığa yuvarlar.
+
+   Bloktaki `#` ile başlayan satırlar ve satır sonundaki `#` sonrası yorumdur.
+
+Ekrana yazılan `[1] 450.4 477.2 525.5`, üç elemanlı bir vektördür: Orijinal ölçekte nokta tahminleri Ocak 1961 için yaklaşık 450, Aralık 1961 için 477, Aralık 1962 için yaklaşık 526 bin yolcudur.
 
 **Çıktının yorumu:** Grafikte mavi çizgi **nokta tahminlerini**, koyu ve açık gri alanlar sırasıyla **%80 ve %95 tahmin aralıklarını** gösterir. Model, öğrendiği trendi ve yıllık deseni geleceğe taşır; yaz tepeleri tahminlerde de görülür.
 
-Gri alanların zamanla genişlemesi dikkat çekicidir: Ne kadar uzağı tahmin edersek belirsizlik o kadar artar. Bu, modelin uzun vadeli tahminlerde daha az kesin olduğunu dürüstçe ifade etmesidir. Orijinal ölçeğe çevrildiğinde nokta tahminleri Ocak 1961 için yaklaşık 450, Aralık 1961 için 477, Aralık 1962 için yaklaşık 526 bin yolcudur. %95 aralığı ise Ocak 1961 için yaklaşık 419–484 iken Aralık 1962 için 400–691'e genişler (`exp(fc$lower)` ve `exp(fc$upper)` ile hesaplanır).
+Gri alanların zamanla genişlemesi dikkat çekicidir: Ne kadar uzağı tahmin edersek belirsizlik o kadar artar. Bu, modelin uzun vadeli tahminlerde daha az kesin olduğunu dürüstçe ifade etmesidir. %95 aralığı Ocak 1961 için yaklaşık 419–484 iken Aralık 1962 için 400–691'e genişler (`exp(fc$lower)` ve `exp(fc$upper)` ile hesaplanır).
 
 **Not —** Log ölçekteki tahminin `exp()` ile geri çevrilmesi, orijinal ölçekte ortalamayı değil **ortancayı** (medyanı) verir; ortalama tahmin bundan çok az daha yüksektir. Bu ders kapsamında fark ihmal edilebilir düzeydedir.
 
@@ -3892,15 +4320,25 @@ cat(sprintf("MAE = %.2f   RMSE = %.2f   MAPE = %%%.2f\n", mae, rmse, mape))
 #> MAE = 13.26   RMSE = 18.59   MAPE = %2.90
 ```
 
-Kodu adım adım okuyalım:
+Bu blok 8.1'deki eğitim-test mantığını uygular: Veriyi tarihe göre ikiye böler, modeli yalnızca eğitim kısmıyla kurar, test yılını tahmin eder, tahminleri gerçek değerlerle yan yana koyar ve 8.2'deki üç metriği hesaplar. Kodu adım adım okuyalım:
 
-1. `library(forecast)` ve `library(ggplot2)`, kurulu paketleri bu oturuma yükler (paketler bir kez `install.packages()` ile kurulur, her oturumda `library()` ile çağrılır). `<-` R'ın atama işaretidir: Sağdaki sonucu soldaki isimle saklar.
-2. `log(AirPassengers)` serinin her değerinin doğal logaritmasını alır. `window()` (Bölüm 5.4) bir `ts` nesnesinden zaman aralığı keser: `end = c(1959, 12)` "1959'un 12. ayında bitir", `start = c(1960, 1)` "1960'ın 1. ayından başla" demektir. `c()` birden çok değeri yan yana koyup tek bir vektör yapar; burada (yıl, ay) çiftini oluşturur. Kesim **tarihe göre** yapıldığı için eğitim seti kesin olarak test setinden önce biter; 8.1.1'deki kronolojik ayrım budur.
-3. `auto.arima(train, seasonal = TRUE)` yalnızca eğitim setine bakarak fark sayılarını ve (p, q)(P, Q) derecelerini seçer ve katsayıları kestirir. Fonksiyonun içine verilen `seasonal = TRUE` gibi `isim = değer` biçimindeki ifadelere **argüman** denir; fonksiyonun davranışını ayarlar. Seçilen model, Bölüm 7.6'da tüm veriyle bulunan **havayolu modeli** ARIMA(0,1,1)(0,1,1)[12] ile aynıdır; yalnızca katsayılar biraz farklıdır, çünkü model 1960'ı görmemiştir.
-4. `forecast(fit_train, h = length(test))` kurulan modelle `h` adım ileriye tahmin üretir. `length(test)` test setinin uzunluğunu (12) verdiği için ufuk test dönemiyle birebir örtüşür. Sonuç birkaç parçadan oluşan bir nesnedir; `$` işareti bir nesnenin içinden adıyla parça çeker. `fc_test$mean` nokta tahminlerini, `fc_test$lower` ve `fc_test$upper` ise tahmin aralıklarını tutar.
-5. Model log ölçekte çalıştığı için tahminler de log ölçektedir: Ocak 1960 için tahmin yaklaşık 6.038'dir ve bu sayı yolcu cinsinden bir anlam taşımaz. `exp()` (üstel fonksiyon, $e^x$, $e \approx 2.718$) logaritmanın tersidir ve değeri orijinal ölçeğe geri getirir: $\log(417) \approx 6.033$ iken $\exp(6.033) \approx 417$. Bu yüzden hem gerçek değerler hem tahminler `exp()` ile yolcu sayısına çevrilir; hatayı yolcu cinsinden ölçmek istiyorsak bu adım şarttır. `as.numeric()` zaman bilgisini atıp düz bir sayı vektörü bırakır.
-6. `data.frame()` sütunları yan yana koyarak bir tablo oluşturur. `month.abb` R'ın hazır ay kısaltmaları vektörüdür (`"Jan"`, `"Feb"`, ...), `round(x, 1)` virgülden sonra bir basamağa yuvarlar. `actual - predicted` işlemi 12 farkı tek seferde hesaplar: R'da vektörler arasındaki işlemler eleman eleman yapılır.
-7. Son blok 8.2'deki formüllerin satır satır karşılığıdır: `abs()` mutlak değer, `^2` kare, `sqrt()` karekök, `mean()` ortalama. Örneğin `mean(abs(actual - predicted))`, "farkları al, işaretlerini at, ortalamasını bul" demektir; yani MAE. `sprintf()` sayıları biçimlendirerek metne yerleştirir: `%.2f` "virgülden sonra iki basamak", `%%` ise metne düz bir `%` karakteri yazar.
+1. `# install.packages(c("forecast", "ggplot2"))`: Yorum satırıdır; paketler bilgisayarda kurulu değilse başındaki `#` silinip bir kez çalıştırılır (7.6.1). `library(forecast)` modelleme ve tahmin fonksiyonlarını (`auto.arima()`, `forecast()`, `naive()`, `snaive()`), `library(ggplot2)` ise bölümün sonundaki grafiği çizecek paketi bu oturuma yükler. Paketler bir kez kurulur, ama her yeni oturumda `library()` ile yeniden yüklenir.
+2. `train <- window(log(AirPassengers), end = c(1959, 12))`: İçten dışa okunur. `log(AirPassengers)` serinin her değerinin doğal logaritmasını alır. `window()` (Bölüm 5.4) bir `ts` nesnesinden zaman aralığı keser: `end = c(1959, 12)` "1959'un 12. ayında bitir" demektir; `start` verilmediği için kesim serinin başından (Ocak 1949) başlar. `c()` birden çok değeri yan yana koyup tek bir vektör yapar; burada (yıl, ay) çiftini oluşturur. Sonuç 132 aylık bir `ts` nesnesidir ve `<-` (atama) ile `train` adıyla saklanır. Satır sonundaki `#` sonrası, hangi ayların seçildiğini not eden yorumdur.
+3. `test <- window(log(AirPassengers), start = c(1960, 1))`: Bu kez `start = c(1960, 1)` "1960'ın 1. ayından başla" der; `end` verilmediği için serinin sonuna (Aralık 1960) kadar gider. Sonuç 12 aylık `test` serisidir. Kesim **tarihe göre** yapıldığı için eğitim seti kesin olarak test setinden önce biter; 8.1.1'deki kronolojik ayrım budur. (`test  <-` içindeki fazladan boşluk yalnızca iki satırı alt alta hizalamak içindir; R boşlukları önemsemez.)
+4. `fit_train <- auto.arima(train, seasonal = TRUE)`: Yalnızca eğitim setine bakarak fark sayılarını ve (p, q)(P, Q) derecelerini seçer ve katsayıları kestirir (7.6.5). Fonksiyonun içine verilen `seasonal = TRUE` gibi `isim = değer` biçimindeki ifadelere **argüman** denir; fonksiyonun davranışını ayarlar. Sonuç `fit_train` adlı model nesnesidir. `print(fit_train)` bu modelin özetini ekrana yazar.
+5. `fc_test <- forecast(fit_train, h = length(test))`: Kurulan modelle `h` adım ileriye tahmin üretir (7.6.7). `length()` bir vektörün ya da serinin eleman sayısını verir; `length(test)` 12 olduğu için ufuk test dönemiyle birebir örtüşür. Sayıyı elle 12 yazmak yerine `length(test)` yazmak, test seti değişirse kodun kendiliğinden uyum sağlamasını sağlar. Sonuç birkaç parçadan oluşan bir `forecast` nesnesidir; `$` işareti bir nesnenin içinden adıyla parça çeker. `fc_test$mean` nokta tahminlerini, `fc_test$lower` ve `fc_test$upper` ise tahmin aralıklarını tutar.
+6. `actual <- as.numeric(exp(test))` ve `predicted <- as.numeric(exp(fc_test$mean))`: Model log ölçekte çalıştığı için tahminler de log ölçektedir: Ocak 1960 için tahmin yaklaşık 6.039'dur ve bu sayı yolcu cinsinden bir anlam taşımaz. `exp()` (üstel fonksiyon, $e^x$, $e \approx 2.718$) logaritmanın tersidir ve değeri orijinal ölçeğe geri getirir: $\log(417) \approx 6.033$ iken $\exp(6.033) \approx 417$. Bu yüzden hem gerçek değerler hem tahminler `exp()` ile yolcu sayısına çevrilir; hatayı yolcu cinsinden ölçmek istiyorsak bu adım şarttır. `as.numeric()` `ts` nesnesinin zaman bilgisini atıp düz bir sayı vektörü bırakır; böylece `actual` (gerçek) ve `predicted` (tahmin), sıralarına göre eşleşen 12'şer elemanlı iki sayı vektörü olur.
+7. `comparison <- data.frame(Ay = month.abb, Gercek = actual, Tahmin = round(predicted, 1), Hata = round(actual - predicted, 1))`: `data.frame()` aynı uzunluktaki vektörleri sütun olarak yan yana koyup bir tablo (**veri çerçevesi**) oluşturur; her `isim = değer` çifti bir sütundur ve eşittirin solu sütunun adı olur. `month.abb` R'ın hazır İngilizce ay kısaltmaları vektörüdür (`"Jan"`, `"Feb"`, ...). `round(x, 1)` virgülden sonra bir basamağa yuvarlar. `actual - predicted` işlemi 12 farkı tek seferde hesaplar: R'da vektörler arasındaki işlemler eleman eleman yapılır (1. eleman 1. elemandan, 2. eleman 2. elemandan çıkarılır). Bu fark, 8.2'deki hata $e_t = y_t - \hat{y}_t$'dir. Parantez kapanmadığı için komut sonraki iki satırda sürer. `print(comparison)` tabloyu ekrana yazar.
+8. `mae <- mean(abs(actual - predicted))`: İçten dışa: Farkları al, `abs()` ile işaretlerini at (mutlak değer), `mean()` ile ortalamasını bul. Bu, 8.2.1'deki MAE'dir.
+9. `rmse <- sqrt(mean((actual - predicted)^2))`: Farkların karesini al (`^` R'da üs işaretidir, `^2` kare demektir), ortalamasını bul (MSE), `sqrt()` ile karekökünü al: 8.2.2'deki RMSE. Parantezler işlem sırasını belirler: `(actual - predicted)^2` önce farkı, sonra karesini alır.
+10. `mape <- mean(abs((actual - predicted) / actual)) * 100`: Her hatayı o ayın gerçek değerine böl, mutlak değerini al, ortalamasını bul ve 100 ile çarpıp yüzdeye çevir: 8.2.3'teki MAPE.
+11. `cat(sprintf("MAE = %.2f   RMSE = %.2f   MAPE = %%%.2f\n", mae, rmse, mape))`: `sprintf()` bir metin kalıbındaki yer tutucuların yerine, kalıptan sonra verilen değerleri sırasıyla yerleştirir: İlk `%.2f` yerine `mae`, ikincisine `rmse`, üçüncüsüne `mape` gelir. `%.2f` "ondalıklı sayı, virgülden sonra iki basamak" demektir. `%` işareti kalıpta özel anlam taşıdığı için metne düz bir `%` yazmak gerektiğinde `%%` kullanılır; `%%%.2f` bu yüzden "önce `%` işareti, ardından iki basamaklı sayı" olarak okunur. `\n` "yeni satıra geç" anlamına gelen özel karakterdir. `cat()` oluşan metni tırnak işaretleri olmadan ekrana yazar.
+
+Çıktıyı okuyalım:
+
+- `print(fit_train)` çıktısı 7.6.5'teki gibi okunur. `Series: train`, modelin eğitim serisine kurulduğunu gösterir. Seçilen model, Bölüm 7.6'da tüm veriyle bulunan **havayolu modeli** ARIMA(0,1,1)(0,1,1)[12] ile aynıdır; yalnızca katsayılar biraz farklıdır (`ma1 = -0.3484`, `sma1 = -0.5623`), çünkü model 1960'ı görmemiştir. Log likelihood ve AIC değerleri 7.6.5'tekilerle karşılaştırılamaz, çünkü farklı uzunlukta veriye kurulmuşlardır (bilgi kriterleri yalnızca aynı veri üzerinde karşılaştırılır, 7.4).
+- `comparison` tablosunda soldaki 1–12 sayıları satır numaralarıdır; R veri çerçevesinin satırlarını kendiliğinden numaralar. Üstteki `Ay`, `Gercek`, `Tahmin`, `Hata` başlıkları `data.frame()` içinde verdiğimiz sütun adlarıdır. `Hata` sütunundaki eksi değerler, modelin o ayı fazla tahmin ettiğini gösterir (8.2).
+- Son satır, `sprintf()` kalıbının doldurulmuş hâlidir: `MAE = 13.26   RMSE = 18.59   MAPE = %2.90`.
 
 **Çıktının yorumu:**
 
@@ -3938,9 +4376,26 @@ round(tablo[, "MAE"] / payda, 2)
 #>            0.44            2.50            1.57
 ```
 
-`function(a, p)` ile kendi fonksiyonumuzu tanımlıyoruz: `a` (actual, gerçek) ve `p` (predicted, tahmin) diye iki girdi alır ve `c(MAE = ..., RMSE = ..., MAPE = ...)` ile üç değeri **isimli** bir vektör olarak döndürür. Böylece aynı üç formülü her model için yeniden yazmak yerine `metrikler(actual, naive_fc)` gibi tek bir çağrı yeterli olur. `naive()` ve `snaive()`, `forecast` paketindeki hazır referans yöntemlerdir: Birincisi 12 ayın hepsini Aralık 1959'un değeriyle (405), ikincisi her ayı 1959'un aynı ayıyla (Ocak 360, Şubat 342, ...) tahmin eder. Bunlar da log ölçekteki `train` üzerinde çalıştığı için sonuçları `exp()` ile geri çeviriyoruz. `rbind()` vektörleri satır satır üst üste dizerek bir tablo yapar; `Mevsimsel Naive` adı boşluk içerdiği için ters tırnak (`` ` ``) arasına yazılmıştır.
+Bu blok, SARIMA'nın sonuçlarını 8.1.2'deki iki tembel yöntemle aynı test yılı üzerinde karşılaştırır ve 8.2.5'teki MASE'yi hesaplar. Aynı üç formülü her model için yeniden yazmamak için önce küçük bir fonksiyon tanımlanır. Kodu satır satır okuyalım:
 
-MASE satırlarında `diff(exp(train), lag = 12)`, eğitim setindeki her ayın değerinden 12 ay önceki değeri çıkarır; yani 8.2.5'teki $y_t - y_{t-s}$ farklarını ($s = 12$) hesaplar. 132 aylık eğitim setinden $132 - 12 = 120$ fark çıkar. `abs()` ve `mean()` bunların ortalama büyüklüğünü verir: Eğitim döneminde "geçen yılın aynı ayını kopyalamak" ortalama **30.45** bin yolcu yanıltmıştır. `tablo[, "MAE"]` köşeli parantezle tablodan yalnızca MAE sütununu seçer (virgülün solunun boş olması "bütün satırlar" demektir) ve her modelin MAE'si bu paydaya bölünür. SARIMA için $13.26 / 30.45 \approx 0.44$ çıkar.
+1. `metrikler <- function(a, p) c(MAE = ..., RMSE = ..., MAPE = ...)`: Kendi fonksiyonumuzu tanımlıyoruz.
+   - `function(a, p)` "iki girdi alan bir fonksiyon" demektir. `a` (*actual*, gerçek) ve `p` (*predicted*, tahmin), girdilerin fonksiyon içindeki geçici adlarıdır (**parametre**). Bu adlar yalnızca fonksiyonun içinde geçerlidir; dışarıdaki `actual` ve `predicted` ile karışmaz.
+   - Parantezden sonra gelen ifade fonksiyonun **gövdesidir**. Fonksiyon her çağrıldığında gövde, `a` ve `p` yerine o çağrıda verilen değerler konarak hesaplanır ve sonuç geri **döndürülür**. Gövde tek bir ifade olduğu için süslü paranteze `{ }` gerek yoktur; ifade parantez kapanana kadar üç satıra yayılır.
+   - Gövdedeki `c(MAE = ..., RMSE = ..., MAPE = ...)`, üç sayıyı **isimli** bir vektörde toplar: Her eleman eşittirin solundaki adı taşır, böylece sonuçta hangi sayının hangi metrik olduğu görünür. İçteki üç formül bir önceki bloktaki `mean()`, `abs()`, `sqrt()` ve `^2` hesaplarıyla aynıdır; yalnızca `actual` yerine `a`, `predicted` yerine `p` yazılmıştır.
+   - `<-` ile fonksiyonun kendisi `metrikler` adıyla saklanır. Bu satır hiçbir hesap yapmaz, yalnızca tarifi kaydeder. Örneğin `metrikler(actual, predicted)` yazıldığında `a` yerine `actual`, `p` yerine `predicted` konur ve sonuç `MAE = 13.26`, `RMSE = 18.59`, `MAPE = 2.90` olan üç elemanlı bir vektördür.
+2. `naive_fc <- as.numeric(exp(naive(train, h = 12)$mean))`: İçten dışa okunur. `naive(train, h = 12)`, `forecast` paketindeki hazır naive yöntemdir (8.1.2): Eğitim setinin son değerini 12 ay boyunca tekrarlar. Sonuç bir `forecast` nesnesidir; `$mean` ile nokta tahminleri alınır. `train` log ölçekte olduğu için `exp()` ile yolcu sayısına çevrilir, `as.numeric()` ile düz vektöre indirilir. Sonuç, 12 kez tekrarlanan 405'tir (Aralık 1959).
+3. `snaive_fc <- as.numeric(exp(snaive(train, h = 12)$mean))`: `snaive()` mevsimsel naive yöntemdir: Her ayı eğitim setinin son yılındaki aynı ayla tahmin eder (Ocak 360, Şubat 342, ...). Geri kalanı bir önceki satırla aynıdır. İki satırdaki fazladan boşluklar yalnızca hizalama içindir.
+4. `` tablo <- rbind(SARIMA = ..., Naive = ..., `Mevsimsel Naive` = ...) ``: `metrikler()` üç kez, her seferinde aynı gerçek değerlerle ama farklı tahminlerle çağrılır; her çağrı üç elemanlı isimli bir vektör döndürür. `rbind()` (*row bind*, satır olarak bağla) bu vektörleri satır satır üst üste dizerek bir **matris**, yani yalnızca sayılardan oluşan satır-sütun tablosu yapar. `SARIMA = ` gibi kısımlar satırların adı olur; sütun adları ise vektörlerin eleman adlarından (`MAE`, `RMSE`, `MAPE`) gelir. `Mevsimsel Naive` adı boşluk içerdiği için ters tırnak (`` ` ``) arasına yazılmıştır; ters tırnak R'a "bu, normalde izin verilmeyen karakterler içeren bir addır" der. Sonuç 3 satır ve 3 sütunluk `tablo` matrisidir.
+5. `round(tablo, 2)`: Matristeki bütün değerleri iki ondalığa yuvarlayıp ekrana yazar. `tablo`'nun kendisi değişmez; yuvarlanmış hâl yalnızca gösterilir.
+6. `payda <- mean(abs(diff(exp(train), lag = 12)))`: MASE'nin paydası. İçten dışa: `exp(train)` eğitim setini yolcu sayısına çevirir; `diff(..., lag = 12)` her ayın değerinden 12 ay önceki değeri çıkarır (7.6.3), yani 8.2.5'teki $y_t - y_{t-s}$ farklarını ($s = 12$) hesaplar. 132 aylık eğitim setinden $132 - 12 = 120$ fark çıkar. `abs()` ve `mean()` bunların ortalama büyüklüğünü verir. Üstteki iki `#` satırı bu hesabı tarif eden yorumlardır.
+7. `round(payda, 2)`: Paydayı iki ondalıkla ekrana yazar.
+8. `round(tablo[, "MAE"] / payda, 2)`: `tablo[satır, sütun]` biçimindeki köşeli parantez bir matristen parça seçer. Virgülün solu boş olduğu için "bütün satırlar", sağındaki `"MAE"` ise "adı MAE olan sütun" demektir. Sonuç, satır adlarını taşıyan üç elemanlı bir vektördür. `/ payda` her elemanı aynı sayıya böler (vektör ile tek bir sayı arasındaki işlem her elemana ayrı ayrı uygulanır) ve `round(..., 2)` iki ondalığa yuvarlar. Böylece üç modelin MASE değerleri elde edilir.
+
+Çıktıyı okuyalım:
+
+- `round(tablo, 2)` çıktısında satır adları (`SARIMA`, `Naive`, `Mevsimsel Naive`) `rbind()` içinde verdiğimiz adlardır; sütun adları (`MAE`, `RMSE`, `MAPE`) `metrikler()` içinde verdiğimiz adlardır. MAPE sütunu yüzdedir: 2.90, %2.90 demektir.
+- `[1] 30.45`: Paydadır. Eğitim döneminde "geçen yılın aynı ayını kopyalamak" ortalama **30.45** bin yolcu yanıltmıştır.
+- Son çıktıda her sayının üstünde ait olduğu modelin adı yazar; isimli vektörler ekrana böyle yazdırılır. SARIMA için $13.26 / 30.45 \approx 0.44$ çıkar.
 
 SARIMA'nın hatası, mevsimsel naive yönteminkinin yaklaşık dörtte biri ile üçte biri arasındadır (MAE'de $13.26/47.83 \approx 0.28$, RMSE'de $18.59/50.71 \approx 0.37$). Mevsimsel naive yıllık deseni yakalar ama büyümeyi (trendi) yakalayamaz; SARIMA ikisini de modellediği için açık farkla kazanır. Düz naive yöntem ise mevsimselliği de göremediği için en kötü sonucu verir. MASE sütunu aynı hikâyeyi tek sayıyla anlatır: SARIMA 0.44 ile 1'in çok altındadır. Mevsimsel naive'in MASE'sinin 1.57 çıkması ilk bakışta şaşırtıcı gelebilir, çünkü aynı yöntemi kendisiyle kıyaslıyoruz. Fark dönemden gelir: Payda eğitim dönemindeki tipik hatadır, pay ise 1960'taki hata. Seri büyüdükçe yıllık artış da mutlak olarak büyüdüğü için, geçen yılı kopyalamanın 1960'taki hatası, 1950'lerdeki ortalama hatasından daha büyüktür.
 
@@ -3973,7 +4428,21 @@ ggplot(plot_data, aes(x = Tarih, y = Deger, color = Tur)) +
 ggsave("ch08_sarima_test_tahmini.png", width = 10, height = 6, dpi = 300)
 ```
 
-`seq(as.Date("1949-01-01"), by = "month", length.out = ...)` verilen tarihten başlayıp ayda bir ilerleyen, istenen uzunlukta bir tarih dizisi üretir; böylece her gözleme bir takvim tarihi eşlenir. `ggplot2` farklı çizgileri ayırt etmek için verinin "uzun" biçimde olmasını ister: Tüm değerler tek bir `Deger` sütununda durur, hangi çizgiye ait oldukları `Tur` sütununda yazar. `aes(x = Tarih, y = Deger, color = Tur)` bu sütunları eksenlere ve renge bağlar; `Tur`'un her farklı değeri ayrı renkte ayrı bir çizgi olur. `geom_line()` çizgileri çizer, `labs()` başlık ve eksen adlarını, `scale_color_manual()` her türün rengini belirler. Katmanlar `+` ile üst üste eklenir. `ggsave()` son çizilen grafiği dosyaya kaydeder (genişlik ve yükseklik inç cinsinden, `dpi` çözünürlüktür). Eğitim çizgisinin Aralık 1959'da bittiğine, kırmızı test çizgisinin Ocak 1960'ta başladığına dikkat edin: Grafik, eğitim-test ayrımını da görsel olarak gösterir.
+Bu blok, eğitim dönemini, test yılının gerçek değerlerini ve SARIMA tahminlerini orijinal ölçekte tek grafikte çizer ve grafiği dosyaya kaydeder. `ggplot2` (Bölüm 6.1.2) `ts` nesnesinin zaman bilgisini doğrudan kullanmaz; bu yüzden önce her gözleme bir takvim tarihi eşleyip veriyi bir tabloya dönüştürürüz. Kodu satır satır okuyalım:
+
+1. `egitim_tarihler <- seq(as.Date("1949-01-01"), by = "month", length.out = length(train))`: `as.Date("1949-01-01")` tırnak içindeki metni yıl-ay-gün sırasıyla okuyup bir `Date` (tarih) nesnesine çevirir (Bölüm 4.2.1). `seq()` (*sequence*, dizi) bu tarihten başlayıp düzenli adımlarla ilerleyen bir dizi üretir: `by = "month"` adımın bir takvim ayı olduğunu, `length.out` dizinin kaç elemanlı olacağını söyler. `length(train)` 132 olduğu için sonuç, 1949-01-01'den 1959-12-01'e kadar 132 ay başı tarihinden oluşan bir `Date` vektörüdür. Ayın 1. gününün seçilmesi bir tercihtir; amaç her aya bir tarih vermektir.
+2. `test_tarihler <- seq(as.Date("1960-01-01"), by = "month", length.out = length(test))`: Aynı işlemi test yılı için yapar: 1960-01-01'den başlayan 12 tarih.
+3. `plot_data <- rbind(data.frame(...), data.frame(...), data.frame(...))`: Her `data.frame()` üç sütunlu bir tablo oluşturur: `Tarih`, `Deger` (yolcu sayısı) ve `Tur` (satırın hangi çizgiye ait olduğunu söyleyen etiket). Üç parça sırasıyla eğitim döneminin gerçek değerleri (`as.numeric(exp(train))`: log ölçekten geri çevrilmiş 132 değer), test yılının gerçek değerleri (`actual`) ve SARIMA tahminleridir (`predicted`). `Tur` sütununa tek bir metin verildiği için R onu o parçanın bütün satırlarına tekrarlar. `rbind()` bu kez veri çerçevelerini alt alta ekler; sütun adları aynı olduğu için tek tabloda birleşirler. Sonuç $132 + 12 + 12 = 156$ satırlık `plot_data` tablosudur. Bu yapıya **uzun biçim** denir: Tüm değerler tek bir `Deger` sütununda durur, hangi çizgiye ait oldukları `Tur` sütununda yazar. `ggplot2` farklı çizgileri ayırt etmek için verinin bu biçimde olmasını ister.
+4. `ggplot(plot_data, aes(x = Tarih, y = Deger, color = Tur))`: Grafiğin temelini kurar ve veri olarak `plot_data`'yı kullanır. `aes()` (*aesthetics*, görsel eşlemeler) hangi sütunun grafiğin hangi özelliğine bağlanacağını söyler: `Tarih` yatay eksene, `Deger` dikey eksene, `Tur` renge. Sütun adları burada tırnaksız yazılır, çünkü `aes()` onları `plot_data`'nın içinde arar. `Tur`'un her farklı değeri ayrı renkte ayrı bir çizgi olur.
+5. Satır sonlarındaki `+` işaretleri: `ggplot2`'de grafik katman katman kurulur ve her katman bir öncekine `+` ile eklenir. `+` satırın sonunda durmalıdır; R satırın `+` ile bittiğini görünce komutun bir sonraki satırda sürdüğünü anlar.
+6. `geom_line(linewidth = 0.7)`: Verileri çizgiyle çizen katmandır; `linewidth` çizgi kalınlığıdır (0.7, ince ama net bir çizgi verir). `Tur` renge bağlandığı için üç ayrı çizgi çizilir.
+7. `labs(title = ..., y = ..., x = ..., color = NULL)`: Grafik başlığını ve eksen adlarını belirler. `NULL` R'da "hiçbir şey, boş" anlamına gelir; `color = NULL` renk açıklamasının (lejant) başlığını kaldırır, çünkü lejanttaki etiketler zaten açıklayıcıdır.
+8. `theme_minimal()`: Gri arka planı kaldıran sade bir hazır görünüm (tema) uygular.
+9. `theme(legend.position = "bottom")`: Lejantı grafiğin altına taşır; uzun etiketler grafiğin yanında yer kaplamaz.
+10. `scale_color_manual(values = c("Gerçek (eğitim, 1949-1959)" = "black", ...))`: Renkleri elle belirler. `values` argümanına verilen isimli vektörde eşittirin solu `Tur` sütunundaki etiket, sağı o etiketin rengidir: eğitim siyah, test kırmızı, tahmin mavi. Etiketler `plot_data`'daki metinlerle harfi harfine aynı olmalıdır, yoksa eşleşme kurulmaz. Adlar burada tırnak içindedir, çünkü boşluk ve parantez içeren metinlerdir.
+11. `ggsave("ch08_sarima_test_tahmini.png", width = 10, height = 6, dpi = 300)`: Son çizilen `ggplot` grafiğini dosyaya kaydeder. Dosya türünü uzantıdan (`.png`) anlar ve dosyayı R'ın o anki çalışma dizinine yazar. `width` ve `height` inç cinsinden boyutlardır (varsayılan birim inçtir), `dpi` (*dots per inch*) her inçteki nokta sayısı, yani çözünürlüktür: Sonuç $10 \times 300 = 3000$ piksel genişliğinde ve $6 \times 300 = 1800$ piksel yüksekliğinde bir resimdir. (`Codes/R/` dosyasında grafik önce `p` adıyla saklanır, `print(p)` ile çizilir ve `ggsave(..., plot = p)` ile hangi grafiğin kaydedileceği açıkça belirtilir; sonuç aynıdır.)
+
+Bu blok ekrana sayı yazmaz; ekranda Şekil 8.3'teki grafik görünür ve aynı grafik PNG dosyası olarak kaydedilir. Eğitim çizgisinin Aralık 1959'da bittiğine, kırmızı test çizgisinin Ocak 1960'ta başladığına dikkat edin: Grafik, eğitim-test ayrımını da görsel olarak gösterir.
 
 ![SARIMA test tahmini](images/ch08_sarima_test_tahmini.png)
 
