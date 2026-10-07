@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="620" viewBox="0 0 900 620">
+<title>AR(1) sürecinde şokun seyri</title>
+<rect x="0.5" y="0.5" width="899" height="619" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">Bir Şokun Seyri: φ Katsayısı Serinin Hafızasını Belirler</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">xₜ = φ·xₜ₋₁ + εₜ  —  üstte 100 birimlik tek bir şokun sonraki dönemlere yansıması, altta aynı rastgele şoklarla üretilmiş seriler</text>
+<rect x="45.0" y="95.0" width="240.0" height="170.0" fill="#f9fafb" stroke="none"/>
+<line x1="45.0" y1="227.2" x2="285.0" y2="227.2" stroke="#e5e7eb" stroke-width="1"/>
+<text x="39.0" y="231.2" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="end" font-weight="normal">100</text>
+<line x1="45.0" y1="189.4" x2="285.0" y2="189.4" stroke="#e5e7eb" stroke-width="1"/>
+<text x="39.0" y="193.4" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="end" font-weight="normal">200</text>
+<line x1="45.0" y1="151.7" x2="285.0" y2="151.7" stroke="#e5e7eb" stroke-width="1"/>
+<text x="39.0" y="155.7" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="end" font-weight="normal">300</text>
+<line x1="45.0" y1="113.9" x2="285.0" y2="113.9" stroke="#e5e7eb" stroke-width="1"/>
+<text x="39.0" y="117.9" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="end" font-weight="normal">400</text>
+<line x1="45.0" y1="265.0" x2="293.0" y2="265.0" stroke="#6b7280" stroke-width="1.2"/>
+<line x1="45.0" y1="265.0" x2="45.0" y2="89.0" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="293,261 300,265 293,269" fill="#6b7280"/>
+<polygon points="41,89 45,82 49,89" fill="#6b7280"/>
+<line x1="58.3" y1="265.0" x2="58.3" y2="227.2" stroke="#16a34a" stroke-width="3"/>
+<circle cx="58.3" cy="227.2" r="3.5" fill="#16a34a" stroke="none" stroke-width="1.5"/>
+<text x="58.3" y="220.2" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#1f2937" text-anchor="middle" font-weight="normal">100</text>
+<text x="58.3" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<line x1="85.0" y1="265.0" x2="85.0" y2="246.1" stroke="#16a34a" stroke-width="3"/>
+<circle cx="85.0" cy="246.1" r="3.5" fill="#16a34a" stroke="none" stroke-width="1.5"/>
+<text x="85.0" y="239.1" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#1f2937" text-anchor="middle" font-weight="normal">50</text>
+<text x="85.0" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<line x1="111.7" y1="265.0" x2="111.7" y2="255.6" stroke="#16a34a" stroke-width="3"/>
+<circle cx="111.7" cy="255.6" r="3.5" fill="#16a34a" stroke="none" stroke-width="1.5"/>
+<text x="111.7" y="248.6" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#1f2937" text-anchor="middle" font-weight="normal">25</text>
+<text x="111.7" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">2</text>
+<line x1="138.3" y1="265.0" x2="138.3" y2="260.3" stroke="#16a34a" stroke-width="3"/>
+<circle cx="138.3" cy="260.3" r="3.5" fill="#16a34a" stroke="none" stroke-width="1.5"/>
+<text x="138.3" y="253.3" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#1f2937" text-anchor="middle" font-weight="normal">12.5</text>
+<text x="138.3" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">3</text>
+<line x1="165.0" y1="265.0" x2="165.0" y2="262.6" stroke="#16a34a" stroke-width="3"/>
+<circle cx="165.0" cy="262.6" r="3.5" fill="#16a34a" stroke="none" stroke-width="1.5"/>
+<text x="165.0" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">4</text>
+<line x1="191.7" y1="265.0" x2="191.7" y2="263.8" stroke="#16a34a" stroke-width="3"/>
+<circle cx="191.7" cy="263.8" r="3.5" fill="#16a34a" stroke="none" stroke-width="1.5"/>
+<text x="191.7" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">5</text>
+<line x1="218.3" y1="265.0" x2="218.3" y2="264.4" stroke="#16a34a" stroke-width="3"/>
+<circle cx="218.3" cy="264.4" r="3.5" fill="#16a34a" stroke="none" stroke-width="1.5"/>
+<text x="218.3" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">6</text>
+<line x1="245.0" y1="265.0" x2="245.0" y2="264.7" stroke="#16a34a" stroke-width="3"/>
+<circle cx="245.0" cy="264.7" r="3.5" fill="#16a34a" stroke="none" stroke-width="1.5"/>
+<text x="245.0" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">7</text>
+<line x1="271.7" y1="265.0" x2="271.7" y2="264.9" stroke="#16a34a" stroke-width="3"/>
+<circle cx="271.7" cy="264.9" r="3.5" fill="#16a34a" stroke="none" stroke-width="1.5"/>
+<text x="271.7" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">8</text>
+<text x="285.0" y="292.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="end" font-weight="normal">şoktan sonraki dönem</text>
+<text x="165.0" y="82.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#16a34a" text-anchor="middle" font-weight="bold">(a) φ = 0.5:  100, 50, 25, 12.5, …</text>
+<text x="165.0" y="310.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="middle" font-weight="normal">Şok her dönem yarıya iner, söner</text>
+<rect x="340.0" y="95.0" width="240.0" height="170.0" fill="#f9fafb" stroke="none"/>
+<line x1="340.0" y1="227.2" x2="580.0" y2="227.2" stroke="#e5e7eb" stroke-width="1"/>
+<line x1="340.0" y1="189.4" x2="580.0" y2="189.4" stroke="#e5e7eb" stroke-width="1"/>
+<line x1="340.0" y1="151.7" x2="580.0" y2="151.7" stroke="#e5e7eb" stroke-width="1"/>
+<line x1="340.0" y1="113.9" x2="580.0" y2="113.9" stroke="#e5e7eb" stroke-width="1"/>
+<line x1="340.0" y1="265.0" x2="588.0" y2="265.0" stroke="#6b7280" stroke-width="1.2"/>
+<line x1="340.0" y1="265.0" x2="340.0" y2="89.0" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="588,261 595,265 588,269" fill="#6b7280"/>
+<polygon points="336,89 340,82 344,89" fill="#6b7280"/>
+<line x1="353.3" y1="265.0" x2="353.3" y2="227.2" stroke="#ea580c" stroke-width="3"/>
+<circle cx="353.3" cy="227.2" r="3.5" fill="#ea580c" stroke="none" stroke-width="1.5"/>
+<text x="353.3" y="220.2" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#1f2937" text-anchor="middle" font-weight="normal">100</text>
+<text x="353.3" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<line x1="380.0" y1="265.0" x2="380.0" y2="227.2" stroke="#ea580c" stroke-width="3"/>
+<circle cx="380.0" cy="227.2" r="3.5" fill="#ea580c" stroke="none" stroke-width="1.5"/>
+<text x="380.0" y="220.2" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#1f2937" text-anchor="middle" font-weight="normal">100</text>
+<text x="380.0" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<line x1="406.7" y1="265.0" x2="406.7" y2="227.2" stroke="#ea580c" stroke-width="3"/>
+<circle cx="406.7" cy="227.2" r="3.5" fill="#ea580c" stroke="none" stroke-width="1.5"/>
+<text x="406.7" y="220.2" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#1f2937" text-anchor="middle" font-weight="normal">100</text>
+<text x="406.7" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">2</text>
+<line x1="433.3" y1="265.0" x2="433.3" y2="227.2" stroke="#ea580c" stroke-width="3"/>
+<circle cx="433.3" cy="227.2" r="3.5" fill="#ea580c" stroke="none" stroke-width="1.5"/>
+<text x="433.3" y="220.2" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#1f2937" text-anchor="middle" font-weight="normal">100</text>
+<text x="433.3" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">3</text>
+<line x1="460.0" y1="265.0" x2="460.0" y2="227.2" stroke="#ea580c" stroke-width="3"/>
+<circle cx="460.0" cy="227.2" r="3.5" fill="#ea580c" stroke="none" stroke-width="1.5"/>
+<text x="460.0" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">4</text>
+<line x1="486.7" y1="265.0" x2="486.7" y2="227.2" stroke="#ea580c" stroke-width="3"/>
+<circle cx="486.7" cy="227.2" r="3.5" fill="#ea580c" stroke="none" stroke-width="1.5"/>
+<text x="486.7" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">5</text>
+<line x1="513.3" y1="265.0" x2="513.3" y2="227.2" stroke="#ea580c" stroke-width="3"/>
+<circle cx="513.3" cy="227.2" r="3.5" fill="#ea580c" stroke="none" stroke-width="1.5"/>
+<text x="513.3" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">6</text>
+<line x1="540.0" y1="265.0" x2="540.0" y2="227.2" stroke="#ea580c" stroke-width="3"/>
+<circle cx="540.0" cy="227.2" r="3.5" fill="#ea580c" stroke="none" stroke-width="1.5"/>
+<text x="540.0" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">7</text>
+<line x1="566.7" y1="265.0" x2="566.7" y2="227.2" stroke="#ea580c" stroke-width="3"/>
+<circle cx="566.7" cy="227.2" r="3.5" fill="#ea580c" stroke="none" stroke-width="1.5"/>
+<text x="566.7" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">8</text>
+<text x="580.0" y="292.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="end" font-weight="normal">şoktan sonraki dönem</text>
+<text x="460.0" y="82.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#ea580c" text-anchor="middle" font-weight="bold">(b) φ = 1:  100, 100, 100, 100, …</text>
+<text x="460.0" y="310.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="middle" font-weight="normal">Şok hiç küçülmez, kalıcıdır</text>
+<rect x="635.0" y="95.0" width="240.0" height="170.0" fill="#f9fafb" stroke="none"/>
+<line x1="635.0" y1="227.2" x2="875.0" y2="227.2" stroke="#e5e7eb" stroke-width="1"/>
+<line x1="635.0" y1="189.4" x2="875.0" y2="189.4" stroke="#e5e7eb" stroke-width="1"/>
+<line x1="635.0" y1="151.7" x2="875.0" y2="151.7" stroke="#e5e7eb" stroke-width="1"/>
+<line x1="635.0" y1="113.9" x2="875.0" y2="113.9" stroke="#e5e7eb" stroke-width="1"/>
+<line x1="635.0" y1="265.0" x2="883.0" y2="265.0" stroke="#6b7280" stroke-width="1.2"/>
+<line x1="635.0" y1="265.0" x2="635.0" y2="89.0" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="883,261 890,265 883,269" fill="#6b7280"/>
+<polygon points="631,89 635,82 639,89" fill="#6b7280"/>
+<line x1="648.3" y1="265.0" x2="648.3" y2="227.2" stroke="#dc2626" stroke-width="3"/>
+<circle cx="648.3" cy="227.2" r="3.5" fill="#dc2626" stroke="none" stroke-width="1.5"/>
+<text x="648.3" y="220.2" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#1f2937" text-anchor="middle" font-weight="normal">100</text>
+<text x="648.3" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<line x1="675.0" y1="265.0" x2="675.0" y2="219.7" stroke="#dc2626" stroke-width="3"/>
+<circle cx="675.0" cy="219.7" r="3.5" fill="#dc2626" stroke="none" stroke-width="1.5"/>
+<text x="675.0" y="212.7" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#1f2937" text-anchor="middle" font-weight="normal">120</text>
+<text x="675.0" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<line x1="701.7" y1="265.0" x2="701.7" y2="210.6" stroke="#dc2626" stroke-width="3"/>
+<circle cx="701.7" cy="210.6" r="3.5" fill="#dc2626" stroke="none" stroke-width="1.5"/>
+<text x="701.7" y="203.6" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#1f2937" text-anchor="middle" font-weight="normal">144</text>
+<text x="701.7" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">2</text>
+<line x1="728.3" y1="265.0" x2="728.3" y2="199.7" stroke="#dc2626" stroke-width="3"/>
+<circle cx="728.3" cy="199.7" r="3.5" fill="#dc2626" stroke="none" stroke-width="1.5"/>
+<text x="728.3" y="192.7" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#1f2937" text-anchor="middle" font-weight="normal">172.8</text>
+<text x="728.3" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">3</text>
+<line x1="755.0" y1="265.0" x2="755.0" y2="186.7" stroke="#dc2626" stroke-width="3"/>
+<circle cx="755.0" cy="186.7" r="3.5" fill="#dc2626" stroke="none" stroke-width="1.5"/>
+<text x="755.0" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">4</text>
+<line x1="781.7" y1="265.0" x2="781.7" y2="171.0" stroke="#dc2626" stroke-width="3"/>
+<circle cx="781.7" cy="171.0" r="3.5" fill="#dc2626" stroke="none" stroke-width="1.5"/>
+<text x="781.7" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">5</text>
+<line x1="808.3" y1="265.0" x2="808.3" y2="152.2" stroke="#dc2626" stroke-width="3"/>
+<circle cx="808.3" cy="152.2" r="3.5" fill="#dc2626" stroke="none" stroke-width="1.5"/>
+<text x="808.3" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">6</text>
+<line x1="835.0" y1="265.0" x2="835.0" y2="129.6" stroke="#dc2626" stroke-width="3"/>
+<circle cx="835.0" cy="129.6" r="3.5" fill="#dc2626" stroke="none" stroke-width="1.5"/>
+<text x="835.0" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">7</text>
+<line x1="861.7" y1="265.0" x2="861.7" y2="102.6" stroke="#dc2626" stroke-width="3"/>
+<circle cx="861.7" cy="102.6" r="3.5" fill="#dc2626" stroke="none" stroke-width="1.5"/>
+<text x="861.7" y="95.6" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#1f2937" text-anchor="middle" font-weight="normal">430</text>
+<text x="861.7" y="278.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="9.5" fill="#6b7280" text-anchor="middle" font-weight="normal">8</text>
+<text x="875.0" y="292.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="end" font-weight="normal">şoktan sonraki dönem</text>
+<text x="755.0" y="82.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#dc2626" text-anchor="middle" font-weight="bold">(c) φ = 1.2:  100, 120, 144, 172.8, …</text>
+<text x="755.0" y="310.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="middle" font-weight="normal">Şok her dönem %20 büyür</text>
+<rect x="45.0" y="365.0" width="240.0" height="155.0" fill="#f9fafb" stroke="none"/>
+<line x1="45.0" y1="449.1" x2="285.0" y2="449.1" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4 3"/>
+<line x1="45.0" y1="520.0" x2="293.0" y2="520.0" stroke="#6b7280" stroke-width="1.2"/>
+<line x1="45.0" y1="520.0" x2="45.0" y2="359.0" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="293,516 300,520 293,524" fill="#6b7280"/>
+<polygon points="41,359 45,352 49,359" fill="#6b7280"/>
+<polyline points="45.0,446.2 49.1,450.7 53.1,435.1 57.2,439.6 61.3,456.7 65.3,444.5 69.4,416.7 73.5,411.0 77.5,446.3 81.6,476.9 85.7,477.4 89.7,462.3 93.8,509.3 97.9,484.2 101.9,495.4 106.0,489.1 110.1,481.7 114.2,472.7 118.2,451.4 122.3,426.2 126.4,440.6 130.4,413.3 134.5,446.5 138.6,439.7 142.6,423.5 146.7,434.1 150.8,458.7 154.8,475.2 158.9,472.7 163.0,455.8 167.0,475.7 171.1,467.2 175.2,461.8 179.2,443.0 183.3,441.1 187.4,436.9 191.4,458.0 195.5,456.5 199.6,434.7 203.6,407.4 207.7,457.3 211.8,418.2 215.8,402.6 219.9,407.8 224.0,422.3 228.1,442.9 232.1,412.4 236.2,385.5 240.3,375.7 244.3,382.0 248.4,407.3 252.5,456.1 256.5,452.7 260.6,435.7 264.7,472.1 268.7,451.5 272.8,440.3 276.9,428.6 280.9,466.2 285.0,472.9" fill="none" stroke="#16a34a" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" opacity="1.0"/>
+<text x="285.0" y="534.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="end" font-weight="normal">t = 1 … 60</text>
+<text x="40.0" y="453.1" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="end" font-weight="normal">0</text>
+<text x="165.0" y="554.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#16a34a" text-anchor="middle" font-weight="bold">Durağan</text>
+<text x="165.0" y="572.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="middle" font-weight="normal">Sıfır çevresinde dalgalanır, hep geri döner</text>
+<rect x="340.0" y="365.0" width="240.0" height="155.0" fill="#f9fafb" stroke="none"/>
+<line x1="340.0" y1="452.0" x2="580.0" y2="452.0" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4 3"/>
+<line x1="340.0" y1="520.0" x2="588.0" y2="520.0" stroke="#6b7280" stroke-width="1.2"/>
+<line x1="340.0" y1="520.0" x2="340.0" y2="359.0" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="588,516 595,520 588,524" fill="#6b7280"/>
+<polygon points="336,359 340,352 344,359" fill="#6b7280"/>
+<polyline points="340.0,450.6 344.1,452.0 348.1,444.9 352.2,443.7 356.3,449.7 360.3,445.6 364.4,431.0 368.5,420.4 372.5,428.3 376.6,442.5 380.7,449.5 384.7,449.0 388.8,475.1 392.9,477.5 396.9,491.5 401.0,499.7 405.1,505.8 409.2,509.3 413.2,504.7 417.3,493.0 421.4,494.5 425.4,479.1 429.5,486.6 433.6,482.7 437.6,472.5 441.7,471.5 445.8,479.8 449.8,490.1 453.9,495.3 458.0,492.8 462.0,504.1 466.1,506.5 470.2,508.2 474.2,502.2 478.3,499.8 482.4,495.8 486.4,503.1 490.5,504.6 494.6,495.8 498.6,479.1 502.7,493.2 506.8,476.2 510.8,461.1 514.9,452.4 519.0,449.4 523.1,452.9 527.1,436.6 531.2,414.6 535.3,394.4 539.3,379.7 543.4,375.7 547.5,389.2 551.5,389.3 555.6,381.9 559.7,396.4 563.7,391.9 567.8,387.1 571.9,379.3 575.9,392.6 580.0,400.0" fill="none" stroke="#ea580c" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" opacity="1.0"/>
+<text x="580.0" y="534.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="end" font-weight="normal">t = 1 … 60</text>
+<text x="335.0" y="456.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="end" font-weight="normal">0</text>
+<text x="460.0" y="554.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#ea580c" text-anchor="middle" font-weight="bold">Birim kök (rastgele yürüyüş)</text>
+<text x="460.0" y="572.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="middle" font-weight="normal">Başıboş dolaşır, geri dönmez</text>
+<rect x="635.0" y="365.0" width="240.0" height="155.0" fill="#f9fafb" stroke="none"/>
+<line x1="635.0" y1="502.9" x2="875.0" y2="502.9" stroke="#9ca3af" stroke-width="1" stroke-dasharray="4 3"/>
+<line x1="635.0" y1="520.0" x2="883.0" y2="520.0" stroke="#6b7280" stroke-width="1.2"/>
+<line x1="635.0" y1="520.0" x2="635.0" y2="359.0" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="883,516 890,520 883,524" fill="#6b7280"/>
+<polygon points="631,359 635,352 639,359" fill="#6b7280"/>
+<polyline points="635.0,502.9 639.1,502.9 643.1,502.9 647.2,502.9 651.3,502.9 655.3,502.9 659.4,502.9 663.5,502.9 667.5,502.9 671.6,502.9 675.7,502.9 679.7,502.9 683.8,502.9 687.9,502.9 691.9,502.9 696.0,502.9 700.1,502.9 704.2,502.9 708.2,502.9 712.3,502.9 716.4,502.9 720.4,502.8 724.5,502.8 728.6,502.8 732.6,502.7 736.7,502.7 740.8,502.6 744.8,502.6 748.9,502.5 753.0,502.4 757.0,502.3 761.1,502.2 765.2,502.0 769.2,501.9 773.3,501.6 777.4,501.4 781.4,501.1 785.5,500.7 789.6,500.2 793.6,499.7 797.7,499.0 801.8,498.2 805.8,497.3 809.9,496.1 814.0,494.7 818.1,493.1 822.1,491.1 826.2,488.7 830.3,485.8 834.3,482.4 838.4,478.3 842.5,473.3 846.5,467.4 850.6,460.3 854.7,451.8 858.7,441.6 862.8,429.3 866.9,414.6 870.9,396.9 875.0,375.7" fill="none" stroke="#dc2626" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round" opacity="1.0"/>
+<text x="875.0" y="534.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="end" font-weight="normal">t = 1 … 60</text>
+<text x="630.0" y="506.9" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="end" font-weight="normal">0</text>
+<text x="643.0" y="381.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#1f2937" text-anchor="start" font-weight="normal">60. dönemde ≈ 9 bin</text>
+<text x="755.0" y="554.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#dc2626" text-anchor="middle" font-weight="bold">Patlayıcı</text>
+<text x="755.0" y="572.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="middle" font-weight="normal">Kısa süre sakin, sonra sınırsız büyür</text>
+<text x="450.0" y="343.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="middle" font-weight="normal">Aynı rastgele şoklar (εₜ) üç farklı φ ile işlendiğinde ortaya çıkan seriler (her panelin dikey ölçeği farklıdır)</text>
+</svg>

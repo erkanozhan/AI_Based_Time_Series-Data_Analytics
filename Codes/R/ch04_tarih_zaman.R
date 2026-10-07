@@ -10,12 +10,18 @@
 #
 # Not: "#>" ile başlayan yorumlar, notta verilen beklenen çıktılardır.
 #      Sys.Date(), Sys.time(), today() ve now() kullanan satırların çıktısı
-#      çalıştırdığınız güne göre değişir. Ay ve gün adları (%B, %A,
-#      wday(label = TRUE)) bilgisayarınızın dil ayarına göre Türkçe ya da
-#      İngilizce yazılır.
+#      çalıştırdığınız güne göre değişir. Notta gösterilen çıktılar saat
+#      dilimi "Europe/Istanbul" ve tarih dili Türkçe olan bir bilgisayarda
+#      üretilmiştir. Ay ve gün adları (%B, %A, wday(label = TRUE))
+#      bilgisayarınızın dil ayarına göre Türkçe ya da İngilizce yazılır.
+#      Ayarlarınızı görmek için: Sys.timezone(), Sys.getlocale("LC_TIME")
 # =============================================================================
 
 library(lubridate)
+
+# Türkçe gün/ay adları için (isteğe bağlı, oturum başına bir kez):
+# Sys.setlocale("LC_TIME", "Turkish_Türkiye.utf8")   # Windows ("Turkish_Turkey.utf8" de olabilir)
+# Sys.setlocale("LC_TIME", "tr_TR.UTF-8")            # Linux / macOS
 
 # ---- 4.2 Date, POSIXct ve POSIXlt sınıfları ----
 # Date: içeride gün sayısı
@@ -29,7 +35,7 @@ as.Date(19754)         # Ters yön: sayıdan tarihe
 d + 1                  # Bir gün sonrası: sayıya 1 eklemek yeterli
 #> [1] "2024-02-02"
 
-# POSIXct: içeride saniye sayısı
+# POSIXct: içeride saniye sayısı (saat UTC'ye göre 14:30)
 ct <- as.POSIXct("2024-02-01 14:30:00", tz = "UTC")
 class(ct)
 #> [1] "POSIXct" "POSIXt"
@@ -66,6 +72,8 @@ as.Date("01/02/2024", format = "%m/%d/%Y")   # ABD: ay/gün/yıl
 #> [1] "2024-01-02"
 as.Date("01.02.2024", format = "%d.%m.%Y")   # Noktalı Türkçe yazım
 #> [1] "2024-02-01"
+as.Date("15/03/2024", format = "%m/%d/%Y")   # 15. ay yok: hata değil, sessizce NA
+#> [1] NA
 as.Date("2024-02-30", format = "%Y-%m-%d")   # Takvimde olmayan gün
 #> [1] NA
 
@@ -96,6 +104,8 @@ ny - ist            # Duvar saatleri aynı ama anlar farklı
 
 as.numeric(ist)     # İçerideki sayı: UTC saniyesi
 #> [1] 1706787000
+as.numeric(ny)
+#> [1] 1706815800
 format(ist, tz = "UTC", usetz = TRUE)   # Aynı anı UTC olarak göster
 #> [1] "2024-02-01 11:30:00 UTC"
 
@@ -114,8 +124,12 @@ dmy("15.03.2024")        # gün-ay-yıl (Türkçe yazım)
 #> [1] "2024-03-15"
 mdy("03/15/2024")        # ay-gün-yıl (ABD yazımı)
 #> [1] "2024-03-15"
-ymd("20240315")          # ayraçsız da çalışır
+ymd("20240315")          # ayraçsız da çalışır (ISO 8601 temel biçimi)
 #> [1] "2024-03-15"
+ymd("01/02/2024")        # Sıra uymuyor: tahmin etmez, NA + uyarı verir
+#> [1] NA
+#> Warning message:
+#> All formats failed to parse. No formats found.
 
 # Tarih + saat: ymd_hms(), dmy_hm() vb.
 ymd_hms("2024-03-15 14:30:00")            # tz verilmezse UTC varsayılır
@@ -176,6 +190,9 @@ aylik_dizi <- seq(from = as.Date("2024-01-01"),
                   to   = as.Date("2024-12-31"),
                   by   = "month")
 aylik_dizi
+#>  [1] "2024-01-01" "2024-02-01" "2024-03-01" "2024-04-01" "2024-05-01"
+#>  [6] "2024-06-01" "2024-07-01" "2024-08-01" "2024-09-01" "2024-10-01"
+#> [11] "2024-11-01" "2024-12-01"
 
 # Başlangıç + adım + uzunluk ile
 seq(as.Date("2024-01-01"), by = "week", length.out = 4)

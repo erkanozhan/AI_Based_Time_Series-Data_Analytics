@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560">
+<title>AR ve MA süreçlerinde şokun yankısı</title>
+<rect x="0.5" y="0.5" width="899" height="559" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">Bir Şokun Yankısı: AR(1) ile MA(1) Neden Farklı İmza Bırakır?</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0. günde 100 birimlik tek bir şok; sonrasında hiç şok yok. Sol: şokun seriye etkisi. Orta ve sağ: teorik ACF ve PACF</text>
+<text x="180.0" y="76.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">Şokun etkisi (0, 1, 2, … gün sonra)</text>
+<text x="465.0" y="76.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">ACF  (h = 1 … 6)</text>
+<text x="750.0" y="76.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">PACF  (h = 1 … 6)</text>
+<text x="60.0" y="112.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#2563eb" text-anchor="start" font-weight="bold">AR(1), φ = 0.5:  xₜ = 0.5·xₜ₋₁ + εₜ</text>
+<rect x="60" y="124" width="240" height="128" fill="#f9fafb" stroke="#e5e7eb"/>
+<line x1="60" y1="252.0" x2="300" y2="252.0" stroke="#6b7280" stroke-width="1.2"/>
+<rect x="67.7" y="146.0" width="18.9" height="106.0" fill="#2563eb"/>
+<text x="77.1" y="141.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#2563eb" text-anchor="middle" font-weight="bold">100</text>
+<text x="77.1" y="267.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<rect x="102.0" y="199.0" width="18.9" height="53.0" fill="#2563eb"/>
+<text x="111.4" y="194.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#2563eb" text-anchor="middle" font-weight="bold">50</text>
+<text x="111.4" y="267.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<rect x="136.3" y="225.5" width="18.9" height="26.5" fill="#2563eb"/>
+<text x="145.7" y="220.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#2563eb" text-anchor="middle" font-weight="bold">25</text>
+<text x="145.7" y="267.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">2</text>
+<rect x="170.6" y="238.8" width="18.9" height="13.2" fill="#2563eb"/>
+<text x="180.0" y="233.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#2563eb" text-anchor="middle" font-weight="bold">12.5</text>
+<text x="180.0" y="267.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">3</text>
+<rect x="204.9" y="245.4" width="18.9" height="6.6" fill="#2563eb"/>
+<text x="214.3" y="240.4" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#2563eb" text-anchor="middle" font-weight="bold">6.25</text>
+<text x="214.3" y="267.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">4</text>
+<rect x="239.1" y="248.7" width="18.9" height="3.3" fill="#2563eb"/>
+<text x="248.6" y="243.7" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#2563eb" text-anchor="middle" font-weight="bold">3.13</text>
+<text x="248.6" y="267.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">5</text>
+<rect x="273.4" y="250.3" width="18.9" height="1.7" fill="#2563eb"/>
+<text x="282.9" y="245.3" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#2563eb" text-anchor="middle" font-weight="bold">1.56</text>
+<text x="282.9" y="267.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">6</text>
+<rect x="345" y="124" width="240" height="128" fill="#f9fafb" stroke="#e5e7eb"/>
+<line x1="345" y1="200.8" x2="585" y2="200.8" stroke="#6b7280" stroke-width="1.2"/>
+<rect x="354.0" y="171.4" width="22.0" height="29.4" fill="#2563eb"/>
+<text x="365.0" y="166.4" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#2563eb" text-anchor="middle" font-weight="bold">0.50</text>
+<text x="365.0" y="267.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<rect x="394.0" y="186.1" width="22.0" height="14.7" fill="#2563eb"/>
+<text x="405.0" y="181.1" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#2563eb" text-anchor="middle" font-weight="bold">0.25</text>
+<text x="405.0" y="267.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">2</text>
+<rect x="434.0" y="193.5" width="22.0" height="7.4" fill="#2563eb"/>
+<text x="445.0" y="188.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#2563eb" text-anchor="middle" font-weight="bold">0.125</text>
+<text x="445.0" y="267.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">3</text>
+<rect x="474.0" y="197.1" width="22.0" height="3.7" fill="#2563eb"/>
+<text x="485.0" y="192.1" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#2563eb" text-anchor="middle" font-weight="bold">0.06</text>
+<text x="485.0" y="267.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">4</text>
+<rect x="514.0" y="199.0" width="22.0" height="1.8" fill="#2563eb"/>
+<text x="525.0" y="194.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#2563eb" text-anchor="middle" font-weight="bold">0.03</text>
+<text x="525.0" y="267.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">5</text>
+<rect x="554.0" y="199.9" width="22.0" height="0.9" fill="#2563eb"/>
+<text x="565.0" y="194.9" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#2563eb" text-anchor="middle" font-weight="bold">0.02</text>
+<text x="565.0" y="267.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">6</text>
+<rect x="630" y="124" width="240" height="128" fill="#f9fafb" stroke="#e5e7eb"/>
+<line x1="630" y1="200.8" x2="870" y2="200.8" stroke="#6b7280" stroke-width="1.2"/>
+<rect x="639.0" y="171.4" width="22.0" height="29.4" fill="#2563eb"/>
+<text x="650.0" y="166.4" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#2563eb" text-anchor="middle" font-weight="bold">0.50</text>
+<text x="650.0" y="267.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<rect x="679.0" y="199.8" width="22.0" height="2" fill="#9ca3af"/>
+<text x="690.0" y="194.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<text x="690.0" y="267.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">2</text>
+<rect x="719.0" y="199.8" width="22.0" height="2" fill="#9ca3af"/>
+<text x="730.0" y="194.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<text x="730.0" y="267.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">3</text>
+<rect x="759.0" y="199.8" width="22.0" height="2" fill="#9ca3af"/>
+<text x="770.0" y="194.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<text x="770.0" y="267.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">4</text>
+<rect x="799.0" y="199.8" width="22.0" height="2" fill="#9ca3af"/>
+<text x="810.0" y="194.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<text x="810.0" y="267.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">5</text>
+<rect x="839.0" y="199.8" width="22.0" height="2" fill="#9ca3af"/>
+<text x="850.0" y="194.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<text x="850.0" y="267.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">6</text>
+<text x="60.0" y="288.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">Yankı her gün yarıya iner ama hiç sıfırlanmaz → ACF yavaşça söner (kuyruk).</text>
+<text x="60.0" y="305.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">Dün bilinince evvelsi gün yeni bir şey söylemez → PACF 1. gecikmeden sonra kesilir.</text>
+<text x="60.0" y="345.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#16a34a" text-anchor="start" font-weight="bold">MA(1), θ = 0.8:  xₜ = εₜ + 0.8·εₜ₋₁</text>
+<rect x="60" y="357" width="240" height="128" fill="#f9fafb" stroke="#e5e7eb"/>
+<line x1="60" y1="485.0" x2="300" y2="485.0" stroke="#6b7280" stroke-width="1.2"/>
+<rect x="67.7" y="379.0" width="18.9" height="106.0" fill="#16a34a"/>
+<text x="77.1" y="374.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#16a34a" text-anchor="middle" font-weight="bold">100</text>
+<text x="77.1" y="500.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<rect x="102.0" y="400.2" width="18.9" height="84.8" fill="#16a34a"/>
+<text x="111.4" y="395.2" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#16a34a" text-anchor="middle" font-weight="bold">80</text>
+<text x="111.4" y="500.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<rect x="136.3" y="484.0" width="18.9" height="2" fill="#9ca3af"/>
+<text x="145.7" y="479.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<text x="145.7" y="500.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">2</text>
+<rect x="170.6" y="484.0" width="18.9" height="2" fill="#9ca3af"/>
+<text x="180.0" y="479.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<text x="180.0" y="500.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">3</text>
+<rect x="204.9" y="484.0" width="18.9" height="2" fill="#9ca3af"/>
+<text x="214.3" y="479.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<text x="214.3" y="500.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">4</text>
+<rect x="239.1" y="484.0" width="18.9" height="2" fill="#9ca3af"/>
+<text x="248.6" y="479.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<text x="248.6" y="500.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">5</text>
+<rect x="273.4" y="484.0" width="18.9" height="2" fill="#9ca3af"/>
+<text x="282.9" y="479.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<text x="282.9" y="500.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">6</text>
+<rect x="345" y="357" width="240" height="128" fill="#f9fafb" stroke="#e5e7eb"/>
+<line x1="345" y1="433.8" x2="585" y2="433.8" stroke="#6b7280" stroke-width="1.2"/>
+<rect x="354.0" y="405.1" width="22.0" height="28.7" fill="#16a34a"/>
+<text x="365.0" y="400.1" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#16a34a" text-anchor="middle" font-weight="bold">0.49</text>
+<text x="365.0" y="500.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<rect x="394.0" y="432.8" width="22.0" height="2" fill="#9ca3af"/>
+<text x="405.0" y="427.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<text x="405.0" y="500.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">2</text>
+<rect x="434.0" y="432.8" width="22.0" height="2" fill="#9ca3af"/>
+<text x="445.0" y="427.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<text x="445.0" y="500.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">3</text>
+<rect x="474.0" y="432.8" width="22.0" height="2" fill="#9ca3af"/>
+<text x="485.0" y="427.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<text x="485.0" y="500.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">4</text>
+<rect x="514.0" y="432.8" width="22.0" height="2" fill="#9ca3af"/>
+<text x="525.0" y="427.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<text x="525.0" y="500.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">5</text>
+<rect x="554.0" y="432.8" width="22.0" height="2" fill="#9ca3af"/>
+<text x="565.0" y="427.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<text x="565.0" y="500.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">6</text>
+<rect x="630" y="357" width="240" height="128" fill="#f9fafb" stroke="#e5e7eb"/>
+<line x1="630" y1="433.8" x2="870" y2="433.8" stroke="#6b7280" stroke-width="1.2"/>
+<rect x="639.0" y="405.1" width="22.0" height="28.7" fill="#16a34a"/>
+<text x="650.0" y="400.1" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#16a34a" text-anchor="middle" font-weight="bold">0.49</text>
+<text x="650.0" y="500.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<rect x="679.0" y="433.8" width="22.0" height="18.4" fill="#16a34a"/>
+<text x="690.0" y="465.2" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#16a34a" text-anchor="middle" font-weight="bold">−0.31</text>
+<text x="690.0" y="500.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">2</text>
+<rect x="719.0" y="420.8" width="22.0" height="13.0" fill="#16a34a"/>
+<text x="730.0" y="415.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#16a34a" text-anchor="middle" font-weight="bold">0.22</text>
+<text x="730.0" y="500.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">3</text>
+<rect x="759.0" y="433.8" width="22.0" height="9.7" fill="#16a34a"/>
+<text x="770.0" y="456.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#16a34a" text-anchor="middle" font-weight="bold">−0.17</text>
+<text x="770.0" y="500.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">4</text>
+<rect x="799.0" y="426.4" width="22.0" height="7.4" fill="#16a34a"/>
+<text x="810.0" y="421.4" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#16a34a" text-anchor="middle" font-weight="bold">0.13</text>
+<text x="810.0" y="500.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">5</text>
+<rect x="839.0" y="433.8" width="22.0" height="5.8" fill="#16a34a"/>
+<text x="850.0" y="452.6" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#16a34a" text-anchor="middle" font-weight="bold">−0.10</text>
+<text x="850.0" y="500.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">6</text>
+<text x="60.0" y="521.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">Şok yalnızca ertesi güne taşınır, sonra tamamen biter → ACF 1. gecikmeden sonra kesilir.</text>
+<text x="60.0" y="538.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">Geçmiş şok doğrudan gözlenmez, eski değerlerden parça parça çıkarılır → PACF işaret değiştirerek söner.</text>
+</svg>

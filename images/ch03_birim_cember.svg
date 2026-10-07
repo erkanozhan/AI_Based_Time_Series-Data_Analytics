@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="440" viewBox="0 0 900 440">
+<title>Birim kök ve birim çember</title>
+<rect x="0.5" y="0.5" width="899" height="439" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">Katsayı İçeride, Kök Dışarıda: Birim Aralık ve Birim Çember</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">z = 1/φ olduğu için |φ| &lt; 1 iken kök 1'den uzaktadır (|z| &gt; 1); φ = 1 iken kök tam 1'dir: birim kök</text>
+<rect x="222.0" y="119.0" width="216.0" height="32.0" fill="#16a34a" stroke="none" opacity="0.16"/>
+<line x1="50.0" y1="135.0" x2="604.0" y2="135.0" stroke="#1f2937" stroke-width="1.4"/>
+<polygon points="604,131 611,135 604,139" fill="#1f2937"/>
+<line x1="114.0" y1="130.0" x2="114.0" y2="140.0" stroke="#1f2937" stroke-width="1.2"/>
+<text x="114.0" y="165.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">−2</text>
+<line x1="222.0" y1="130.0" x2="222.0" y2="140.0" stroke="#1f2937" stroke-width="1.2"/>
+<text x="222.0" y="165.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="bold">−1</text>
+<line x1="330.0" y1="130.0" x2="330.0" y2="140.0" stroke="#1f2937" stroke-width="1"/>
+<text x="330.0" y="165.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<line x1="438.0" y1="130.0" x2="438.0" y2="140.0" stroke="#1f2937" stroke-width="1.2"/>
+<text x="438.0" y="165.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="bold">1</text>
+<line x1="546.0" y1="130.0" x2="546.0" y2="140.0" stroke="#1f2937" stroke-width="1.2"/>
+<text x="546.0" y="165.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">2</text>
+<text x="50.0" y="85.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#1f2937" text-anchor="start" font-weight="bold">Katsayı φ</text>
+<text x="126.4" y="85.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="normal">(denklemdeki fi)</text>
+<text x="330.0" y="113.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#16a34a" text-anchor="middle" font-weight="bold">|φ| &lt; 1: durağan bölge</text>
+<text x="567.6" y="113.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">|φ| &gt; 1</text>
+<text x="141.0" y="113.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">|φ| &gt; 1</text>
+<rect x="222.0" y="279.0" width="216.0" height="32.0" fill="#9ca3af" stroke="none" opacity="0.16"/>
+<line x1="50.0" y1="295.0" x2="604.0" y2="295.0" stroke="#1f2937" stroke-width="1.4"/>
+<polygon points="604,291 611,295 604,299" fill="#1f2937"/>
+<line x1="114.0" y1="290.0" x2="114.0" y2="300.0" stroke="#1f2937" stroke-width="1.2"/>
+<text x="114.0" y="325.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">−2</text>
+<line x1="222.0" y1="290.0" x2="222.0" y2="300.0" stroke="#1f2937" stroke-width="1.2"/>
+<text x="222.0" y="325.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="bold">−1</text>
+<line x1="330.0" y1="290.0" x2="330.0" y2="300.0" stroke="#1f2937" stroke-width="1"/>
+<text x="330.0" y="325.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<line x1="438.0" y1="290.0" x2="438.0" y2="300.0" stroke="#1f2937" stroke-width="1.2"/>
+<text x="438.0" y="325.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="bold">1</text>
+<line x1="546.0" y1="290.0" x2="546.0" y2="300.0" stroke="#1f2937" stroke-width="1.2"/>
+<text x="546.0" y="325.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">2</text>
+<text x="50.0" y="245.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#1f2937" text-anchor="start" font-weight="bold">Kök z = 1/φ</text>
+<text x="141.6" y="245.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="start" font-weight="normal">(1 − φz = 0 denkleminin çözümü)</text>
+<text x="330.0" y="273.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="bold">birim aralık: −1 … 1</text>
+<text x="567.6" y="273.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">|z| &gt; 1</text>
+<text x="141.0" y="273.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">|z| &gt; 1</text>
+<line x1="384.0" y1="143.0" x2="546.0" y2="287.0" stroke="#16a34a" stroke-width="1.4" stroke-dasharray="5 4"/>
+<circle cx="384.0" cy="135.0" r="6.5" fill="#16a34a" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="546.0" cy="295.0" r="6.5" fill="#16a34a" stroke="#ffffff" stroke-width="1.5"/>
+<line x1="438.0" y1="143.0" x2="438.0" y2="287.0" stroke="#ea580c" stroke-width="1.4" stroke-dasharray="5 4"/>
+<circle cx="438.0" cy="135.0" r="6.5" fill="#ea580c" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="438.0" cy="295.0" r="6.5" fill="#ea580c" stroke="#ffffff" stroke-width="1.5"/>
+<line x1="465.0" y1="143.0" x2="416.4" y2="287.0" stroke="#dc2626" stroke-width="1.4" stroke-dasharray="5 4"/>
+<circle cx="465.0" cy="135.0" r="6.5" fill="#dc2626" stroke="#ffffff" stroke-width="1.5"/>
+<circle cx="416.4" cy="295.0" r="6.5" fill="#dc2626" stroke="#ffffff" stroke-width="1.5"/>
+<text x="384.0" y="183.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#16a34a" text-anchor="middle" font-weight="bold">φ = 0.5</text>
+<text x="444.0" y="113.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="start" font-weight="bold">φ = 1</text>
+<text x="473.0" y="183.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#dc2626" text-anchor="start" font-weight="bold">φ = 1.25</text>
+<text x="546.0" y="343.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#16a34a" text-anchor="middle" font-weight="bold">z = 2 (dışarıda)</text>
+<text x="442.0" y="357.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="bold">z = 1 (sınırda)</text>
+<text x="406.4" y="343.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#dc2626" text-anchor="end" font-weight="bold">z = 0.8 (içeride)</text>
+<circle cx="56.0" cy="386.0" r="4.5" fill="#16a34a" stroke="none" stroke-width="1.5"/>
+<text x="66.0" y="390.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">φ = 0.5  →  z = 1/0.5 = 2:  kök birim aralığın dışında  →  şoklar söner, seri durağan</text>
+<circle cx="56.0" cy="405.0" r="4.5" fill="#ea580c" stroke="none" stroke-width="1.5"/>
+<text x="66.0" y="409.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">φ = 1  →  z = 1/1 = 1:  kök tam sınırda (birim kök)  →  şoklar kalıcı, rastgele yürüyüş</text>
+<circle cx="56.0" cy="424.0" r="4.5" fill="#dc2626" stroke="none" stroke-width="1.5"/>
+<text x="66.0" y="428.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">φ = 1.25  →  z = 1/1.25 = 0.8:  kök birim aralığın içinde  →  şoklar büyür, seri patlar</text>
+<rect x="645.0" y="85.0" width="235.0" height="255.0" fill="#f9fafb" stroke="none"/>
+<line x1="657.0" y1="205.0" x2="867.0" y2="205.0" stroke="#6b7280" stroke-width="1.1"/>
+<line x1="762.0" y1="105.0" x2="762.0" y2="305.0" stroke="#6b7280" stroke-width="1.1"/>
+<circle cx="762" cy="205" r="78" fill="#9ca3af" fill-opacity="0.12" stroke="#7c3aed" stroke-width="2"/>
+<line x1="684.0" y1="205.0" x2="840.0" y2="205.0" stroke="#1f2937" stroke-width="3.5"/>
+<circle cx="684.0" cy="205.0" r="4.5" fill="#1f2937" stroke="none" stroke-width="1.5"/>
+<circle cx="840.0" cy="205.0" r="4.5" fill="#1f2937" stroke="none" stroke-width="1.5"/>
+<text x="680.0" y="223.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="end" font-weight="bold">−1</text>
+<text x="844.0" y="223.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="start" font-weight="bold">1</text>
+<text x="862.0" y="199.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="end" font-weight="normal">gerçel</text>
+<text x="768.0" y="117.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#6b7280" text-anchor="start" font-weight="normal">sanal</text>
+<text x="762.0" y="103.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#7c3aed" text-anchor="middle" font-weight="bold">Yan not: karmaşık düzlem</text>
+<text x="762.0" y="310.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">Yarıçapı 1 olan çember:</text>
+<text x="762.0" y="325.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">birim çember. Gerçel eksende</text>
+<text x="762.0" y="340.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">−1 … 1 aralığına iner.</text>
+</svg>

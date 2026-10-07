@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="420" viewBox="0 0 900 420">
+<title>tanh ve sigmoid fonksiyonları</title>
+<rect x="0.5" y="0.5" width="899" height="419" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">İki Sıkıştırma Fonksiyonu: tanh ve sigmoid</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Girdi ne kadar büyük ya da küçük olursa olsun, tanh çıktıyı −1 ile 1, sigmoid ise 0 ile 1 arasına sıkıştırır</text>
+<rect x="70" y="95" width="330" height="230" fill="#f9fafb" stroke="none"/>
+<text x="235.0" y="83.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">tanh(z): çıktı −1 ile 1 arasında</text>
+<line x1="70" y1="325" x2="406" y2="325" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="406,320.8 412,325 406,329.2" fill="#6b7280"/>
+<line x1="235.0" y1="325" x2="235.0" y2="93" stroke="#6b7280" stroke-width="1"/>
+<text x="412.0" y="357.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">z (girdi)</text>
+<line x1="103.0" y1="325" x2="103.0" y2="329" stroke="#6b7280"/>
+<text x="103.0" y="341.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">−4</text>
+<line x1="169.0" y1="325" x2="169.0" y2="329" stroke="#6b7280"/>
+<text x="169.0" y="341.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">−2</text>
+<line x1="235.0" y1="325" x2="235.0" y2="329" stroke="#6b7280"/>
+<text x="235.0" y="341.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<line x1="301.0" y1="325" x2="301.0" y2="329" stroke="#6b7280"/>
+<text x="301.0" y="341.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">2</text>
+<line x1="367.0" y1="325" x2="367.0" y2="329" stroke="#6b7280"/>
+<text x="367.0" y="341.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">4</text>
+<line x1="70" y1="310.0" x2="400" y2="310.0" stroke="#d1d5db" stroke-dasharray="3,3"/>
+<text x="64.0" y="314.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">−1</text>
+<line x1="70" y1="210.0" x2="400" y2="210.0" stroke="#d1d5db" stroke-dasharray="3,3"/>
+<text x="64.0" y="214.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">0</text>
+<line x1="70" y1="110.0" x2="400" y2="110.0" stroke="#d1d5db" stroke-dasharray="3,3"/>
+<text x="64.0" y="114.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">1</text>
+<polyline points="70.0,310.0 71.6,310.0 73.3,310.0 75.0,310.0 76.6,310.0 78.2,310.0 79.9,310.0 81.5,310.0 83.2,310.0 84.9,310.0 86.5,310.0 88.1,310.0 89.8,310.0 91.5,310.0 93.1,310.0 94.8,310.0 96.4,310.0 98.0,310.0 99.7,309.9 101.4,309.9 103.0,309.9 104.6,309.9 106.3,309.9 108.0,309.9 109.6,309.9 111.2,309.9 112.9,309.9 114.6,309.9 116.2,309.9 117.9,309.8 119.5,309.8 121.1,309.8 122.8,309.8 124.5,309.8 126.1,309.7 127.8,309.7 129.4,309.7 131.1,309.6 132.7,309.6 134.4,309.6 136.0,309.5 137.7,309.5 139.3,309.4 140.9,309.3 142.6,309.3 144.2,309.2 145.9,309.1 147.6,309.0 149.2,308.9 150.9,308.8 152.5,308.7 154.2,308.5 155.8,308.4 157.4,308.2 159.1,308.0 160.8,307.8 162.4,307.6 164.1,307.3 165.7,307.0 167.4,306.7 169.0,306.4 170.7,306.0 172.3,305.6 174.0,305.2 175.6,304.7 177.2,304.1 178.9,303.5 180.6,302.9 182.2,302.2 183.9,301.4 185.5,300.5 187.2,299.6 188.8,298.5 190.5,297.4 192.1,296.2 193.8,294.8 195.4,293.4 197.1,291.8 198.7,290.0 200.3,288.2 202.0,286.2 203.6,284.0 205.3,281.6 207.0,279.1 208.6,276.4 210.2,273.5 211.9,270.4 213.6,267.2 215.2,263.7 216.8,260.1 218.5,256.2 220.1,252.2 221.8,248.0 223.5,243.6 225.1,239.1 226.8,234.5 228.4,229.7 230.1,224.9 231.7,220.0 233.3,215.0 235.0,210.0 236.7,205.0 238.3,200.0 240.0,195.1 241.6,190.3 243.2,185.5 244.9,180.9 246.6,176.4 248.2,172.0 249.9,167.8 251.5,163.8 253.2,159.9 254.8,156.3 256.5,152.8 258.1,149.6 259.8,146.5 261.4,143.6 263.1,140.9 264.7,138.4 266.4,136.0 268.0,133.8 269.7,131.8 271.3,130.0 272.9,128.2 274.6,126.6 276.2,125.2 277.9,123.8 279.6,122.6 281.2,121.5 282.9,120.4 284.5,119.5 286.1,118.6 287.8,117.8 289.5,117.1 291.1,116.5 292.8,115.9 294.4,115.3 296.1,114.8 297.7,114.4 299.4,114.0 301.0,113.6 302.7,113.3 304.3,113.0 306.0,112.7 307.6,112.4 309.2,112.2 310.9,112.0 312.6,111.8 314.2,111.6 315.9,111.5 317.5,111.3 319.2,111.2 320.8,111.1 322.5,111.0 324.1,110.9 325.8,110.8 327.4,110.7 329.1,110.7 330.7,110.6 332.4,110.5 334.0,110.5 335.7,110.4 337.3,110.4 339.0,110.4 340.6,110.3 342.2,110.3 343.9,110.3 345.6,110.2 347.2,110.2 348.9,110.2 350.5,110.2 352.2,110.2 353.8,110.1 355.4,110.1 357.1,110.1 358.8,110.1 360.4,110.1 362.1,110.1 363.7,110.1 365.4,110.1 367.0,110.1 368.7,110.1 370.3,110.1 371.9,110.0 373.6,110.0 375.2,110.0 376.9,110.0 378.5,110.0 380.2,110.0 381.9,110.0 383.5,110.0 385.2,110.0 386.8,110.0 388.5,110.0 390.1,110.0 391.8,110.0 393.4,110.0 395.1,110.0 396.7,110.0 398.4,110.0 400.0,110.0" fill="none" stroke="#7c3aed" stroke-width="2.5"/>
+<circle cx="169.0" cy="306.4" r="4.5" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+<text x="159.0" y="296.4" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="end" font-weight="normal">z = −2 → −0.964</text>
+<circle cx="235.0" cy="210.0" r="4.5" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+<text x="245.0" y="226.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="start" font-weight="normal">z = 0 → 0</text>
+<circle cx="268.0" cy="133.8" r="4.5" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+<text x="278.0" y="149.8" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="start" font-weight="normal">z = 1 → 0.762</text>
+<circle cx="334.0" cy="110.5" r="4.5" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/>
+<text x="324.0" y="101.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="end" font-weight="normal">z = 3 → 0.995</text>
+<rect x="500" y="95" width="330" height="230" fill="#f9fafb" stroke="none"/>
+<text x="665.0" y="83.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">sigmoid(z): çıktı 0 ile 1 arasında (vana)</text>
+<line x1="500" y1="325" x2="836" y2="325" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="836,320.8 842,325 836,329.2" fill="#6b7280"/>
+<line x1="665.0" y1="325" x2="665.0" y2="93" stroke="#6b7280" stroke-width="1"/>
+<text x="842.0" y="357.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">z (girdi)</text>
+<line x1="533.0" y1="325" x2="533.0" y2="329" stroke="#6b7280"/>
+<text x="533.0" y="341.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">−4</text>
+<line x1="599.0" y1="325" x2="599.0" y2="329" stroke="#6b7280"/>
+<text x="599.0" y="341.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">−2</text>
+<line x1="665.0" y1="325" x2="665.0" y2="329" stroke="#6b7280"/>
+<text x="665.0" y="341.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<line x1="731.0" y1="325" x2="731.0" y2="329" stroke="#6b7280"/>
+<text x="731.0" y="341.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">2</text>
+<line x1="797.0" y1="325" x2="797.0" y2="329" stroke="#6b7280"/>
+<text x="797.0" y="341.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">4</text>
+<line x1="500" y1="310.0" x2="830" y2="310.0" stroke="#d1d5db" stroke-dasharray="3,3"/>
+<text x="494.0" y="314.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">0</text>
+<line x1="500" y1="210.0" x2="830" y2="210.0" stroke="#d1d5db" stroke-dasharray="3,3"/>
+<text x="494.0" y="214.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">0.5</text>
+<line x1="500" y1="110.0" x2="830" y2="110.0" stroke="#d1d5db" stroke-dasharray="3,3"/>
+<text x="494.0" y="114.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">1</text>
+<polyline points="500.0,308.7 501.6,308.6 503.3,308.5 504.9,308.4 506.6,308.4 508.2,308.3 509.9,308.2 511.6,308.1 513.2,308.0 514.9,307.9 516.5,307.8 518.1,307.7 519.8,307.6 521.5,307.5 523.1,307.3 524.8,307.2 526.4,307.0 528.0,306.9 529.7,306.7 531.4,306.6 533.0,306.4 534.6,306.2 536.3,306.0 538.0,305.8 539.6,305.6 541.2,305.4 542.9,305.2 544.5,304.9 546.2,304.7 547.9,304.4 549.5,304.1 551.1,303.8 552.8,303.5 554.5,303.2 556.1,302.9 557.8,302.5 559.4,302.2 561.0,301.8 562.7,301.4 564.4,301.0 566.0,300.5 567.6,300.1 569.3,299.6 571.0,299.1 572.6,298.5 574.2,298.0 575.9,297.4 577.5,296.8 579.2,296.2 580.9,295.5 582.5,294.8 584.1,294.1 585.8,293.4 587.5,292.6 589.1,291.8 590.8,290.9 592.4,290.0 594.0,289.1 595.7,288.2 597.4,287.2 599.0,286.2 600.6,285.1 602.3,284.0 604.0,282.8 605.6,281.6 607.2,280.4 608.9,279.1 610.5,277.8 612.2,276.4 613.9,275.0 615.5,273.5 617.1,272.0 618.8,270.4 620.5,268.8 622.1,267.2 623.8,265.5 625.4,263.7 627.0,261.9 628.7,260.1 630.4,258.2 632.0,256.2 633.6,254.2 635.3,252.2 637.0,250.1 638.6,248.0 640.2,245.8 641.9,243.6 643.5,241.4 645.2,239.1 646.9,236.8 648.5,234.5 650.1,232.1 651.8,229.7 653.5,227.3 655.1,224.9 656.8,222.4 658.4,220.0 660.0,217.5 661.7,215.0 663.4,212.5 665.0,210.0 666.7,207.5 668.3,205.0 670.0,202.5 671.6,200.0 673.2,197.6 674.9,195.1 676.5,192.7 678.2,190.3 679.9,187.9 681.5,185.5 683.1,183.2 684.8,180.9 686.5,178.6 688.1,176.4 689.8,174.2 691.4,172.0 693.0,169.9 694.7,167.8 696.4,165.8 698.0,163.8 699.7,161.8 701.3,159.9 703.0,158.1 704.6,156.3 706.2,154.5 707.9,152.8 709.5,151.2 711.2,149.6 712.9,148.0 714.5,146.5 716.1,145.0 717.8,143.6 719.5,142.2 721.1,140.9 722.8,139.6 724.4,138.4 726.0,137.2 727.7,136.0 729.4,134.9 731.0,133.8 732.7,132.8 734.3,131.8 736.0,130.9 737.6,130.0 739.2,129.1 740.9,128.2 742.6,127.4 744.2,126.6 745.9,125.9 747.5,125.2 749.2,124.5 750.8,123.8 752.5,123.2 754.1,122.6 755.8,122.0 757.4,121.5 759.0,120.9 760.7,120.4 762.4,119.9 764.0,119.5 765.7,119.0 767.3,118.6 769.0,118.2 770.6,117.8 772.2,117.5 773.9,117.1 775.5,116.8 777.2,116.5 778.9,116.2 780.5,115.9 782.2,115.6 783.8,115.3 785.5,115.1 787.1,114.8 788.8,114.6 790.4,114.4 792.0,114.2 793.7,114.0 795.4,113.8 797.0,113.6 798.7,113.4 800.3,113.3 802.0,113.1 803.6,113.0 805.2,112.8 806.9,112.7 808.5,112.5 810.2,112.4 811.9,112.3 813.5,112.2 815.2,112.1 816.8,112.0 818.5,111.9 820.1,111.8 821.8,111.7 823.4,111.6 825.0,111.6 826.7,111.5 828.4,111.4 830.0,111.3" fill="none" stroke="#ea580c" stroke-width="2.5"/>
+<circle cx="533.0" cy="306.4" r="4.5" fill="#ffffff" stroke="#ea580c" stroke-width="2"/>
+<text x="527.0" y="260.4" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="start" font-weight="normal">z = −4 → 0.018 (kapalı)</text>
+<circle cx="665.0" cy="210.0" r="4.5" fill="#ffffff" stroke="#ea580c" stroke-width="2"/>
+<text x="675.0" y="226.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="start" font-weight="normal">z = 0 → 0.500 (yarı açık)</text>
+<circle cx="797.0" cy="113.6" r="4.5" fill="#ffffff" stroke="#ea580c" stroke-width="2"/>
+<text x="787.0" y="104.6" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="end" font-weight="normal">z = 4 → 0.982 (açık)</text>
+<text x="450.0" y="384.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">tanh, RNN ve LSTM'de bilgiyi taşınabilir bir aralıkta tutar; sigmoid ise LSTM kapılarında “ne kadarı geçsin?” sorusunun cevabını</text>
+<text x="450.0" y="402.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0 (hiçbiri) ile 1 (hepsi) arasında bir oran olarak verir.</text>
+</svg>

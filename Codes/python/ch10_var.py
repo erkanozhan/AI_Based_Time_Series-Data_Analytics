@@ -36,13 +36,14 @@ def veri_yolu(dosya):
 # Üç makroekonomik değişken birbirini etkiler: merkez bankası enflasyonu kontrol etmek için faizi
 # artırabilir, faiz artışı döviz kurunu, döviz kuru da ithal mallar üzerinden enflasyonu etkileyebilir.
 # VAR modeli bu karşılıklı etkileşimleri yakalamaya çalışır. VAR eksik veri kaldırmadığı için
-# `dropna()` ile eksik satırlar çıkarılır.
+# `dropna()` ile eksik satırlar çıkarılır; `asfreq("MS")` ise verinin aylık (ay başı) olduğunu
+# pandas'a açıkça söyler (statsmodels'ın "frekans bilgisi yok" uyarısını da önler).
 
 # %%
 df = pd.read_csv(veri_yolu("macro.csv"), parse_dates=["date"], index_col="date")
 
 vars_selected = ["inflation", "interest", "exchange"]
-df_var = df[vars_selected].dropna()
+df_var = df[vars_selected].dropna().asfreq("MS")
 
 print("Veri setinin son gözlemleri:")
 print(df_var.tail())
@@ -82,15 +83,18 @@ def adf_test(series, name):
     Test istatistiği kritik değerlerden küçükse (daha negatifse)
     veya p-değeri 0.05'ten küçükse seri durağan kabul edilir.
     """
+    # statsmodels 0.15 bu satırda bir FutureWarning gösterebilir; zararsızdır.
     result = adfuller(series, autolag="AIC")
 
-    # adfuller bir tuple döndürür:
+    # Şimdiki sürümlerde adfuller bir demet (tuple) döndürür:
     # [0]: test istatistiği, [1]: p-değeri, [2]: kullanılan gecikme,
-    # [3]: gözlem sayısı, [4]: kritik değerler (dictionary)
-    test_stat = result[0]
-    p_value = result[1]
-    used_lag = result[2]
-    critical_values = result[4]
+    # [3]: gözlem sayısı, [4]: kritik değerler (sözlük)
+    # İleriki sürümler adlandırılmış bir sonuç nesnesi döndürecek; iki durumu da destekliyoruz.
+    if isinstance(result, tuple):
+        test_stat, p_value, used_lag, _, critical_values = result[:5]
+    else:
+        test_stat, p_value = result.statistic, result.pvalue
+        used_lag, critical_values = result.lags, result.critical_values
 
     print(f"\n{name}:")
     print(f"  Test istatistiği : {test_stat:.4f}")
@@ -154,6 +158,8 @@ print(f"\nSeçilen gecikme (BIC'ye göre): {selected_lag}")
 # aynı açıklayıcı değişkenlere sahip olduğundan bu, sistemi birlikte
 # tahmin etmekle aynı sonucu verir.
 results = model.fit(selected_lag)
+# Kısa yol: model.fit(maxlags=8, ic="bic") gecikmeyi BIC ile seçip modeli tek adımda kurar
+# (bu veride yine VAR(2) çıkar).
 
 print("\n" + "=" * 55)
 print("MODEL TAHMİN SONUÇLARI")
@@ -189,7 +195,10 @@ else:
 # Alıştırma: 4. adımda AIC'nin önerdiği gecikmeyi kullanın
 #   selected_lag = lag_order_results.selected_orders['aic']
 # ve stabilite sonucunu karşılaştırın. Bu veride VAR(7) stabil çıkmaz: seriler durağan
-# olmadığı için bir öz değerin modülü 1'i aşar. Serilerin farkını alarak da deneyin.
+# olmadığı için bir öz değerin modülü 1'i aşar (yaklaşık 1,024).
+# Serilerin farkını alarak da deneyin (1. adımdan sonra):
+#   df_var = df_var.diff().dropna()
+# Farkı alınmış serilerde BIC 1 gecikme önerir, en büyük |öz değer| yaklaşık 0,55'e iner.
 
 # DİKKAT: statsmodels'ta results.roots, karakteristik polinomun
 # köklerini verir; bunlar eşlik (companion) matrisinin öz değerlerinin
@@ -226,6 +235,14 @@ for i, col in enumerate(vars_selected):
     print(f"  {col}: {dw:.3f} ({yorum})")
 
 print("\n  Not: 2'ye yakın değerler otokorelasyon olmadığını gösterir.")
+
+# DW yalnızca bir önceki ayla ilişkiye bakar. Portmanteau (Ljung-Box tipi) testi ise
+# 12 gecikmeye kadar tüm denklemlerin artıklarını birlikte sınar. H0: otokorelasyon yok.
+whiteness = results.test_whiteness(nlags=12)
+print(f"\nPortmanteau testi (12 gecikme): p-değeri = {whiteness.pvalue:.4f}")
+if whiteness.pvalue < 0.05:
+    print("  → Artıklarda daha uzun gecikmelerde otokorelasyon kalmış (H0 reddedildi).")
+    print("    Düzey serilerle kurulan modelin bir eksikliği; fark almak ya da gecikmeyi artırmak denenebilir.")
 
 # Artıklar sıfır çizgisi etrafında rastgele dağılmalı; trend, periyodik örüntü
 # veya değişen varyans model sorunlarına işaret eder.
@@ -315,6 +332,8 @@ plt.show()
 
 # %%
 # Faiz şoku enflasyonu nasıl etkiler? Teoriye göre faiz artışı enflasyonu düşürmeli.
+# Bu veride tepki negatif çıkar, ancak güven bandı her dönemde sıfırı içerir
+# (Granger testindeki yüksek p-değeriyle uyumlu).
 fig_irf_pair = irf.plot(impulse="interest", response="inflation")
 plt.suptitle("Faiz Şokuna Enflasyonun Tepkisi")
 plt.tight_layout()
@@ -322,6 +341,8 @@ plt.show()
 
 # Döviz kuru şoku enflasyonu nasıl etkiler? TL'nin değer kaybı ithal malları
 # pahalılaştırarak enflasyonu artırmalı ("exchange rate pass-through").
+# Bu veride kurdaki 1 birimlik artış enflasyonu bir ay sonra yaklaşık 3,7 puan, 4. ayda
+# yaklaşık 9 puan artırır; tepki sonra yavaşça azalır ve bant sıfırın üstünde kalır.
 fig_irf_exc = irf.plot(impulse="exchange", response="inflation")
 plt.suptitle("Döviz Kuru Şokuna Enflasyonun Tepkisi")
 plt.tight_layout()

@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="470" viewBox="0 0 900 470">
+<title>Saat dilimi: aynı duvar saati, farklı anlar</title>
+<rect x="0.5" y="0.5" width="899" height="469" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">Aynı Duvar Saati, Farklı Anlar: Saat Dilimi ve UTC</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Dikey her çizgi tek bir AN'dır; satırlar o anın İstanbul'da, UTC'de ve New York'ta saatin kaçı olduğunu gösterir (1 Şubat 2024)</text>
+<rect x="30" y="72" width="840" height="210" rx="6" fill="#f9fafb" stroke="none"/>
+<text x="45.0" y="122.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#1f2937" text-anchor="start" font-weight="bold">İstanbul</text>
+<text x="45.0" y="139.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">UTC+3</text>
+<line x1="200" y1="125" x2="860" y2="125" stroke="#6b7280" stroke-width="1.2"/>
+<line x1="200.0" y1="121" x2="200.0" y2="129" stroke="#6b7280" stroke-width="1"/>
+<text x="200.0" y="143.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">09:00</text>
+<line x1="282.5" y1="121" x2="282.5" y2="129" stroke="#6b7280" stroke-width="1"/>
+<text x="282.5" y="143.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">11:00</text>
+<line x1="365.0" y1="121" x2="365.0" y2="129" stroke="#6b7280" stroke-width="1"/>
+<text x="365.0" y="143.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">13:00</text>
+<line x1="447.5" y1="121" x2="447.5" y2="129" stroke="#6b7280" stroke-width="1"/>
+<text x="447.5" y="143.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">15:00</text>
+<line x1="530.0" y1="121" x2="530.0" y2="129" stroke="#6b7280" stroke-width="1"/>
+<text x="530.0" y="143.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">17:00</text>
+<line x1="612.5" y1="121" x2="612.5" y2="129" stroke="#6b7280" stroke-width="1"/>
+<text x="612.5" y="143.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">19:00</text>
+<line x1="695.0" y1="121" x2="695.0" y2="129" stroke="#6b7280" stroke-width="1"/>
+<text x="695.0" y="143.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">21:00</text>
+<line x1="777.5" y1="121" x2="777.5" y2="129" stroke="#6b7280" stroke-width="1"/>
+<text x="777.5" y="143.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">23:00</text>
+<line x1="860.0" y1="121" x2="860.0" y2="129" stroke="#6b7280" stroke-width="1"/>
+<text x="860.0" y="143.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">01:00</text>
+<text x="860.0" y="155.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10" fill="#9ca3af" text-anchor="middle" font-weight="normal">(2 Şub)</text>
+<text x="45.0" y="187.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#1f2937" text-anchor="start" font-weight="bold">UTC</text>
+<text x="45.0" y="204.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">evrensel saat</text>
+<line x1="200" y1="190" x2="860" y2="190" stroke="#6b7280" stroke-width="1.8"/>
+<line x1="200.0" y1="186" x2="200.0" y2="194" stroke="#6b7280" stroke-width="1"/>
+<text x="200.0" y="208.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">06:00</text>
+<line x1="282.5" y1="186" x2="282.5" y2="194" stroke="#6b7280" stroke-width="1"/>
+<text x="282.5" y="208.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">08:00</text>
+<line x1="365.0" y1="186" x2="365.0" y2="194" stroke="#6b7280" stroke-width="1"/>
+<text x="365.0" y="208.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">10:00</text>
+<line x1="447.5" y1="186" x2="447.5" y2="194" stroke="#6b7280" stroke-width="1"/>
+<text x="447.5" y="208.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">12:00</text>
+<line x1="530.0" y1="186" x2="530.0" y2="194" stroke="#6b7280" stroke-width="1"/>
+<text x="530.0" y="208.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">14:00</text>
+<line x1="612.5" y1="186" x2="612.5" y2="194" stroke="#6b7280" stroke-width="1"/>
+<text x="612.5" y="208.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">16:00</text>
+<line x1="695.0" y1="186" x2="695.0" y2="194" stroke="#6b7280" stroke-width="1"/>
+<text x="695.0" y="208.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">18:00</text>
+<line x1="777.5" y1="186" x2="777.5" y2="194" stroke="#6b7280" stroke-width="1"/>
+<text x="777.5" y="208.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">20:00</text>
+<line x1="860.0" y1="186" x2="860.0" y2="194" stroke="#6b7280" stroke-width="1"/>
+<text x="860.0" y="208.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">22:00</text>
+<text x="45.0" y="252.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13.5" fill="#1f2937" text-anchor="start" font-weight="bold">New York</text>
+<text x="45.0" y="269.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">EST = UTC−5</text>
+<line x1="200" y1="255" x2="860" y2="255" stroke="#6b7280" stroke-width="1.2"/>
+<line x1="200.0" y1="251" x2="200.0" y2="259" stroke="#6b7280" stroke-width="1"/>
+<text x="200.0" y="273.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">01:00</text>
+<line x1="282.5" y1="251" x2="282.5" y2="259" stroke="#6b7280" stroke-width="1"/>
+<text x="282.5" y="273.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">03:00</text>
+<line x1="365.0" y1="251" x2="365.0" y2="259" stroke="#6b7280" stroke-width="1"/>
+<text x="365.0" y="273.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">05:00</text>
+<line x1="447.5" y1="251" x2="447.5" y2="259" stroke="#6b7280" stroke-width="1"/>
+<text x="447.5" y="273.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">07:00</text>
+<line x1="530.0" y1="251" x2="530.0" y2="259" stroke="#6b7280" stroke-width="1"/>
+<text x="530.0" y="273.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">09:00</text>
+<line x1="612.5" y1="251" x2="612.5" y2="259" stroke="#6b7280" stroke-width="1"/>
+<text x="612.5" y="273.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">11:00</text>
+<line x1="695.0" y1="251" x2="695.0" y2="259" stroke="#6b7280" stroke-width="1"/>
+<text x="695.0" y="273.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">13:00</text>
+<line x1="777.5" y1="251" x2="777.5" y2="259" stroke="#6b7280" stroke-width="1"/>
+<text x="777.5" y="273.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">15:00</text>
+<line x1="860.0" y1="251" x2="860.0" y2="259" stroke="#6b7280" stroke-width="1"/>
+<text x="860.0" y="273.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#9ca3af" text-anchor="middle" font-weight="normal">17:00</text>
+<line x1="426.9" y1="92" x2="426.9" y2="272" stroke="#2563eb" stroke-width="1.6" stroke-dasharray="5 4"/>
+<circle cx="426.9" cy="125" r="4.5" fill="#2563eb"/>
+<rect x="405.9" y="101" width="42" height="16" rx="3" fill="#ffffff" stroke="none" opacity="0.9"/>
+<text x="426.9" y="114.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#2563eb" text-anchor="middle" font-weight="bold">14:30</text>
+<circle cx="426.9" cy="190" r="4.5" fill="#2563eb"/>
+<rect x="405.9" y="166" width="42" height="16" rx="3" fill="#ffffff" stroke="none" opacity="0.9"/>
+<text x="426.9" y="179.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#2563eb" text-anchor="middle" font-weight="bold">11:30</text>
+<circle cx="426.9" cy="255" r="4.5" fill="#2563eb"/>
+<rect x="405.9" y="231" width="42" height="16" rx="3" fill="#ffffff" stroke="none" opacity="0.9"/>
+<text x="426.9" y="244.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#2563eb" text-anchor="middle" font-weight="bold">06:30</text>
+<line x1="550.6" y1="92" x2="550.6" y2="272" stroke="#7c3aed" stroke-width="1.6" stroke-dasharray="5 4"/>
+<circle cx="550.6" cy="125" r="4.5" fill="#7c3aed"/>
+<rect x="529.6" y="101" width="42" height="16" rx="3" fill="#ffffff" stroke="none" opacity="0.9"/>
+<text x="550.6" y="114.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#7c3aed" text-anchor="middle" font-weight="bold">17:30</text>
+<circle cx="550.6" cy="190" r="4.5" fill="#7c3aed"/>
+<rect x="529.6" y="166" width="42" height="16" rx="3" fill="#ffffff" stroke="none" opacity="0.9"/>
+<text x="550.6" y="179.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#7c3aed" text-anchor="middle" font-weight="bold">14:30</text>
+<circle cx="550.6" cy="255" r="4.5" fill="#7c3aed"/>
+<rect x="529.6" y="231" width="42" height="16" rx="3" fill="#ffffff" stroke="none" opacity="0.9"/>
+<text x="550.6" y="244.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#7c3aed" text-anchor="middle" font-weight="bold">09:30</text>
+<line x1="756.9" y1="92" x2="756.9" y2="272" stroke="#ea580c" stroke-width="1.6" stroke-dasharray="5 4"/>
+<circle cx="756.9" cy="125" r="4.5" fill="#ea580c"/>
+<rect x="735.9" y="101" width="42" height="16" rx="3" fill="#ffffff" stroke="none" opacity="0.9"/>
+<text x="756.9" y="114.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#ea580c" text-anchor="middle" font-weight="bold">22:30</text>
+<circle cx="756.9" cy="190" r="4.5" fill="#ea580c"/>
+<rect x="735.9" y="166" width="42" height="16" rx="3" fill="#ffffff" stroke="none" opacity="0.9"/>
+<text x="756.9" y="179.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#ea580c" text-anchor="middle" font-weight="bold">19:30</text>
+<circle cx="756.9" cy="255" r="4.5" fill="#ea580c"/>
+<rect x="735.9" y="231" width="42" height="16" rx="3" fill="#ffffff" stroke="none" opacity="0.9"/>
+<text x="756.9" y="244.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#ea580c" text-anchor="middle" font-weight="bold">14:30</text>
+<line x1="426.9" y1="302" x2="542.6" y2="302" stroke="#7c3aed" stroke-width="1.6"/>
+<polygon points="550.6,302 542.6,298 542.6,306" fill="#7c3aed"/>
+<line x1="426.9" y1="297" x2="426.9" y2="307" stroke="#7c3aed" stroke-width="1.6"/>
+<text x="488.8" y="296.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#7c3aed" text-anchor="middle" font-weight="bold">force_tz: +3 saat</text>
+<line x1="426.9" y1="330" x2="748.9" y2="330" stroke="#ea580c" stroke-width="1.6"/>
+<polygon points="756.9,330 748.9,326 748.9,334" fill="#ea580c"/>
+<line x1="426.9" y1="325" x2="426.9" y2="335" stroke="#ea580c" stroke-width="1.6"/>
+<text x="591.9" y="324.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="bold">ny − ist = 8 saat = 28 800 saniye</text>
+<rect x="30" y="350" width="270" height="105" rx="8" fill="#2563eb" fill-opacity="0.07" stroke="#2563eb" stroke-width="1.5"/>
+<text x="42.0" y="372.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#2563eb" text-anchor="start" font-weight="bold">ist  (tz = "Europe/Istanbul")</text>
+<text x="42.0" y="396.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">as.numeric(ist) = 1706787000</text>
+<text x="42.0" y="420.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">İstanbul'da 14:30 = UTC'de 11:30.</text>
+<text x="42.0" y="438.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">with_tz(ist, "UTC") aynı çizgide kalır.</text>
+<rect x="315" y="350" width="270" height="105" rx="8" fill="#7c3aed" fill-opacity="0.07" stroke="#7c3aed" stroke-width="1.5"/>
+<text x="327.0" y="372.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#7c3aed" text-anchor="start" font-weight="bold">force_tz(ist, "UTC")  ve 4.2'deki ct</text>
+<text x="327.0" y="396.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">as.numeric = 1706797800</text>
+<text x="327.0" y="420.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">Duvar saati 14:30 korunur ama</text>
+<text x="327.0" y="438.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">an 3 saat ileri kayar (UTC'de 14:30).</text>
+<rect x="600" y="350" width="270" height="105" rx="8" fill="#ea580c" fill-opacity="0.07" stroke="#ea580c" stroke-width="1.5"/>
+<text x="612.0" y="372.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#ea580c" text-anchor="start" font-weight="bold">ny  (tz = "America/New_York")</text>
+<text x="612.0" y="396.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">as.numeric(ny) = 1706815800</text>
+<text x="612.0" y="420.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">New York'ta 14:30 = UTC'de 19:30.</text>
+<text x="612.0" y="438.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">Duvar saati ist ile aynı, an değil.</text>
+</svg>

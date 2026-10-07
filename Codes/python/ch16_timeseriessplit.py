@@ -54,11 +54,10 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import TimeSeriesSplit
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import GRU, Dense
+from tensorflow.keras.layers import Input, GRU, Dense
 
 SEED = 42
-np.random.seed(SEED)
-tf.random.set_seed(SEED)
+tf.keras.utils.set_random_seed(SEED)   # Python, NumPy ve TensorFlow tohumları
 
 df = pd.read_csv(veri_yolu('AirPassengers.csv'), parse_dates=['Month'], index_col='Month')
 if '#Passengers' in df.columns:
@@ -94,7 +93,7 @@ for k, (train_idx, val_idx) in enumerate(tscv.split(values), 1):
     y_tr, y_va = y_all[tr_mask], y_all[va_mask]
 
     # 3) Her fold'da SIFIRDAN yeni bir model (önceki fold'un ağırlıkları taşınmaz)
-    model = Sequential([GRU(50, input_shape=(look_back, 1)), Dense(1)])
+    model = Sequential([Input(shape=(look_back, 1)), GRU(50), Dense(1)])
     model.compile(loss='mean_squared_error', optimizer='adam')
     model.fit(X_tr, y_tr, epochs=100, batch_size=8, verbose=0)
 
@@ -122,7 +121,7 @@ from sklearn.model_selection import TimeSeriesSplit
 
 import tensorflow as tf
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import GRU, Dense, Dropout
+from tensorflow.keras.layers import Input, GRU, Dense, Dropout
 from tensorflow.keras.callbacks import EarlyStopping
 
 import xgboost as xgb
@@ -137,8 +136,7 @@ import xgboost as xgb
 # Ağırlıkların başlangıç değerleri ve alt örneklemler rastgeledir;
 # tohumları sabitleyerek sonuçları karşılaştırılabilir kılıyoruz.
 SEED = 42
-np.random.seed(SEED)
-tf.random.set_seed(SEED)
+tf.keras.utils.set_random_seed(SEED)   # Python, NumPy ve TensorFlow tohumları
 # GPU kullanılıyorsa tam deterministik işlemler için:
 # tf.config.experimental.enable_op_determinism()
 
@@ -235,7 +233,8 @@ print(f"Eğitim (final): {len(X_train_final)}, Doğrulama: {len(X_val)}, Test: {
 # GRU: 2 kapı (güncelleme z, sıfırlama r) + gizli durum; LSTM'den daha az parametre.
 def build_gru_model(look_back, units=50, dropout_rate=0.2):
     model = Sequential([
-        GRU(units, input_shape=(look_back, 1)),   # units: gizli durumun boyutu
+        Input(shape=(look_back, 1)),               # (12 zaman adımı, 1 özellik)
+        GRU(units),                                # units: gizli durumun boyutu
         Dropout(dropout_rate),                     # aşırı öğrenmeye karşı
         Dense(1)                                   # tek değerli tahmin
     ])
@@ -299,7 +298,7 @@ print(f"\nEğitim {len(history.history['loss'])} epoch sürdü; en iyi epoch: {b
 # 6) GRU İLE TAHMİN VE PERFORMANS DEĞERLENDİRMESİ
 # =============================================================
 # Son model: doğrulama dahil tüm eğitim verisiyle, en iyi epoch sayısı kadar eğitilir.
-tf.random.set_seed(SEED)
+tf.keras.utils.set_random_seed(SEED)
 model_gru_final = build_gru_model(look_back, units=50, dropout_rate=0.2)
 model_gru_final.fit(X_train, y_train, epochs=best_epoch, batch_size=8, verbose=0)
 

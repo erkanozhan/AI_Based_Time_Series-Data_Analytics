@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="450" viewBox="0 0 900 450">
+<title>Elle hesaplanan etki-tepki fonksiyonu</title>
+<rect x="0.5" y="0.5" width="899" height="449" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">Elle Hesaplanan Etki-Tepki: Faize 1 Birimlik Şok</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Her adımda bir önceki tepki vektörü A₁ ile çarpılır: tepki(h) = A₁ × tepki(h − 1)</text>
+<rect x="70" y="80" width="490" height="280" fill="#f9fafb" stroke="none"/>
+<line x1="70" y1="350.0" x2="568" y2="350.0" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="568,346.0 575,350.0 568,354.0" fill="#6b7280"/>
+<line x1="70" y1="350.0" x2="70" y2="74" stroke="#6b7280" stroke-width="1.2"/>
+<polygon points="66,74 70,67 74,74" fill="#6b7280"/>
+<line x1="70" y1="304.5" x2="560" y2="304.5" stroke="#e5e7eb"/>
+<text x="64.0" y="308.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">0.2</text>
+<line x1="70" y1="259.1" x2="560" y2="259.1" stroke="#e5e7eb"/>
+<text x="64.0" y="263.1" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">0.4</text>
+<line x1="70" y1="213.6" x2="560" y2="213.6" stroke="#e5e7eb"/>
+<text x="64.0" y="217.6" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">0.6</text>
+<line x1="70" y1="168.2" x2="560" y2="168.2" stroke="#e5e7eb"/>
+<text x="64.0" y="172.2" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">0.8</text>
+<line x1="70" y1="122.7" x2="560" y2="122.7" stroke="#e5e7eb"/>
+<text x="64.0" y="126.7" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">1.0</text>
+<text x="64.0" y="354.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">0</text>
+<text x="90.0" y="367.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">0</text>
+<text x="135.0" y="367.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>
+<text x="180.0" y="367.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">2</text>
+<text x="225.0" y="367.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">3</text>
+<text x="270.0" y="367.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">4</text>
+<text x="315.0" y="367.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">5</text>
+<text x="360.0" y="367.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">6</text>
+<text x="405.0" y="367.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">7</text>
+<text x="450.0" y="367.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">8</text>
+<text x="495.0" y="367.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">9</text>
+<text x="540.0" y="367.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">10</text>
+<text x="315.0" y="386.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">Şoktan sonraki dönem (h)</text>
+<polyline points="90.0,122.7 135.0,259.1 180.0,309.1 225.0,329.5 270.0,339.0 315.0,343.7 360.0,346.4 405.0,347.8 450.0,348.7 495.0,349.2 540.0,349.5" fill="none" stroke="#dc2626" stroke-width="2.2" stroke-linejoin="round"/>
+<circle cx="90.0" cy="122.7" r="3.2" fill="#dc2626"/>
+<circle cx="135.0" cy="259.1" r="3.2" fill="#dc2626"/>
+<circle cx="180.0" cy="309.1" r="3.2" fill="#dc2626"/>
+<circle cx="225.0" cy="329.5" r="3.2" fill="#dc2626"/>
+<circle cx="270.0" cy="339.0" r="3.2" fill="#dc2626"/>
+<circle cx="315.0" cy="343.7" r="3.2" fill="#dc2626"/>
+<circle cx="360.0" cy="346.4" r="3.2" fill="#dc2626"/>
+<circle cx="405.0" cy="347.8" r="3.2" fill="#dc2626"/>
+<circle cx="450.0" cy="348.7" r="3.2" fill="#dc2626"/>
+<circle cx="495.0" cy="349.2" r="3.2" fill="#dc2626"/>
+<circle cx="540.0" cy="349.5" r="3.2" fill="#dc2626"/>
+<polyline points="90.0,350.0 135.0,304.5 180.0,309.1 225.0,321.4 270.0,331.6 315.0,338.6 360.0,343.0 405.0,345.8 450.0,347.5 495.0,348.5 540.0,349.1" fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linejoin="round"/>
+<circle cx="90.0" cy="350.0" r="3.2" fill="#2563eb"/>
+<circle cx="135.0" cy="304.5" r="3.2" fill="#2563eb"/>
+<circle cx="180.0" cy="309.1" r="3.2" fill="#2563eb"/>
+<circle cx="225.0" cy="321.4" r="3.2" fill="#2563eb"/>
+<circle cx="270.0" cy="331.6" r="3.2" fill="#2563eb"/>
+<circle cx="315.0" cy="338.6" r="3.2" fill="#2563eb"/>
+<circle cx="360.0" cy="343.0" r="3.2" fill="#2563eb"/>
+<circle cx="405.0" cy="345.8" r="3.2" fill="#2563eb"/>
+<circle cx="450.0" cy="347.5" r="3.2" fill="#2563eb"/>
+<circle cx="495.0" cy="348.5" r="3.2" fill="#2563eb"/>
+<circle cx="540.0" cy="349.1" r="3.2" fill="#2563eb"/>
+<text x="98.0" y="116.7" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#dc2626" text-anchor="start" font-weight="bold">1</text>
+<text x="141.0" y="251.1" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#dc2626" text-anchor="start" font-weight="bold">0.4</text>
+<text x="229.0" y="345.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#dc2626" text-anchor="start" font-weight="bold">0.09</text>
+<text x="135.0" y="294.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#2563eb" text-anchor="middle" font-weight="bold">0.2</text>
+<text x="229.0" y="311.4" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#2563eb" text-anchor="start" font-weight="bold">0.126</text>
+<text x="184.0" y="299.1" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#7c3aed" text-anchor="start" font-weight="bold">0.18 (ikisi de)</text>
+<line x1="360" y1="100" x2="384" y2="100" stroke="#dc2626" stroke-width="2.2"/>
+<text x="390.0" y="104.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">Faiz (şok bu değişkene)</text>
+<line x1="360" y1="120" x2="384" y2="120" stroke="#2563eb" stroke-width="2.2"/>
+<text x="390.0" y="124.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">Enflasyon (çapraz etki)</text>
+<rect x="590" y="80" width="290" height="280" rx="8" fill="#f9fafb" stroke="#e5e7eb"/>
+<text x="735.0" y="104.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">Hesap adımları</text>
+<text x="735.0" y="124.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">A₁ satırları: (0.5, 0.2) ve (0.1, 0.4)</text>
+<text x="604.0" y="152.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="bold">h = 0</text>
+<text x="652.0" y="152.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">[0, 1]</text>
+<text x="652.0" y="168.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="start" font-weight="normal">şok: faiz +1, enflasyon 0</text>
+<text x="604.0" y="193.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="bold">h = 1</text>
+<text x="652.0" y="193.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">A₁ × [0, 1] = [0.2, 0.4]</text>
+<text x="652.0" y="209.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="start" font-weight="normal">0.5·0 + 0.2·1 = 0.2 ;  0.1·0 + 0.4·1 = 0.4</text>
+<text x="604.0" y="234.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="bold">h = 2</text>
+<text x="652.0" y="234.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">A₁ × [0.2, 0.4] = [0.18, 0.18]</text>
+<text x="652.0" y="250.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="start" font-weight="normal">0.10 + 0.08 ;  0.02 + 0.16</text>
+<text x="604.0" y="275.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="bold">h = 3</text>
+<text x="652.0" y="275.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">A₁ × [0.18, 0.18] = [0.126, 0.09]</text>
+<text x="652.0" y="291.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="start" font-weight="normal">0.09 + 0.036 ;  0.018 + 0.072</text>
+<text x="604.0" y="316.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="bold">h = 4</text>
+<text x="652.0" y="316.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">A₁ × [0.126, 0.09] ≈ [0.081, 0.049]</text>
+<text x="652.0" y="332.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="start" font-weight="normal">[enflasyon, faiz] sırasıyla</text>
+<text x="450.0" y="404.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic">Enflasyon önce yükselir (h = 1'de 0.2), sonra söner: en büyük öz değer 0.6 olduğu için tepki uzun vadede her adımda yaklaşık %60'ına iner.</text>
+<text x="450.0" y="424.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic">Gerçek bir uygulamada aynı hesabı results.irf() yapar (Bölüm 10.9).</text>
+</svg>

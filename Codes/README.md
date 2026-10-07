@@ -1,6 +1,6 @@
 # Uygulama Kodları
 
-Bu klasör, [ders notundaki](../Course_notes.md) uygulamaların çalıştırılabilir kodlarını içerir. Ders notunda kısa kodlar metnin içinde yer alır. Her bölümün kodlarının tamamı ise burada, baştan sona çalışan tek bir dosyada toplanmıştır. Ders notunda bir uygulamaya geldiğinizde, ilgili alt başlığın altındaki **💻 Uygulama dosyası** kutusu sizi buraya yönlendirir.
+Bu klasör, [ders notundaki](../Course_notes.md) uygulamaların çalıştırılabilir kodlarını içerir. Ders notunda kısa kodlar metnin içinde yer alır. Her bölümün kodlarının tamamı ise burada, baştan sona çalışan tek bir dosyada toplanmıştır. Ders notunda bir uygulamaya geldiğinizde, ilgili alt başlığın altındaki **Uygulama dosyası** kutusu sizi buraya yönlendirir.
 
 ## Klasör yapısı
 

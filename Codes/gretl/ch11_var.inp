@@ -18,10 +18,14 @@
 # 1) Veri dosyasını açalım (depo kök dizininden; .gdt dosyaları da aynı komutla açılır)
 open "data/macro.csv"
 
-# Zaman serisi yapısını açıkça tanımlıyoruz (2015:01'den başlayan aylık veri):
+# İlk sütunun başlığı "date" ve tarihler 2015-01-01 biçiminde olduğu için Gretl
+# veriyi genellikle kendiliğinden aylık seri olarak tanır. Yine de zaman serisi
+# yapısını açıkça tanımlıyoruz (2015:01'den başlayan aylık veri):
 setobs 12 2015:01 --time-series
 
 # 2) Gecikme seçimi: 1'den 8'e kadar AIC, BIC, HQC tablosu
+#    --lagselect: model kurulmaz, yalnızca tablo yazdırılır.
+#    Bu veride AIC 7, BIC 2, HQC 3 gecikme önerir (Python ile aynı).
 var 8 inflation interest exchange --lagselect
 
 # 3) VAR(2) modelinin tahmini
@@ -37,10 +41,14 @@ var 2 inflation interest exchange --impulse-responses --variance-decomp
 # --impulse-responses ve --variance-decomp seçenekleri IRF ve FEVD
 # tablolarını da yazdırır (değişken sırası = Cholesky sırası).
 
-# 4) Artık tanı testleri
-modtest --autocorr               # artıklarda otokorelasyon
-modtest --normality              # artıkların normalliği
+# 4) Artık tanı testleri (son kurulan VAR modeline uygulanır)
+modtest --autocorr               # çok değişkenli otokorelasyon testi (Rao F), H0: otokorelasyon yok
+modtest --normality              # Doornik-Hansen normallik testi, H0: artıklar normal
+# Bu veride iki test de H0'ı reddeder (p < 0.01): düzey serilerle kurulan VAR(2)'nin
+# artıkları tam "beyaz gürültü" değildir (bkz. Bölüm 10.9).
 
-# 5) 12 dönemlik tahmin: veri setini uzatıp fcast çalıştırıyoruz
+# 5) 12 dönemlik tahmin: veri setini 12 ay uzatıp fcast çalıştırıyoruz.
+#    --out-of-sample: yalnızca verinin bittiği yerden sonrası (2025:01-2025:12)
+#    tahmin edilir; her değişken için tahmin, standart hata ve %95 aralık yazdırılır.
 dataset addobs 12
 fcast --out-of-sample

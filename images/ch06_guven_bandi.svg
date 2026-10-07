@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="470" viewBox="0 0 900 470">
+<title>ACF güven bandı nereden gelir</title>
+<rect x="0.5" y="0.5" width="899" height="469" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">Güven Bandı Nereden Gelir? Tamamen Rastgele Serilerde Korelasyon</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Her biri T = 238 gözlemden oluşan 5000 beyaz gürültü serisi üretildi; her birinin lag-1 otokorelasyonu hesaplandı</text>
+<rect x="80" y="88" width="780" height="272" fill="#f9fafb" stroke="#e5e7eb"/>
+<rect x="279.4" y="88" width="381.1" height="272" fill="#2563eb" opacity="0.08"/>
+<rect x="125.6" y="357.1" width="13.8" height="2.9" fill="#ea580c"/>
+<rect x="170.6" y="357.1" width="13.8" height="2.9" fill="#ea580c"/>
+<rect x="185.6" y="358.5" width="13.8" height="1.5" fill="#ea580c"/>
+<rect x="200.6" y="353.4" width="13.8" height="6.6" fill="#ea580c"/>
+<rect x="215.6" y="354.1" width="13.8" height="5.9" fill="#ea580c"/>
+<rect x="230.6" y="348.3" width="13.8" height="11.7" fill="#ea580c"/>
+<rect x="245.6" y="348.3" width="13.8" height="11.7" fill="#ea580c"/>
+<rect x="260.6" y="329.2" width="13.8" height="30.8" fill="#ea580c"/>
+<rect x="275.6" y="325.5" width="13.8" height="34.5" fill="#9ca3af"/>
+<rect x="290.6" y="307.9" width="13.8" height="52.1" fill="#9ca3af"/>
+<rect x="305.6" y="299.8" width="13.8" height="60.2" fill="#9ca3af"/>
+<rect x="320.6" y="267.5" width="13.8" height="92.5" fill="#9ca3af"/>
+<rect x="335.6" y="256.5" width="13.8" height="103.5" fill="#9ca3af"/>
+<rect x="350.6" y="234.4" width="13.8" height="125.6" fill="#9ca3af"/>
+<rect x="365.6" y="205.8" width="13.8" height="154.2" fill="#9ca3af"/>
+<rect x="380.6" y="194.1" width="13.8" height="165.9" fill="#9ca3af"/>
+<rect x="395.6" y="182.3" width="13.8" height="177.7" fill="#9ca3af"/>
+<rect x="410.6" y="151.5" width="13.8" height="208.5" fill="#9ca3af"/>
+<rect x="425.6" y="153.7" width="13.8" height="206.3" fill="#9ca3af"/>
+<rect x="440.6" y="115.5" width="13.8" height="244.5" fill="#9ca3af"/>
+<rect x="455.6" y="139.7" width="13.8" height="220.3" fill="#9ca3af"/>
+<rect x="470.6" y="133.8" width="13.8" height="226.2" fill="#9ca3af"/>
+<rect x="485.6" y="135.3" width="13.8" height="224.7" fill="#9ca3af"/>
+<rect x="500.6" y="161.7" width="13.8" height="198.3" fill="#9ca3af"/>
+<rect x="515.6" y="163.2" width="13.8" height="196.8" fill="#9ca3af"/>
+<rect x="530.6" y="183.0" width="13.8" height="177.0" fill="#9ca3af"/>
+<rect x="545.6" y="195.5" width="13.8" height="164.5" fill="#9ca3af"/>
+<rect x="560.6" y="243.2" width="13.8" height="116.8" fill="#9ca3af"/>
+<rect x="575.6" y="244.0" width="13.8" height="116.0" fill="#9ca3af"/>
+<rect x="590.6" y="282.9" width="13.8" height="77.1" fill="#9ca3af"/>
+<rect x="605.6" y="292.4" width="13.8" height="67.6" fill="#9ca3af"/>
+<rect x="620.6" y="315.9" width="13.8" height="44.1" fill="#9ca3af"/>
+<rect x="635.6" y="312.3" width="13.8" height="47.7" fill="#9ca3af"/>
+<rect x="650.6" y="331.4" width="13.8" height="28.6" fill="#9ca3af"/>
+<rect x="665.6" y="338.7" width="13.8" height="21.3" fill="#ea580c"/>
+<rect x="680.6" y="346.0" width="13.8" height="14.0" fill="#ea580c"/>
+<rect x="695.6" y="349.0" width="13.8" height="11.0" fill="#ea580c"/>
+<rect x="710.6" y="351.2" width="13.8" height="8.8" fill="#ea580c"/>
+<rect x="725.6" y="358.5" width="13.8" height="1.5" fill="#ea580c"/>
+<rect x="740.6" y="355.6" width="13.8" height="4.4" fill="#ea580c"/>
+<rect x="755.6" y="357.8" width="13.8" height="2.2" fill="#ea580c"/>
+<rect x="770.6" y="359.3" width="13.8" height="0.7" fill="#ea580c"/>
+<rect x="785.6" y="359.3" width="13.8" height="0.7" fill="#ea580c"/>
+<rect x="800.6" y="358.5" width="13.8" height="1.5" fill="#ea580c"/>
+<polyline points="80.0,359.9 82.6,359.9 85.2,359.9 87.8,359.9 90.4,359.9 93.0,359.9 95.7,359.9 98.3,359.8 100.9,359.8 103.5,359.8 106.1,359.8 108.7,359.8 111.3,359.7 113.9,359.7 116.5,359.7 119.1,359.7 121.7,359.6 124.3,359.6 127.0,359.6 129.6,359.5 132.2,359.5 134.8,359.4 137.4,359.3 140.0,359.3 142.6,359.2 145.2,359.1 147.8,359.1 150.4,359.0 153.0,358.9 155.7,358.8 158.3,358.7 160.9,358.6 163.5,358.4 166.1,358.3 168.7,358.1 171.3,358.0 173.9,357.8 176.5,357.6 179.1,357.4 181.7,357.2 184.3,357.0 187.0,356.7 189.6,356.5 192.2,356.2 194.8,355.9 197.4,355.6 200.0,355.2 202.6,354.9 205.2,354.5 207.8,354.0 210.4,353.6 213.0,353.1 215.7,352.6 218.3,352.1 220.9,351.5 223.5,350.9 226.1,350.3 228.7,349.6 231.3,348.9 233.9,348.1 236.5,347.4 239.1,346.5 241.7,345.6 244.3,344.7 247.0,343.7 249.6,342.7 252.2,341.6 254.8,340.5 257.4,339.3 260.0,338.1 262.6,336.8 265.2,335.4 267.8,334.0 270.4,332.5 273.0,331.0 275.7,329.3 278.3,327.7 280.9,325.9 283.5,324.1 286.1,322.2 288.7,320.3 291.3,318.3 293.9,316.2 296.5,314.0 299.1,311.8 301.7,309.4 304.3,307.1 307.0,304.6 309.6,302.1 312.2,299.5 314.8,296.8 317.4,294.1 320.0,291.3 322.6,288.4 325.2,285.4 327.8,282.4 330.4,279.3 333.0,276.2 335.7,273.0 338.3,269.8 340.9,266.5 343.5,263.1 346.1,259.7 348.7,256.2 351.3,252.7 353.9,249.2 356.5,245.6 359.1,242.1 361.7,238.4 364.3,234.8 367.0,231.1 369.6,227.5 372.2,223.8 374.8,220.1 377.4,216.4 380.0,212.8 382.6,209.1 385.2,205.5 387.8,201.9 390.4,198.3 393.0,194.8 395.7,191.3 398.3,187.9 400.9,184.5 403.5,181.2 406.1,177.9 408.7,174.8 411.3,171.7 413.9,168.7 416.5,165.8 419.1,162.9 421.7,160.2 424.3,157.6 427.0,155.1 429.6,152.8 432.2,150.5 434.8,148.4 437.4,146.4 440.0,144.5 442.6,142.8 445.2,141.3 447.8,139.8 450.4,138.6 453.0,137.4 455.7,136.5 458.3,135.7 460.9,135.0 463.5,134.5 466.1,134.2 468.7,134.1 471.3,134.1 473.9,134.2 476.5,134.5 479.1,135.0 481.7,135.7 484.3,136.5 487.0,137.4 489.6,138.6 492.2,139.8 494.8,141.3 497.4,142.8 500.0,144.5 502.6,146.4 505.2,148.4 507.8,150.5 510.4,152.8 513.0,155.1 515.7,157.6 518.3,160.2 520.9,162.9 523.5,165.8 526.1,168.7 528.7,171.7 531.3,174.8 533.9,177.9 536.5,181.2 539.1,184.5 541.7,187.9 544.3,191.3 547.0,194.8 549.6,198.3 552.2,201.9 554.8,205.5 557.4,209.1 560.0,212.8 562.6,216.4 565.2,220.1 567.8,223.8 570.4,227.5 573.0,231.1 575.7,234.8 578.3,238.4 580.9,242.1 583.5,245.6 586.1,249.2 588.7,252.7 591.3,256.2 593.9,259.7 596.5,263.1 599.1,266.5 601.7,269.8 604.3,273.0 607.0,276.2 609.6,279.3 612.2,282.4 614.8,285.4 617.4,288.4 620.0,291.3 622.6,294.1 625.2,296.8 627.8,299.5 630.4,302.1 633.0,304.6 635.7,307.1 638.3,309.4 640.9,311.8 643.5,314.0 646.1,316.2 648.7,318.3 651.3,320.3 653.9,322.2 656.5,324.1 659.1,325.9 661.7,327.7 664.3,329.3 667.0,331.0 669.6,332.5 672.2,334.0 674.8,335.4 677.4,336.8 680.0,338.1 682.6,339.3 685.2,340.5 687.8,341.6 690.4,342.7 693.0,343.7 695.7,344.7 698.3,345.6 700.9,346.5 703.5,347.4 706.1,348.1 708.7,348.9 711.3,349.6 713.9,350.3 716.5,350.9 719.1,351.5 721.7,352.1 724.3,352.6 727.0,353.1 729.6,353.6 732.2,354.0 734.8,354.5 737.4,354.9 740.0,355.2 742.6,355.6 745.2,355.9 747.8,356.2 750.4,356.5 753.0,356.7 755.7,357.0 758.3,357.2 760.9,357.4 763.5,357.6 766.1,357.8 768.7,358.0 771.3,358.1 773.9,358.3 776.5,358.4 779.1,358.6 781.7,358.7 784.3,358.8 787.0,358.9 789.6,359.0 792.2,359.1 794.8,359.1 797.4,359.2 800.0,359.3 802.6,359.3 805.2,359.4 807.8,359.5 810.4,359.5 813.0,359.6 815.7,359.6 818.3,359.6 820.9,359.7 823.5,359.7 826.1,359.7 828.7,359.7 831.3,359.8 833.9,359.8 836.5,359.8 839.1,359.8 841.7,359.8 844.3,359.9 847.0,359.9 849.6,359.9 852.2,359.9 854.8,359.9 857.4,359.9 860.0,359.9" fill="none" stroke="#dc2626" stroke-width="2"/>
+<line x1="279.4" y1="88" x2="279.4" y2="360" stroke="#2563eb" stroke-width="1.6" stroke-dasharray="6 4"/>
+<line x1="660.6" y1="88" x2="660.6" y2="360" stroke="#2563eb" stroke-width="1.6" stroke-dasharray="6 4"/>
+<line x1="80" y1="360" x2="860" y2="360" stroke="#6b7280" stroke-width="1.2"/>
+<line x1="170.0" y1="360" x2="170.0" y2="365" stroke="#6b7280"/>
+<text x="170.0" y="379.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">−0.2</text>
+<line x1="320.0" y1="360" x2="320.0" y2="365" stroke="#6b7280"/>
+<text x="320.0" y="379.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">−0.1</text>
+<line x1="470.0" y1="360" x2="470.0" y2="365" stroke="#6b7280"/>
+<text x="470.0" y="379.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">0.0</text>
+<line x1="620.0" y1="360" x2="620.0" y2="365" stroke="#6b7280"/>
+<text x="620.0" y="379.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">0.1</text>
+<line x1="770.0" y1="360" x2="770.0" y2="365" stroke="#6b7280"/>
+<text x="770.0" y="379.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">0.2</text>
+<text x="470.0" y="398.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#6b7280" text-anchor="middle" font-weight="normal">Rastgele seride hesaplanan lag-1 otokorelasyonu  ρ̂₁</text>
+<text x="273.4" y="104.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#2563eb" text-anchor="end" font-weight="bold">−0.127</text>
+<text x="666.6" y="104.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#2563eb" text-anchor="start" font-weight="bold">+0.127</text>
+<rect x="415.0" y="296.9" width="110" height="42" rx="6" fill="#ffffff" stroke="#d1d5db"/>
+<text x="470.0" y="315.9" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#1f2937" text-anchor="middle" font-weight="bold">%95.7</text>
+<text x="470.0" y="332.9" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="middle" font-weight="normal">bandın içinde</text>
+<text x="185.0" y="279.2" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#ea580c" text-anchor="middle" font-weight="bold">%2.3</text>
+<text x="185.0" y="295.2" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="normal">şans eseri</text>
+<text x="185.0" y="309.2" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="normal">bandın altında</text>
+<text x="755.0" y="279.2" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#ea580c" text-anchor="middle" font-weight="bold">%2.0</text>
+<text x="755.0" y="295.2" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="normal">şans eseri</text>
+<text x="755.0" y="309.2" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="middle" font-weight="normal">bandın üstünde</text>
+<line x1="170" y1="72" x2="198" y2="72" stroke="#dc2626" stroke-width="2"/>
+<text x="206.0" y="76.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">Çan eğrisi (normal dağılım): ortası 0, standart sapması 1/√T = 0.065</text>
+<rect x="600" y="67" width="28" height="10" fill="#9ca3af"/>
+<text x="636.0" y="76.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">5000 korelasyonun histogramı</text>
+<text x="450.0" y="425.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">Bant genişliği = 1.96 × standart sapma = 1.96 × (1 / √238) = 1.96 × 0.0648 ≈ 0.127</text>
+<text x="450.0" y="447.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic">Çan eğrisinde değerlerin %95'i ortanın 1.96 standart sapma sağı ile solu arasında kalır; 1.96 sayısı buradan gelir.</text>
+</svg>

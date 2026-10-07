@@ -2,7 +2,7 @@
 <title>Tarih formatları ve R'ın iç temsili</title>
 <rect x="0.5" y="0.5" width="899" height="499" rx="10" fill="#ffffff" stroke="#d1d5db"/>
 <text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">Aynı Metin, Farklı Tarihler — ve R'ın İç Temsili</text>
-<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Biçim (format) belirtilmezse "01/02/2024" iki farklı güne karşılık gelebilir; R ise her tarihi bir sayı olarak saklar</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Yazım düzeni bilinmeden okunursa "01/02/2024" iki farklı güne karşılık gelebilir; R ise her tarihi bir sayı olarak saklar</text>
 <text x="40.0" y="84.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="start" font-weight="bold">1) Metin nasıl okunur?</text>
 <rect x="40" y="140" width="190" height="64" rx="8" fill="#1f2937" fill-opacity="0.06" stroke="#1f2937" stroke-width="1.5"/>
 <text x="135.0" y="170.0" font-family="Consolas, Menlo, monospace, Segoe UI, Helvetica, Arial, sans-serif" font-size="21" fill="#1f2937" text-anchor="middle" font-weight="bold">"01/02/2024"</text>

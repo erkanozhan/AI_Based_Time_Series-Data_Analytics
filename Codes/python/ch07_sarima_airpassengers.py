@@ -42,6 +42,7 @@ plt.show()
 # %% [markdown]
 # ## 7.7.2 Durağanlık testleri ve ACF/PACF
 # KPSS p-değeri tablo sınırlarının dışında kalırsa `InterpolationWarning` görülebilir; bu bir hata değildir.
+# statsmodels 0.15+ ayrıca `FutureWarning` yazabilir (ileride demet yerine sonuç nesnesi dönecek); sonuçları değiştirmez.
 
 # %%
 # ADF testi (H0: birim kök var, seri durağan değil)
@@ -140,4 +141,6 @@ print(f'ARIMA Modeli RMSE Değeri: {rmse_arima:.2f}')
 
 # %% [markdown]
 # **Alıştırma (notta 7.7.5):** Modeli `np.log(train_data)` üzerinde kurun, tahminleri `np.exp()` ile
-# orijinal ölçeğe döndürün ve RMSE'yi yeniden hesaplayın.
+# orijinal ölçeğe döndürün ve RMSE'yi yeniden hesaplayın. Bizim denememizde log seride
+# ARIMA(2,0,0)(0,1,1)[12] seçildi ve RMSE yaklaşık 49.0 çıktı (log'suz model: 47.87).
+# Hataları yıllara göre inceleyin: log model 1956-1957'de çok isabetli, 1958 sonrasında fazla tahmin yapar.

@@ -9,7 +9,7 @@
 #
 # Not: "#>" ile başlayan yorumlar, notta verilen beklenen çıktılardır.
 #      Son adımdaki ggsave(), grafiği çalışma dizinine
-#      arima_forecast_original_scale.png adıyla kaydeder.
+#      ch08_sarima_test_tahmini.png adıyla kaydeder.
 # =============================================================================
 
 library(forecast)
@@ -25,9 +25,16 @@ test  <- window(log(AirPassengers), start = c(1960, 1))  # 1960-01 ... 1960-12 (
 # Model 1960'ı hiç görmüyor.
 fit_train <- auto.arima(train, seasonal = TRUE)
 print(fit_train)
+#> Series: train
 #> ARIMA(0,1,1)(0,1,1)[12]
+#>
+#> Coefficients:
 #>           ma1     sma1
 #>       -0.3484  -0.5623
+#> s.e.   0.0943   0.0774
+#>
+#> sigma^2 = 0.001338:  log likelihood = 223.63
+#> AIC=-441.26   AICc=-441.05   BIC=-432.92
 
 # ---- 8.3 Test dönemi için tahmin ve orijinal ölçeğe dönüş ----
 # Test dönemi kadar (12 ay) ileriye tahmin
@@ -59,37 +66,49 @@ metrikler <- function(a, p) c(MAE  = mean(abs(a - p)),
 naive_fc  <- as.numeric(exp(naive(train,  h = 12)$mean))  # her ay = Aralık 1959
 snaive_fc <- as.numeric(exp(snaive(train, h = 12)$mean))  # her ay = 1959'un aynı ayı
 
-print(round(rbind(SARIMA            = metrikler(actual, predicted),
-                  Naive             = metrikler(actual, naive_fc),
-                  `Mevsimsel Naive` = metrikler(actual, snaive_fc)), 2))
+tablo <- rbind(SARIMA            = metrikler(actual, predicted),
+               Naive             = metrikler(actual, naive_fc),
+               `Mevsimsel Naive` = metrikler(actual, snaive_fc))
+print(round(tablo, 2))
 #>                   MAE   RMSE  MAPE
 #> SARIMA          13.26  18.59  2.90
 #> Naive           76.00 102.98 14.25
 #> Mevsimsel Naive 47.83  50.71  9.99
 
+# ---- 8.3 MASE: MAE'yi eğitim setindeki mevsimsel naive hatasına bölmek ----
+# Payda: eğitim setinde "bu ay = geçen yılın aynı ayı" tahmininin ortalama mutlak hatası
+payda <- mean(abs(diff(exp(train), lag = 12)))
+print(round(payda, 2))
+#> [1] 30.45
+print(round(tablo[, "MAE"] / payda, 2))
+#>          SARIMA           Naive Mevsimsel Naive
+#>            0.44            2.50            1.57
+
 # forecast paketinin hazır fonksiyonu (DİKKAT: sonuçlar log ölçekte)
 print(accuracy(fc_test, test))
 
 # ---- 8.3 Görselleştirme: gerçek değerler ve tahminler (orijinal ölçek) ----
-# Tarih sütunları oluştur (ggplot2 Date nesnesiyle daha iyi çalışır)
-tum_tarihler  <- seq(as.Date("1949-01-01"), by = "month", length.out = length(AirPassengers))
-test_tarihler <- seq(as.Date("1960-01-01"), by = "month", length.out = length(test))
+# ggplot2 tarih ekseninde Date nesnesiyle daha iyi çalışır: ay başı tarihleri üretelim
+egitim_tarihler <- seq(as.Date("1949-01-01"), by = "month", length.out = length(train))
+test_tarihler   <- seq(as.Date("1960-01-01"), by = "month", length.out = length(test))
 
+# Üç parçayı alt alta ekleyip tek bir "uzun" veri çerçevesi yapıyoruz
 plot_data <- rbind(
-  data.frame(Tarih = tum_tarihler,  Deger = as.numeric(AirPassengers), Tur = "Gerçek (tüm seri)"),
-  data.frame(Tarih = test_tarihler, Deger = actual,                    Tur = "Gerçek (test)"),
-  data.frame(Tarih = test_tarihler, Deger = predicted,                 Tur = "SARIMA tahmini")
+  data.frame(Tarih = egitim_tarihler, Deger = as.numeric(exp(train)), Tur = "Gerçek (eğitim, 1949-1959)"),
+  data.frame(Tarih = test_tarihler,   Deger = actual,                 Tur = "Gerçek (test, 1960)"),
+  data.frame(Tarih = test_tarihler,   Deger = predicted,              Tur = "SARIMA tahmini")
 )
 
 # (Rscript ile çalıştırırken ggplot nesnesinin çizilmesi için print() kullanıyoruz)
 p <- ggplot(plot_data, aes(x = Tarih, y = Deger, color = Tur)) +
-  geom_line() +
-  labs(title = "AirPassengers: Gerçek Değerler ve Tahminler (Orijinal Ölçek)",
-       y = "Yolcu Sayısı", x = "Yıl", color = NULL) +
+  geom_line(linewidth = 0.7) +
+  labs(title = "AirPassengers: Eğitim, Test ve SARIMA Tahmini (Orijinal Ölçek)",
+       y = "Yolcu Sayısı (bin)", x = "Yıl", color = NULL) +
   theme_minimal() +
-  scale_color_manual(values = c("Gerçek (tüm seri)" = "black",
-                                "Gerçek (test)"     = "red",
-                                "SARIMA tahmini"    = "blue"))
+  theme(legend.position = "bottom") +
+  scale_color_manual(values = c("Gerçek (eğitim, 1949-1959)" = "black",
+                                "Gerçek (test, 1960)"        = "red",
+                                "SARIMA tahmini"             = "blue"))
 print(p)
 
-ggsave("arima_forecast_original_scale.png", plot = p, width = 10, height = 6, dpi = 300)
+ggsave("ch08_sarima_test_tahmini.png", plot = p, width = 10, height = 6, dpi = 300)

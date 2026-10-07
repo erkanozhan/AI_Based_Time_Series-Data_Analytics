@@ -90,9 +90,12 @@ snaive_metrics = evaluate_model(test_data, snaive_pred, "Mevsimsel Naive")
 
 # 3) Sonraki bölümlerde aynı fonksiyonu diğer modeller için de kullanacağız.
 #    (Bu satırlar, ilgili bölümlerdeki değişkenler tanımlandıktan sonra çalışır.)
-# prophet_metrics = evaluate_model(test['y'], tahmin, "Prophet")            # Bölüm 9
-# xgb_metrics     = evaluate_model(y_test, y_test_pred, "XGBoost")          # Bölüm 13
-# lstm_metrics    = evaluate_model(testY_inv[0], test_predict[:, 0], "LSTM") # Bölüm 15
+#    Dikkat: Prophet ve XGBoost bölümlerinde test seti yalnızca 1960 yılıdır (12 ay);
+#    onları 8.3'teki 12 aylık sonuçlarla kıyaslayın. LSTM ise buradaki 60 aylık
+#    test dönemini (1956-1960) kullanır.
+# prophet_metrics = evaluate_model(test['y'], tahmin, "Prophet")          # Bölüm 9.3 (12 ay)
+# xgb_metrics     = evaluate_model(y_test, y_test_pred, "XGBoost")        # Bölüm 13.4 (12 ay)
+# lstm_metrics    = evaluate_model(testY_inv, test_predict[:, 0], "LSTM") # Bölüm 15 (60 ay)
 
 # 4) Sonuçları tek bir tabloda toplayalım
 sonuclar = pd.DataFrame({"SARIMA": arima_metrics,

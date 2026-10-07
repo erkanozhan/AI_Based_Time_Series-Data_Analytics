@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="440" viewBox="0 0 900 440">
+<title>Regresyon ağacı örneği</title>
+<rect x="0.5" y="0.5" width="899" height="439" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">Bir Regresyon Ağacı: Sorular, Dallar ve Yapraklar</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">AirPassengers eğitim verisi (Şub 1949 – Ara 1959, 131 ay) · tek özellik lag_1 (önceki ayın yolcu sayısı) · derinlik 2</text>
+<line x1="450" y1="129" x2="250" y2="171" stroke="#9ca3af" stroke-width="1.6"/>
+<text x="336.0" y="150.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="end" font-weight="bold">evet</text>
+<line x1="450" y1="129" x2="650" y2="171" stroke="#ea580c" stroke-width="2.5"/>
+<text x="564.0" y="150.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="start" font-weight="bold">hayır</text>
+<line x1="250" y1="219" x2="140" y2="266" stroke="#9ca3af" stroke-width="1.6"/>
+<text x="181.0" y="242.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="end" font-weight="bold">evet</text>
+<line x1="250" y1="219" x2="355" y2="266" stroke="#9ca3af" stroke-width="1.6"/>
+<text x="316.5" y="242.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="bold">hayır</text>
+<line x1="650" y1="219" x2="545" y2="266" stroke="#ea580c" stroke-width="2.5"/>
+<text x="583.5" y="242.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#ea580c" text-anchor="end" font-weight="bold">evet</text>
+<line x1="650" y1="219" x2="760" y2="266" stroke="#9ca3af" stroke-width="1.6"/>
+<text x="719.0" y="242.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="bold">hayır</text>
+<rect x="350" y="81" width="200" height="48" rx="8" fill="#f9fafb" stroke="#ea580c" stroke-width="2.5"/>
+<text x="450.0" y="102.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="middle" font-weight="bold">lag_1 ≤ 261.5 ?</text>
+<text x="450.0" y="120.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">131 ay · ortalama 263.6</text>
+<rect x="150" y="171" width="200" height="48" rx="8" fill="#f9fafb" stroke="#2563eb" stroke-width="2"/>
+<text x="250.0" y="192.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="middle" font-weight="bold">lag_1 ≤ 170.5 ?</text>
+<text x="250.0" y="210.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">70 ay · ortalama 181.6</text>
+<rect x="550" y="171" width="200" height="48" rx="8" fill="#f9fafb" stroke="#ea580c" stroke-width="2.5"/>
+<text x="650.0" y="192.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="middle" font-weight="bold">lag_1 ≤ 410 ?</text>
+<text x="650.0" y="210.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">61 ay · ortalama 357.8</text>
+<rect x="52" y="266" width="176" height="68" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+<text x="140.0" y="290.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#16a34a" text-anchor="middle" font-weight="bold">ŷ = 140.4</text>
+<text x="140.0" y="309.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">30 ay bu yaprakta</text>
+<text x="140.0" y="325.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">değerler 104 – 178 arası</text>
+<rect x="267" y="266" width="176" height="68" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+<text x="355.0" y="290.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#16a34a" text-anchor="middle" font-weight="bold">ŷ = 212.6</text>
+<text x="355.0" y="309.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">40 ay bu yaprakta</text>
+<text x="355.0" y="325.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">değerler 162 – 278 arası</text>
+<rect x="457" y="266" width="176" height="68" rx="8" fill="#ffffff" stroke="#ea580c" stroke-width="2.5"/>
+<text x="545.0" y="290.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#ea580c" text-anchor="middle" font-weight="bold">ŷ = 331.3</text>
+<text x="545.0" y="309.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">49 ay bu yaprakta</text>
+<text x="545.0" y="325.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">değerler 237 – 435 arası</text>
+<rect x="672" y="266" width="176" height="68" rx="8" fill="#ffffff" stroke="#16a34a" stroke-width="2"/>
+<text x="760.0" y="290.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#16a34a" text-anchor="middle" font-weight="bold">ŷ = 465.8</text>
+<text x="760.0" y="309.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">12 ay bu yaprakta</text>
+<text x="760.0" y="325.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="middle" font-weight="normal">değerler 404 – 559 arası</text>
+<text x="70.0" y="368.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">Turuncu yol — Ocak 1960 tahmini: lag_1 = 405 (Aralık 1959) → 405 > 261.5 olduğu için “hayır” → 405 ≤ 410 olduğu için “evet” → ŷ = 331.3</text>
+<text x="70.0" y="388.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="start" font-weight="normal">Her yaprağın tahmini, eğitimde o yaprağa düşen ayların ortalamasıdır. lag_1 = 600 gibi hiç görülmemiş bir değer gelse bile</text>
+<text x="70.0" y="408.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#dc2626" text-anchor="start" font-weight="bold">en sağdaki yaprağa düşer ve tahmin 465.8 olur: ağaç, eğitimdeki en büyük değeri (559) aşan bir sayı üretemez.</text>
+</svg>

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="495" viewBox="0 0 900 495">
+<title>GRU tohum duyarlılığı</title>
+<rect x="0.5" y="0.5" width="899" height="494" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">Aynı GRU, Farklı Tohum: Test Dönemindeki Tahminler (1956–1960)</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Mimari, veri ve eğitim ayarları aynı; yalnızca başlangıç ağırlıklarını belirleyen tohum (SEED) farklı</text>
+<rect x="80" y="75" width="780" height="300" fill="#f9fafb" stroke="#e5e7eb"/>
+<line x1="80" y1="375.0" x2="860" y2="375.0" stroke="#e5e7eb"/>
+<text x="72.0" y="379.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">0</text>
+<line x1="80" y1="332.1" x2="860" y2="332.1" stroke="#e5e7eb"/>
+<text x="72.0" y="336.1" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">100</text>
+<line x1="80" y1="289.3" x2="860" y2="289.3" stroke="#e5e7eb"/>
+<text x="72.0" y="293.3" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">200</text>
+<line x1="80" y1="246.4" x2="860" y2="246.4" stroke="#e5e7eb"/>
+<text x="72.0" y="250.4" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">300</text>
+<line x1="80" y1="203.6" x2="860" y2="203.6" stroke="#e5e7eb"/>
+<text x="72.0" y="207.6" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">400</text>
+<line x1="80" y1="160.7" x2="860" y2="160.7" stroke="#e5e7eb"/>
+<text x="72.0" y="164.7" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">500</text>
+<line x1="80" y1="117.9" x2="860" y2="117.9" stroke="#e5e7eb"/>
+<text x="72.0" y="121.9" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">600</text>
+<line x1="80" y1="75.0" x2="860" y2="75.0" stroke="#e5e7eb"/>
+<text x="72.0" y="79.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">700</text>
+<line x1="90.0" y1="375" x2="90.0" y2="380" stroke="#6b7280"/>
+<text x="167.3" y="394.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1956</text>
+<line x1="244.6" y1="375" x2="244.6" y2="380" stroke="#6b7280"/>
+<text x="321.9" y="394.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1957</text>
+<line x1="399.2" y1="375" x2="399.2" y2="380" stroke="#6b7280"/>
+<text x="476.4" y="394.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1958</text>
+<line x1="553.7" y1="375" x2="553.7" y2="380" stroke="#6b7280"/>
+<text x="631.0" y="394.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1959</text>
+<line x1="708.3" y1="375" x2="708.3" y2="380" stroke="#6b7280"/>
+<text x="785.6" y="394.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1960</text>
+<line x1="80" y1="375" x2="860" y2="375" stroke="#6b7280"/>
+<line x1="80" y1="75" x2="80" y2="375" stroke="#6b7280"/>
+<text x="30.0" y="225.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#374151" text-anchor="middle" font-weight="normal" transform="rotate(-90 30 225.0)">Yolcu sayısı (bin)</text>
+<line x1="80" y1="219.0" x2="860" y2="219.0" stroke="#9ca3af" stroke-width="1.5" stroke-dasharray="6,4"/>
+<polyline points="90.0,253.3 102.9,256.3 115.8,239.1 128.6,240.9 141.5,238.7 154.4,214.7 167.3,198.0 180.2,201.4 193.1,222.9 205.9,243.9 218.8,258.9 231.7,243.9 244.6,240.0 257.5,246.0 270.3,222.4 283.2,225.9 296.1,222.9 309.0,194.1 321.9,175.7 334.7,174.9 347.6,201.9 360.5,226.3 373.4,244.3 386.3,231.0 399.2,229.3 412.0,238.7 424.9,219.9 437.8,225.9 450.7,219.4 463.6,188.6 476.4,164.6 489.3,158.6 502.2,201.9 515.1,221.1 528.0,242.1 540.8,230.6 553.7,220.7 566.6,228.4 579.5,201.0 592.4,205.3 605.3,195.0 618.1,172.7 631.0,140.1 643.9,135.4 656.8,176.6 669.7,200.6 682.5,219.9 695.4,201.4 708.3,196.3 721.2,207.4 734.1,195.4 746.9,177.4 759.8,172.7 772.7,145.7 785.6,108.4 798.5,115.3 811.4,157.3 824.2,177.4 837.1,207.9 850.0,189.9" fill="none" stroke="#1f2937" stroke-width="2.2" stroke-linejoin="round"/>
+<polyline points="90.0,252.5 102.9,249.5 115.8,246.3 128.6,238.1 141.5,235.2 154.4,230.1 167.3,217.6 180.2,209.0 193.1,213.6 205.9,229.4 218.8,239.4 231.7,240.6 244.6,235.6 257.5,233.7 270.3,233.6 283.2,224.4 296.1,222.7 309.0,218.0 321.9,203.7 334.7,193.1 347.6,195.3 360.5,214.1 373.4,225.2 386.3,229.2 399.2,224.9 412.0,224.6 424.9,226.4 437.8,219.8 450.7,220.0 463.6,215.0 476.4,200.2 489.3,186.5 502.2,184.5 515.1,211.3 528.0,219.1 540.8,225.4 553.7,222.8 566.6,220.1 579.5,221.8 592.4,210.8 605.3,209.9 618.1,202.4 631.0,189.7 643.9,172.1 656.8,173.9 669.7,201.8 682.5,211.2 695.4,216.1 708.3,208.3 721.2,206.8 734.1,210.5 746.9,205.2 759.8,195.5 772.7,191.4 785.6,176.4 798.5,156.6 811.4,166.9 824.2,193.3 837.1,198.7 850.0,209.7" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="6,3" stroke-linejoin="round"/>
+<polyline points="90.0,258.5 102.9,246.3 115.8,243.6 128.6,233.2 141.5,222.8 154.4,209.3 167.3,200.3 180.2,218.4 193.1,225.2 205.9,252.2 218.8,262.4 231.7,237.8 244.6,275.3 257.5,249.9 270.3,236.6 283.2,241.4 296.1,212.2 309.0,213.8 321.9,210.8 334.7,226.9 347.6,258.4 360.5,263.0 373.4,317.2 386.3,212.1 399.2,319.8 412.0,269.9 424.9,257.8 437.8,266.3 450.7,218.3 463.6,243.2 476.4,231.0 489.3,215.5 502.2,253.6 515.1,311.9 528.0,340.0 540.8,252.4 553.7,327.3 566.6,290.4 579.5,246.9 592.4,259.1 605.3,170.3 618.1,238.0 631.0,241.9 643.9,215.2 656.8,287.9 669.7,298.4 682.5,373.5 695.4,115.0 708.3,322.6 721.2,223.3 734.1,318.9 746.9,303.0 759.8,274.1 772.7,278.9 785.6,276.9 798.5,211.8 811.4,300.8 824.2,355.0 837.1,340.4 850.0,371.5" fill="none" stroke="#dc2626" stroke-width="2" stroke-linejoin="round"/>
+<line x1="90" y1="419" x2="118" y2="419" stroke="#1f2937" stroke-width="2.5"/>
+<text x="126.0" y="423.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">gerçek değer</text>
+<line x1="345" y1="419" x2="373" y2="419" stroke="#2563eb" stroke-width="2.5" stroke-dasharray="6,3"/>
+<text x="381.0" y="423.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">GRU, SEED = 1 (RMSE ≈ 47.3)</text>
+<line x1="600" y1="419" x2="628" y2="419" stroke="#dc2626" stroke-width="2.5"/>
+<text x="636.0" y="423.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">GRU, SEED = 42 (RMSE ≈ 183.6)</text>
+<line x1="90" y1="441" x2="118" y2="441" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6,4"/>
+<text x="126.0" y="445.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">eğitim döneminin (1949–1955) en büyük değeri: 364; ölçeklenmiş hâli 1.00</text>
+<text x="450.0" y="477.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Test girdileri eğitimde hiç görülmemiş büyüklüklere (ölçekte 1.99'a kadar) çıktıkça SEED = 42 modelinin tahminleri çöker.</text>
+</svg>

@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="470" viewBox="0 0 900 470">
+<title>LSTM hücresi</title>
+<rect x="0.5" y="0.5" width="899" height="469" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">LSTM Hücresinin İç Yapısı</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Üstteki bant uzun süreli hafızayı (hücre durumu) taşır; üç kapı bu banda neyin girip çıkacağını 0–1 arası oranlarla ayarlar</text>
+<line x1="70" y1="120" x2="830" y2="120" stroke="#ea580c" stroke-width="5"/>
+<polygon points="834,111.6 846,120 834,128.4" fill="#ea580c"/>
+<text x="70.0" y="106.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#ea580c" text-anchor="start" font-weight="bold">Cₜ₋₁</text>
+<text x="70.0" y="144.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="start" font-weight="normal">eski hafıza</text>
+<text x="846.0" y="106.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#ea580c" text-anchor="end" font-weight="bold">Cₜ</text>
+<text x="846.0" y="144.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">yeni hafıza</text>
+<text x="450.0" y="88.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#ea580c" text-anchor="middle" font-weight="bold">hücre durumu: uzun süreli hafıza bandı</text>
+<line x1="70" y1="400" x2="690" y2="400" stroke="#2563eb" stroke-width="2.5"/>
+<text x="70.0" y="424.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#2563eb" text-anchor="start" font-weight="bold">[hₜ₋₁, xₜ]: önceki çıktı + bu ayın girdisi</text>
+<line x1="250" y1="400" x2="250" y2="343" stroke="#2563eb" stroke-width="2"/>
+<polygon points="245.8,343 250,337 254.2,343" fill="#2563eb"/>
+<circle cx="250" cy="400" r="3.5" fill="#2563eb"/>
+<line x1="400" y1="400" x2="400" y2="343" stroke="#2563eb" stroke-width="2"/>
+<polygon points="395.8,343 400,337 404.2,343" fill="#2563eb"/>
+<circle cx="400" cy="400" r="3.5" fill="#2563eb"/>
+<line x1="540" y1="400" x2="540" y2="343" stroke="#2563eb" stroke-width="2"/>
+<polygon points="535.8,343 540,337 544.2,343" fill="#2563eb"/>
+<circle cx="540" cy="400" r="3.5" fill="#2563eb"/>
+<line x1="690" y1="400" x2="690" y2="343" stroke="#2563eb" stroke-width="2"/>
+<polygon points="685.8,343 690,337 694.2,343" fill="#2563eb"/>
+<circle cx="690" cy="400" r="3.5" fill="#2563eb"/>
+<rect x="188.0" y="283.0" width="124" height="54" rx="7" fill="#ffffff" stroke="#ea580c" stroke-width="2"/><text x="250.0" y="306.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" fill="#ea580c" text-anchor="middle" font-weight="bold">σ</text><text x="250.0" y="326.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="bold">unutma kapısı fₜ</text>
+<rect x="338.0" y="283.0" width="124" height="54" rx="7" fill="#ffffff" stroke="#ea580c" stroke-width="2"/><text x="400.0" y="306.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" fill="#ea580c" text-anchor="middle" font-weight="bold">σ</text><text x="400.0" y="326.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="bold">giriş kapısı iₜ</text>
+<rect x="478.0" y="283.0" width="124" height="54" rx="7" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/><text x="540.0" y="306.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" fill="#7c3aed" text-anchor="middle" font-weight="bold">tanh</text><text x="540.0" y="326.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="bold">aday bilgi C̃ₜ</text>
+<rect x="628.0" y="283.0" width="124" height="54" rx="7" fill="#ffffff" stroke="#ea580c" stroke-width="2"/><text x="690.0" y="306.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" fill="#ea580c" text-anchor="middle" font-weight="bold">σ</text><text x="690.0" y="326.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#1f2937" text-anchor="middle" font-weight="bold">çıkış kapısı oₜ</text>
+<line x1="250" y1="283" x2="250" y2="135" stroke="#1f2937" stroke-width="1.8"/>
+<polygon points="245.8,142 250,136 254.2,142" fill="#1f2937"/>
+<circle cx="250" cy="120" r="15" fill="#ffffff" stroke="#1f2937" stroke-width="2"/><text x="250.0" y="126.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="17" fill="#1f2937" text-anchor="middle" font-weight="bold">×</text>
+<text x="272.0" y="170.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">fₜ ⊙ Cₜ₋₁</text>
+<text x="272.0" y="186.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="start" font-weight="normal">örnek: 0.9 × 10 = 9</text>
+<polyline points="400,283 400,210 455,210" fill="none" stroke="#1f2937" stroke-width="1.8"/>
+<polyline points="540,283 540,210 485,210" fill="none" stroke="#1f2937" stroke-width="1.8"/>
+<circle cx="470" cy="210" r="15" fill="#ffffff" stroke="#1f2937" stroke-width="2"/><text x="470.0" y="216.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="17" fill="#1f2937" text-anchor="middle" font-weight="bold">×</text>
+<line x1="470" y1="195" x2="470" y2="135" stroke="#1f2937" stroke-width="1.8"/>
+<polygon points="465.8,142 470,136 474.2,142" fill="#1f2937"/>
+<circle cx="470" cy="120" r="15" fill="#ffffff" stroke="#1f2937" stroke-width="2"/><text x="470.0" y="126.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="17" fill="#1f2937" text-anchor="middle" font-weight="bold">+</text>
+<text x="492.0" y="188.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#1f2937" text-anchor="start" font-weight="normal">iₜ ⊙ C̃ₜ</text>
+<text x="492.0" y="204.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="start" font-weight="normal">0.2 × 0.5 = 0.1</text>
+<text x="492.0" y="154.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="start" font-weight="normal">9 + 0.1 = 9.1</text>
+<circle cx="770" cy="120" r="4" fill="#ea580c"/>
+<line x1="770" y1="120" x2="770" y2="170" stroke="#ea580c" stroke-width="2"/>
+<polygon points="765.8,164 770,170 774.2,164" fill="#ea580c"/>
+<rect x="738.0" y="170.0" width="64" height="30" rx="7" fill="#ffffff" stroke="#7c3aed" stroke-width="2"/><text x="770.0" y="191.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" fill="#7c3aed" text-anchor="middle" font-weight="bold">tanh</text>
+<line x1="770" y1="200" x2="770" y2="230" stroke="#1f2937" stroke-width="1.8"/>
+<polygon points="765.8,224 770,230 774.2,224" fill="#1f2937"/>
+<polyline points="690,283 690,245 755,245" fill="none" stroke="#1f2937" stroke-width="1.8"/>
+<circle cx="770" cy="245" r="15" fill="#ffffff" stroke="#1f2937" stroke-width="2"/><text x="770.0" y="251.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="17" fill="#1f2937" text-anchor="middle" font-weight="bold">×</text>
+<line x1="785" y1="245" x2="836" y2="245" stroke="#16a34a" stroke-width="2.5"/>
+<polygon points="836,238.0 846,245 836,252.0" fill="#16a34a"/>
+<text x="846.0" y="233.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#16a34a" text-anchor="end" font-weight="bold">hₜ</text>
+<text x="846.0" y="267.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">bu adımın çıktısı</text>
+<text x="846.0" y="282.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#6b7280" text-anchor="end" font-weight="normal">(kısa süreli hafıza)</text>
+<text x="70.0" y="452.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="start" font-weight="normal">σ: sigmoid (0–1 arası vana)   ·   tanh: −1 ile 1 arasına sıkıştırma   ·   × : eleman eleman çarpım (⊙)   ·   + : toplama</text>
+</svg>

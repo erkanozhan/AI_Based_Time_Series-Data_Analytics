@@ -36,9 +36,13 @@ frequency(satis_ts)   # Frekans
 tsp(satis_ts)         # İçeride saklanan öznitelik: başlangıç, bitiş, frekans
 #> [1] 2024.000 2024.917   12.000
 cycle(satis_ts)       # Her gözlemin döngü içindeki sırası (1 = Ocak, ..., 12 = Aralık)
+#>      Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
+#> 2024   1   2   3   4   5   6   7   8   9  10  11  12
 
 # Her ayın ortalaması (mevsimsel analizde sık kullanılır)
 tapply(satis_ts, cycle(satis_ts), mean)
+#>   1   2   3   4   5   6   7   8   9  10  11  12
+#> 100 105  98 112 108 115 120 118 125 130 128 135
 
 # Döngünün ortasından başlayan çeyreklik seri: 2023'ün 3. çeyreği
 ceyrek_ts <- ts(c(50, 52, 55, 53, 58, 60), start = c(2023, 3), frequency = 4)
@@ -73,7 +77,7 @@ end(AirPassengers)
 #> [1] 1960   12
 frequency(AirPassengers)   # Aylık veri
 #> [1] 12
-length(AirPassengers)      # 12 yıl x 12 ay
+length(AirPassengers)      # 12 yıl × 12 ay
 #> [1] 144
 
 # Görselleştirme
@@ -145,12 +149,12 @@ length(ap_pencere)
 
 # USgas'tan 2010-2015 yılları arasındaki veri
 subset_gas <- window(USgas, start = c(2010, 1), end = c(2015, 12))
-length(subset_gas)   # 6 yıl x 12 ay
+length(subset_gas)   # 6 yıl × 12 ay
 #> [1] 72
 
 # Eğitim/test ayrımı: son iki yılı test için ayıralım
-egitim <- window(AirPassengers, end = c(1958, 12))     # 1949-1958: 120 gözlem
-test   <- window(AirPassengers, start = c(1959, 1))    # 1959-1960: 24 gözlem
+egitim <- window(AirPassengers, end = c(1958, 12))     # 1949-1958
+test   <- window(AirPassengers, start = c(1959, 1))    # 1959-1960
 length(egitim)
 #> [1] 120
 length(test)

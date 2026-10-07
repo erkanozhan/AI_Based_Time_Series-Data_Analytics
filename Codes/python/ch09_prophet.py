@@ -41,7 +41,8 @@ df['ds'] = pd.to_datetime(df['ds'])
 # Şimdi modelimizi oluşturalım.
 # AirPassengers verisi aylık olduğu ve yıllık bir döngüye sahip olduğu için
 # yearly_seasonality=True parametresini kullanıyoruz.
-# Haftalık veya günlük bir döngü beklemediğimiz için diğer mevsimsellikleri kapatabiliriz.
+# Günlük döngüyü açıkça kapatıyoruz; haftalık döngüyü Prophet aylık veride zaten
+# kendiliğinden kapatır (varsayılan ayar 'auto').
 m = Prophet(yearly_seasonality=True, daily_seasonality=False)
 
 # fit() metodu ile modelimizi hazırladığımız veri setine eğitiyoruz.
@@ -55,7 +56,9 @@ m.fit(df)
 future = m.make_future_dataframe(periods=12, freq='MS')
 
 # predict() metodu, oluşturduğumuz bu gelecek tarihleri alır ve her bir tarih için
-# bir tahmin üretir.
+# bir tahmin üretir. Belirsizlik aralığı rastgele simülasyonla hesaplandığı için
+# aynı sonuçları almak üzere rastgele sayı üretecini sabitliyoruz.
+np.random.seed(42)
 forecast = m.predict(future)
 
 # Tahmin sonuçları oldukça detaylı bir veri çerçevesi olarak döner.
@@ -65,7 +68,7 @@ forecast = m.predict(future)
 # 'yhat_lower' ve 'yhat_upper': Tahminin belirsizlik aralığı. Model, gerçek değerin
 # büyük olasılıkla bu iki sınır arasında olacağını öngörür.
 print("--- Tahmin Sonuçları (Son 12 Ay) ---")
-print(forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail(12))
+print(forecast.set_index('ds')[['yhat', 'yhat_lower', 'yhat_upper']].tail(12).round(1))
 
 # %%
 # Prophet'ın en güzel yanlarından biri, sonuçları görselleştirmek için

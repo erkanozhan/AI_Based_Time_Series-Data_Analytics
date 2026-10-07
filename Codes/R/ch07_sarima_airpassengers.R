@@ -1,6 +1,6 @@
 # =============================================================================
 # Bölüm 7 — Klasik İstatistiksel Modeller: ARIMA ve SARIMA
-# Ders notu: Course_notes.md, Bölüm 7.6 (R Uygulaması: AirPassengers ile SARIMA)
+# Ders notu: Course_notes.md, Bölüm 7.2 (karakteristik kökler) ve 7.6 (R Uygulaması: AirPassengers ile SARIMA)
 #
 # Çalıştırma: depo kök dizininden  Rscript Codes/R/ch07_sarima_airpassengers.R
 #             ya da RStudio'da dosyayı açıp satır satır (Ctrl+Enter) çalıştırın.
@@ -13,6 +13,13 @@
 library(forecast)
 library(tseries)
 
+# ---- 7.2 Karakteristik denklemin kökleri ----
+# Katsayılar küçük üsten büyüğe: 1 - 0.6z - 0.16z^2 = 0
+round(polyroot(c(1, -0.6, -0.16)), 4)   # 1 - 0.6z - 0.16z^2 = 0 denkleminin kökleri
+#> [1]  1.25+0i -5.00+0i
+Mod(polyroot(c(1, -0.6, -0.16)))        # köklerin mutlak değerleri
+#> [1] 1.25 5.00
+
 # ---- 7.6.1 Veriyi Görselleştirme ----
 # Veriyi yükle ve çiz
 data(AirPassengers)
@@ -22,6 +29,9 @@ plot(AirPassengers, main = "AirPassengers Verisi: Trend ve Artan Varyans",
 # ---- 7.6.2 Durağanlık Testleri ----
 print(adf.test(AirPassengers))
 #> Dickey-Fuller = -7.3186, Lag order = 5, p-value = 0.01
+
+print(adf.test(AirPassengers, k = 13))   # 12 aylık hafızayı kapsayan gecikme sayısıyla
+#> Dickey-Fuller = -2.1008, Lag order = 13, p-value = 0.5345
 
 print(kpss.test(AirPassengers))
 #> KPSS Level = 2.7395, Truncation lag parameter = 4, p-value = 0.01

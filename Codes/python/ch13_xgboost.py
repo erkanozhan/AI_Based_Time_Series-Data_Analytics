@@ -211,10 +211,12 @@ params = dict(
 )
 
 print("\nXGBoost modeli eğitiliyor (erken durdurma)...")
+# Not: xgboost >= 2.0'da early_stopping_rounds kurucuya (XGBRegressor) yazılır;
+# eski kodlardaki fit(..., early_stopping_rounds=50) biçimi TypeError verir.
 es_model = xgb.XGBRegressor(n_estimators=1000, early_stopping_rounds=50, **params)
 es_model.fit(X_tr_in, y_tr_in, eval_set=[(X_val, y_val)], verbose=False)
 
-best_n = es_model.best_iteration + 1
+best_n = es_model.best_iteration + 1   # best_iteration 0'dan sayar: ağaç sayısı = +1
 print(f"Seçilen ağaç sayısı: {best_n}")
 
 model = xgb.XGBRegressor(n_estimators=best_n, **params)
@@ -222,7 +224,7 @@ model.fit(X_train, y_train)
 
 # %% [markdown]
 # ### 5) Tahmin ve performans değerlendirmesi (13.4.1)
-# Ekstrapolasyon kontrolü: testteki en büyük tahmin eğitimdeki tavanın (559) civarında kalır.
+# Ekstrapolasyon kontrolü: testteki en büyük tahmin (544) eğitimdeki tavanın (559) bile altında kalır.
 
 # %%
 # =============================================================

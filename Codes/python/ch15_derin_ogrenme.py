@@ -7,7 +7,8 @@
 #
 # Gerekli paketler: numpy, pandas, matplotlib, scikit-learn, tensorflow, xgboost, pmdarima
 # (Colab'da tensorflow ve xgboost kurulu; pmdarima ilk hücrede kurulur).
-# Not: Eğitim CPU'da birkaç dakika sürebilir; sonuçlar tohum ve kütüphane sürümüne göre biraz değişir.
+# Not: Eğitim CPU'da birkaç dakika sürebilir. Derin öğrenme sonuçları tohuma, işletim sistemine
+# ve TensorFlow sürümüne göre değişebilir (ders notu, Bölüm 15.3'teki tohum deneyi).
 
 # %% [markdown]
 # ## 15.1 Ortak Veri Hazırlığı
@@ -25,11 +26,11 @@ from pmdarima.datasets import load_airpassengers
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 
-# Tekrarlanabilirlik: ağırlıkların başlangıç değerleri rastgele atanır,
-# tohumları sabitleyerek her çalıştırmada benzer sonuçlar alırız.
+# Tekrarlanabilirlik: ağırlıkların başlangıç değerleri rastgele atanır.
+# set_random_seed, Python'un, NumPy'ın ve TensorFlow'un rastgele sayı
+# üreteçlerini tek satırda aynı tohuma sabitler.
 SEED = 42
-np.random.seed(SEED)
-tf.random.set_seed(SEED)
+tf.keras.utils.set_random_seed(SEED)
 
 # Bölüm 7'deki Python uygulamasıyla aynı veri: 1949-1960 aylık yolcu sayıları (144 gözlem)
 data = load_airpassengers(as_series=True)
@@ -96,12 +97,13 @@ test_dates = dates[train_size:]
 # 15.1'de hazırlanan trainX, trainY, testX, testY, scaler, dates, test_dates,
 # testY_inv ve look_back değişkenlerini kullanır.
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense
+from tensorflow.keras.layers import Input, LSTM, Dense
 
 model_lstm = Sequential()
-# 50: katmandaki hafıza birimi (gizli durum boyutu) sayısı.
-# input_shape: (zaman adımı sayısı, özellik sayısı) = (12, 1)
-model_lstm.add(LSTM(50, input_shape=(look_back, 1)))
+# Girdi şekli: (zaman adımı sayısı, özellik sayısı) = (12, 1); örnek sayısı yazılmaz
+model_lstm.add(Input(shape=(look_back, 1)))
+# 50: katmandaki hafıza birimi (gizli durum boyutu) sayısı
+model_lstm.add(LSTM(50))
 # Tek nöronlu çıktı katmanı: bir sonraki ayın (ölçeklenmiş) değeri
 model_lstm.add(Dense(1))
 
@@ -115,8 +117,8 @@ model_lstm.summary()
 model_lstm.fit(trainX, trainY, epochs=100, batch_size=1, verbose=2)
 
 # Tahminler ve orijinal ölçeğe geri dönüş
-train_predict = scaler.inverse_transform(model_lstm.predict(trainX))
-test_predict = scaler.inverse_transform(model_lstm.predict(testX))
+train_predict = scaler.inverse_transform(model_lstm.predict(trainX, verbose=0))
+test_predict = scaler.inverse_transform(model_lstm.predict(testX, verbose=0))
 
 rmse_lstm = np.sqrt(mean_squared_error(testY_inv, test_predict[:, 0]))
 print(f'LSTM Modeli RMSE Değeri: {rmse_lstm:.2f}')
@@ -141,14 +143,16 @@ plt.show()
 # 15.1'de hazırlanan trainX, trainY, testX, testY, scaler, dates, test_dates,
 # testY_inv ve look_back değişkenlerini kullanır.
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import GRU, Dense
+from tensorflow.keras.layers import Input, GRU, Dense
 
 # Aynı başlangıç koşulları için tohumu yeniden sabitliyoruz
-tf.random.set_seed(SEED)
+tf.keras.utils.set_random_seed(SEED)
 
 model_gru = Sequential()
-# 50 birimli GRU katmanı; girdi şekli LSTM'dekiyle aynı: (12 zaman adımı, 1 özellik)
-model_gru.add(GRU(50, input_shape=(look_back, 1)))
+# Girdi şekli LSTM'dekiyle aynı: (12 zaman adımı, 1 özellik)
+model_gru.add(Input(shape=(look_back, 1)))
+# 50 birimli GRU katmanı
+model_gru.add(GRU(50))
 model_gru.add(Dense(1))
 
 model_gru.compile(loss='mean_squared_error', optimizer='adam')
@@ -158,8 +162,8 @@ model_gru.summary()   # GRU katmanı: 7.950 parametre (LSTM'de 10.400)
 model_gru.fit(trainX, trainY, epochs=100, batch_size=1, verbose=2)
 
 # Tahminler ve orijinal ölçeğe dönüş
-train_predict_gru = scaler.inverse_transform(model_gru.predict(trainX))
-test_predict_gru = scaler.inverse_transform(model_gru.predict(testX))
+train_predict_gru = scaler.inverse_transform(model_gru.predict(trainX, verbose=0))
+test_predict_gru = scaler.inverse_transform(model_gru.predict(testX, verbose=0))
 
 rmse_gru = np.sqrt(mean_squared_error(testY_inv, test_predict_gru[:, 0]))
 print(f'GRU Modeli RMSE Değeri: {rmse_gru:.2f}')
@@ -186,14 +190,13 @@ plt.show()
 # dataset ve look_back değişkenlerini kullanır.
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import (
-    Dense, Flatten, Conv1D, MaxPooling1D,
-    Dropout, BatchNormalization
+    Input, Dense, Flatten, Conv1D, MaxPooling1D, Dropout
 )
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam
 from sklearn.metrics import mean_absolute_error
 
-tf.random.set_seed(SEED)
+tf.keras.utils.set_random_seed(SEED)
 
 # %% [markdown]
 # ### 1) Eğitim / doğrulama / test ayrımı
@@ -220,31 +223,32 @@ print(f"Eğitim: {len(X_train)}, Doğrulama: {len(X_val)}, Test: {len(X_test)} �
 # =============================================================
 # 2) 1D-CNN MODELİNİN MİMARİSİ
 # =============================================================
-# Conv1D            : filtreler pencere üzerinde kayarak yerel desenleri öğrenir
-# BatchNormalization: katman çıktısını normalize eder, eğitimi kararlı hâle getirir
-# MaxPooling1D      : özellik haritasını küçültür, en belirgin sinyali korur
-# Dropout           : eğitimde rastgele nöronları kapatarak aşırı öğrenmeyi azaltır
-# Flatten + Dense   : öğrenilen desenleri birleştirip tek bir tahmine dönüştürür
+# Conv1D         : filtreler pencere üzerinde kayarak yerel desenleri öğrenir
+# MaxPooling1D   : özellik haritasını küçültür, en belirgin sinyali korur
+# Dropout        : eğitimde rastgele nöronları kapatarak aşırı öğrenmeyi azaltır
+# Flatten + Dense: öğrenilen desenleri birleştirip tek bir tahmine dönüştürür
+# Not: BatchNormalization katmanı bilerek kullanılmıyor. Bu kadar küçük veride
+# (60 eğitim örneği, 16'lık yığınlar) model eğitim verisini bile tahmin edemez
+# hâle geliyordu (ayrıntı: ders notu, Bölüm 15.4.2).
 
 def build_cnn_model(look_back, filters=64, kernel_size=3, dropout_rate=0.2):
     """
     Mimari:
-        Conv1D → BatchNorm → MaxPool → Dropout →
-        Conv1D → BatchNorm → MaxPool → Dropout →
+        Conv1D → MaxPool → Dropout →
+        Conv1D → MaxPool → Dropout →
         Flatten → Dense → Dropout → Dense (çıktı)
     """
     model = Sequential([
+        Input(shape=(look_back, 1)),   # (12 zaman adımı, 1 özellik)
         # İlk evrişim bloğu; padding='same' uzunluğu korur (12)
         Conv1D(filters=filters, kernel_size=kernel_size, activation='relu',
-               padding='same', input_shape=(look_back, 1)),
-        BatchNormalization(),
+               padding='same'),
         MaxPooling1D(pool_size=2),
         Dropout(dropout_rate),
 
         # İkinci evrişim bloğu: daha fazla filtre, daha karmaşık desenler
         Conv1D(filters=filters * 2, kernel_size=kernel_size, activation='relu',
                padding='same'),
-        BatchNormalization(),
         MaxPooling1D(pool_size=2),
         Dropout(dropout_rate),
 

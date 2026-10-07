@@ -60,6 +60,15 @@ comparison_df <- cbind(
 )
 print(head(comparison_df, 15)) # İlk 15 satır kaydırmayı açıkça gösterir
 
+# Kaydırmanın yönü: tsp() başlangıç, bitiş ve frekansı verir
+print(tsp(USgas))                 # 2000.00 (Ocak 2000) ... 2019.75 (Ekim 2019)
+print(tsp(USgas_lag1))            # Şubat 2000'de başlar: her tarihte x_{t-1}
+print(tsp(stats::lag(USgas, 1)))  # Pozitif k: Aralık 1999'da başlar, her tarihte x_{t+1} (öncü değer)
+
+# cbind() tüm tarihleri kapsar (250 satır); ts.intersect() yalnızca ortak tarihleri (226 satır)
+print(dim(comparison_df))
+print(dim(ts.intersect(USgas, USgas_lag1, USgas_lag12)))
+
 # ---- 6.2.3 Bileşenlere Ayırma: decompose() ----
 # USgas serisini bileşenlerine ayıralım (toplamsal model)
 USgas_ayristir <- decompose(USgas)
@@ -67,6 +76,19 @@ plot(USgas_ayristir)
 
 # Her ayın mevsimsel etkisi (12 değer)
 print(round(USgas_ayristir$figure))
+
+# Ocak 2001 örneği: gözlem = trend + mevsimsel etki + kalan
+print(window(cbind(gozlem   = USgas,
+                   trend    = USgas_ayristir$trend,
+                   mevsimsel = USgas_ayristir$seasonal,
+                   kalan    = USgas_ayristir$random),
+             start = c(2001, 1), end = c(2001, 1)))
+
+# ---- 6.3.1 Korelasyon nasıl hesaplanır? ----
+sicaklik <- c(18, 19, 21, 22)
+satis    <- c(9, 8, 12, 11)
+print(cor(sicaklik, satis))   # 0.8
+print(cov(sicaklik, satis))   # 8/3 = 2.67 (R, n - 1'e böler)
 
 # ---- 6.3.2 ACF Grafiği Nasıl Elde Edilir? ----
 # h = 1 çubuğunu elle üretelim: seriyi 1 adım kaydır, çiftleri eşle, korelasyonu hesapla
@@ -83,6 +105,14 @@ cat("rho_1 (elle):", round(rho1_elle, 2), " acf():", round(acf(x, plot = FALSE)$
 # ---- 6.3.4 Elle Hesaplama Örneği ----
 # x = [10, 12, 15, 11, 17] için lag-1 otokorelasyonu (elle: -11/34 = -0.324)
 print(acf(c(10, 12, 15, 11, 17), plot = FALSE)$acf[2])
+# Aynı dört çiftin sıradan Pearson korelasyonu (farklı ortalama ve payda kullanır): -0.448
+print(cor(c(12, 15, 11, 17), c(10, 12, 15, 11)))
+
+# ---- 6.3.3 Güven bandı: rastgele serilerde lag-1 otokorelasyonu ----
+set.seed(1)
+r1 <- replicate(5000, acf(rnorm(238), lag.max = 1, plot = FALSE)$acf[2])
+cat("Standart sapma:", round(sd(r1), 3), " 1/sqrt(T):", round(1 / sqrt(238), 3), "\n")
+cat("Bant içindeki oran:", mean(abs(r1) <= 1.96 / sqrt(238)), "\n")  # yaklaşık 0.95
 
 # ---- 6.3.7 Python ve R ile ACF ----
 data <- c(20, 22, 21, 23, 24)          # Örnek bir zaman serisi vektörü oluştur
@@ -112,8 +142,19 @@ print(1.96 / sqrt(length(USgas)))
 # Yorumda geçen sayısal değerler (eksende gecikme sayısını görmek için as.numeric)
 acf_us  <- acf(as.numeric(USgas),  lag.max = 36, plot = FALSE)
 pacf_us <- pacf(as.numeric(USgas), lag.max = 36, plot = FALSE)
-print(round(acf_us$acf[c(1, 2, 12, 24) + 1], 2))   # lag 1, 2, 12, 24
-print(round(pacf_us$acf[c(1, 2, 13)], 2))          # lag 1, 2, 13
+print(round(acf_us$acf[c(1, 2, 12, 24, 36) + 1], 2))   # lag 1, 2, 12, 24, 36
+print(round(pacf_us$acf[c(1, 2, 6, 9, 10, 13)], 2))     # lag 1, 2, 6, 9, 10, 13
+
+# ---- 6.4.2 phi_22 formülü: (rho_2 - rho_1^2) / (1 - rho_1^2) ----
+phi22 <- function(r1, r2) (r2 - r1^2) / (1 - r1^2)
+print(phi22(0.5, 0.25))  # AR(1), phi = 0.5: 0 (zincirden fazlası yok)
+print(phi22(0.5, 0.60))  # 0.47 (lag-2'nin kendine ait katkısı var)
+
+# ---- 6.6.2-6.6.3 Teorik ACF ve PACF (Şekil 6.9) ----
+print(round(ARMAacf(ar = 0.5, lag.max = 6), 4))               # 0.5^h
+print(round(ARMAacf(ar = 0.5, lag.max = 6, pacf = TRUE), 4))  # 0.5, sonra 0
+print(round(ARMAacf(ma = 0.8, lag.max = 6), 4))               # 0.4878, sonra 0
+print(round(ARMAacf(ma = 0.8, lag.max = 6, pacf = TRUE), 4))  # 0.49, -0.31, 0.22, -0.17, ...
 
 # ---- 6.6.4 İmzaları Yan Yana Görmek ----
 set.seed(42)

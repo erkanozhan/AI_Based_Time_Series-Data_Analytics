@@ -14,8 +14,9 @@ data("AirPassengers")
 ayr_carp <- decompose(AirPassengers, type = "multiplicative")
 plot(ayr_carp)
 
-# Mevsimsel katsayılar (ortalaması 1): Temmuz ~1.23 -> ortalamadan ~%23 fazla
+# Mevsimsel katsayılar (ortalaması 1): Temmuz ~1.23 -> trend seviyesinden ~%23 fazla
 print(round(ayr_carp$figure, 3))
+#>  [1] 0.910 0.884 1.007 0.976 0.981 1.113 1.227 1.220 1.060 0.922 0.801 0.899
 
 # 2) Log dönüşümü + toplamsal ayrıştırma: log(xt) = log(Tt) + log(St) + log(It)
 ayr_log <- decompose(log(AirPassengers), type = "additive")

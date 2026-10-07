@@ -17,6 +17,12 @@
 #     - betik Codes/gretl/ klasöründen açıldıysa göreli yolu
 #       open "../../data/AirPassengers.csv" olarak değiştirin.
 #   Dosya yolunda Türkçe karakter veya boşluk sorun çıkarabilir.
+#
+# GRAFİKLER
+#   "--output=display" grafiği ekranda ayrı bir pencerede açar. gretlcli ile
+#   çalıştırırken betik her grafik penceresi kapatılana kadar bekleyebilir.
+#   Grafikleri dosyaya yazmak için ör. --output=display yerine
+#   --output="grafik1.png" yazın (freq komutunda --plot="dagilim.png").
 
 # -------------------------------------------------------------
 # 1) VERİYİ AÇMA VE ZAMAN SERİSİ YAPISINI TANIMLAMA
@@ -27,6 +33,8 @@ varlist                          # değişken adlarını kontrol et
 # setobs: frekans (12 = aylık), başlangıç (yıl:dönem)
 setobs 12 1949:01 --time-series
 
+# İlk sütunun başlığı "Month" olduğu için Gretl tarihleri tanımaz, veriyi tarihsiz
+# açar ve Month'u metin değişkeni olarak okur; bu yüzden setobs gereklidir.
 # Sütun adı farklı geldiyse (ör. v1) varlist çıktısına göre düzeltin:
 # rename v1 Passengers
 rename Passengers passengers
@@ -68,22 +76,29 @@ corrgm ddlnpass 36
 # -------------------------------------------------------------
 # Sözdizimi: arima p d q ; P D Q ; seri
 # (mevsimsel kısım yoksa ortadaki blok yazılmaz)
-arima 1 1 1 ; lnpass --quiet
+# --nc: sabit terim (const) eklenmez. Gretl varsayılan olarak sabit ekler; iki kez
+# fark alınmış seride sabit, yıllar boyunca hızlanan bir trend anlamına gelir ve
+# gereksizdir. R'daki Arima()/auto.arima() da bu modeli sabitsiz kurar (Bölüm 7.6, 8.3).
+# --quiet: ayrıntılı çıktıyı yazdırmaz; sonuçları $aic gibi erişimcilerle alırız.
+arima 1 1 1 ; lnpass --nc --quiet
 scalar aic_111 = $aic
 
-arima 1 1 1 ; 0 1 1 ; lnpass --quiet
+arima 1 1 1 ; 0 1 1 ; lnpass --nc --quiet
 scalar aic_111_011 = $aic
 
-arima 1 1 0 ; 0 1 1 ; lnpass --quiet
+arima 1 1 0 ; 0 1 1 ; lnpass --nc --quiet
 scalar aic_110_011 = $aic
 
-arima 0 1 1 ; 1 1 0 ; lnpass --quiet
+arima 0 1 1 ; 1 1 0 ; lnpass --nc --quiet
 scalar aic_011_110 = $aic
 
 # Box-Jenkins'in "airline model"i: ARIMA(0,1,1)(0,1,1)_12
-arima 0 1 1 ; 0 1 1 ; lnpass --quiet
+arima 0 1 1 ; 0 1 1 ; lnpass --nc --quiet
 scalar aic_airline = $aic
 
+# Not: ARIMA(1,1,1) mevsimsel fark içermez; AIC'si farklı bir seri (yalnızca birinci
+# farkı alınmış seri) üzerinden hesaplandığı için diğer dördüyle doğrudan
+# karşılaştırılamaz. Karşılaştırma d = 1, D = 1 olan dört model arasında yapılır.
 printf "Model karşılaştırması (AIC, küçük olan daha iyi):\n"
 printf "ARIMA(1,1,1)           : %.2f\n", aic_111
 printf "ARIMA(1,1,1)(0,1,1)_12 : %.2f\n", aic_111_011
@@ -94,8 +109,8 @@ printf "ARIMA(0,1,1)(0,1,1)_12 : %.2f\n", aic_airline
 # -------------------------------------------------------------
 # 6) SEÇİLEN MODEL VE ARTIK ANALİZİ
 # -------------------------------------------------------------
-# AirPassengers için genellikle airline model en düşük AIC'yi verir.
-arima 0 1 1 ; 0 1 1 ; lnpass
+# Bu veride airline model en düşük AIC'yi verir (yaklaşık -483.39).
+arima 0 1 1 ; 0 1 1 ; lnpass --nc
 # Çıktıda theta_1: MA(1), Theta_1: mevsimsel MA(1) katsayısıdır.
 
 series uhat = $uhat
@@ -112,9 +127,11 @@ freq uhat --normal --plot=display
 # ile tahmin edilir, 1960 için tahmin üretilip gerçek değerlerle
 # karşılaştırılır.
 smpl 1949:01 1959:12
-arima 0 1 1 ; 0 1 1 ; lnpass --quiet
+arima 0 1 1 ; 0 1 1 ; lnpass --nc --quiet
 smpl full
 fcast 1960:01 1960:12 lnpass_test --dynamic   # tahmini lnpass_test serisine kaydet
+# --dynamic: her ay için bir önceki ayın TAHMİNİ kullanılır (gerçek 1960 değerleri
+# modele hiç verilmez); gerçek bir 12 aylık ileri tahminin karşılığıdır.
 series pass_test = exp(lnpass_test)           # log ölçeğinden orijinal ölçeğe
 
 smpl 1960:01 1960:12
@@ -124,19 +141,25 @@ scalar mae  = mean(abs(err))
 scalar mape = 100 * mean(abs(err / passengers))
 printf "Test seti (1960) performansı:\n"
 printf "RMSE : %.2f\nMAE  : %.2f\nMAPE : %.2f %%\n", rmse, mae, mape
+# Beklenen: RMSE 18.59, MAE 13.26, MAPE 2.90 % (Bölüm 8.3'teki R sonucuyla aynı)
 smpl full
 
 # -------------------------------------------------------------
 # 8) GELECEĞE YÖNELİK TAHMİN (1961)
 # -------------------------------------------------------------
 # Tüm veriyle modeli yeniden tahmin edip veri setini 12 ay uzatıyoruz.
-arima 0 1 1 ; 0 1 1 ; lnpass --quiet
+arima 0 1 1 ; 0 1 1 ; lnpass --nc --quiet
 dataset addobs 12
+# Seri adı verilmeyen fcast, her ay için tahmini, standart hatayı ve %95 tahmin
+# aralığını (log ölçeğinde) tablo olarak yazdırır; seri adı verilen ikinci
+# fcast ise tahminleri tablo yazdırmadan lnpass_f serisine kaydeder.
+fcast 1961:01 1961:12 --dynamic
 fcast 1961:01 1961:12 lnpass_f --dynamic
-# fcast çıktısı her ay için tahmini, standart hatayı ve %95 güven
-# aralığını (log ölçeğinde) tablo olarak da yazdırır.
 
 series pass_f = exp(lnpass_f)
+smpl 1961:01 1961:12
+print pass_f --byobs                  # 1961 tahminleri, yolcu (bin kişi) cinsinden
+smpl full
 gnuplot passengers pass_f --time-series --with-lines --output=display
 
 print "Analiz tamamlandı."
