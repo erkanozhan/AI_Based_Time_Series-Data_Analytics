@@ -9282,7 +9282,7 @@ Betik sırasıyla şunları yapar:
 
 > **Uygulama dosyası:** [`Codes/gretl/ch11_arima_airpassengers.inp`](Codes/gretl/ch11_arima_airpassengers.inp)
 >
-> Betiğin tamamı bu dosyada. Gretl'de **File → Script files → Open user file…** ile açıp **Run** (dişli simgesi) düğmesiyle çalıştırabilir ya da depo kök dizininde `gretlcli -b Codes/gretl/ch11_arima_airpassengers.inp` komutunu kullanabilirsiniz. Betik veriyi `data/AirPassengers.csv` yolundan açar (depo kök dizininden çalıştırıldığı varsayılır); Gretl dosyayı bulamazsa `open` satırına dosyanın tam yolunu yazın. Grafikler `--output=display` ile ayrı pencerelerde açılır; `gretlcli` ile çalıştırırken betik her grafik penceresi kapatılana kadar bekleyebilir. Bunu istemiyorsanız `--output=display` yerine `--output="grafik1.png"` gibi bir dosya adı yazın.
+> Betiğin tamamı bu dosyada. Gretl'de **File → Script files → Open user file…** ile açıp **Run** (dişli simgesi) düğmesiyle çalıştırabilir ya da depo kök dizininde `gretlcli -b Codes/gretl/ch11_arima_airpassengers.inp` komutunu kullanabilirsiniz. Betik veriyi `data/AirPassengers.csv` yolundan açar (depo kök dizininden çalıştırıldığı varsayılır); Gretl dosyayı bulamazsa `open` satırına dosyanın tam yolunu yazın. Betik nerede çalıştığını `$sysinfo.gui_mode` ile kendisi anlar: Gretl arayüzünde grafikler ayrı pencerelerde açılır; `gretlcli` ile çalıştırıldığında ise ekran penceresi betiği bekletmesin diye altı grafik `Codes/gretl/` klasörüne PNG dosyası olarak yazılır (`ch11_grafik1_yolcu.png` … `ch11_grafik6_tahmin_1961.png`). Bunu her grafikten önceki `string G = EKRAN ? "display" : "...png"` satırı sağlar; `--output="@G"` bu satırdaki metni kullanır.
 
 **Betiğin çıktıları nasıl okunur?**
 
@@ -12659,7 +12659,7 @@ Bu yapılandırmanın test RMSE değeri: 27.91
 
 ### 15.5. Model Karşılaştırması
 
-Artık çantamızda beş farklı yaklaşım var:
+Artık çantamızda beş farklı yaklaşım var. Bunların yanına, hiçbir şey öğrenmeyen iki **referans** (naive) tahmini de koyuyoruz; bir modelin işe yarayıp yaramadığını ancak bu çıtaya göre söyleyebiliriz (Bölüm 8.1.2 ve 17.3):
 
 | Model | Yaklaşım | Bölüm | Tahmin biçimi (bu karşılaştırmada) |
 | --- | --- | --- | --- |
@@ -12668,11 +12668,13 @@ Artık çantamızda beş farklı yaklaşım var:
 | LSTM | Tekrarlayan sinir ağı | 15.2 | Tek adımlı |
 | GRU | Sade tekrarlayan sinir ağı | 15.3 | Tek adımlı |
 | 1D-CNN | Evrişimli, desen tabanlı | 15.4 | Tek adımlı |
+| Naive / Mevsimsel naive | Referans: öğrenme yok, geçen ayı ya da geçen yılın aynı ayını yazar | Bölüm 8.1.2 | Tek adımlı |
 
 Karşılaştırmanın adil olması için hepsini **aynı test döneminde** (1956–1960, son 60 ay) ve aynı ölçütle (RMSE, bkz. Bölüm 8.2.2) değerlendiriyoruz:
 
 - `rmse_arima`, Bölüm 7'deki Python uygulamasında (`auto_arima` ile `train_data = data[:-60]`, `test_data = data[-60:]`) hesaplanan değişkendir. Aşağıdaki kodu notlardaki sırayla çalıştırıyorsanız Bölüm 7.7'deki Python kodunun aynı oturumda çalıştırılmış olması gerekir. Uygulama dosyası ise bu modeli kendisi yeniden kurar; bizim çalıştırmamızda `auto_arima` yine sabit terimli ARIMA(1,0,0)(0,1,1)[12] modelini seçti ve RMSE 47.87 çıktı (Bölüm 7.7.5'teki yaklaşık 47.9 ile aynı).
 - `rmse_lstm`, `rmse_gru` ve `rmse_cnn` bu bölümün 15.2–15.4 kodlarından gelir.
+- `rmse_naive` ve `rmse_snaive` aşağıdaki kodda, model kurmadan hesaplanır: Tahmin olarak geçen ayın ya da geçen yılın aynı ayının **gerçek** değeri yazılır. LSTM, GRU, 1D-CNN ve XGBoost gibi bunlar da her ay gerçek geçmişi gördüğü için, tek adımlı modellerin geçmesi gereken çıtayı gösterir.
 - Bölüm 13'teki XGBoost uygulaması farklı bir test dönemi (son 12 ay) kullandığı için RMSE'si doğrudan karşılaştırılamaz. Aşağıda XGBoost'u aynı 60 aylık test dönemi için, 12 gecikme ve ay bilgisiyle yeniden eğitiyoruz.
 
 ```python
@@ -12680,6 +12682,7 @@ Karşılaştırmanın adil olması için hepsini **aynı test döneminde** (1956
 #   rmse_arima                     -> Bölüm 7'deki Python uygulaması (ARIMA, son 60 ay test)
 #   rmse_lstm, rmse_gru, rmse_cnn  -> bu bölümün 15.2, 15.3 ve 15.4 kodları
 #   dataset, dates, test_dates, look_back, SEED -> 15.1
+#   rmse_naive, rmse_snaive        -> aşağıda, model kurmadan hesaplanır
 import xgboost as xgb
 
 # ---- XGBoost (Bölüm 13) aynı test dönemi için: 12 gecikme + ay bilgisi
@@ -12699,10 +12702,17 @@ model_xgb.fit(train_f.drop(columns='y'), train_f['y'])
 pred_xgb = model_xgb.predict(test_f.drop(columns='y'))
 rmse_xgb = np.sqrt(mean_squared_error(test_f['y'], pred_xgb))
 
+# ---- Naive referanslar (Bölüm 8.1.2, 17.3): öğrenme yok, aynı 60 ay, tek adımlı
+test_mask = s.index >= test_dates[0]             # test ayı mı? (True/False)
+rmse_naive = np.sqrt(mean_squared_error(s[test_mask], s.shift(1)[test_mask]))    # tahmin = geçen ay
+rmse_snaive = np.sqrt(mean_squared_error(s[test_mask], s.shift(12)[test_mask]))  # tahmin = geçen yılın aynı ayı
+
 # ---- Karşılaştırma tablosu
 results_df = pd.DataFrame({
-    'Model': ['ARIMA (Bölüm 7)', 'XGBoost (Bölüm 13)', 'LSTM', 'GRU', '1D-CNN'],
-    'RMSE': [rmse_arima, rmse_xgb, rmse_lstm, rmse_gru, rmse_cnn],
+    'Model': ['ARIMA (Bölüm 7)', 'XGBoost (Bölüm 13)', 'LSTM', 'GRU', '1D-CNN',
+              'Naive (geçen ay)', 'Mevsimsel naive (geçen yıl)'],
+    'RMSE': [rmse_arima, rmse_xgb, rmse_lstm, rmse_gru, rmse_cnn,
+             rmse_naive, rmse_snaive],
 }).sort_values('RMSE').reset_index(drop=True)
 print(results_df.to_string(index=False, float_format='%.2f'))
 
@@ -12717,29 +12727,34 @@ plt.tight_layout()
 plt.show()
 ```
 
-Kod üç bölümden oluşur:
+Kod dört bölümden oluşur:
 
 1. **XGBoost için tablo:** `pd.Series(dataset[:, 0], index=dates)` yolcu sayılarını tarihlerle etiketlenmiş bir seriye çevirir. `s.shift(lag)` seriyi `lag` ay aşağı kaydırır: 112, 118, 132 serisinin `shift(1)` sonucu boş, 112, 118 olur; yani her satıra bir önceki ayın değeri yazılır. Döngü 1'den 12'ye kadar bütün gecikmeleri `lag_1`, …, `lag_12` sütunları olarak ekler; `feat.index.month` ise ay numarasını (1–12) ekler. İlk 12 satırda bazı gecikmeler boş kalacağı için `dropna()` bu satırları atar.
 2. **Ayrım ve eğitim:** `feat[feat.index < test_dates[0]]` yalnızca Ocak 1956'dan önceki satırları seçer (köşeli parantez içine bir koşul yazmak, koşulu sağlayan satırları süzer). `drop(columns='y')` hedef sütununu girdilerden çıkarır. XGBoost Bölüm 13'teki ayarlarla eğitilir ve 60 test ayını tahmin eder. Bu satırlar her test ayı için gerçek geçmiş değerleri kullandığından XGBoost da LSTM, GRU ve CNN gibi tek adımlı tahmin yapar.
-3. **Tablo ve grafik:** `pd.DataFrame({...})` model adları ile RMSE değerlerinden iki sütunlu bir tablo kurar, `sort_values('RMSE')` satırları küçükten büyüğe sıralar ve `to_string(index=False, float_format='%.2f')` tabloyu satır numarası olmadan, iki ondalıkla yazdırır. `plt.barh` yatay çubuk grafiği çizer; `invert_yaxis()` en küçük hatayı en üste getirir.
+3. **Naive referanslar:** `test_mask = s.index >= test_dates[0]` her ay için "bu ay test döneminde mi?" sorusunun cevabını (`True`/`False`) tutar; `s[test_mask]` yalnızca 60 test ayını seçer. `s.shift(1)` her aya bir önceki ayın değerini, `s.shift(12)` ise bir yıl önceki aynı ayın değerini yazar; bunların test aylarına düşen kısmı doğrudan tahmin olarak kullanılır. Burada hiçbir model eğitilmez.
+4. **Tablo ve grafik:** `pd.DataFrame({...})` model adları ile RMSE değerlerinden iki sütunlu bir tablo kurar, `sort_values('RMSE')` satırları küçükten büyüğe sıralar ve `to_string(index=False, float_format='%.2f')` tabloyu satır numarası olmadan, iki ondalıkla yazdırır. `plt.barh` yatay çubuk grafiği çizer; `invert_yaxis()` en küçük hatayı en üste getirir.
 
 Bizim çalıştırmamızda tablo şöyle çıktı:
 
 ```text
-             Model   RMSE
-            1D-CNN  32.43
-              LSTM  46.19
-   ARIMA (Bölüm 7)  47.87
-XGBoost (Bölüm 13)  89.42
-               GRU 183.64
+                      Model   RMSE
+                     1D-CNN  32.43
+Mevsimsel naive (geçen yıl)  42.54
+           Naive (geçen ay)  45.57
+                       LSTM  46.19
+            ARIMA (Bölüm 7)  47.87
+         XGBoost (Bölüm 13)  89.42
+                        GRU 183.64
 ```
 
-ARIMA ve XGBoost satırları her çalıştırmada aynıdır. LSTM, GRU ve 1D-CNN satırları ise tohuma, işletim sistemine ve TensorFlow sürümüne göre değişir; sizin tablonuzda sıralama bile farklı çıkabilir.
+ARIMA, XGBoost ve iki naive satırı her çalıştırmada aynıdır. LSTM, GRU ve 1D-CNN satırları ise tohuma, işletim sistemine ve TensorFlow sürümüne göre değişir; sizin tablonuzda sıralama bile farklı çıkabilir.
 
 **Sonuçların yorumu:** Tablo en düşük RMSE'den en yükseğe doğru sıralanır. Sonuçlar tohum ve kütüphane sürümüne göre değişse de bu veri setinde şu genel tablo ortaya çıkar:
 
-- **1D-CNN** bu çalıştırmada en düşük hatayı verdi (32.43). Kısa vadeli desenleri iyi yakalar ve her ay bir önceki 12 ayın gerçek değerlerini gördüğü için (tek adımlı tahmin) işi görece kolaydır. Yine de 15.3'teki tohum deneyi, bu sıralamanın tek bir çalıştırmaya dayandığını hatırlatır.
-- **LSTM** (46.19) ile **ARIMA (SARIMA)** (47.87) neredeyse aynı hatayı verdi. Bu, ARIMA lehine güçlü bir sonuçtur, çünkü ARIMA çok daha zor bir görevi çözer (aşağıdaki nota bakın). ARIMA trend ve 12 aylık mevsimselliği açıkça modellediği için eğitim aralığının dışına da doğal biçimde uzanır; üstelik sonucu tohuma bağlı değildir.
+- **1D-CNN** bu çalıştırmada en düşük hatayı verdi (32.43) ve iki naive referansı da belirgin biçimde geçen tek model oldu. Kısa vadeli desenleri iyi yakalar ve her ay bir önceki 12 ayın gerçek değerlerini gördüğü için (tek adımlı tahmin) işi görece kolaydır. Yine de 15.3'teki tohum deneyi, bu sıralamanın tek bir çalıştırmaya dayandığını hatırlatır.
+- **Naive referanslar** tablonun ikinci ve üçüncü sırasındadır: Hiçbir şey öğrenmeden geçen yılın aynı ayını (42.54) ya da geçen ayı (45.57) yazmak, LSTM'den, XGBoost'tan ve GRU'dan daha düşük hata verir. Tek adımlı bir model bu çıtayı geçemiyorsa, eğitim için harcanan çaba pratikte bir şey kazandırmamıştır (Bölüm 17.3).
+- **LSTM** (46.19), her ay gerçek son 12 ayı görmesine rağmen bu çalıştırmada mevsimsel naive'in (42.54) gerisinde kaldı: Geçen yılın aynı ayını kopyalamaktan daha iyi bir tahmin üretemedi.
+- **ARIMA (SARIMA)** (47.87) tablodaki tek adımlı referanslarla doğrudan karşılaştırılmamalıdır, çünkü çok daha zor bir görevi çözer: 1955 sonunda durup 60 ay ileriyi tahmin eder (aşağıdaki nota bakın). Onun adil referansı, aynı koşulda 1955'i beş kez tekrarlayan çok adımlı mevsimsel naive'dir; bu referansın RMSE'si 126.01'dir (Bölüm 8.4.2'deki tablo), yani ARIMA onu çok büyük farkla yener. ARIMA trend ve 12 aylık mevsimselliği açıkça modellediği için eğitim aralığının dışına da doğal biçimde uzanır; üstelik sonucu tohuma bağlı değildir. ARIMA'ya da diğer modeller gibi her ay gerçek geçmişi verirsek ne olacağını aşağıdaki **Hemen deneyin 15.5** kutusunda göreceksiniz.
 - **XGBoost** bu testte zorlandı (89.42): Karar ağaçları eğitimde gördükleri en büyük değerin üzerinde tahmin üretemez (ekstrapolasyon sorunu, bkz. Bölüm 13.3). Eğitim döneminin en büyük değeri 364 iken XGBoost'un 60 test ayındaki en büyük tahmini yaklaşık 361'dir; test dönemindeki 364'ün üzerindeki rekor yolcu sayılarına (en yüksek 622) hiç ulaşamaz.
 - **GRU** (183.64), 15.3'te gördüğümüz gibi bu tohumla test döneminde çöktü; başka tohumlarla LSTM'e yakın sonuçlar (yaklaşık 47–53) verdi. Derin öğrenme modelleri kısa vadeli desenleri iyi yakalar, ancak 72 eğitim örneği derin öğrenme için çok küçüktür ve 15.1.1'de gördüğümüz ekstrapolasyon sorunu tahminleri kararsız kılabilir.
 
@@ -12749,42 +12764,46 @@ Genel ders şudur: Bu tür küçük, düzenli ve klasik zaman serilerinde iyi ay
 
 Son olarak, buradaki bütün sonuçlar **tek bir** eğitim-test ayrımına dayanıyor. 1956–1960 dönemi bir modele "şanslı", ötekine "şanssız" gelmiş olabilir. Birden fazla zaman dilimi üzerinde, geleceğe sızıntı yapmadan güvenilir bir karşılaştırma yapmanın yolu olan **TimeSeriesSplit** yöntemini Bölüm 16'da ele alıyoruz.
 
-> **Hemen deneyin 15.5 · Tabloya naive referansları ekleyin** (Python, ~4 dk)
+> **Hemen deneyin 15.5 · ARIMA'ya da gerçek geçmişi verin: tek adımlı ARIMA** (Python, ~4 dk)
 >
-> Karşılaştırma tablosunda eksik olan bir şey var: hiçbir şey öğrenmeyen naive yöntemler (Bölüm 17.3). Aynı 60 aylık test dönemi için hesaplayın.
+> Not kutusundaki öneriyi uygulayalım: ARIMA'yı yeniden eğitmeden, aynı katsayılarla her ay için yalnızca bir adım ileriyi tahmin ettirelim. Böylece ARIMA da LSTM, GRU ve 1D-CNN gibi her ay gerçek geçmişi görür.
 >
 > ```python
 > import numpy as np
+> import pandas as pd
 > from pmdarima.datasets import load_airpassengers
+> from statsmodels.tsa.statespace.sarimax import SARIMAX
 >
-> y = load_airpassengers(as_series=True).values     # 144 ay
-> test = y[-60:]                                     # 1956-1960: 15.5 ile aynı test dönemi
-> naive_1 = y[-61:-1]                                # tek adımlı naive: geçen ayın gerçek değeri
-> naive_12 = y[-72:-12]                              # mevsimsel naive: geçen yılın aynı ayı
-> tekrar = np.tile(y[-72:-60], 5)                    # çok adımlı: 1955'i 5 kez art arda yaz
-> rmse = lambda tahmin: np.sqrt(np.mean((test - tahmin) ** 2))
-> print(f"Naive (geçen ay)           : {rmse(naive_1):.2f}")
-> print(f"Mevsimsel naive (geçen yıl): {rmse(naive_12):.2f}")
-> print(f"1955'i 5 kez tekrarla      : {rmse(tekrar):.2f}")
+> y = load_airpassengers(as_series=True)
+> y.index = pd.date_range('1949-01-01', periods=144, freq='MS')
+> egitim, test = y[:-60], y[-60:]                    # 1949-1955 eğitim, 1956-1960 test
+>
+> # Bölüm 7.7'de auto_arima'nın seçtiği model: ARIMA(1,0,0)(0,1,1)[12], sabit terimli
+> fit = SARIMAX(egitim, order=(1, 0, 0), seasonal_order=(0, 1, 1, 12), trend='c').fit(disp=False)
+> cok_adim = fit.forecast(60)                        # 1955 sonunda dur, 60 ay ileriyi tahmin et
+> tek_adim = fit.apply(y).fittedvalues[-60:]         # aynı katsayılar, her ay gerçek geçmişle 1 adım
+>
+> rmse = lambda tahmin: np.sqrt(np.mean((test.values - np.asarray(tahmin)) ** 2))
+> print(f"Çok adımlı ARIMA: {rmse(cok_adim):.2f}")
+> print(f"Tek adımlı ARIMA: {rmse(tek_adim):.2f}")
 > ```
 >
-> `y[-61:-1]` sondan 61. elemandan sondan 1. elemana kadar (sonuncusu hariç) 60 değeri alır: her test ayının bir önceki ayı. `np.tile(dizi, 5)` diziyi 5 kez art arda ekler.
+> `SARIMAX(..., trend='c')` Bölüm 7.7'deki `auto_arima` modelinin aynısını statsmodels ile kurar (`trend='c'` sabit terimi ekler). `fit.apply(y)` katsayıları **yeniden tahmin etmeden** modeli bütün seriye uygular; `fittedvalues` her ay için "bir önceki aya kadarki gerçek değerlerle yapılan" tahmindir. Katsayılar yalnızca 1949–1955'ten öğrenildiği için test verisi modele sızmaz.
 >
 > **Ne göreceksiniz:**
 >
 > ```text
-> Naive (geçen ay)           : 45.57
-> Mevsimsel naive (geçen yıl): 42.54
-> 1955'i 5 kez tekrarla      : 126.01
+> Çok adımlı ARIMA: 47.87
+> Tek adımlı ARIMA: 13.96
 > ```
 >
-> İlk iki satır, LSTM, GRU ve 1D-CNN gibi her ay gerçek geçmişi gören **tek adımlı** referanslardır. Mevsimsel naive (42.54), bizim çalıştırmamızdaki LSTM'i (46.19) ve GRU'yu geçer; yalnızca 1D-CNN (32.43) onu belirgin biçimde yener. Üçüncü satır ise ARIMA gibi 1955 sonunda durup 60 ay ileriye **çok adımlı** tahmin yapan bir referanstır: ARIMA'nın 47.87'si bu 126.01'in yanında çok güçlü bir sonuçtur.
+> İlk satır tablodaki ARIMA değeridir. Aynı model, diğerleriyle aynı koşulda (tek adımlı) çalıştırılınca hata üçte birin altına iner: 13.96, tablodaki en iyi model olan 1D-CNN'in (32.43) ve mevsimsel naive'in (42.54) çok altındadır. Bu küçük ve düzenli seride, adil koşullarda en iyi sonucu klasik model verir.
 >
-> **Şimdi siz:** Bu iki referansa göre hangi modeller "canlıya almaya değer"? 17.3'teki kuralı kullanarak cevaplayın.
+> **Şimdi siz:** (1) Tabloyu "tek adımlı" modellerle adil biçimde yeniden sıralayın. (2) Katsayıları bütün seriden tahmin etseydik ne olurdu? `fit` yerine `SARIMAX(y, ...)` ile kurulan bir modelin `fittedvalues[-60:]` değerleriyle RMSE'yi hesaplayın ve neden bu sonucun kullanılamayacağını açıklayın.
 >
 > <details><summary>Cevap</summary>
 >
-> Tek adımlı modeller kendi referansıyla, yani mevsimsel naive'le (42.54) karşılaştırılmalıdır: Bu çalıştırmada yalnızca 1D-CNN (32.43) onu geçer; LSTM (46.19), XGBoost (89.42) ve GRU (183.64) geçemez. ARIMA çok adımlı referansı (126.01) çok büyük farkla yener. Dolayısıyla "LSTM ARIMA kadar iyi" görünse de LSTM bu çalıştırmada, geçen yılın aynı ayını yazmaktan bile daha kötü bir tek adımlı tahminci çıkmıştır.
+> (1) Tek adımlı ARIMA 13.96, 1D-CNN 32.43, mevsimsel naive 42.54, naive 45.57, LSTM 46.19, XGBoost 89.42, GRU 183.64. (2) RMSE 13.26 çıkar, biraz daha iyi görünür. Ama bu sayı geçersizdir: Katsayılar (ör. mevsimsel MA katsayısı −0.300 yerine −0.142) test dönemi de görülerek tahmin edilmiştir; model sınava girmeden cevap anahtarını görmüştür (veri sızıntısı, Bölüm 12.1.5 ve 17.6). Doğru yöntem, katsayıları yalnızca eğitimden öğrenip test dönemine `apply` ile uygulamaktır.
 >
 > </details>
 
@@ -12919,9 +12938,9 @@ $$
 **Sayısal örnek:** $n = 24$ gözlem, $K = 5$ fold ve $h = 4$ olsun. Fold'ların başlangıç noktaları $t_1 = 4$, $t_2 = 8$, $t_3 = 12$, $t_4 = 16$, $t_5 = 20$ olur. 3. fold'a bakalım ($t_3 = 12$):
 
 - Genişleyen pencere: Eğitim $\lbrace 1, \dots, 12 \rbrace$ (12 gözlem), doğrulama $\lbrace 13, \dots, 16 \rbrace$, çünkü $t_3 + 1 = 13$ ve $t_3 + h = 12 + 4 = 16$.
-- Kayan pencere, $m = 6$: Eğitim $\lbrace 12 - 6 + 1, \dots, 12 \rbrace = \lbrace 7, \dots, 12 \rbrace$ (6 gözlem), doğrulama yine $\lbrace 13, \dots, 16 \rbrace$.
+- Kayan pencere, $m = 4$: Eğitim $\lbrace 12 - 4 + 1, \dots, 12 \rbrace = \lbrace 9, \dots, 12 \rbrace$ (4 gözlem), doğrulama yine $\lbrace 13, \dots, 16 \rbrace$.
 
-Beşinci fold'da ($t_5 = 20$) genişleyen pencerenin eğitimi 20 gözleme çıkar, kayan pencereninki ise $\lbrace 15, \dots, 20 \rbrace$ olur ve yine 6 gözlemdir. Genişleyen pencerenin bu beş fold'unu 16.3'teki kod çıktısının ilk bölümünde aynen göreceksiniz; tek fark, Python saymaya 0'dan başladığı için orada her sıra numarasının bir eksik yazılmasıdır (1–12 yerine 0–11, 13–16 yerine 12–15).
+Beşinci fold'da ($t_5 = 20$) genişleyen pencerenin eğitimi 20 gözleme çıkar, kayan pencereninki ise $\lbrace 17, \dots, 20 \rbrace$ olur ve yine 4 gözlemdir. Pencere boyu olarak $m = 4$'ün seçilmesi tesadüf değildir: İlk fold'un eğitimi $t_1 = 4$'te bittiği için seride o ana kadar yalnızca 4 gözlem vardır. $m$ bundan büyük seçilseydi (ör. $m = 6$), ilk fold'da $\lbrace 4 - 6 + 1, \dots, 4 \rbrace = \lbrace -1, \dots, 4 \rbrace$ gibi var olmayan gözlemler istenirdi; pencere ilk fold'larda dolmaz ve o fold'lar diğerlerinden daha az veriyle eğitilirdi. Bu yüzden kayan pencerede $m \le t_1$ olmalıdır; ya pencere daraltılır ya da daha uzun bir seri kullanılır. Genişleyen pencerenin bu beş fold'unu 16.3'teki kod çıktısının ilk bölümünde aynen göreceksiniz; tek fark, Python saymaya 0'dan başladığı için orada her sıra numarasının bir eksik yazılmasıdır (1–12 yerine 0–11, 13–16 yerine 12–15).
 
 | Özellik | Genişleyen pencere | Kayan pencere |
 | --- | --- | --- |
@@ -12956,11 +12975,11 @@ Beşinci fold'da ($t_5 = 20$) genişleyen pencerenin eğitimi 20 gözleme çıka
 >
 > Genişleyen pencerede eğitim her fold'da $h = 3$ gözlem büyür; kayan pencerede hep 5 gözlemdir ve ileri kayar. Doğrulama her iki yöntemde de aynıdır.
 >
-> **Şimdi siz:** İlk satırı metindeki örneğe çevirin: `n, K, h, m = 24, 5, 4, 6`. 3. ve 5. fold'u metinle karşılaştırın. 1. fold'da tuhaf bir şey görüyor musunuz?
+> **Şimdi siz:** (1) İlk satırı metindeki örneğe çevirin: `n, K, h, m = 24, 5, 4, 4`. 3. ve 5. fold'u metinle karşılaştırın. (2) Sonra pencereyi büyütün: `m = 6`. 1. fold'da ne olur? Önce tahmin edin.
 >
 > <details><summary>Cevap</summary>
 >
-> Üçüncü fold: genişleyen 1–12, kayan 7–12, doğrulama 13–16; beşinci fold: kayan 15–20, doğrulama 21–24. Metinle aynı. 1. fold ise `kayan eğitim -1- 4` yazar: $t_1 = 4$ iken 6 gözlemlik pencere için yeterli geçmiş yoktur. Gerçekte ilk fold'larda kayan pencere elde ne varsa onu kullanır: `TimeSeriesSplit(n_splits=5, test_size=4, max_train_size=6)` 1. fold'da yalnızca `[0 1 2 3]` (4 gözlem) verir, sonraki fold'larda 6'ya çıkar.
+> (1) Üçüncü fold: genişleyen 1–12, kayan 9–12, doğrulama 13–16; beşinci fold: kayan 17–20, doğrulama 21–24. Metinle aynı. 1. fold'da iki pencere çakışır (ikisi de 1–4), çünkü $m = t_1 = 4$'tür. (2) 1. fold `kayan eğitim -1- 4` yazar: $t_1 = 4$ iken 6 gözlemlik pencere için yeterli geçmiş yoktur, formül var olmayan −1. ve 0. gözlemleri ister (metindeki $m \le t_1$ kuralı). Gerçekte kütüphane elde ne varsa onu kullanır: `TimeSeriesSplit(n_splits=5, test_size=4, max_train_size=6)` 1. fold'da yalnızca `[0 1 2 3]` (4 gözlem) verir, sonraki fold'larda 6'ya çıkar. Yani bu fold diğerlerinden daha az veriyle eğitilir ve hatası diğerleriyle tam karşılaştırılamaz.
 >
 > </details>
 

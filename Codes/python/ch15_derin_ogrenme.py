@@ -465,13 +465,14 @@ rmse_arima = np.sqrt(mean_squared_error(test_data, predictions_arima))
 print(f'ARIMA Modeli RMSE Değeri: {rmse_arima:.2f}')   # Bölüm 7.7.5: yaklaşık 47.9
 
 # %% [markdown]
-# ### XGBoost (aynı 60 aylık test dönemi) ve karşılaştırma tablosu
+# ### XGBoost (aynı 60 aylık test dönemi), naive referanslar ve karşılaştırma tablosu
 
 # %%
 # Gerekli değişkenler:
 #   rmse_arima                     -> yukarıdaki hücre (Bölüm 7.7'nin tekrarı, son 60 ay test)
 #   rmse_lstm, rmse_gru, rmse_cnn  -> bu bölümün 15.2, 15.3 ve 15.4 kodları
 #   dataset, dates, test_dates, look_back, SEED -> 15.1
+#   rmse_naive, rmse_snaive        -> aşağıda, model kurmadan hesaplanır
 import xgboost as xgb
 
 # ---- XGBoost (Bölüm 13) aynı test dönemi için: 12 gecikme + ay bilgisi
@@ -491,10 +492,17 @@ model_xgb.fit(train_f.drop(columns='y'), train_f['y'])
 pred_xgb = model_xgb.predict(test_f.drop(columns='y'))
 rmse_xgb = np.sqrt(mean_squared_error(test_f['y'], pred_xgb))
 
+# ---- Naive referanslar (Bölüm 8.1.2, 17.3): öğrenme yok, aynı 60 ay, tek adımlı
+test_mask = s.index >= test_dates[0]             # test ayı mı? (True/False)
+rmse_naive = np.sqrt(mean_squared_error(s[test_mask], s.shift(1)[test_mask]))    # tahmin = geçen ay
+rmse_snaive = np.sqrt(mean_squared_error(s[test_mask], s.shift(12)[test_mask]))  # tahmin = geçen yılın aynı ayı
+
 # ---- Karşılaştırma tablosu
 results_df = pd.DataFrame({
-    'Model': ['ARIMA (Bölüm 7)', 'XGBoost (Bölüm 13)', 'LSTM', 'GRU', '1D-CNN'],
-    'RMSE': [rmse_arima, rmse_xgb, rmse_lstm, rmse_gru, rmse_cnn],
+    'Model': ['ARIMA (Bölüm 7)', 'XGBoost (Bölüm 13)', 'LSTM', 'GRU', '1D-CNN',
+              'Naive (geçen ay)', 'Mevsimsel naive (geçen yıl)'],
+    'RMSE': [rmse_arima, rmse_xgb, rmse_lstm, rmse_gru, rmse_cnn,
+             rmse_naive, rmse_snaive],
 }).sort_values('RMSE').reset_index(drop=True)
 print(results_df.to_string(index=False, float_format='%.2f'))
 

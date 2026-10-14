@@ -39,22 +39,23 @@ AirPassengers verisinde göreceğimiz gibi, çoğu gerçek hayat verisi durağan
 
 **Bölüm 2: Modül 1 \- AirPassengers Verisi ile Gelecek Tahmini**
 
-Bu modülde, Box ve Jenkins'in meşhur "Airline Data" (Havayolu Verisi) setini kullanarak adım adım bir tahmin modeli inşa edeceğiz. Hedefimiz, 1960 yılı sonunda biten veri setini kullanarak, 1961 yılının ilk 10 ayı için yolcu sayılarını tahmin etmektir.
+Bu modülde, Box ve Jenkins'in meşhur "Airline Data" (Havayolu Verisi) setini kullanarak adım adım bir tahmin modeli inşa edeceğiz. Hedefimiz, 1960 yılı sonunda biten veri setini kullanarak, 1961 yılının 12 ayı için yolcu sayılarını tahmin etmektir.
 
 ### **2.1. Adım 1: Veri Setine Erişim ve İçe Aktarma**
 
-Gretl, eğitim amaçlı kullanım için geniş bir örnek veri kütüphanesi sunar. AirPassengers verisi bu kütüphanenin en popüler parçalarından biridir. Veriyi dışarıdan indirmekle uğraşmak yerine, doğrudan Gretl sunucularından çekeceğiz.
+Gretl, eğitim amaçlı kullanım için geniş bir örnek veri kütüphanesi sunar. AirPassengers verisi bu kütüphanenin en popüler parçalarından biridir ve Gretl ile birlikte bilgisayarınıza kurulur (`bjg` adıyla, Box ve Jenkins'in "Series G" verisi). Bu yüzden internetten bir şey indirmeniz gerekmez.
 
 **Uygulama Adımları:**
 
 1. Bilgisayarınızda Gretl programını başlatın.  
 2. Ana menü çubuğundan **File (Dosya)** \> **Open data (Veri aç)** \> **Sample file (Örnek dosya)** yolunu izleyin.5  
-3. Karşınıza çıkan pencerede sekmeler göreceksiniz. **Gretl** sekmesine tıklayın.  
-4. Bu pencere, Gretl ile birlikte gelen yerel dosyaları gösterir. Ancak AirPassengers bazen sunucuda tutulur. Pencerenin sol üst veya alt kısmında bulunan **Look on server (Sunucuda ara)** butonuna tıklayın.5 Bu işlem, internet bağlantınızı kullanarak Gretl'in global veri havuzuna bağlanır.  
-5. Açılan listede dosya kodlarına veya açıklamalarına göz atın. Aradığımız dosyanın kodu genellikle **bjg** (Box-Jenkins Gas/Airline) veya doğrudan **AirPassengers** olarak listelenir. Açıklama kısmında "Monthly airline passenger totals 1949-1960" ibaresini görmelisiniz.  
-6. Dosyayı seçin ve **Install (Yükle)** butonuna tıklayın. Veri bilgisayarınıza indikten sonra, açmak için üzerine çift tıklayın veya **Open (Aç)** deyin.
+3. Karşınıza çıkan pencerede sekmeler göreceksiniz. **Gretl** sekmesine tıklayın. Bu sekme, Gretl ile birlikte kurulan yerel örnek dosyaları listeler.
+4. Listede **bjg** adlı dosyayı bulun; açıklama sütununda "Box and Jenkins Series G (airline passengers)" yazar. Dosya kurulumla birlikte gelir (Windows'ta `C:\Program Files\gretl\data\misc\bjg.gdt`). Bu yüzden **Look on server** (sunucuda ara) ya da **Install** düğmelerine gerek yoktur; bunlar yalnızca kurulumla gelmeyen ek veri paketleri içindir.
+5. **bjg** satırına çift tıklayın (ya da seçip **Open** deyin).
 
-Veri yüklendiğinde, Gretl'in ana penceresinde g (veya AirPassengers) isimli bir değişken belirecektir. Ayrıca pencerenin alt kısmında verinin frekansının "Monthly" (Aylık) olduğunu ve 1949:01 ile 1960:12 arasında 144 gözlem içerdiğini teyit edebilirsiniz.
+Aynı işi Gretl konsolunda (**Tools → Gretl console**) ya da bir betikte tek satırla yapabilirsiniz: `open bjg`.
+
+Veri yüklendiğinde, Gretl'in ana penceresinde iki değişken belirecektir: **g** (aylık uluslararası havayolu yolcu sayısı, bin kişi) ve **lg** (g'nin doğal logaritması; dosyada hazır gelir). Ayrıca pencerenin alt kısmında verinin frekansının "Monthly" (Aylık) olduğunu ve 1949:01 ile 1960:12 arasında 144 gözlem içerdiğini teyit edebilirsiniz.
 
 ### **2.2. Adım 2: Keşifsel Veri Analizi (EDA) ve Görselleştirme**
 
@@ -80,7 +81,7 @@ Model kurarken "Çarpımsal" yapıyı "Toplamsal" yapıya çevirmek ve varyansı
 
 1. g değişkeni seçiliyken, menüden **Add (Ekle)** \> **Logs of selected variables (Seçili değişkenlerin logaritması)** seçeneğine tıklayın.  
 2. Kısa yol olarak, değişkene sağ tıklayıp **Add log (Logaritma ekle)** diyebilirsiniz.  
-3. Ana pencereye l\_g (log of g) adında yeni bir değişken eklenecektir.
+3. Ana pencereye l\_g (log of g) adında yeni bir değişken eklenecektir. Değerleri dosyada hazır gelen lg ile aynıdır; yine de l\_g'yi kendimiz oluşturuyoruz, çünkü Gretl bu yolla üretilen değişkenin g'nin logaritması olduğunu "hatırlar" ve tahmin aşamasında sonuçları doğrudan yolcu sayısı olarak verebilir (bkz. 2.6).
 
 Şimdi l\_g değişkeninin grafiğini çizerseniz, dalgalanmaların genliğinin (amplitude) zaman içinde daha stabil hale geldiğini göreceksiniz. Artık varyans durağanlığına yaklaştık, ancak hala bir trendimiz (ortalama durağan değil) ve mevsimselliğimiz var. Bunları model aşamasında "fark alma" (Differencing) yöntemiyle çözeceğiz.
 
@@ -117,7 +118,7 @@ Gretl'in arayüzü, ARIMA modellerini tanımlamayı son derece basit hale getiri
 
 **Uygulama:**
 
-1. Menüden **Model** \> **Time series (Zaman serisi)** \> **ARIMA...** yolunu izleyin.6  
+1. Menüden **Model** \> **Univariate time series (Tek değişkenli zaman serisi)** \> **ARIMA...** yolunu izleyin (Gretl'in eski sürümlerinde bu alt menünün adı "Time series" idi).  
 2. Açılan "ARIMA specifications" penceresinde ayarları şu şekilde yapın:  
    * **Dependent variable (Bağımlı değişken):** l\_g değişkenini seçin (DİKKAT: Orijinal g verisini değil, logaritması alınmış veriyi seçmelisiniz).  
    * **Non-seasonal (Mevsimsel olmayan) parameters:**  
@@ -129,13 +130,13 @@ Gretl'in arayüzü, ARIMA modellerini tanımlamayı son derece basit hale getiri
      * Integrated (Fark): 1  
      * MA: 1  
    * **Seasonality (Mevsimsellik periyodu):** 12 (Gretl genellikle verinin frekansına bakarak bunu otomatik önerir).  
-   * **Include constant (Sabit terim ekle):** Genellikle çift fark alma işleminde ($d=1, D=1$) sabit terim gereksiz hale gelir, ancak başlangıçta seçili bırakıp istatistiksel anlamlılığını kontrol etmek iyi bir pratiktir.  
+   * **Include a constant (Sabit terim ekle):** Bu kutunun **işaretini kaldırın**. Çift fark alınmış bir seride ($d=1, D=1$) sabit terim, giderek hızlanan bir trend anlamına gelir ve gereksizdir. Denemek isterseniz modeli kutu işaretliyken bir kez daha kurun: `const` satırının p-değeri yaklaşık 0.87 çıkar (anlamsız) ve AIC −483.39'dan −481.42'ye kötüleşir.  
 3. **OK** butonuna tıklayarak modeli çalıştırın.
 
 Sonuçların Yorumlanması:  
-Karşınıza "Model 1: ARIMA, using observations 1950:02-1960:12" başlıklı bir pencere gelecektir. Burada odaklanmanız gereken noktalar:
+Karşınıza "Model 1: ARIMA, using observations 1950:02-1960:12 (T = 131)" başlıklı bir pencere gelecektir. Gözlemler 1950:02'den başlar, çünkü bir normal ve bir mevsimsel fark ilk 13 ayı tüketir. Burada odaklanmanız gereken noktalar:
 
-* **Katsayılar (Coefficients):** theta\_1 (MA1) ve Theta\_1 (Seasonal MA1) satırlarına bakın. "p-value" (olasılık değeri) sütununda değerler 0.05'ten küçükse (genellikle \*\*\* veya \*\* ile işaretlenir), bu değişkenler model için anlamlıdır. Airline modelinde her iki MA teriminin de yüksek derecede anlamlı olması beklenir.  
+* **Katsayılar (Coefficients):** theta\_1 (MA1) ve Theta\_1 (Seasonal MA1) satırlarına bakın. "p-value" (olasılık değeri) sütununda değerler 0.05'ten küçükse (genellikle \*\*\* veya \*\* ile işaretlenir), bu değişkenler model için anlamlıdır. Airline modelinde her iki MA terimi de yüksek derecede anlamlıdır: theta\_1 ≈ −0.402 ve Theta\_1 ≈ −0.557; ikisinin de p-değeri 0.0001'in altındadır.  
 * **Bilgi Kriterleri (AIC/BIC):** Pencerenin alt kısmında **AIC (Akaike Information Criterion)** ve **BIC (Bayesian Information Criterion)** değerlerini göreceksiniz.7 Bu değerler "ceza puanı" gibidir; ne kadar düşükse model o kadar iyidir. Farklı modeller denerseniz (örneğin AR(1) eklemek gibi), bu değerleri karşılaştırarak en iyi modeli seçebilirsiniz.
 
 ### **2.6. Adım 6: Gelecek Tahmini (Forecasting) ve Hazırlık**
@@ -145,30 +146,29 @@ Gretl'de geleceğe yönelik tahmin yapmanın püf noktası, veri setinin zaman e
 **Gözlem Ekleme (Adding Observations):**
 
 1. Ana pencereden **Data (Veri)** \> **Add observations... (Gözlem ekle...)** menüsünü seçin.1  
-2. Açılan kutucuğa, kaç dönem ileriye gitmek istediğinizi yazın. Hedefimiz 10 aylık tahmin olduğu için **10** yazıyoruz.  
-3. **OK** dediğinizde, veri setinizin sonuna 10 adet yeni satır eklendiğini göreceksiniz. Gretl, zaman serisi yapısını tanıdığı için bu yeni satırları otomatik olarak **1961:01**'den **1961:10**'a kadar tarihlendirir. Ancak bu satırlardaki g ve l\_g değerleri şimdilik boştur (Missing Value).
+2. Açılan kutucuğa, kaç dönem ileriye gitmek istediğinizi yazın. Hedefimiz 1961'in tamamı olduğu için **12** yazıyoruz.  
+3. **OK** dediğinizde, veri setinizin sonuna 12 adet yeni satır eklendiğini göreceksiniz. Gretl, zaman serisi yapısını tanıdığı için bu yeni satırları otomatik olarak **1961:01**'den **1961:12**'ye kadar tarihlendirir. Ancak bu satırlardaki g ve l\_g değerleri şimdilik boştur (Missing Value).
 
 **Tahmin İşlemi:**
 
 1. ARIMA sonuç penceresine geri dönün (Eğer kapattıysanız, ana pencerenin altındaki "Session icons" kısmından dişli çark ikonuna tıklayarak veya Model 1 tablosuna çift tıklayarak açabilirsiniz).  
 2. Bu pencerede **Analysis (Analiz)** \> **Forecasts... (Öngörüler...)** seçeneğine tıklayın.8  
-3. Karşınıza "Forecast" ayar penceresi gelecektir:  
-   * **Start of forecast range:** Otomatik olarak örneklem dışı ilk tarih (1961:01) seçili gelir.  
-   * **Length of forecast:** Eklediğiniz gözlem sayısı (10) kadar ayarlanır.  
-   * **Pre-forecast observations:** Grafikte geçmiş verinin ne kadarının gösterileceğini belirler. "24" seçerseniz, tahminin arkasına son 2 yılın gerçek verisini ekleyerek görsel bütünlük sağlar.  
-   * **Create new variable:** Tahmin sonuçlarını kaydetmek için bir isim verin (örneğin forecast\_yolcu).  
-   * **Standard error plots:** Bu kutucuğu işaretlemek çok önemlidir. Bu, tahminin güven aralıklarını (Confidence Intervals) gösteren **"Fan Chart" (Yelpaze Grafiği)** oluşturulmasını sağlar.10  
-4. **OK** butonuna basın.
+3. Karşınıza "gretl: forecast" ayar penceresi gelecektir:
+   * **Forecast range (Start / End):** Tahmin aralığının başı ve sonu. Eklediğiniz gözlemler (1961:01–1961:12) otomatik olarak seçili gelir.
+   * **Produce forecast for:** Model l\_g üzerine kurulduğu için burada l\_g ile g arasında seçim yapabilirsiniz. **g**'yi seçerseniz Gretl tahminleri logaritmadan geri çevirip doğrudan yolcu sayısı (bin kişi) olarak verir.
+   * **Number of pre-forecast observations to graph:** Grafikte geçmiş verinin ne kadarının gösterileceğini belirler. "24" seçerseniz, tahminin arkasına son 2 yılın gerçek verisini ekleyerek görsel bütünlük sağlar.
+   * **Plot confidence interval using:** Güven aralığının grafikte nasıl çizileceğini seçer (**error bars**, **low and high lines** ya da **shaded area**). **shaded area**, tahminin güven aralıklarını (Confidence Intervals) gösteren **"Fan Chart" (Yelpaze Grafiği)** görünümünü verir.
+4. **OK** butonuna basın. Tahmin tablosu ve grafik açılır. Tahminleri bir değişken olarak saklamak isterseniz tablo penceresindeki **Save forecast** (tahmini kaydet) seçeneğiyle bir isim verin (örneğin forecast\_yolcu).
 
 ### **2.7. Adım 7: Sonuçların ve Fan Chart'ın Analizi**
 
 Ekrana gelen grafik, yaptığımız çalışmanın meyvesidir.
 
-* **Ortadaki Çizgi (Point Forecast):** Modelin, 1961 yılının ilk 10 ayı için en olası gördüğü yolcu sayılarıdır. Model mevsimselliği başarıyla yakaladığı için, tahmin çizgisinin de tıpkı geçmiş yıllardaki gibi dalgalandığını (yazın artıp sonbaharda düştüğünü) göreceksiniz.  
-* **Gölgeli Alanlar (Güven Aralığı):** Genellikle %95 güven aralığını temsil eder. Gelecek, tanımı gereği belirsizdir. Zamanda ileri gittikçe (Ocak'tan Ekim'e doğru), bu belirsizlik artar. Bu nedenle güven aralığı, bir yelpaze gibi genişler. İşte buna literatürde **Fan Chart** denir.11 Grafiğin anlamı şudur: "Ekim 1961 için tam rakamı bilemeyiz, ancak %95 ihtimalle yolcu sayısı şu alt sınır ile şu üst sınır arasında olacaktır."
+* **Ortadaki Çizgi (Point Forecast):** Modelin, 1961 yılının 12 ayı için en olası gördüğü yolcu sayılarıdır. Model mevsimselliği başarıyla yakaladığı için, tahmin çizgisinin de tıpkı geçmiş yıllardaki gibi dalgalandığını (yazın artıp sonbaharda düştüğünü) göreceksiniz.  
+* **Gölgeli Alanlar (Güven Aralığı):** Genellikle %95 güven aralığını temsil eder. Gelecek, tanımı gereği belirsizdir. Zamanda ileri gittikçe (Ocak'tan Aralık'a doğru), bu belirsizlik artar. Bu nedenle güven aralığı, bir yelpaze gibi genişler. İşte buna literatürde **Fan Chart** denir.11 Grafiğin anlamı şudur: "Aralık 1961 için tam rakamı bilemeyiz, ancak %95 ihtimalle yolcu sayısı şu alt sınır ile şu üst sınır arasında olacaktır."
 
 Önemli Bir Detay: Geri Dönüşüm (Back-Transformation)  
-Modeli l\_g (logaritmik veri) üzerine kurmuştuk. Dolayısıyla üretilen ham tahminler de logaritmik ölçektedir. Ancak Gretl akıllı bir yazılımdır; forecast penceresinde genellikle veriyi otomatik olarak orijinal ölçeğe (anti-log alarak, yani $e^x$ işlemiyle) dönüştürür. Sonuç tablosundaki değerlerin binli rakamlar (gerçek yolcu sayıları) olduğunu kontrol edin. Eğer 4.5, 5.2 gibi küçük rakamlar görüyorsanız, bunlar logaritmik değerlerdir; üstelini almanız gerekir.
+Modeli l\_g (logaritmik veri) üzerine kurmuştuk. Dolayısıyla modelin ürettiği ham tahminler de logaritmik ölçektedir. Forecast penceresinde **Produce forecast for** olarak **g**'yi seçtiyseniz Gretl bu dönüşümü (anti-log, yani $e^x$ işlemi) kendisi yapar ve tablo doğrudan yolcu sayılarını gösterir: Ocak 1961 için yaklaşık 450.4, Temmuz 1961 için yaklaşık 670.0 (bin yolcu). l\_g seçili kaldıysa ya da bu seçenek görünmüyorsa (ör. modeli dosyada hazır gelen lg ile kurduysanız), tablodaki 6.05 ile 6.51 arasındaki küçük sayılar logaritmik değerlerdir; örneğin Ocak 1961 için 6.110 görürsünüz ve $e^{6.110} \approx 450.4$'tür. Bu durumda tahmini **Save forecast** ile örneğin forecast\_yolcu adıyla kaydedin ve **Add** \> **Define new variable** ile `yolcu_tahmin = exp(forecast_yolcu)` tanımlayarak orijinal ölçeğe çevirin.
 
 ## ---
 
@@ -220,7 +220,7 @@ CPU kullanımı genellikle güçlü bir otokorelasyona sahiptir; yani şu anki k
 
 * **Model** \> **Ordinary Least Squares (En Küçük Kareler)** menüsünü açın.  
 * Bağımlı değişken olarak cpu\_usage seçin.  
-* Bağımsız değişkenler (Regressor) listesine cpu\_usage'ı eklemeyin. Bunun yerine, "lags" (gecikmeler) özelliğini kullanacağız. Gretl'de bir değişkenin gecikmesini eklemek için genellikle değişken listesinden seçip sağ tıklayarak **Add lags...** diyebilir veya model penceresinde manuel olarak cpu\_usage(-1) yazabilirsiniz.  
+* Bağımsız değişkenler (Regressor) listesine cpu\_usage'ı eklemeyin. Bunun yerine, "lags" (gecikmeler) özelliğini kullanacağız. Gretl'de bir değişkenin gecikmesini eklemek için değişkeni seçip **Add** \> **Lags of selected variables** menüsünü kullanın; Gretl birinci gecikmeyi cpu\_usage\_1 adıyla ekler ve bunu regresörler listesine alırsınız. Betik ya da konsolda aynı modeli `ols cpu_usage const cpu_usage(-1)` diye de yazabilirsiniz.  
 * Yani modelimiz: $CPU\_t \= \\alpha \+ \\beta \\cdot CPU\_{t-1} \+ u\_t$ olacaktır.  
 * **OK** deyin.
 
@@ -264,7 +264,7 @@ Aşağıdaki tablo, ders boyunca kullandığımız menü adımlarını ve karş�
 | **Veri Yükleme** | File \> Open data \> Sample file | Data Ingestion |
 | **Görselleştirme** | View \> Graph specified vars \> Time series plot | Exploratory Data Analysis (EDA) |
 | **Dönüşüm** | Add \> Logs of selected variables | Variance Stabilization (Box-Cox) |
-| **Model Kurma** | Model \> Time series \> ARIMA | Parametric Modeling |
+| **Model Kurma** | Model \> Univariate time series \> ARIMA | Parametric Modeling |
 | **Öngörü** | Analysis \> Forecasts | Forecasting (Out-of-Sample) |
 | **Hata Kaydetme** | Save \> Residuals | Residual Diagnostics |
 | **Değişken Yaratma** | Add \> Define new variable | Feature Engineering |

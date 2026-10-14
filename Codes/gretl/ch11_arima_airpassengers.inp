@@ -19,10 +19,11 @@
 #   Dosya yolunda Türkçe karakter veya boşluk sorun çıkarabilir.
 #
 # GRAFİKLER
-#   "--output=display" grafiği ekranda ayrı bir pencerede açar. gretlcli ile
-#   çalıştırırken betik her grafik penceresi kapatılana kadar bekleyebilir.
-#   Grafikleri dosyaya yazmak için ör. --output=display yerine
-#   --output="grafik1.png" yazın (freq komutunda --plot="dagilim.png").
+#   Betik nerede çalıştığını kendisi anlar ($sysinfo.gui_mode):
+#     - Gretl arayüzünde grafikler ekranda ayrı pencerelerde açılır.
+#     - gretlcli ile (komut satırı) ekran penceresi betiği bekletebileceği için
+#       grafikler Codes/gretl/ klasörüne PNG dosyası olarak yazılır
+#       (ch11_grafik1_yolcu.png ... ch11_grafik6_tahmin_1961.png).
 
 # -------------------------------------------------------------
 # 1) VERİYİ AÇMA VE ZAMAN SERİSİ YAPISINI TANIMLAMA
@@ -39,16 +40,22 @@ setobs 12 1949:01 --time-series
 # rename v1 Passengers
 rename Passengers passengers
 
+# Grafik hedefi: arayüzde 1 (ekran), komut satırında 0 (PNG dosyası)
+scalar EKRAN = $sysinfo.gui_mode
+# Her grafikten önce hedef metni G'ye yazılır; --output="@G" bu metni kullanır.
+
 # -------------------------------------------------------------
 # 2) GRAFİK, ÖZET İSTATİSTİK VE LOG DÖNÜŞÜMÜ
 # -------------------------------------------------------------
-gnuplot passengers --time-series --with-lines --output=display
+string G = EKRAN ? "display" : "Codes/gretl/ch11_grafik1_yolcu.png"
+gnuplot passengers --time-series --with-lines --output="@G"
 summary passengers
 
 # Dalgalanmalar zamanla büyüdüğü için (çarpımsal yapı, Bölüm 2.4)
 # log dönüşümü ile varyansı sabitliyoruz.
 series lnpass = log(passengers)
-gnuplot lnpass --time-series --with-lines --output=display
+string G = EKRAN ? "display" : "Codes/gretl/ch11_grafik2_log.png"
+gnuplot lnpass --time-series --with-lines --output="@G"
 
 # -------------------------------------------------------------
 # 3) DURAĞANLIK: ADF TESTİ VE FARK ALMA
@@ -58,7 +65,8 @@ adf 12 lnpass --c --ct           # sabitli ve sabit+trendli sürümler
 
 series dlnpass  = diff(lnpass)          # birinci fark (trend için)
 series ddlnpass = diff(sdiff(lnpass))   # birinci + mevsimsel fark
-gnuplot ddlnpass --time-series --with-lines --output=display
+string G = EKRAN ? "display" : "Codes/gretl/ch11_grafik3_fark.png"
+gnuplot ddlnpass --time-series --with-lines --output="@G"
 
 adf 12 ddlnpass --c              # şimdi p-değeri küçük çıkmalı
 kpss 12 ddlnpass                 # KPSS ile çapraz kontrol (H0: durağan)
@@ -114,11 +122,13 @@ arima 0 1 1 ; 0 1 1 ; lnpass --nc
 # Çıktıda theta_1: MA(1), Theta_1: mevsimsel MA(1) katsayısıdır.
 
 series uhat = $uhat
-gnuplot uhat --time-series --with-lines --output=display
+string G = EKRAN ? "display" : "Codes/gretl/ch11_grafik4_artik.png"
+gnuplot uhat --time-series --with-lines --output="@G"
 corrgm uhat 36                   # tüm çubuklar güven bandı içinde olmalı
 modtest --autocorr               # Ljung-Box, H0: otokorelasyon yok (p > 0.05 istenir)
 modtest --normality              # artıkların normalliği
-freq uhat --normal --plot=display
+string G = EKRAN ? "display" : "Codes/gretl/ch11_grafik5_artik_dagilim.png"
+freq uhat --normal --plot="@G"
 
 # -------------------------------------------------------------
 # 7) EĞİTİM-TEST AYRIMI İLE PERFORMANS (Bölüm 8)
@@ -160,6 +170,7 @@ series pass_f = exp(lnpass_f)
 smpl 1961:01 1961:12
 print pass_f --byobs                  # 1961 tahminleri, yolcu (bin kişi) cinsinden
 smpl full
-gnuplot passengers pass_f --time-series --with-lines --output=display
+string G = EKRAN ? "display" : "Codes/gretl/ch11_grafik6_tahmin_1961.png"
+gnuplot passengers pass_f --time-series --with-lines --output="@G"
 
 print "Analiz tamamlandı."
