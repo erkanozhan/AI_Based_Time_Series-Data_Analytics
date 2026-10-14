@@ -332,9 +332,9 @@ Bunu bir müzik parçasına benzetebiliriz: Kulağımıza tek bir ses gelir, ama
 
 > **Simge notu:** $`\Delta t`$ *(delta t)*: ardışık iki gözlem arasındaki zaman farkı (örnekleme aralığı)
 
-**Açıklama:** Zaman serisi, bir büyüklüğün zaman içinde **sırayla** kaydedilmiş değerleridir. Sıra çok önemlidir: Sıradan bir veri setinde satırların yerini değiştirmek sonucu değiştirmez. Bir zaman serisinde ise satırları karıştırmak, bir filmin karelerini karıştırmak gibidir; hikâye kaybolur.
+**Açıklama:** Bölüm 1.1'de tanımladığımız gibi zaman serisi, bir büyüklüğün zaman içinde **sırayla** kaydedilmiş değerleridir. 1.2'de gördüğümüz gibi bu sırayı bozmak, bir filmin karelerini karıştırmak gibidir; hikâye kaybolur.
 
-**Tanım:** Bir zaman serisi, zaman dizinine göre sıralanmış gözlemler kümesidir:
+**Tanım:** 1.1'deki tanımı, gözlemleri tek tek sayarak şöyle de yazabiliriz:
 
 $$
 \lbrace x_t\rbrace _{t=1}^{T} = \lbrace x_1, x_2, \dots, x_T\rbrace 
@@ -376,7 +376,7 @@ Operatörlerin işe yarayan özelliği, komutları sayılar gibi parantez içind
 
 > **Hemen deneyin 2.1a · Fark operatörünü R'a hesaplatın** (R, ~3 dk)
 >
-> RStudio'yu açın ve sol alttaki **Console** paneline satırları tek tek yazıp `Enter`'a basın (`#` sonrası açıklamadır, yazmanız gerekmez).
+> RStudio'da **Console** paneline yazın:
 >
 > ```r
 > x <- c(5, 8, 6)                          # c(): sayıları bir listede birleştirir; <- ile x adını verir
@@ -1620,7 +1620,7 @@ Bir sayının tarih olarak anlam kazanması için bir başlangıç noktası (sı
 | `POSIXct` | Gün + saat (+ saat dilimi) | 1970-01-01 00:00 UTC'den bu yana saniye | Saatlik, dakikalık, sensör, borsa verileri |
 | `POSIXlt` | Gün + saat (+ saat dilimi) | Bileşen listesi (`year`, `mon`, `mday`, `hour`, ...) | Bileşenlere erişim, ara işlem |
 
-Bunu doğrudan görelim. Kodu okurken: `#` işaretinden sonrası açıklamadır (yorum), R onu çalıştırmaz. `#>` ile başlayan satırlar komutun ekrana yazdığı çıktıdır; bunları siz yazmazsınız, R üretir. Çıktının başındaki `[1]`, o satırdaki ilk değerin sonucun 1. elemanı olduğunu gösteren bir sıra numarasıdır.
+Bunu doğrudan görelim. Kodu okurken 2.6'daki kuralları hatırlayın: `#` sonrası yorumdur, `#>` satırları R'ın ekrana yazdığı çıktıdır (siz yazmazsınız), baştaki `[1]` ise sıra numarasıdır.
 
 ```r
 # Date: içeride gün sayısı
@@ -1657,12 +1657,12 @@ lt$year + 1900
 
 Bu kod, aynı tarihi önce `Date`, sonra `POSIXct`, en son `POSIXlt` olarak oluşturup her birinin içine bakar. Amaç, yukarıdaki tablonun "İçeride nasıl saklanır?" sütununu kendi gözümüzle doğrulamaktır. Kodu satır satır okuyalım:
 
-1. `d <- as.Date("2024-02-01")`: `as.Date()` bir *fonksiyondur*: parantez içine verilen girdiyi (*argüman*) alır ve bir sonuç üretir. Buradaki argüman tırnak içindeki `"2024-02-01"` metnidir; tırnak, bunun bir nesne adı değil düz metin (*karakter dizisi*) olduğunu söyler. `as.Date()` bu ISO 8601 metnini okuyup bir `Date` nesnesine çevirir. `<-` atama işaretidir: sağdaki işlemin sonucunu soldaki ada (`d`) kaydeder ("d'ye ata" diye okunur); bundan sonra `d` yazdığımızda bu tarih kullanılır. Atama satırları ekrana bir şey yazmaz, bu yüzden altında `#>` satırı yoktur.
+1. `d <- as.Date("2024-02-01")`: `as.Date()` fonksiyonu, argüman olarak verilen `"2024-02-01"` metnini okuyup bir `Date` nesnesine çevirir; tırnak, bunun bir nesne adı değil düz metin (*karakter dizisi*) olduğunu söyler. `<-` sonucu `d` adıyla saklar; bundan sonra `d` yazdığımızda bu tarih kullanılır (fonksiyon, argüman ve atama için bkz. 2.6). Atama satırları ekrana bir şey yazmaz, bu yüzden altında `#>` satırı yoktur.
 2. `class(d)`: `class()` bir nesnenin sınıfını, yani türünü söyler. Sonuç `"Date"`'tir.
 3. `as.numeric(d)`: `as.numeric()` nesneyi düz sayıya çevirir; böylece sınıf etiketi kalkar ve içerideki çıplak sayı görünür: `19754`. Yani 1 Şubat 2024, 1970-01-01'den 19 754 gün sonradır.
 4. `as.Date(19754)`: Aynı fonksiyonun ters yönde kullanımıdır. Argüman metin değil sayı olduğunda `as.Date()` onu "1970-01-01'den bu yana geçen gün sayısı" olarak yorumlar ve yeniden 1 Şubat 2024'ü verir. (R 4.3'ten eski sürümlerde bu kullanımda başlangıç noktasını `origin = "1970-01-01"` diye ayrıca yazmak gerekiyordu.)
 5. `d + 1`: Bir `Date` nesnesine 1 eklemek, içerideki gün sayısına 1 eklemektir (19 755). Sonuç yine bir `Date`'tir ve bir sonraki günü gösterir.
-6. `ct <- as.POSIXct("2024-02-01 14:30:00", tz = "UTC")`: `as.POSIXct()` tarih ve saat içeren bir metni `POSIXct` nesnesine çevirir; metindeki saat `saat:dakika:saniye` düzenindedir. İkinci argüman *adlı argüman* biçiminde verilmiştir: `ad = değer` yazımı, fonksiyonun hangi ayarını değiştirdiğimizi açıkça söyler. `tz` (*time zone*, saat dilimi) argümanı, metindeki saatin hangi saat dilimine göre okunacağını belirler. Burada saat **UTC'ye göre** 14:30'dur; bu an, Türkiye saatiyle 17:30'a karşılık gelir. UTC'yi seçmemizin nedeni, sonucun her bilgisayarda aynı çıkmasıdır (aşağıdaki nota bakın). Sonuç `ct` adıyla saklanır.
+6. `ct <- as.POSIXct("2024-02-01 14:30:00", tz = "UTC")`: `as.POSIXct()` tarih ve saat içeren bir metni `POSIXct` nesnesine çevirir; metindeki saat `saat:dakika:saniye` düzenindedir. İkinci argüman adıyla verilmiştir (*adlandırılmış argüman*, 2.6). `tz` (*time zone*, saat dilimi) argümanı, metindeki saatin hangi saat dilimine göre okunacağını belirler. Burada saat **UTC'ye göre** 14:30'dur; bu an, Türkiye saatiyle 17:30'a karşılık gelir. UTC'yi seçmemizin nedeni, sonucun her bilgisayarda aynı çıkmasıdır (aşağıdaki nota bakın). Sonuç `ct` adıyla saklanır.
 7. `class(ct)`: Bu kez iki sınıf adı yazılır: `POSIXct` ve onun ortak üst sınıfı `POSIXt`. Bir R nesnesinin birden fazla sınıfı olabilir; `POSIXt`, `POSIXct` ile `POSIXlt`'nin ortak davranışlarını (ör. iki zamanı birbirinden çıkarmayı) taşıyan sınıftır.
 8. `as.numeric(ct)`: İçerideki saniye sayısını gösterir. Bu sayı adım adım şöyle bulunur:
    - Bir gün $`24 \times 60 \times 60 = 86\,400`$ saniyedir. 1 Şubat 2024 gece yarısına kadar geçen tam günler: $`19\,754 \times 86\,400 = 1\,706\,745\,600`$ saniye.
@@ -1769,7 +1769,7 @@ Bu kod, aynı `as.Date()` fonksiyonunun biçim verildiğinde ve verilmediğinde 
 
 Çıktıları okurken: girdi hangi düzende yazılmış olursa olsun, R okuduğu tarihi her zaman ISO 8601 (`YYYY-MM-DD`) biçiminde gösterir; bu yüzden 3. ve 5. satırların çıktıları aynıdır. Tırnaksız `[1] NA` ise "bu değer okunamadı" demektir; `NA` bir metin değil, R'ın eksik değer işaretidir.
 
-**Not —** İkinci satırdaki sonuç, bu bölümün en önemli uyarısıdır. R, `"01/02/2024"` metnini denediği ikinci biçim olan `%Y/%m/%d` ile okumuştur: `%Y` ilk parçadaki `01`'i yıl (1. yıl), `%m` ikinci parçadaki `02`'yi ay olarak almış; `%d` en fazla iki rakam okuduğu için `2024`'ün ilk iki rakamını (`20`) gün saymış ve geriye kalan `24`'ü sessizce atmıştır. Sonuç, 1. yılın 20 Şubat'ıdır ve hiçbir uyarı yoktur. (Metin iki biçimden hiçbirine uymasaydı, örneğin `as.Date("15.03.2024")`, R bu kez `character string is not in a standard unambiguous format` hatasını verirdi; yani hata almamanız, okumanın doğru olduğu anlamına gelmez.) Sondan ikinci satır da 4.1'deki durumu gösterir: ay/gün kuralıyla okunamayan `15/03/2024` hata üretmez, `NA` olur.
+**Not —** İkinci satırdaki sonuç, bu bölümün en önemli uyarısıdır. R, `"01/02/2024"` metnini denediği ikinci biçim olan `%Y/%m/%d` ile okumuştur: `%Y` ilk parçadaki `01`'i yıl (1. yıl), `%m` ikinci parçadaki `02`'yi ay olarak almış; `%d` en fazla iki rakam okuduğu için `2024`'ün ilk iki rakamını (`20`) gün saymış ve geriye kalan `24`'ü sessizce atmıştır. Sonuç, 1. yılın 20 Şubat'ıdır ve hiçbir uyarı yoktur. (Metin iki biçimden hiçbirine uymasaydı, örneğin `as.Date("15.03.2024")`, R bu kez `character string is not in a standard unambiguous format` hatasını verirdi; yani hata almamanız, okumanın doğru olduğu anlamına gelmez.)
 
 Bu yüzden veri okurken biçimi **her zaman** açıkça belirtin ve okuduktan sonra iki basit kontrol yapın: `range(tarihler)` en küçük ve en büyük tarihi verir; `0001` gibi bir yıl ya da `NA NA` sonucu okumanın bozuk olduğunu hemen ele verir. `sum(is.na(tarihler))` ise kaç değerin okunamadığını sayar (`is.na()` her değer için "NA mı?" sorusunu `TRUE`/`FALSE` olarak cevaplar, `sum()` de `TRUE`'ları sayar).
 
@@ -1970,7 +1970,7 @@ Bu kod, bir zamanın saat dilimini değiştirmenin iki farklı anlamını karş�
 
 `as.Date()` ve format kodları güçlüdür ama her seferinde biçim yazmak yorucu ve hataya açıktır. `lubridate` paketi (tidyverse ailesinin bir parçası), tarih işlemlerini çok daha okunur hâle getirir.
 
-R'da *paket*, başkalarının yazdığı hazır fonksiyonların bir araya getirildiği eklentidir. Bir paket bilgisayara bir kez `install.packages("lubridate")` ile kurulur; her yeni R oturumunda ise `library(lubridate)` ile yüklenir. `library()` çalıştırılmadan paketin fonksiyonları (`ymd()` vb.) bulunamaz.
+R'da *paket*, başkalarının yazdığı hazır fonksiyonların bir araya getirildiği eklentidir. 3.2'de `tseries` ile gördüğümüz gibi paket bir kez `install.packages()` ile kurulur, her yeni oturumda `library()` ile yüklenir; `library()` çalıştırılmadan paketin fonksiyonları (`ymd()` vb.) bulunamaz.
 
 **Okuma (ayrıştırma) fonksiyonları:** Fonksiyon adı, metindeki bileşenlerin **sırasını** söyler: `y` = yıl, `m` = ay, `d` = gün; alt çizgiden sonraki kısımda `h` = saat, `m` = dakika, `s` = saniye. Ayraçlar (`-`, `/`, `.`, boşluk) otomatik tanınır.
 
@@ -2000,7 +2000,7 @@ ymd_hms("2024-03-15T14:30:00+03:00")      # ISO 8601 ve saat farkı tanınır
 
 Bu kod, `lubridate`'in okuma fonksiyonlarını tanıtır: aynı günü farklı yazımlardan okur, uymayan bir metinde ne olduğunu gösterir ve saatli metinlerle biter. Kodu satır satır okuyalım:
 
-1. `# install.packages("lubridate") # Yüklü değilse`: Satır `#` ile başladığı için yorumdur, çalıştırılmaz. Paket bilgisayarınızda kurulu değilse baştaki `#` işaretini silip satırı bir kez çalıştırırsınız; paket internetten indirilip kurulur. Tırnak gerekir, çünkü henüz var olmayan bir paketin adını metin olarak veriyoruz.
+1. `# install.packages("lubridate") # Yüklü değilse`: Paketi kuran satırdır, `#` yüzünden şimdilik yorumdur. Paket kurulu değilse 3.2'deki `tseries` örneğinde olduğu gibi baştaki `#` silinip satır bir kez çalıştırılır.
 2. `library(lubridate)`: Kurulu paketi bu oturuma yükler (4.2.2'deki blokta yüklediyseniz tekrar çalıştırmak zararsızdır).
 3. `ymd("2024-03-15")`: Fonksiyon adındaki `ymd` harfleri metindeki sırayı söyler: yıl-ay-gün. Biçim metni yazmaya gerek yoktur; ayraç (`-`) kendiliğinden tanınır. Saat dilimi verilmediği için sonuç bir `Date` nesnesidir.
 4. `dmy("15.03.2024")` ve `mdy("03/15/2024")`: Aynı işi gün-ay-yıl (Türkçe yazım, noktalı) ve ay-gün-yıl (ABD yazımı, eğik çizgili) sırası için yapar. Ayraçların farklı olması sorun değildir.
@@ -2011,7 +2011,7 @@ Bu kod, `lubridate`'in okuma fonksiyonlarını tanıtır: aynı günü farklı y
 
 Çıktıları okurken: ilk dört satırın çıktısı aynıdır (`"2024-03-15"`): dört farklı yazım aynı günü verir; hangi fonksiyonu seçeceğiniz yalnızca metindeki sıraya bağlıdır. Beşinci satırda `[1] NA`'nın altında bir uyarı (*warning*) vardır. Uyarı, hatadan farklı olarak kodu durdurmaz, yalnızca dikkat çeker. `All formats failed to parse. No formats found.` "Hiçbir biçimle okunamadı; uyan biçim bulunamadı" demektir. Son iki satırdaki `UTC` eki sonucun hangi saat diliminde gösterildiğini söyler.
 
-**Not —** `lubridate`, okuyamadığı metinlerde sessizce yanlış tarih üretmez; `NA` döndürür ve "failed to parse" (okunamadı) içeren bir uyarı verir. Bu uyarıyı ciddiye alın. Ancak sırayı yanlış seçerseniz (Türkçe yazılmış `01.02.2024` için `mdy()`) iki okuma da geçerli bir tarih olduğundan uyarı çıkmaz; sırayı veriye bakarak doğru seçmek yine sizin işinizdir. Ayrıca `ymd_hms()` saat dilimi verilmezse **UTC** varsayar (base R'daki `as.POSIXct()` ise sistemin saat dilimini varsayar); yerel saatle çalışıyorsanız `tz = "Europe/Istanbul"` yazmayı unutmayın.
+**Not —** 6. satırdaki gibi `NA` ile birlikte gelen "failed to parse" (okunamadı) uyarısını ciddiye alın. Ancak sırayı yanlış seçerseniz (Türkçe yazılmış `01.02.2024` için `mdy()`) iki okuma da geçerli bir tarih olduğundan uyarı çıkmaz; sırayı veriye bakarak doğru seçmek yine sizin işinizdir. Ayrıca `ymd_hms()` saat dilimi verilmezse **UTC** varsayar (base R'daki `as.POSIXct()` ise sistemin saat dilimini varsayar); yerel saatle çalışıyorsanız `tz = "Europe/Istanbul"` yazmayı unutmayın.
 
 **Bileşen çekme fonksiyonları:** Zaman serilerinde mevsimsellik analizi için tarihin ayını, haftanın gününü, çeyreğini ayrı bir değişken olarak çıkarmak çok sık yapılır; örneğin "satışlar cuma günleri daha mı yüksek?" sorusu için önce her tarihin haftanın hangi günü olduğunu bilmek gerekir.
 
@@ -2490,7 +2490,7 @@ cat("1995-04-23 14:30'da doğan bir kişi, yaklaşık olarak",
 Bu kod, 4.5.1'deki hesabı saat düzeyine indirir: tarihle birlikte doğum saatini de kullanarak şimdiye kadar geçen toplam saati bulur. Kodu satır satır okuyalım:
 
 1. `library(lubridate)`: Paketi yükler (4.5.1'deki gibi).
-2. `dogum_zamani <- ymd_hms("1995-04-23 14:30:00", tz = "Europe/Istanbul")`: Doğum anını Türkiye saatiyle `POSIXct` olarak oluşturur (4.3). `tz` burada önemlidir: verilmeseydi `ymd_hms()` saati UTC kabul ederdi.
+2. `dogum_zamani <- ymd_hms("1995-04-23 14:30:00", tz = "Europe/Istanbul")`: Doğum anını Türkiye saatiyle `POSIXct` olarak oluşturur (4.3).
 3. `simdi <- now(tzone = "Europe/Istanbul")`: `now()` şu anı, verilen saat diliminde bir `POSIXct` olarak döndürür (`Sys.time()`'ın `lubridate` karşılığı). Argümanın adı burada `tz` değil `tzone`'dur; aynı paketin fonksiyonlarında bile argüman adları farklı olabilir, bu yüzden emin olmadığınızda `args(now)` ile fonksiyonun argümanlarını görebilirsiniz.
 4. `yasanan_saat <- as.numeric(difftime(simdi, dogum_zamani, units = "hours"))`: İçten dışa okunur: `difftime()` (4.4) `simdi`'den `dogum_zamani`'nı çıkarır ve `units = "hours"` sayesinde sonucu doğrudan saat biriminde verir; dıştaki `as.numeric()` birimi atıp düz sayı bırakır. Sonuç genellikle ondalıklı bir sayıdır, çünkü dakika ve saniyeler de saatin kesirleri olarak hesaba girer.
 5. `cat("1995-04-23 14:30'da doğan bir kişi, yaklaşık olarak", round(yasanan_saat), "saattir hayattadır.\n")`: Çağrı iki satıra yayılmıştır; parantez kapanmadığı için R ikinci satırı aynı komutun devamı sayar. `round()` sayıyı en yakın tam sayıya yuvarlar (kaç ondalık kalacağını söyleyen `digits` argümanının varsayılanı 0'dır); cümledeki "yaklaşık olarak" ifadesi bu yüzdendir.
@@ -2691,7 +2691,7 @@ Bu örnek, `ts()`'nin değerleri başlangıç noktasından itibaren çeyreklere 
 2. `print(ceyrek_ts)`: Seriyi yıl satırları ve çeyrek sütunları olan bir tablo olarak yazar. `Qtr1`–`Qtr4` başlıkları İngilizce *quarter* (çeyrek) kelimesinin kısaltmasıdır.
 3. `end(ceyrek_ts)`: Bitiş zamanını `c(yıl, çeyrek)` biçiminde verir.
 
-Altı değer, 2023'ün 3. çeyreğinden başlayarak sırayla çeyreklere yerleşir: 2023'ün 3. ve 4. çeyreği, ardından 2024'ün dört çeyreği. Bu yüzden tablodaki 2023 satırının ilk iki hücresi boştur (`Qtr1` ve `Qtr2` için veri yoktur) ve `end()` çıktısı `[1] 2024    4`, yani 2024'ün 4. çeyreğidir. Ondalıklı yıl olarak başlangıç $2023 + 2/4 = 2023{,}5$, bitiş $2023{,}5 + 5/4 = 2024{,}75$'tir; `tsp(ceyrek_ts)` bu sayıları `2023.50 2024.75 4.00` olarak verir.
+Altı değer, 2023'ün 3. çeyreğinden başlayarak sırayla çeyreklere yerleşir: 2023'ün 3. ve 4. çeyreği, ardından 2024'ün dört çeyreği. Bu yüzden tablodaki 2023 satırının ilk iki hücresi boştur (`Qtr1` ve `Qtr2` için veri yoktur) ve `end()` çıktısı `[1] 2024    4`, yani 2024'ün 4. çeyreğidir. `tsp(ceyrek_ts)` başlangıç ve bitişi, Hemen deneyin 5.1'de `time()` ile bulduğumuz ondalıklı yıllar olarak verir: `2023.50 2024.75 4.00`.
 
 > **Hemen deneyin 5.2.1 · Son 12 ayın harcaması bir `ts` nesnesi olsun** (R ve Python, ~6 dk)
 >
@@ -3183,7 +3183,7 @@ Elimizde artık bir `ts` nesnesi var (Bölüm 5). Bu bölümde üç soruyu yanı
 
 Üçüncü sorunun cevabı, Bölüm 7'deki ARIMA modellerinin derecelerini seçerken kullanacağımız temel araçtır. Bölüm boyunca `TSstudio` paketindeki `USgas` serisini (ABD aylık doğal gaz tüketimi, milyar kübik fit) kullanacağız.
 
-> **Not —** `USgas` serisinin uzunluğu `TSstudio` sürümüne göre değişir. Güncel sürümde (0.1.7) seri Ocak 2000 – Ekim 2019 aralığında 238 gözlemden oluşur; eski sürümlerde Kasım 2018'de biter (227 gözlem, bkz. Bölüm 5.2.2). Bu bölümdeki çıktılar güncel sürümle üretilmiştir; eski sürümde sayılar biraz farklı çıkar ama yorumlar değişmez.
+> **Not —** Bu bölümdeki çıktılar `TSstudio`'nun güncel sürümüyle (0.1.7; 238 gözlem) üretilmiştir. Eski sürümlerde seri daha kısadır (bkz. 5.2.2'deki not); sayılar biraz farklı çıkar ama yorumlar değişmez.
 
 ### 6.1. Temel Görselleştirme
 
@@ -3217,15 +3217,10 @@ grid()
 
 Bu kod `USgas` serisini tek komutla çizer ve okumayı kolaylaştırmak için grafiğe başlık, eksen adları ve bir ızgara ekler. Analize başlamadan önce yukarıdaki dört soruya gözle cevap aramanın en hızlı yolu budur. Kodu satır satır okuyalım:
 
-1. `library(TSstudio)`: `TSstudio` paketini bu oturuma yükler. Paket, zaman serisi grafik araçlarıyla birlikte `USgas` veri setini de içerir; paketin fonksiyonları ve veri setleri ancak bu satırdan sonra kullanılabilir. Paket bilgisayarda kurulu değilse önce bir kez `install.packages("TSstudio")` çalıştırılır. Kurulumda paket adı tırnak içinde yazılır, çünkü henüz R'ın tanıdığı bir nesne değil, düz bir metindir; `library()` içinde tırnaksız yazmak da kabul edilir.
-2. `data(USgas)`: Paketle gelen `USgas` veri setini çalışma alanına (RStudio'daki *Environment* paneli) kopyalar. Sonuç, Ocak 2000'de başlayan, frekansı 12 olan ve 238 aylık gözlemden oluşan bir `ts` nesnesidir (Bölüm 5.2.2). `TSstudio` yüklendiğinde `USgas` adı aslında zaten görünür olur; bu satır veriyi açıkça çalışma alanına koyar ve kodun hangi veriyi kullandığını belli eder.
-3. `plot(USgas, main = ..., ylab = ..., xlab = ..., col = "blue")`: `plot()` R'ın genel çizim fonksiyonudur. Kendisine verilen nesnenin sınıfına bakar; bir `ts` nesnesi gördüğünde gözlemleri sırayla birleştiren bir çizgi grafiği çizer ve yatay ekseni nesnenin `start` ve `frequency` bilgisinden (2000, 2005, …) kendisi üretir. İlk argüman `USgas` adı yazılmadan, yalnızca ilk sıraya konarak verilmiştir (*konumsal argüman*: "çizilecek nesne" her zaman ilk sıradadır). Diğerleri `ad = değer` biçiminde adıyla verilen ayarlardır (*adlandırılmış argüman*); adları yazıldığı için sıraları önemli değildir:
-   - `main`: grafiğin üstündeki başlık;
-   - `ylab` ve `xlab` (*y label*, *x label*): dikey ve yatay eksenin adı;
-   - `col` (*color*): çizginin rengi.
-
-   Tırnak içindeki metinler (`"Yıl"` gibi) R için düz yazıdır ve olduğu gibi grafiğe basılır; tırnaksız `USgas` ise bir nesnenin adıdır ve R onun içeriğini kullanır. Komut beş satıra bölünmüştür; açılan parantez kapanmadan R komutun bittiğini kabul etmediği için bu bölme yalnızca okunabilirlik içindir.
-4. `grid()`: Az önce çizilen grafiğin üzerine, eksen işaretleriyle hizalı açık gri (`"lightgray"`), noktalı çizgilerden bir ızgara ekler. Parantezin içi boştur, yani bu varsayılan ayarlar kullanılır. `grid()` yeni bir grafik açmaz, var olan grafiğe ekleme yapar; bu yüzden `plot()`'tan sonra çalıştırılmalıdır.
+1. `library(TSstudio)`: `TSstudio` paketini bu oturuma yükler (5.2.2); `USgas` veri seti bu paketten gelir. Paket kurulu değilse önce bir kez `install.packages("TSstudio")` çalıştırılır (3.2).
+2. `data(USgas)`: Paketle gelen `USgas` veri setini çalışma alanına (RStudio'daki *Environment* paneli) getirir. Seri, Ocak 2000'de başlayan, frekansı 12 olan, 238 aylık gözlemli bir `ts` nesnesidir (Bölüm 5.2.2).
+3. `plot(USgas, main = ..., ylab = ..., xlab = ..., col = "blue")`: 5.2.3'teki `plot(AirPassengers, ...)` komutunun aynısıdır: `plot()` bir `ts` nesnesi gördüğünde çizgi grafiği çizer ve yatay ekseni nesnenin `start` ve `frequency` bilgisinden (2000, 2005, …) kendisi üretir. İlk argüman konumsal (çizilecek seri), diğerleri adlandırılmış ayarlardır (2.6): `main` başlık, `ylab` ve `xlab` (*y label*, *x label*) eksen adları, `col` (*color*) çizgi rengi. Komut beş satıra bölünmüştür; R parantez kapanana kadar okumaya devam eder.
+4. `grid()`: 5.2.3'teki gibi, çizilen grafiğin üzerine eksen işaretleriyle hizalı açık gri (`"lightgray"`), noktalı bir ızgara ekler; yeni grafik açmadığı için `plot()`'tan sonra çalıştırılır.
 
 Kod ekrana sayı yazdırmaz, yalnızca bir grafik açar (RStudio'da *Plots* panelinde; `Rscript` ile çalıştırıldığında grafik, çalışma klasöründeki `Rplots.pdf` dosyasına yazılır). Yatay eksende yıllar, dikey eksende milyar kübik fit cinsinden aylık tüketim vardır. `USgas` grafiğinde hem yavaş yükselen bir **trend** hem de her kış zirve yapan güçlü bir **mevsimsellik** görülür. Mevsimsel dalgaların genliği seviyeyle birlikte belirgin biçimde büyümediği için toplamsal model makul bir başlangıçtır.
 
@@ -3280,7 +3275,7 @@ ggplot(df_gg, aes(x = tarih, y = deger)) +
 Bu kod aynı `USgas` grafiğini `ggplot2` ile daha özenli biçimde çizer ve üzerine mevsimsel dalgaları bastıran yumuşatılmış bir trend eğrisi ekler. Kod iki aşamadan oluşur: Önce `ts` nesnesi `ggplot2`'nin anladığı tabloya çevrilir, sonra grafik katman katman kurulur. Kodu satır satır okuyalım:
 
 1. `library(ggplot2)`: `ggplot2` paketini oturuma yükler; `ggplot()`, `aes()`, `geom_line()`, `geom_smooth()`, `labs()` ve `theme_minimal()` bu paketten gelir. Kurulu değilse önce bir kez `install.packages("ggplot2")` çalıştırılır.
-2. `# USgas ts nesnesini data.frame'e dönüştür`: `#` işaretiyle başlayan satırlar **yorum**dur; R bunları okumaz, yalnızca kodu okuyan insana not düşer. Bir satırın sonundaki `#` de (ör. `# Aylık tarih dizisi`) aynı işi görür: `#`'ten sonrası yok sayılır.
+2. `# USgas ts nesnesini data.frame'e dönüştür`: Yorum satırıdır (2.6); satır sonlarındaki `# Aylık tarih dizisi` gibi notlar da yorumdur.
 3. `df_gg <- data.frame(tarih = ..., deger = ...)`: `data.frame()` virgülle ayrılmış her `ad = değer` çiftinden bir sütun kurar; ad sütunun başlığı, değer de sütunun içeriği olur. `<-` (atama işareti) sağda oluşan tabloyu soldaki `df_gg` adına kaydeder. Komut dört satıra yayılmıştır, çünkü parantez kapanana kadar R okumaya devam eder. İki sütunun içeriği şöyle üretilir:
    - `tarih = seq(as.Date("2000-01-01"), by = "month", length.out = length(USgas))`: İç içe çağrılar içten dışa okunur. `as.Date("2000-01-01")` tırnak içindeki metni bir `Date` (tarih) nesnesine çevirir (Bölüm 4.2.1); `length(USgas)` serideki gözlem sayısını, yani 238'i verir. `seq()` (*sequence*, dizi) ilk argümandaki başlangıç tarihinden itibaren `by = "month"` ile birer ay ilerleyen ve `length.out = 238` ile tam 238 elemanda duran bir tarih **vektörü** üretir (Bölüm 4.4): 2000-01-01, 2000-02-01, …, 2019-10-01. Uzunluğu `length(USgas)` ile yazmak, sayıyı elle girmekten daha güvenlidir: `TSstudio` sürümü değişip seri kısalsa ya da uzasa bile tarih sütunu seriyle aynı uzunlukta kalır.
    - `deger = as.numeric(USgas)`: `as.numeric()` `ts` nesnesinin zaman bilgisini (başlangıç, frekans) atar ve geriye yalnızca 238 sayıdan oluşan düz bir vektör bırakır: 2510.5, 2330.7, 2050.6, …
@@ -3359,10 +3354,10 @@ Bu kod aylık `USgas` serisini yıllık toplam tüketim serisine çevirir; amaç
 1. `USgas_yillik <- aggregate(USgas, nfrequency = 1, FUN = sum)`: `aggregate()` seriyi baştan başlayarak eski frekans / yeni frekans = 12 / 1 = 12 gözlemlik ardışık bloklara böler ve her bloğa `FUN` ile verilen fonksiyonu uygular. Argümanlar:
    - `USgas`: Toplanacak seri (konumsal argüman, ilk sırada).
    - `nfrequency = 1`: Yeni frekans (*new frequency*), yani yılda kaç gözlem olacağı. Yıllık seri istediğimiz için 1; çeyreklik seri isteseydik 4 yazardık (o zaman 3'er aylık bloklar oluşurdu).
-   - `FUN = sum`: Her bloğa uygulanacak fonksiyon (*function*). `sum` bir bloktaki 12 değeri toplar. Fonksiyonun adı tırnaksız ve parantezsiz yazılır: Burada `sum`'ı çalıştırmıyor, fonksiyonun kendisini `aggregate()`'e teslim ediyoruz; onu her blok için `aggregate()` çağırır.
+   - `FUN = sum`: Her bloğa uygulanacak fonksiyon (*function*); `sum` bir bloktaki 12 değeri toplar. 5.2.1'deki `mean` gibi tırnaksız ve parantezsiz yazılır, çünkü fonksiyonun kendisi verilir.
 
    Sonuç yine bir `ts` nesnesidir (frekansı 1) ve `<-` ile `USgas_yillik` adına kaydedilir.
-2. `USgas_yillik`: Bir nesnenin adını tek başına yazmak, R'da onu ekrana yazdırır (`print(USgas_yillik)` ile aynıdır). Uygulama dosyasında açıkça `print()` yazılır, çünkü dosya `source()` ile ya da RStudio'nun *Source* düğmesiyle çalıştırıldığında nesnenin adını tek başına yazmak ekrana bir şey basmaz.
+2. `USgas_yillik`: Bir nesnenin adını tek başına yazmak, R'da onu ekrana yazdırır (`print(USgas_yillik)` ile aynıdır). Uygulama dosyasında ise açıkça `print()` yazılır; nedeni 6.1.2'deki notta (`source()` ile çalıştırmada otomatik yazdırma olmaz).
 
 Çıktının ilk dört satırı serinin kimlik bilgisidir: `Time Series:` bir `ts` nesnesine bakıldığını, `Start = 2000` ve `End = 2018` ilk ve son yılı, `Frequency = 1` yılda bir gözlem olduğunu söyler. Sonraki satırlar 19 yıllık toplamdır (2000–2018). Satır başlarındaki `[1]`, `[10]`, `[19]` o satırdaki ilk değerin kaçıncı eleman olduğunu gösteren R işaretleridir: İkinci satır 10. eleman (2009), üçüncü satır 19. eleman (2018) ile başlar. İlk değer olan 22538.6, Ocak–Aralık 2000'in toplamıdır (2510.5 + 2330.7 + … + 2587.5).
 
@@ -3478,7 +3473,7 @@ Bu kod `USgas` serisinin bir ay ve on iki ay gecikmeli kopyalarını üretir ve 
 1. `USgas_lag1 <- stats::lag(USgas, k = -1)`: `stats::` ön eki "`stats` paketindeki `lag` fonksiyonu" demektir. `paket::fonksiyon` yazımı bir fonksiyonu hangi paketten aldığımızı açıkça söyler; paketi `library()` ile yüklemeden de çalışır ve aynı adı taşıyan başka bir paketin fonksiyonuyla karışmayı önler (aşağıdaki nota bakın). `stats::lag()` değerlere dokunmaz; yalnızca serinin **zaman etiketlerini** kaydırır. `k` kaç dönem ve hangi yönde kaydırılacağını belirler; `k = -1` ile aynı 238 değer bir ay ileri tarihlere taşınır: Yeni seri Ocak 2000 yerine Şubat 2000'de başlar, Ekim 2019 yerine Kasım 2019'da biter. Böylece Şubat 2000 tarihinde Ocak 2000'in değeri durur; yani her $t$ tarihinde $x_{t-1}$ okunur. Sonuç yine 238 değerli bir `ts` nesnesidir ve `USgas_lag1` adına kaydedilir.
 2. `USgas_lag12 <- stats::lag(USgas, k = -12)`: Aynı işi 12 ay için yapar; aylık veride 12 dönem "geçen yılın aynı ayı" demektir. Seri Ocak 2001'de başlar, Ekim 2020'de biter.
 3. `comparison_df <- cbind(Original = USgas, Lag1 = USgas_lag1, Lag12 = USgas_lag12)`: `cbind()` (*column bind*, sütunları birleştir) birden fazla seriyi yan yana sütunlar hâlinde birleştirir. `Original = USgas` gibi yazımlarda eşittirin solundaki ad sütunun başlığı olur. `ts` nesneleri birleştirilirken satırlar **tarihe göre** hizalanır: `USgas_lag1` serisinin Şubat 2000 değeri, tablonun Şubat 2000 satırına yerleşir. Üç seri farklı tarihlerde başlayıp bittiği için `cbind()` bütün tarihleri kapsayan bir tablo kurar ve boş kalan hücrelere `NA` (*Not Available*, mevcut değil) yazar. Sonuç 238 + 12 = 250 satır ve 3 sütunluk, çok değişkenli bir zaman serisidir (sınıfı `mts`, *multiple time series*); adında `df` geçse de bir `data.frame` değildir. `Lag12` sütunu Ekim 2020'ye kadar uzadığı için tablonun son 12 satırında `Original` boştur (`Lag1` ise Kasım 2019'da biter). Satırlardaki fazladan boşluklar (`Lag1  =`) yalnızca hizalama içindir, R için anlamı yoktur.
-4. `head(comparison_df, 15)`: `head()` bir nesnenin yalnızca baş kısmını gösterir; ikinci argüman (15) kaç satır gösterileceğidir (yazılmasaydı varsayılan 6 satır gösterilirdi). İlk 15 satır, `Lag12` sütununun ilk dolu değere ulaştığı Ocak 2001'i de içerdiği için kaydırmayı açıkça gösterir.
+4. `head(comparison_df, 15)`: İlk 15 satırı gösterir (`head()`, 5.3.2); bu satırlar `Lag12` sütununun ilk dolu değere ulaştığı Ocak 2001'i de içerdiği için kaydırmayı açıkça gösterir.
 
 Çıktıda sütun başlıkları `cbind()` içinde verdiğimiz adlardır. Satır başlarındaki `Jan 2000`, `Feb 2000`, … etiketleri, tablonun hâlâ bir zaman serisi olduğunu ve her satırın bir aya karşılık geldiğini gösterir (R ay adlarını İngilizce kısaltmayla yazar). Değerlerin ve `NA` hücrelerinin nasıl okunacağı aşağıdaki **Yorum**'dadır. Yalnızca üç sütunun da dolu olduğu tarihleri (Ocak 2001 – Ekim 2019, 226 satır) isterseniz `cbind()` yerine aynı argümanlarla `ts.intersect()` (*intersect*, kesişim) kullanabilirsiniz; bu fonksiyon yalnızca bütün serilerin ortak olduğu tarihleri tutar. Uygulama dosyası bu iki tablonun boyutlarını `dim()` ile yazdırır (250 × 3 ve 226 × 3) ve kaydırmanın yönünü `tsp()` (başlangıç, bitiş, frekans) ile gösterir.
 
@@ -3492,7 +3487,7 @@ Bu kod `USgas` serisinin bir ay ve on iki ay gecikmeli kopyalarını üretir ve 
 
 - **`Lag1` sütunu:** Her satırdaki `Lag1` değeri, bir önceki ayın `Original` değeridir. Şubat 2000'deki `Lag1` (2510.5), Ocak 2000'in gözlemidir.
 - **`Lag12` sütunu:** 12 ay (1 yıl) önceki değeri gösterir. Ocak 2001'deki `Lag12` (2510.5), tam bir yıl önceki Ocak 2000 gözlemidir. Mevsimsel serilerde "geçen yılın aynı ayı" çoğu zaman çok güçlü bir bilgi taşır; bunu Bölüm 6.3'te sayısal olarak göreceğiz (`USgas` için lag-12 otokorelasyonu 0.87'dir).
-- **`NA` değerleri:** $h$ adım gecikmeli serinin ilk $h$ değeri tanımsızdır (*Not Available*, mevcut değil), çünkü Ocak 2000'den önceki veri elimizde yoktur. Modelleme sırasında bu satırlar genellikle atılır; yani lag-12 kullanmak ilk 12 gözlemi kaybetmek demektir.
+- **`NA` değerleri:** $h$ adım gecikmeli serinin ilk $h$ değeri tanımsızdır (`NA`), çünkü Ocak 2000'den önceki veri elimizde yoktur. Modelleme sırasında bu satırlar genellikle atılır; yani lag-12 kullanmak ilk 12 gözlemi kaybetmek demektir.
 
 Bu gecikmeli sütunlar arasındaki korelasyonu ölçtüğümüzde, Bölüm 6.3'teki **otokorelasyon** kavramına ulaşırız.
 
@@ -3554,11 +3549,7 @@ Bu kod `USgas` serisini trend, mevsimsel etki ve kalan olarak üç bileşene ay�
 
 Çıktıdaki `[1]`, satırın vektörün 1. elemanıyla başladığını gösterir. 12 sayı sırasıyla Ocak, Şubat, …, Aralık aylarının tipik etkisidir: Pozitif sayı o ayda tüketimin trendin üzerinde, negatif sayı altında olduğunu söyler. Yuvarlanmamış 12 değerin toplamı sıfırdır (yuvarlanmış sayılarda −2 çıkar); yani mevsimsel etki yıl boyunca dengelenir. Sayıların ayrıntılı yorumu aşağıdadır.
 
-Grafik dört panelden oluşur: `observed` (orijinal seri), `trend` (12 aylık merkezî hareketli ortalama), `seasonal` (her yıl aynen tekrar eden mevsimsel desen) ve `random` (kalan). Bu dört panelin dikey eksenleri farklı ölçeklerdedir; bileşenlerin büyüklüğünü karşılaştırırken eksen değerlerine bakın. `decompose()` bu bileşenleri üç adımda hesaplar:
-
-1. **Trend:** Her ay için, o ayı ortaya alan 13 aylık bir pencerenin ortalaması alınır. Penceredeki iki uç ay yarım, aradaki 11 ay tam ağırlıkla sayılır; böylece toplam ağırlık tam 12 aya, yani bir yıla denk gelir (buna 2×12 merkezî hareketli ortalama denir). Bir yılın bütün ayları ortalamaya girdiği için kış ve yaz birbirini dengeler ve geriye trend kalır.
-2. **Mevsimsel etki:** Her gözlemden trend çıkarılır (gözlem − trend). Sonra her takvim ayı için bu farkların bütün yıllardaki ortalaması alınır ve 12 değerin toplamı sıfır olacak şekilde küçük bir düzeltme yapılır. `$figure` bu 12 sayıdır.
-3. **Kalan:** kalan = gözlem − trend − mevsimsel etki.
+Grafik dört panelden oluşur: `observed` (orijinal seri), `trend` (12 aylık merkezî hareketli ortalama), `seasonal` (her yıl aynen tekrar eden mevsimsel desen) ve `random` (kalan). Bu dört panelin dikey eksenleri farklı ölçeklerdedir; bileşenlerin büyüklüğünü karşılaştırırken eksen değerlerine bakın. `decompose()` bileşenleri 2.6'da anlattığımız üç adımla hesaplar; toplamsal modelde bölme yerine çıkarma kullanılır. Trend, o ayı ortaya alan 2×12 merkezî hareketli ortalamadır (13 aylık pencerede iki uç ay yarım, aradaki 11 ay tam ağırlıkla sayılır; toplam ağırlık bir yıla denk gelir). Mevsimsel etki, her takvim ayı için (gözlem − trend) farklarının bütün yıllardaki ortalamasıdır; 12 değerin toplamı sıfır olacak şekilde düzeltilir ve `$figure` bu 12 sayıdır. Kalan = gözlem − trend − mevsimsel etki.
 
 Ocak 2001 için: Gözlem 2677.0, trend 1896.7, Ocak'ın mevsimsel etkisi 766.4'tür. Kalan $2677.0 - 1896.7 - 766.4 = 13.9$ olur. Yani Ocak 2001'deki tüketim, "trendin o dönemdeki düzeyi + tipik bir Ocak artışı" toplamından yalnızca 13.9 birim fazla gerçekleşmiştir. Toplamsal modelde üç bileşen toplandığında gözlem geri elde edilir: $1896.7 + 766.4 + 13.9 = 2677.0$.
 
@@ -3656,7 +3647,7 @@ Payın büyüklüğü, işareti ne olursa olsun, hiçbir zaman paydayı aşamaz 
 
 **Açıklama:** Bir serinin bugünkü değeri, dünkü değerine ne kadar benziyor? Peki ya geçen haftaki değerine? Ya da tam bir yıl önceki değerine? ACF (*Autocorrelation Function*, otokorelasyon fonksiyonu) bu soruların cevabını verir: Serinin **kendi geçmişiyle** olan korelasyonunu ölçer. Adındaki "oto" öneki de "kendi" anlamına gelir. Burada iki ayrı değişken yoktur; yukarıdaki tablodaki $x$'in yerine serinin bugünkü değerini, $y$'nin yerine aynı serinin $h$ adım önceki değerini koyarız.
 
-Mekanizma çok basittir: Seriyi $h$ adım kaydırırız (Bölüm 6.2.2'deki `Lag1`, `Lag12` sütunları) ve orijinal seri ile kaydırılmış kopyası arasındaki korelasyonu hesaplarız. Bunu $h = 1, 2, 3, \dots$ için tekrarlayıp sonuçları çubuklarla çizdiğimizde ACF grafiği (korelogram) elde edilir.
+Mekanizma çok basittir: Seriyi $h$ adım kaydırırız (Bölüm 6.2.2'deki `Lag1`, `Lag12` sütunları) ve orijinal seri ile kaydırılmış kopyası arasındaki korelasyonu hesaplarız. Bunun her gecikme için bir çubuğa nasıl dönüştüğünü 6.3.2'de adım adım göreceğiz.
 
 ![ACF kaydırılmış kopya ile korelasyon](images/ch06_acf_kaydirma.svg)
 
@@ -3715,7 +3706,7 @@ Grafiği okurken bilmeniz gereken üç ayrıntı:
 
 #### 6.3.3. Formel Tanım
 
-**Önce sözle.** Bölüm 6.3.1'deki korelasyon tarifini hatırlayın: Ortalamadan sapmaları bul, çiftler hâlinde çarp, topla, ölçekle. Otokorelasyonda iki ayrı değişken yerine aynı serinin iki kopyası vardır: bugünkü değer ve $h$ adım önceki değer. Aşağıdaki iki tanım bu tarifin matematik dilindeki karşılığıdır. Birincisi, sonsuz uzunlukta bir veride ortaya çıkacak "gerçek" değeri (teorik otokorelasyon), ikincisi elimizdeki sonlu veriden hesapladığımız tahmini (örneklem otokorelasyonu) tanımlar.
+**Önce sözle.** Bölüm 6.3.1'deki korelasyon tarifini hatırlayın: Ortalamadan sapmaları bul, çiftler hâlinde çarp, topla, ölçekle. Aşağıdaki iki tanım bu tarifin matematik dilindeki karşılığıdır. Birincisi, sonsuz uzunlukta bir veride ortaya çıkacak "gerçek" değeri (teorik otokorelasyon), ikincisi elimizdeki sonlu veriden hesapladığımız tahmini (örneklem otokorelasyonu) tanımlar.
 
 **Tanım 1 (Teorik otokorelasyon):** Durağan bir süreçte (Bölüm 3.2) $h$ gecikmedeki otokovaryans ve otokorelasyon şöyle tanımlanır:
 
@@ -3755,13 +3746,13 @@ $$
 \pm 1.96 \times \frac{1}{\sqrt{T}} = \pm \frac{1.96}{\sqrt{T}}
 $$
 
-> **Simge notu:** $`\pm`$ *(artı eksi)*: hem pozitif hem negatif sınır · $`\sqrt{T}`$ *(karekök T)*: gözlem sayısının karekökü · **standart sapma**: değerlerin ortalamadan tipik uzaklığı; varyansın karekökü
+> **Simge notu:** $`\pm`$ *(artı eksi)*: hem pozitif hem negatif sınır · $`\sqrt{T}`$ *(karekök T)*: gözlem sayısının karekökü
 
 `USgas` için adım adım: $\sqrt{238} \approx 15.43$, $1/15.43 \approx 0.0648$ ve $1.96 \times 0.0648 \approx 0.127$. Sınırlar $\pm 0.127$'dir. Şekil 6.5'teki deneyde 5000 korelasyonun standart sapması 0.063 çıkmıştır (formül 0.065 diyor) ve değerlerin %95.7'si gerçekten −0.127 ile +0.127 arasında kalmıştır; %2.3'ü alttan, %2.0'ı üstten şans eseri dışarı taşmıştır.
 
 İstatistik dilinde bandın arkasındaki varsayıma **hipotez** denir: "Seri beyaz gürültüdür, yani gerçek otokorelasyon sıfırdır." Bu varsayım doğruysa bir çubuğun bandın dışına çıkma olasılığı yalnızca %5'tir. Bir çubuk bandın dışına çıkarsa o gecikmedeki korelasyona istatistiksel olarak **anlamlı** deriz; yani tesadüfle açıklanması zordur.
 
-**Açıklama:** Mavi bandı bir **"tesadüf bölgesi"** olarak düşünün. Tamamen rastgele sayılardan oluşan bir seride bile korelasyonlar tam olarak sıfır çıkmaz; şans eseri küçük pozitif ya da negatif değerler görülür. Bant, bu şans dalgalanmasının %95 olasılıkla ulaşabileceği sınırı gösterir:
+**Açıklama:** Mavi bandı bir **"tesadüf bölgesi"** olarak düşünün: Bant, şans dalgalanmasının %95 olasılıkla ulaşabileceği sınırı gösterir:
 
 - Çubuk **bandın içindeyse**: "Bu kadarını şans da üretebilirdi." Çubuk yorumlanmaz.
 - Çubuk **bandın dışındaysa**: "Bunu şansla açıklamak zor; gerçek bir ilişki var." Çubuk yorumlanır.
@@ -3831,7 +3822,7 @@ Pay: $3 + (-2) + (-4) + (-8) = -11$. Payda: $9 + 1 + 4 + 4 + 16 = 34$.
 \end{aligned}
 ```
 
-Pay 4 terimden ($t = 2, \dots, 5$), payda 5 terimden oluşur; bu, Tanım 2'deki toplam sınırlarının doğrudan uygulamasıdır. R'da `acf(c(10, 12, 15, 11, 17), plot = FALSE)$acf[2]` aynı sonucu (−0.3235) verir: `c(...)` beş sayıdan bir vektör kurar, `plot = FALSE` grafik yerine sayıları döndürür, `$acf` sonucun korelasyon değerlerini içeren parçasını alır, `[2]` de bu değerlerin ikincisini seçer. İkinci elemanı seçmemizin nedeni, R'da sayımın 1'den başlaması ve ilk elemanın lag-0 olmasıdır (ayrıntı için Bölüm 6.4.3'teki indeks tablosu).
+Pay 4 terimden ($t = 2, \dots, 5$), payda 5 terimden oluşur; bu, Tanım 2'deki toplam sınırlarının doğrudan uygulamasıdır. R'da `acf(c(10, 12, 15, 11, 17), plot = FALSE)$acf[2]` aynı sonucu (−0.3235) verir; bu yazımın parçaları (`plot = FALSE`, `$acf`, neden `[2]`) Bölüm 6.3.7'de satır satır açıklanır.
 
 Aynı dört çiftin (12, 10), (15, 12), (11, 15), (17, 11) sıradan Pearson korelasyonu ise −0.448'dir (R'da `cor(c(12, 15, 11, 17), c(10, 12, 15, 11))`). Fark, Bölüm 6.3.3'teki notta anlatılan iki ayrıntıdan gelir: ACF formülü her iki sütun için de beş günün ortalamasını (13) kullanır ve paydada beş terim toplar. Bu kadar kısa bir seride fark büyüktür; yüzlerce gözlemde önemsizleşir.
 
@@ -3994,7 +3985,7 @@ Lag-1 ACF: 0.1
 
 Bu R kodu, Python kodunun yaptığını yapar: Beş sayılık seri için örneklem otokorelasyonlarını hesaplar ve bunlardan yalnızca lag-1 değerini ekrana yazar. Kodu satır satır okuyalım:
 
-1. `data <- c(20, 22, 21, 23, 24)`: `c()` (*combine*, birleştir) virgülle ayrılmış değerleri tek bir **vektörde**, yani aynı türden değerlerin sıralı listesinde toplar. Sonuç beş sayılık bir vektördür ve `data` adına kaydedilir. Bu sıradan bir vektördür, `ts` nesnesi değildir; `acf()` ikisiyle de çalışır. (`data`, R'daki `data()` fonksiyonuyla aynı adı taşır. R, parantezli kullanımda fonksiyonu, parantezsiz kullanımda bu vektörü bulduğu için sorun çıkmaz; yine de kendi kodlarınızda `veri` gibi ayrı bir ad seçmek karışıklığı önler.) Satır sonundaki `#` ile başlayan kısım yorumdur.
+1. `data <- c(20, 22, 21, 23, 24)`: `c()` (5.1) beş sayıyı bir vektörde toplar; sonuç `data` adına kaydedilir. Bu sıradan bir vektördür, `ts` nesnesi değildir; `acf()` ikisiyle de çalışır. (`data`, R'daki `data()` fonksiyonuyla aynı adı taşır. R, parantezli kullanımda fonksiyonu, parantezsiz kullanımda bu vektörü bulduğu için sorun çıkmaz; yine de kendi kodlarınızda `veri` gibi ayrı bir ad seçmek karışıklığı önler.)
 2. `acf_result <- acf(data, plot = FALSE)`: `acf()` otokorelasyonları Bölüm 6.3.3'teki Tanım 2 ile hesaplar. Argümanlar:
    - `data`: Otokorelasyonu hesaplanacak seri (konumsal argüman).
    - `plot = FALSE`: Varsayılan `plot = TRUE` grafiği çizer; `FALSE` grafik çizmeden yalnızca sonuçları döndürür, çünkü burada sayıya ihtiyacımız var.
@@ -4122,8 +4113,6 @@ Formülün sezgisi: $\rho_1^2 = \rho_1 \times \rho_1$ ("ro bir kare"), "$x_{t-2}
 
 - **Zincirden fazlası yok:** $\rho_1 = 0.5$, $\rho_2 = 0.25$ (yukarıdaki AR(1) örneği). Zincirin ürettiği kısım $0.5^2 = 0.25$; $\phi_{22} = (0.25 - 0.25)/(1 - 0.25) = 0/0.75 = 0$. Lag-2'nin doğrudan etkisi yoktur.
 - **Zincirden fazlası var:** $\rho_1 = 0.5$, $\rho_2 = 0.6$. Zincir yalnızca 0.25'i açıklar, geriye $0.6 - 0.25 = 0.35$ kalır; $\phi_{22} = 0.35/0.75 \approx 0.47$. Evvelsi günün bugüne dünden bağımsız, kendine ait bir katkısı vardır (ör. iki günde bir tekrarlanan bir etki).
-
-AR(1) sürecinde her zaman $\rho_2 = \rho_1^2$ olduğundan $\phi_{22} = 0$ çıkar.
 
 Daha büyük $h$ değerleri için PACF, Yule-Walker denklemleri ya da Durbin-Levinson özyinelemesi ile ACF değerlerinden hesaplanır. Bu adlar, yukarıdaki "zincirin açıkladığını çıkar" fikrini $h = 3, 4, \dots$ için de uygulayan hesap tarifleridir; R ve Python bunu otomatik yapar. Güven sınırları ACF'deki gibi yaklaşık $\pm 1.96/\sqrt{T}$'dir.
 
@@ -4260,7 +4249,7 @@ par(mfrow = c(1, 1))  # Grafik düzenini eski hâline getir
 
 Bu kod `USgas` serisinin ACF ve PACF grafiklerini aynı pencerede alt alta çizer; iki grafiği birlikte okumak, Bölüm 6.6'da göreceğimiz model imzalarını tanımanın temelidir. Kodu satır satır okuyalım:
 
-1. `par(mfrow = c(2, 1))`: `par()` (*parameters*) R'ın temel grafik ayarlarını değiştirir. `mfrow` (*multi-figure by row*) çizim alanını bir ızgaraya böler; değeri `c(2, 1)` iki sayılık bir vektördür: 2 satır, 1 sütun. Ardından çizilen grafikler bu kutulara satır satır, yani burada alt alta yerleşir. Ayar, değiştirilene kadar geçerli kalır.
+1. `par(mfrow = c(2, 1))`: Çizim alanını 2 satır × 1 sütunluk bir ızgaraya böler (`par()` ve `mfrow`, 3.2); sonraki iki grafik alt alta yerleşir. Ayar, değiştirilene kadar geçerli kalır.
 2. `acf(USgas, lag.max = 36, main = "Otokorelasyon Fonksiyonu (ACF)")`: Üst kutuya ACF grafiğini çizer (Bölüm 6.3.7). `lag.max = 36` üç yıllık gecikmeye kadar bakmamızı sağlar; böylece 12, 24 ve 36. gecikmelerdeki mevsimsel tepeler görünür. `main` başlığı belirler. `USgas,` sonrasındaki fazladan boşluk yalnızca alt satırla hizalama içindir.
 3. `pacf(USgas, lag.max = 36, main = "Kısmi Otokorelasyon Fonksiyonu (PACF)")`: Aynı ayarlarla alt kutuya PACF grafiğini çizer. PACF lag-0 içermediği için (Bölüm 6.4.3) bu grafikte $h = 0$ çubuğu yoktur; çubuklar lag-1'den başlar.
 4. `par(mfrow = c(1, 1))`: Düzeni tek grafiğe geri döndürür; unutulursa sonraki grafikler de yarım ekrana çizilir.
@@ -4271,7 +4260,7 @@ Kod ekrana sayı yazmaz; iki panelli bir grafik açar. Her panelde dikey çubukl
 
 *Şekil 6.8 — `USgas` serisinin ilk 36 gecikmedeki ACF (üstte) ve PACF (altta) değerleri. Mavi kesikli çizgiler $`\pm 1.96/\sqrt{T} \approx \pm 0.127`$ sınırlarıdır; gri çubuklar bu sınırların içinde kalır. Turuncu çubuklar mevsimsel gecikmelerdir (12, 24, 36).*
 
-> **Not —** R'da `ts` nesnesinin ACF grafiğinde yatay eksen **ay cinsinden değil, mevsim (yıl) cinsinden** çizilir: 1.0 işareti lag-12'yi, 2.0 işareti lag-24'ü gösterir. `acf(as.numeric(USgas))` yazarsanız eksen gecikme sayısıyla (1, 2, …, 36) etiketlenir, çünkü `as.numeric()` zaman bilgisini atar. Şekil 6.6 ve 6.8 bu ikinci gösterimi kullanır.
+> **Not —** Yatay eksenin yıl cinsinden olduğunu (1.0 = lag-12, 2.0 = lag-24) 6.3.5 ve 6.3.7'de gördük. Eksenin gecikme sayısıyla (1, 2, …, 36) etiketlenmesini isterseniz `acf(as.numeric(USgas))` yazın; `as.numeric()` zaman bilgisini atar. Şekil 6.6 ve 6.8 bu ikinci gösterimi kullanır.
 
 **Yorum:**
 
@@ -4483,8 +4472,8 @@ par(mfrow = c(1, 1))
 
 Bu kod üç yapay seri üretir (beyaz gürültü, AR(1) ve MA(1)) ve her birinin ACF ve PACF grafiğini tek bir pencerede, altı panel hâlinde yan yana çizer. Modeli bildiğimiz serilerle çalıştığımız için, Bölüm 6.6.2 ve 6.6.3'teki kuralların sonlu bir örneklemde nasıl göründüğünü doğrudan kontrol edebiliriz. Kodu satır satır okuyalım:
 
-1. `set.seed(42)`: Bilgisayarın ürettiği "rastgele" sayılar aslında bir başlangıç değerinden (*seed*, tohum) hesaplanan uzun bir sayı dizisidir. `set.seed()` bu başlangıç noktasını sabitler; böylece kodu her çalıştırdığınızda aynı seriler üretilir ve sonuçlar (ör. 0.72 ve 0.48) tekrarlanabilir olur. 42 yerine başka bir sayı farklı ama yine sabit seriler verir. Tohum bir kez ayarlanır ve sonraki üç satırın hepsini etkiler: Üç seri aynı sayı dizisinin art arda gelen parçalarını kullanır, bu yüzden satırların sırası değişirse seriler de değişir.
-2. `wn <- rnorm(400)`: `rnorm()` (*random normal*) normal dağılımdan bağımsız rastgele sayılar çeker. Tek argüman `400` kaç sayı çekileceğidir; ortalama (`mean`) ve standart sapma (`sd`) yazılmadığı için varsayılanları, yani 0 ve 1 kullanılır. Sonuç 400 sayılık sıradan bir vektördür ve `wn` (*white noise*, beyaz gürültü) adına kaydedilir. Sayılar birbirinden bağımsız çekildiği için bu seri tanım gereği beyaz gürültüdür (Bölüm 6.6.1).
+1. `set.seed(42)`: Rastgele sayı üretecinin başlangıç noktasını (*tohum*) sabitler (3.2); böylece sonuçlar (ör. 0.72 ve 0.48) her çalıştırmada aynı çıkar. Tohum bir kez ayarlanır ve sonraki üç satırın hepsini etkiler: Üç seri aynı sayı dizisinin art arda gelen parçalarını kullanır, bu yüzden satırların sırası değişirse seriler de değişir.
+2. `wn <- rnorm(400)`: `rnorm()` (*random normal*) ortalaması 0, standart sapması 1 olan normal dağılımdan 400 bağımsız rastgele sayı çeker (3.2). Sonuç `wn` (*white noise*, beyaz gürültü) adına kaydedilir; sayılar birbirinden bağımsız olduğu için bu seri tanım gereği beyaz gürültüdür (Bölüm 6.6.1).
 3. `ar1 <- arima.sim(model = list(ar = 0.7), n = 400)`: `arima.sim()` (*simulate*, benzetim) kendisine verilen modelden yapay bir seri üretir. Argümanlar:
    - `model = list(ar = 0.7)`: Modelin tarifi. `list()` farklı ayarları adlarıyla bir arada tutan bir kaptır; içindeki `ar = 0.7` "tek AR katsayısı 0.7 olan model", yani $\phi = 0.7$ ile AR(1) demektir. İki katsayılı bir AR(2) için `ar = c(0.5, 0.2)` yazılırdı. AR(1) katsayısının mutlak değeri 1'den küçük olmalıdır (Bölüm 6.6.1); durağan olmayan bir model verilirse (ör. `ar = 1.1`) fonksiyon "'ar' part of model is not stationary" hatasıyla durur.
    - `n = 400`: Üretilecek serinin uzunluğu.
@@ -4638,7 +4627,7 @@ Burada:
 - $x_t$ tahmin etmeye çalıştığımız bugünkü değerdir; $x_{t-1}, x_{t-2}, \dots$ serinin geçmiş değerleridir.
 - $\phi_1, \dots, \phi_p$ geçmiş değerlerin bugünü ne kadar etkilediğini gösteren katsayılardır.
 - $c$ **sabit terimdir** (*constant*): Her dönem değişmeden eklenen bir sayıdır ve serinin hangi seviye etrafında dalgalanacağını belirler. Durağan bir AR(p) sürecinin uzun dönem ortalaması $\mu = c / (1 - \phi_1 - \dots - \phi_p)$'dir. Bunu görmek için serinin hiç şok almadan hep aynı $\mu$ değerinde durduğunu düşünün: AR(2) için $\mu = c + \phi_1 \mu + \phi_2 \mu$ olur; $\mu$'lü terimleri sola toplayınca $\mu (1 - \phi_1 - \phi_2) = c$ bulunur. Yani $c$ ortalamanın kendisi değil, ortalamayı belirleyen bir sayıdır; $c = 0$ ise seri sıfır etrafında dalgalanır.
-- $\varepsilon_t$ modelin açıklayamadığı, öngörülemeyen rastgele şoktur. Ortalaması sıfır (artı ve eksi sürprizler uzun vadede birbirini götürür), varyansı sabit (şokların tipik büyüklüğü zamanla değişmez) ve kendi geçmişiyle ilişkisiz olduğu varsayılır: $\varepsilon_t \sim \mathrm{WN}(0, \sigma^2)$.
+- $\varepsilon_t$ modelin açıklayamadığı, öngörülemeyen rastgele şoktur: Bölüm 6.6.1'de tanımladığımız beyaz gürültü, $\varepsilon_t \sim \mathrm{WN}(0, \sigma^2)$.
 
 > **Simge notu:** $`\sim`$ *(tilda)*: "… dağılımına sahiptir" · $`\mathrm{WN}(0, \sigma^2)`$: ortalaması 0, varyansı $`\sigma^2`$ *(sigma kare)* olan beyaz gürültü (white noise) · $`\mu`$ *(mü)*: serinin uzun dönem ortalaması · $`\cdot`$: çarpma işareti
 
@@ -4715,7 +4704,7 @@ AR modelindeki $c$'den farklı olarak MA modelinde sabit terim doğrudan serinin
 
 Şok 1. dönemde tam gücüyle girer (+10), 2. dönemde yalnızca %60'ı kalır (+6), 3. dönemde model onu artık "hatırlamaz" ve seri ortalamasına döner. Ok atışı benzetmesiyle: Atıcı yalnızca bir önceki atışın sapmasını hatırlar ve nişanını ona göre düzeltir; iki atış öncesini unutmuştur. Aynı şok, ortalaması 100 olan bir AR(1) modelinde ($\phi_1 = 0.6$) 110, 106, 103.6, 102.16, … biçiminde **yavaş yavaş** söner ama hiçbir zaman tam sıfırlanmaz, çünkü her değer bir öncekinden pay alır. MA ile AR arasındaki temel fark budur.
 
-$\theta$ katsayıları geçmiş şokların bugünkü değeri ne kadar etkilediğini belirler. İsim de bu formülden gelir: Model, geçmiş şokların "kayan" bir ağırlıklı toplamını kullanır. MA süreci **kısa hafızalıdır**: Bir şok, ortaya çıktığı dönemden sonra yalnızca $q$ dönem daha etkisini sürdürür, sonra tamamen kaybolur. Bu yüzden MA(q) sürecinin ACF'si $q$ gecikmeden sonra kesilir (Bölüm 6.6.2).
+$\theta$ katsayıları geçmiş şokların bugünkü değeri ne kadar etkilediğini belirler. İsim de bu formülden gelir: Model, geçmiş şokların "kayan" bir ağırlıklı toplamını kullanır. MA süreci bu yüzden **kısa hafızalıdır** ve ACF'si $q$ gecikmeden sonra kesilir (Bölüm 6.6.2).
 
 > **Hemen deneyin 7.1.2 · MA(1) üret, katsayıyı geri bul** (Python, ~5 dk)
 >
@@ -4863,11 +4852,11 @@ Mevsimsel seriler için ayrıca **mevsimsel fark** alınır: $\nabla_s x_t = x_t
 
 Örneğin ARIMA(1,1,0), "seriyi bir kez farkla, farkı alınmış seriye AR(1) uygula" demektir. ARIMA(0,0,0) ise saf beyaz gürültüdür; ARIMA(0,1,0) rastgele yürüyüştür.
 
-**Gecikme operatörüyle yazım.** ARIMA denklemleri açık hâliyle uzun ve okunaksızdır. Bölüm 2.1'de tanıttığımız gecikme (backshift) operatörü $B$ ile bu denklemleri çok kısa yazabiliriz. Bölüm 3.2'de gördüğümüz gibi $B$ bir sayı değil, bir **komuttur**: "önündeki seriyi bir dönem geri kaydır" der ($B x_t = x_{t-1}$; bazı kaynaklarda aynı operatör $L$ harfiyle, *lag* olarak yazılır). Komut iki kez uygulanırsa iki dönem geri gidilir: $B^2 x_t = B(B x_t) = B x_{t-1} = x_{t-2}$. Buradaki üst simge (**üs**) komutun kaç kez uygulandığını gösterir; genel olarak $B^k x_t = x_{t-k}$'dir.
+**Gecikme operatörüyle yazım.** ARIMA denklemleri açık hâliyle uzun ve okunaksızdır. Bölüm 2.1'de tanıttığımız gecikme (backshift) operatörü $B$ ile bu denklemleri çok kısa yazabiliriz. Hatırlatma: $B$ bir sayı değil, "önündeki seriyi bir dönem geri kaydır" komutudur; $B x_t = x_{t-1}$ ve genel olarak $B^k x_t = x_{t-k}$'dir (bazı kaynaklarda $L$).
 
 > **Simge notu:** $`B`$ *(be)*: gecikme operatörü, seriyi bir adım geriye kaydırır · $`B^k`$ *(be üzeri k)*: $`k`$ adım geri kaydırma
 
-Önce AR ve MA kısımlarını birer **polinom** olarak tanımlarız. Polinom, bir bilinmeyenin kuvvetlerinin sayılarla çarpılıp toplanmasıyla oluşan ifadedir. Örneğin $1 - 0.6z - 0.16z^2$ bir polinomdur: $z$ bilinmeyen, 0.6 ve 0.16 katsayılar; en büyük üs 2 olduğu için **2. dereceden** bir polinomdur. Bilinmeyenin yerinde $B$ durduğunda ortaya bir "gecikme polinomu" çıkar:
+Önce AR ve MA kısımlarını birer **polinom** olarak tanımlarız. Polinomu Bölüm 3.2'den hatırlayın: Örneğin $1 - 0.6z - 0.16z^2$, en büyük üssü 2 olduğu için **2. dereceden** bir polinomdur. Bilinmeyenin yerinde $B$ durduğunda ortaya bir "gecikme polinomu" çıkar:
 
 ```math
 \begin{aligned}
@@ -4938,7 +4927,7 @@ $p$. dereceden bir polinom denkleminin $p$ tane kökü vardır (bazıları aynı
 
 > **Durağanlık kuralı:** AR kısmının karakteristik denkleminin **bütün kökleri mutlak değerce 1'den büyükse** ($`\lvert z \rvert > 1`$, yani "birim çemberin dışında") süreç durağandır. Köklerden biri tam 1 ise birim kök vardır; mutlak değeri 1'den küçük bir kök patlayan bir seri demektir.
 
-Mutlak değer sayının sıfıra uzaklığıdır: $\lvert -5 \rvert = 5$, $\lvert 1.25 \rvert = 1.25$. Kökler sıradan (gerçel) sayılar olduğunda kural "kök, sayı doğrusunda −1 ile 1 arasında olmamalı" demektir; karmaşık köklerde bu sınırın neden bir çembere dönüştüğü Bölüm 3.2'de (Şekil 3.6) gösterilmişti. AR(p)'de yeni olan, **tek bir kökün değil, bütün köklerin** bu koşulu sağlaması gerektiğidir.
+Kökler sıradan (gerçel) sayılar olduğunda kural "kök, sayı doğrusunda −1 ile 1 arasında olmamalı" demektir; karmaşık köklerde bu sınırın neden bir çembere dönüştüğü Bölüm 3.2'de (Şekil 3.6) gösterilmişti. AR(p)'de yeni olan, **tek bir kökün değil, bütün köklerin** bu koşulu sağlaması gerektiğidir.
 
 **Örnek 1 (durağan AR(2)).** 7.1.1'deki modelin ($\phi_1 = 0.6$, $\phi_2 = 0.16$) karakteristik denklemi şudur:
 
@@ -4982,14 +4971,10 @@ Mod(polyroot(c(1, -0.6, -0.16)))        # köklerin mutlak değerleri
 
 Bu iki satır, Örnek 1'de elle bulduğumuz kökleri (1.25 ve −5) bilgisayara buldurur ve "bütün kökler birim çemberin dışında mı?" sorusunu doğrudan cevaplar. Elle çarpanlara ayıramayacağımız yüksek dereceli polinomlarda da aynı iki satır işe yarar. Kodu satır satır okuyalım:
 
-1. `round(polyroot(c(1, -0.6, -0.16)), 4)`: İç içe yazılmış fonksiyonlar içten dışa okunur.
-   - `c(1, -0.6, -0.16)`: `c()` (*combine*, birleştir) virgülle ayrılmış sayıları tek bir **vektörde**, yani sıralı bir sayı listesinde toplar. Sıra önemlidir: Birinci eleman sabit terim (1), ikincisi $z$'nin katsayısı (−0.6), üçüncüsü $z^2$'nin katsayısıdır (−0.16); işaretler polinomdaki gibi yazılır. Sırayı ters çevirmek (`c(-0.16, -0.6, 1)`) başka bir polinomun köklerini verir.
-   - `polyroot(...)`: Katsayıları verilen polinomu sıfıra eşitleyen $z$ değerlerini, yani kökleri hesaplar; 2. dereceden polinom için 2 kök döndürür. Sonuç her zaman **karmaşık sayı** (`complex`) türünde bir vektördür, çünkü bazı polinomların kökleri sıradan sayılar arasında bulunmaz (Bölüm 3.2).
-   - `round(..., 4)`: İlk argümandaki sayıları, ikinci argüman kadar ondalık basamağa yuvarlar. Argümanlar burada isimsiz, yani **sıralarına göre** verilmiştir: R ilk değeri yuvarlanacak sayı, ikincisini basamak sayısı (`digits`) olarak anlar; `round(x, digits = 4)` yazmakla aynıdır. Yuvarlamanın nedeni, bilgisayarın ondalık hesaplarda bıraktığı çok küçük kırıntılardır: Yuvarlamadan R kökleri `1.25+4.493859e-15i` ve `-5.00-4.493859e-15i` olarak yazar. `e-15` "çarpı 10 üzeri −15" demektir; yani 0.0000000000000045 gibi pratikte sıfır olan bir sayıdır.
-   - Satırın sonundaki `#` işaretinden sonrası **yorumdur**: R onu çalıştırmaz, yalnızca okuyana not düşer.
-2. `Mod(polyroot(c(1, -0.6, -0.16)))`: Aynı kökleri yeniden hesaplar ve `Mod()` (*modulus*) ile her birinin mutlak değerini, yani sıfıra uzaklığını alır. `Mod()` karmaşık sayılarda da çalıştığı için birim çember kuralını karmaşık kökler için de bu satırla denetleyebiliriz. Sonuç sıradan sayılardan oluşan bir vektördür.
+1. `round(polyroot(c(1, -0.6, -0.16)), 4)`: İçten dışa okunur. `c(1, -0.6, -0.16)` katsayıları 3.2'deki kuralla, sabit terimden başlayarak sıralar: 1 sabit terim, −0.6 $z$'nin, −0.16 $z^2$'nin katsayısıdır; sırayı ters çevirmek (`c(-0.16, -0.6, 1)`) başka bir polinomun köklerini verir. `polyroot()` kökleri her zaman karmaşık sayı olarak döndürür (Bölüm 3.2). `round(..., 4)` sonucu dört ondalığa yuvarlar; yuvarlamasaydık R kökleri `1.25+4.493859e-15i` gibi, sanal kısmında pratikte sıfır olan hesap kırıntılarıyla yazardı (3.2'deki `e-20` örneği gibi).
+2. `Mod(polyroot(c(1, -0.6, -0.16)))`: Aynı köklerin sıfıra uzaklığını (mutlak değerini) verir; 3.2'de olduğu gibi birim çember kuralını, karmaşık kökler için de, doğrudan denetler.
 
-Çıktıyı okuyalım. Satır başındaki `[1]`, o satırın vektörün 1. elemanıyla başladığını gösterir; uzun bir vektör birden çok satıra bölündüğünde sonraki satırlar `[26]` gibi, o satırdaki ilk elemanın sırasıyla başlar. İlk çıktıdaki `1.25+0i` ve `-5.00+0i`, "gerçel kısmı 1.25 (ya da −5), sanal kısmı 0" olan karmaşık sayılardır; `i` sanal birimi gösterir. `+0i`, sanal kısmın sıfır, yani köklerin sıradan sayılar olduğunu söyler ve kökler elle bulduğumuz 1.25 ve −5 ile aynıdır. İkinci çıktıdaki `1.25 5.00` köklerin mutlak değerleridir; ikisi de 1'den büyük olduğu için model durağandır. Örnek 2'deki birim köklü model için `Mod(polyroot(c(1, -1.5, 0.5)))` yazsaydık `[1] 1 2` görürdük: Tam 1'e eşit bir değer birim kökün işaretidir.
+Çıktıyı okuyalım. İlk çıktıdaki `1.25+0i` ve `-5.00+0i`, sanal kısmı 0 olan, yani sıradan sayı olan köklerdir (`i` sanal birimdir); elle bulduğumuz 1.25 ve −5 ile aynıdır. İkinci çıktıdaki `1.25 5.00` köklerin mutlak değerleridir; ikisi de 1'den büyük olduğu için model durağandır. Örnek 2'deki birim köklü model için `Mod(polyroot(c(1, -1.5, 0.5)))` yazsaydık `[1] 1 2` görürdük: Tam 1'e eşit bir değer birim kökün işaretidir.
 
 **Not —** MA kısmı için de benzer bir koşul vardır: $\theta(z) = 0$ denkleminin kökleri de birim çemberin dışında olmalıdır. Bu koşula **tersinirlik** (*invertibility*) denir ve geçmiş şokların gözlenen veriden tek bir şekilde geri hesaplanabilmesini sağlar. R ve Python model kurarken bu koşulları kendileri denetler.
 
@@ -5380,8 +5365,8 @@ Testin fikri şöyledir: Seriden ortalamasını (trend sürümünde trend çizgi
 2. **Sabit ve trend içeren bir ADF regresyonunda, yaklaşık 140 gözlemle `Dickey-Fuller = -2.10` bulundu. Birim kök %5 düzeyinde reddedilir mi?**
    → Hayır. −2.10, %5 kritik değeri olan −3.44'ten daha negatif değildir. (Bu, 7.6.2'de `AirPassengers` için 13 gecikmeyle bulunan sonuçtur; p ≈ 0.53.)
 
-3. **Karakteristik denklemi $`(1 - z)(1 - 0.25z) = 0`$ olan bir AR(2) süreci için ne söylenebilir?**
-   → Kökler $`z = 1`$ ve $`z = 1/0.25 = 4`$'tür. Bir birim kök vardır; seri durağan değildir. Model $`(1 - 0.25B)(1 - B)\, x_t = \varepsilon_t`$ biçiminde yazılabilir: Bir kez fark alınınca geriye $`\phi = 0.25`$ olan durağan bir AR(1) kalır, yani model ARIMA(1,1,0)'dır.
+3. **Karakteristik denklemi $`(1 - z)(1 - 0.4z) = 0`$ olan bir AR(2) süreci için ne söylenebilir?**
+   → Kökler $`z = 1`$ ve $`z = 1/0.4 = 2.5`$'tir. Bir birim kök vardır; seri durağan değildir. Model $`(1 - 0.4B)(1 - B)\, x_t = \varepsilon_t`$ biçiminde yazılabilir: Bir kez fark alınınca geriye $`\phi = 0.4`$ olan durağan bir AR(1) kalır, yani model ARIMA(1,1,0)'dır.
 
 4. **Bir modelin artıkları için Ljung-Box p-değeri 0.233 çıktı. Bu iyi mi kötü mü?**
    → İyi. $`H_0`$ "artıklarda otokorelasyon yok" iddiasıdır ve reddedilmemiştir; artıklar beyaz gürültüden ayırt edilemiyor.
@@ -5397,7 +5382,7 @@ Testin fikri şöyledir: Seriden ortalamasını (trend sürümünde trend çizgi
 > Bu bölümdeki R kodlarının tamamı bu dosyada. RStudio'da açıp satır satır çalıştırabilir ya da depo kök dizininde `Rscript Codes/R/ch07_sarima_airpassengers.R` komutunu kullanabilirsiniz.
 
 
-Şimdi Box-Jenkins adımlarını R üzerinde `AirPassengers` veri setiyle uygulayalım. Bu veri seti belirgin bir trend, mevsimsellik ve zamanla artan varyans içerdiği için öğretici bir örnektir. Kod bloklarında `#` ile başlayan satırlar R'ın çalıştırmadığı açıklamalardır (**yorum**); `#>` ile başlayan satırlar ise kodu çalıştırdığınızda ekranda göreceğiniz çıktıları gösterir.
+Şimdi Box-Jenkins adımlarını R üzerinde `AirPassengers` veri setiyle uygulayalım. Bu veri seti belirgin bir trend, mevsimsellik ve zamanla artan varyans içerdiği için öğretici bir örnektir. Kod bloklarındaki `#` (yorum) ve `#>` (çıktı) satırları Bölüm 2.6'daki gibi okunur.
 
 #### 7.6.1. Veriyi Görselleştirme
 
@@ -5417,11 +5402,11 @@ plot(AirPassengers, main = "AirPassengers Verisi: Trend ve Artan Varyans",
 
 Bu blok, bölüm boyunca kullanacağımız iki paketi yükler, `AirPassengers` verisini çağırır ve seriyi çizer; Box-Jenkins döngüsünün 0. adımı (hazırlık, 7.4) budur. Kodu satır satır okuyalım:
 
-1. `# Gerekli paketler` ve `# install.packages(c("forecast", "tseries"))`: İkisi de `#` ile başladığı için yorumdur ve çalıştırılmaz. İkinci satır bilerek yoruma çevrilmiştir: `install.packages()` bir paketi internetten indirip bilgisayara **bir kez** kurar; her çalıştırmada tekrarlamak gereksizdir. Paketler kurulu değilse satır başındaki `#` silinip satır bir kez çalıştırılır. Paket adları tırnak içinde yazılır, çünkü bunlar R'daki nesnelerin adları değil, indirilecek paketlerin adı olan metinlerdir; `c()` iki adı tek bir vektörde toplar, böylece iki paket tek komutla kurulur.
-2. `library(forecast)`: Kurulu `forecast` paketini bu oturuma yükler. Bölümde kullanacağımız `auto.arima()`, `forecast()`, `checkresiduals()`, `ndiffs()` ve `nsdiffs()` bu paketten gelir. Kurulum bir kez yapılır, ama `library()` her yeni R oturumunda yeniden çalıştırılmalıdır.
+1. `# Gerekli paketler` ve `# install.packages(c("forecast", "tseries"))`: Yorum satırlarıdır. İkincisi bilerek yoruma çevrilmiştir: Paketler kurulu değilse başındaki `#` silinip satır bir kez çalıştırılır (Bölüm 3.2); `c()` iki paket adını tek vektörde toplar, böylece ikisi tek komutla kurulur.
+2. `library(forecast)`: Kurulu `forecast` paketini bu oturuma yükler. Bölümde kullanacağımız `auto.arima()`, `forecast()`, `checkresiduals()`, `ndiffs()` ve `nsdiffs()` bu paketten gelir.
 3. `library(tseries)`: `adf.test()` ve `kpss.test()` durağanlık testlerini sağlayan `tseries` paketini yükler.
 4. `data(AirPassengers)`: R ile birlikte gelen `AirPassengers` veri setini çalışma alanına çağırır. Bu, Ocak 1949'dan Aralık 1960'a kadar 144 aylık uluslararası havayolu yolcu sayısını (bin kişi) tutan, frekansı 12 olan hazır bir `ts` nesnesidir (Bölüm 5.2.3); ayrıca dönüştürmeye gerek yoktur.
-5. `plot(AirPassengers, main = ..., ylab = ..., xlab = ..., col = "darkblue")`: `plot()` R'ın genel çizim fonksiyonudur; kendisine bir `ts` nesnesi verildiğinde yatay ekseni zaman olan bir çizgi grafiği çizer (Bölüm 6.1.1). Fonksiyona parantez içinde verilen girdilere **argüman** denir. İlk argüman (çizilecek seri) isimsiz, yani sırasıyla verilmiştir; diğerleri `isim = değer` biçiminde **isimli** argümanlardır ve sıraları önemli değildir: `main` grafik başlığını, `ylab` dikey eksenin, `xlab` yatay eksenin adını, `col` çizgi rengini belirler. Tırnak içindeki değerler metindir; `"darkblue"` R'ın tanıdığı renk adlarından biridir (koyu mavi). Komut ilk satırın sonundaki virgülden sonra ikinci satırda sürer: Parantez kapanmadığı sürece R komutun devam ettiğini anlar.
+5. `plot(AirPassengers, main = ..., ylab = ..., xlab = ..., col = "darkblue")`: `plot()` R'ın genel çizim fonksiyonudur; kendisine bir `ts` nesnesi verildiğinde yatay ekseni zaman olan bir çizgi grafiği çizer (Bölüm 6.1.1). İlk argüman (çizilecek seri) konumsal, diğerleri `isim = değer` biçiminde adlandırılmış argümanlardır (Bölüm 2.6): `main` grafik başlığını, `ylab` dikey eksenin, `xlab` yatay eksenin adını, `col` çizgi rengini belirler. Tırnak içindeki değerler metindir; `"darkblue"` R'ın tanıdığı renk adlarından biridir (koyu mavi). Komut ilk satırın sonundaki virgülden sonra ikinci satırda sürer: Parantez kapanmadığı sürece R komutun devam ettiğini anlar.
 
 Bu blok ekrana sayı yazmaz; çıktısı bir grafiktir (Şekil 7.1a). Grafikte üç şey hemen göze çarpar:
 
@@ -5476,17 +5461,15 @@ kpss.test(AirPassengers)
 
 Bu blok aynı seriye iki ADF testi ve bir KPSS testi uygular. Amaç hem durağanlık kararını sayılarla desteklemek hem de bir testin ayarlarının sonucu nasıl değiştirebildiğini görmektir. Kodu satır satır okuyalım:
 
-1. `adf.test(AirPassengers)`: `tseries` paketindeki ADF testini çalıştırır. Yalnızca seriyi vermek yeterlidir; yazmadığımız argümanlar **varsayılan** değerlerini, yani fonksiyonun kendiliğinden kullandığı değerleri alır. Bu fonksiyon 7.5'teki regresyonu her zaman **sabit ve trend terimiyle** kurar. Varsayılan `alternative = "stationary"`, 7.5'teki tek yönlü alternatif hipotezi ("seri durağandır") seçer. Gecikmeli fark sayısı `k` ise $(n - 1)$'in küp kökünün tam sayı kısmı olarak belirlenir. Sonuç bir test sonucu nesnesidir (`htest`); bir isme atanmadığı için doğrudan ekrana yazılır.
-2. `adf.test(AirPassengers, k = 13)`: Aynı test, bu kez `k` argümanı elle verilerek çalıştırılır. `k = 13`, regresyona 13 gecikmeli fark ($`\nabla x_{t-1}, \dots, \nabla x_{t-13}`$) ekler. 13'ün seçilme nedeni, 12 aylık mevsim uzunluğunu bir adım aşmasıdır: Böylece bu ayki değişimin bir yıl ve 13 ay önceki değişimlerle ilişkisi de denklemin içinde kalır ve hata terimine sızmaz. Satır sonundaki `#` sonrası bu nedeni not eden yorumdur. Bu testin çıktısı kısaltılmıştır; yalnızca değişen satır gösterilmiştir.
+1. `adf.test(AirPassengers)`: `tseries` paketindeki ADF testini çalıştırır. Varsayılan ayarlar Bölüm 3.2'deki mini uygulamada anlatılmıştı: Regresyon her zaman **sabit ve trend terimiyle** kurulur (7.5), alternatif hipotez tek yönlü "durağan"dır ve gecikmeli fark sayısı `k`, $(n - 1)$'in küp kökünün tam sayı kısmıdır.
+2. `adf.test(AirPassengers, k = 13)`: Aynı test, bu kez `k` argümanı elle verilerek çalıştırılır. `k = 13`, regresyona 13 gecikmeli fark ($`\nabla x_{t-1}, \dots, \nabla x_{t-13}`$) ekler. 13, 12 aylık mevsim uzunluğunu bir adım aşar; bu seçimin neden önemli olduğunu çıktının yorumunda tartışıyoruz. Bu testin çıktısı kısaltılmıştır; yalnızca değişen satır gösterilmiştir.
 3. `kpss.test(AirPassengers)`: KPSS testini çalıştırır. Varsayılan `null = "Level"` sıfır hipotezini "seri sabit bir seviye etrafında durağandır" olarak kurar (`null = "Trend"` yazılsaydı "trend çizgisi etrafında durağandır" sınanırdı).
 
 Çıktıyı satır satır okuyalım:
 
-- `Augmented Dickey-Fuller Test` ve `KPSS Test for Level Stationarity`: Hangi testin yapıldığını söyleyen başlıklardır. `data:  AirPassengers` testin hangi seriye uygulandığını gösterir.
 - `Dickey-Fuller = -7.3186`: 7.5'teki $\hat{\gamma} / \mathrm{s.e.}(\hat{\gamma})$ oranıdır ve kritik değerlerle (%1 için −4.03) karşılaştırılır.
 - `Lag order = 5`: Denkleme eklenen gecikmeli fark sayısı $k$. $n = 144$ için $(144 - 1)$'in küp kökü yaklaşık 5.23'tür ($5.23^3 \approx 143$); tam sayı kısmı 5'tir.
-- `p-value = 0.01` ve `Warning: p-value smaller than printed p-value`: `Warning` satırı R'ın **uyarı** mesajıdır; hata değildir, kod çalışmış ve sonuç üretmiştir. Burada "gerçek p-değeri, yazılan 0.01'den de küçüktür" demektir (7.5).
-- `alternative hypothesis: stationary`: Alternatif hipotezin durağanlık olduğunu hatırlatır (7.5'teki tek yönlü test).
+- `p-value = 0.01` ve `Warning: p-value smaller than printed p-value`: Gerçek p-değeri 0.01'den de küçüktür (uyarı hata değildir; Bölüm 3.2 ve 7.5).
 - İkinci testteki `Dickey-Fuller = -2.1008, Lag order = 13, p-value = 0.5345` satırı aynı biçimde okunur; `Lag order` artık elle verdiğimiz 13'tür. p-değeri 0.01 ile 0.99 arasında kaldığı için uyarı yoktur. Sonucun anlamını aşağıda tartışıyoruz.
 - `KPSS Level = 2.7395`: KPSS istatistiği. %1 kritik değeri 0.739 olduğundan p-değeri tablonun dışına, 0.01'in altına düşer; bu yüzden KPSS de `p-value = 0.01` yazıp aynı uyarıyı verir.
 - `Truncation lag parameter = 4`: KPSS'in serinin oynaklığını hesaplarken hesaba kattığı otokorelasyon gecikmesi sayısı ($4 \cdot (n/100)^{1/4}$'ün tam sayı kısmı; $n = 144$ için 4).
@@ -5523,7 +5506,7 @@ kpss.test(AP_stationary)
 
 Bu blok, 7.1.4'te anlatılan log dönüşümünü ve iki fark alma işlemini tek satırda uygular, sonucu çizer ve 7.6.2'deki testleri dönüştürülmüş seri üzerinde tekrarlar. Amaç, modele verilecek serinin artık durağan olduğunu göstermektir. Kodu satır satır okuyalım:
 
-1. `AP_stationary <- diff(diff(log(AirPassengers), lag = 12))`: `<-` R'da **atama** işaretidir: Sağdaki hesabın sonucunu soldaki isimle (`AP_stationary`) saklar; ekrana bir şey yazmaz. Sağ taraf iç içe üç fonksiyondan oluşur ve içten dışa okunur:
+1. `AP_stationary <- diff(diff(log(AirPassengers), lag = 12))`: Sonuç `<-` ile (atama, 2.6) `AP_stationary` adıyla saklanır. Sağ taraf iç içe üç fonksiyondan oluşur ve içten dışa okunur:
    - `log(AirPassengers)`: Her ayın değerinin doğal logaritmasını alır; sonuç yine 144 aylık bir `ts` nesnesidir.
    - `diff(..., lag = 12)`: `diff()` bir seriden farklar üretir; `lag` argümanı kaç adım önceki değerin çıkarılacağını söyler. `lag = 12`, her aydan 12 ay önceki değeri çıkarır (mevsimsel fark, $`\nabla_{12}`$), çünkü veri aylık ve mevsim 12 aydır.
    - En dıştaki `diff(...)`: `lag` yazılmadığı için varsayılan `lag = 1` ile her değerden bir önceki ayınkini çıkarır (normal fark, $`\nabla`$).
@@ -5562,7 +5545,7 @@ Bu iki satır, fark sayılarına testlere tek tek bakarak karar vermek yerine `f
 1. `nsdiffs(log(AirPassengers))`: Log seriye kaç kez **mevsimsel** fark ($D$) alınması gerektiğini önerir. Varsayılan `test = "seas"` yönteminde seri trend, mevsim ve kalan bileşenlerine ayrılır (Bölüm 6.2.3'teki `decompose()` fikrine benzer) ve mevsimsel desenin gücü 0 ile 1 arasında bir sayıyla ölçülür: 0 "mevsimsellik yok", 1 "kalan dalgalanmanın neredeyse tamamı mevsimsel" demektir. Güç 0.64 eşiğini aşarsa bir mevsimsel fark önerilir; `log(AirPassengers)` için güç yaklaşık 0.96'dır. Mevsim uzunluğunu (`m`) serinin frekansından (12) kendisi okur ve varsayılan `max.D = 1` nedeniyle en fazla 1 önerir. Satır sonundaki `#` sonrası yorumdur.
 2. `ndiffs(diff(log(AirPassengers), lag = 12))`: Mevsimsel farkı alınmış seriye kaç kez daha **normal** fark ($d$) gerektiğini önerir. İçteki `diff(log(AirPassengers), lag = 12)`, 7.6.3'teki mevsimsel farktır. `ndiffs()` varsayılan olarak KPSS testini (`test = "kpss"`, `alpha = 0.05`) tekrar tekrar uygular: Test durağanlığı reddederse bir fark alır ve yeniden dener; durağanlık reddedilmeyene kadar aldığı fark sayısını döndürür (en fazla `max.d = 2`). Sıra önemlidir: Önce mevsimsel fark kararı verilir, `ndiffs()` mevsimsel farkı alınmış seriye uygulanır.
 
-İki çıktı da `[1] 1`'dir. `[1]`, satırın sonucun 1. elemanıyla başladığını gösterir (burada sonuç tek elemanlıdır); 1 ise önerilen fark sayısıdır. Böylece $D = 1$ ve $d = 1$ kararını hem testlerle hem de bu fonksiyonlarla doğrulamış olduk.
+İki çıktı da `[1] 1`'dir: Önerilen fark sayısı 1'dir. Böylece $D = 1$ ve $d = 1$ kararını hem testlerle hem de bu fonksiyonlarla doğrulamış olduk.
 
 > **Hemen deneyin 7.6.3 · Kaç fark gerekir?** (R, ~3 dk)
 >
@@ -5940,7 +5923,7 @@ Orijinal seri  -> ADF p = 0.992, KPSS p = 0.010
 Durağanlaştırılmış seri -> ADF p = 0.0002, KPSS p = 0.100
 ```
 
-`adfuller(data)` tek bir sayı değil, bir **demet** (*tuple*: parantez içinde sıralanmış, değiştirilemeyen bir değer listesi) döndürür. Sırasıyla şunları içerir: test istatistiği, p-değeri, kullanılan gecikme sayısı, regresyondaki gözlem sayısı, kritik değerler sözlüğü (`{'1%': ...}` biçiminde anahtar–değer çiftleri) ve gecikme seçiminde kullanılan en iyi bilgi kriteri değeri. Orijinal seri için bu demet yaklaşık olarak (0.815, 0.992, 13, 130, {'1%': −3.48, '5%': −2.88, '10%': −2.58}, …) biçimindedir. Python'da sıra numarası 0'dan başladığı için `[1]` ikinci elemanı, yani p-değerini alır. `kpss(data, regression='c', nlags='auto')` de benzer bir demet döndürür (istatistik, p-değeri, gecikme sayısı, kritik değerler); `regression='c'` seviye durağanlığını sınar (R'daki `null = "Level"`), `nlags='auto'` gecikme sayısını veriden seçer. `print(f"... {adf_p:.3f}")` biçimindeki **f-dizesi** süslü parantez içindeki değişkeni metne yerleştirir; `:.3f` üç ondalık basamak gösterir.
+`adfuller(data)` tek bir sayı değil, bir **demet** (*tuple*: parantez içinde sıralanmış, değiştirilemeyen bir değer listesi) döndürür. Sırasıyla şunları içerir: test istatistiği, p-değeri, kullanılan gecikme sayısı, regresyondaki gözlem sayısı, kritik değerler sözlüğü (`{'1%': ...}` biçiminde anahtar–değer çiftleri) ve gecikme seçiminde kullanılan en iyi bilgi kriteri değeri. Orijinal seri için bu demet yaklaşık olarak (0.815, 0.992, 13, 130, {'1%': −3.48, '5%': −2.88, '10%': −2.58}, …) biçimindedir. Python'da sıra numarası 0'dan başladığı için `[1]` ikinci elemanı, yani p-değerini alır. `kpss(data, regression='c', nlags='auto')` de benzer bir demet döndürür (istatistik, p-değeri, gecikme sayısı, kritik değerler); `regression='c'` seviye durağanlığını sınar (R'daki `null = "Level"`), `nlags='auto'` gecikme sayısını veriden seçer. `print(f"...")` satırı Bölüm 6.3.7'deki f-dizesidir; `:.3f` üç ondalık basamak gösterir.
 
 `np.log(data).diff(12).diff().dropna()` satırı R'daki `diff(diff(log(...), lag = 12))` ile aynı işi soldan sağa zincir hâlinde yapar: log al, 12 aylık farkı al, 1 aylık farkı al. Fark alınamayan ilk 13 ay boş değer (`NaN`) olarak kalır; `.dropna()` bunları atar.
 
@@ -6097,7 +6080,7 @@ ARIMA Modeli RMSE Değeri: 47.87
 
 `auto_model.predict(n_periods=len(test_data))` eğitim döneminin sonundan itibaren 60 ay ileriye tahmin üretir (R'daki `forecast(fit, h = 60)` karşılığı). `np.asarray(...)` sonucu düz bir sayı dizisine çevirir; `pd.Series(..., index=test_data.index)` bu diziyi test dönemiyle aynı tarih etiketlerine sahip bir seriye dönüştürür, böylece gerçek değerlerle aynı grafikte doğru aylara oturur. `label=` her çizginin adını, `plt.legend()` bu adları gösteren açıklama kutusunu ekler. Son iki satırda `mean_squared_error(gerçek, tahmin)` hataların karelerinin ortalamasını hesaplar, `np.sqrt` karekökünü alarak sonucu yeniden yolcu birimine döndürür; bu, **RMSE**'dir.
 
-**Çıktının yorumu:** Grafikte yeşil tahmin çizgisinin trendi ve yaz tepelerini genel olarak izlediği, ancak gerçek değerlerin giderek daha fazla altında kaldığı görülür: Tahmin hataları hep aynı yöndedir ve yıllık ortalama hata 1956'da yaklaşık 18 bin yolcu iken 1960'ta 60'ı aşar (yaklaşık 63). Nedeni 7.7.4'teki model yapısından okunabilir: Model her ayın geçen yılın aynı ayından yaklaşık 26 bin yolcu fazla olacağını varsayar, oysa test döneminde bu yıllık artış ortalama 38.4 olmuştur. Yolcu sayısı yüzde olarak benzer hızla büyüdükçe artışın yolcu cinsinden büyüklüğü de büyür; sabit bir yıllık artış varsayan model geride kalır. Bizim denememizde RMSE yaklaşık **47.9** yolcu (bin kişi) çıktı. Bu değer, 60 aylık uzun bir ufukta ortalama hatanın büyüklüğünü kabaca özetler.
+**Çıktının yorumu:** Grafikte yeşil tahmin çizgisinin trendi ve yaz tepelerini genel olarak izlediği, ancak gerçek değerlerin giderek daha fazla altında kaldığı görülür: Tahmin hataları hep aynı yöndedir ve yıllık ortalama hata 1956'da yaklaşık 18 bin yolcu iken 1960'ta 60'ı aşar (yaklaşık 63). Nedeni 7.7.4'teki model yapısından okunabilir: Model her ayın geçen yılın aynı ayından yaklaşık 26 bin yolcu fazla olacağını varsayar, oysa test döneminde bu yıllık artış ortalama 38.4 olmuştur. Yolcu sayısı yüzde olarak benzer hızla büyüdükçe artışın yolcu cinsinden büyüklüğü de büyür; sabit bir yıllık artış varsayan model geride kalır. RMSE (yaklaşık 47.9 bin yolcu), 60 aylık uzun bir ufukta ortalama hatanın büyüklüğünü kabaca özetler.
 
 **Not —** Burada kullandığımız **RMSE** (Root Mean Squared Error) ve diğer hata metrikleri (MAE, MAPE) bir sonraki bölümde, Bölüm 8.2'de formülleri ve yorumlarıyla ayrıntılı olarak tanımlanacaktır. Şimdilik "küçük RMSE = daha iyi tahmin" demek yeterlidir.
 
@@ -6215,7 +6198,7 @@ Gelecekten geçmişe bilgi taşınmasına **veri sızıntısı** (data leakage) 
 >
 > <details><summary>Cevap</summary>
 >
-> `set.seed(2)` → 16.96, `set.seed(3)` → 13.79 (4 ve 5 ile de 15.83 ve 17.71). Hiçbiri 20'ye yaklaşmaz. Hangi aylar seçilirse seçilsin, komşu ayları görmek hatayı küçük gösterir. Kronolojik testte naive yöntemin 76'lık hatası ile karşılaştırınca, rastgele bölmenin bir modeli ne kadar "iyi" gösterebileceği açıkça görülür.
+> `set.seed(2)` → 16.96, `set.seed(3)` → 13.79 (4 ve 5 ile de 15.83 ve 17.71). Hiçbiri 20'ye yaklaşmaz. Hangi aylar seçilirse seçilsin, komşu ayları görmek hatayı küçük gösterir.
 >
 > </details>
 
@@ -6633,11 +6616,11 @@ cat(sprintf("MAE = %.2f   RMSE = %.2f   MAPE = %%%.2f\n", mae, rmse, mape))
 
 Bu blok 8.1'deki eğitim-test mantığını uygular: Veriyi tarihe göre ikiye böler, modeli yalnızca eğitim kısmıyla kurar, test yılını tahmin eder, tahminleri gerçek değerlerle yan yana koyar ve 8.2'deki üç metriği hesaplar. Kodu adım adım okuyalım:
 
-1. `# install.packages(c("forecast", "ggplot2"))`: Yorum satırıdır; paketler bilgisayarda kurulu değilse başındaki `#` silinip bir kez çalıştırılır (7.6.1). `library(forecast)` modelleme ve tahmin fonksiyonlarını (`auto.arima()`, `forecast()`, `naive()`, `snaive()`), `library(ggplot2)` ise bölümün sonundaki grafiği çizecek paketi bu oturuma yükler. Paketler bir kez kurulur, ama her yeni oturumda `library()` ile yeniden yüklenir.
-2. `train <- window(log(AirPassengers), end = c(1959, 12))`: İçten dışa okunur. `log(AirPassengers)` serinin her değerinin doğal logaritmasını alır. `window()` (Bölüm 5.4) bir `ts` nesnesinden zaman aralığı keser: `end = c(1959, 12)` "1959'un 12. ayında bitir" demektir; `start` verilmediği için kesim serinin başından (Ocak 1949) başlar. `c()` birden çok değeri yan yana koyup tek bir vektör yapar; burada (yıl, ay) çiftini oluşturur. Sonuç 132 aylık bir `ts` nesnesidir ve `<-` (atama) ile `train` adıyla saklanır. Satır sonundaki `#` sonrası, hangi ayların seçildiğini not eden yorumdur.
+1. `# install.packages(c("forecast", "ggplot2"))`: Yorum satırıdır; paketler bilgisayarda kurulu değilse başındaki `#` silinip bir kez çalıştırılır (7.6.1). `library(forecast)` modelleme ve tahmin fonksiyonlarını (`auto.arima()`, `forecast()`, `naive()`, `snaive()`), `library(ggplot2)` ise bölümün sonundaki grafiği çizecek paketi bu oturuma yükler.
+2. `train <- window(log(AirPassengers), end = c(1959, 12))`: İçten dışa okunur. `log(AirPassengers)` serinin her değerinin doğal logaritmasını alır. `window()` (Bölüm 5.4) bir `ts` nesnesinden zaman aralığı keser: `end = c(1959, 12)` "1959'un 12. ayında bitir" demektir; `start` verilmediği için kesim serinin başından (Ocak 1949) başlar. `c(1959, 12)` (yıl, ay) çiftidir. Sonuç 132 aylık bir `ts` nesnesidir ve `train` adıyla saklanır. Satır sonundaki `#` sonrası, hangi ayların seçildiğini not eden yorumdur.
 3. `test <- window(log(AirPassengers), start = c(1960, 1))`: Bu kez `start = c(1960, 1)` "1960'ın 1. ayından başla" der; `end` verilmediği için serinin sonuna (Aralık 1960) kadar gider. Sonuç 12 aylık `test` serisidir. Kesim **tarihe göre** yapıldığı için eğitim seti kesin olarak test setinden önce biter; 8.1.1'deki kronolojik ayrım budur. (`test  <-` içindeki fazladan boşluk yalnızca iki satırı alt alta hizalamak içindir; R boşlukları önemsemez.)
-4. `fit_train <- auto.arima(train, seasonal = TRUE)`: Yalnızca eğitim setine bakarak fark sayılarını ve (p, q)(P, Q) derecelerini seçer ve katsayıları kestirir (7.6.5). Fonksiyonun içine verilen `seasonal = TRUE` gibi `isim = değer` biçimindeki ifadelere **argüman** denir; fonksiyonun davranışını ayarlar. Sonuç `fit_train` adlı model nesnesidir. `print(fit_train)` bu modelin özetini ekrana yazar.
-5. `fc_test <- forecast(fit_train, h = length(test))`: Kurulan modelle `h` adım ileriye tahmin üretir (7.6.7). `length()` bir vektörün ya da serinin eleman sayısını verir; `length(test)` 12 olduğu için ufuk test dönemiyle birebir örtüşür. Sayıyı elle 12 yazmak yerine `length(test)` yazmak, test seti değişirse kodun kendiliğinden uyum sağlamasını sağlar. Sonuç birkaç parçadan oluşan bir `forecast` nesnesidir; `$` işareti bir nesnenin içinden adıyla parça çeker. `fc_test$mean` nokta tahminlerini, `fc_test$lower` ve `fc_test$upper` ise tahmin aralıklarını tutar.
+4. `fit_train <- auto.arima(train, seasonal = TRUE)`: Yalnızca eğitim setine bakarak fark sayılarını ve (p, q)(P, Q) derecelerini seçer ve katsayıları kestirir (7.6.5). Sonuç `fit_train` adlı model nesnesidir. `print(fit_train)` bu modelin özetini ekrana yazar.
+5. `fc_test <- forecast(fit_train, h = length(test))`: Kurulan modelle `h` adım ileriye tahmin üretir (7.6.7). `length()` bir vektörün ya da serinin eleman sayısını verir; `length(test)` 12 olduğu için ufuk test dönemiyle birebir örtüşür. Sayıyı elle 12 yazmak yerine `length(test)` yazmak, test seti değişirse kodun kendiliğinden uyum sağlamasını sağlar. Sonuç, 7.6.7'deki gibi `$mean` (nokta tahminleri), `$lower` ve `$upper` (tahmin aralıkları) parçalarını taşıyan bir `forecast` nesnesidir.
 6. `actual <- as.numeric(exp(test))` ve `predicted <- as.numeric(exp(fc_test$mean))`: Model log ölçekte çalıştığı için tahminler de log ölçektedir: Ocak 1960 için tahmin yaklaşık 6.039'dur ve bu sayı yolcu cinsinden bir anlam taşımaz. `exp()` (üstel fonksiyon, $e^x$, $e \approx 2.718$) logaritmanın tersidir ve değeri orijinal ölçeğe geri getirir: $\log(417) \approx 6.033$ iken $\exp(6.033) \approx 417$. Bu yüzden hem gerçek değerler hem tahminler `exp()` ile yolcu sayısına çevrilir; hatayı yolcu cinsinden ölçmek istiyorsak bu adım şarttır. `as.numeric()` `ts` nesnesinin zaman bilgisini atıp düz bir sayı vektörü bırakır; böylece `actual` (gerçek) ve `predicted` (tahmin), sıralarına göre eşleşen 12'şer elemanlı iki sayı vektörü olur.
 7. `comparison <- data.frame(Ay = month.abb, Gercek = actual, Tahmin = round(predicted, 1), Hata = round(actual - predicted, 1))`: `data.frame()` aynı uzunluktaki vektörleri sütun olarak yan yana koyup bir tablo (**veri çerçevesi**) oluşturur; her `isim = değer` çifti bir sütundur ve eşittirin solu sütunun adı olur. `month.abb` R'ın hazır İngilizce ay kısaltmaları vektörüdür (`"Jan"`, `"Feb"`, ...). `round(x, 1)` virgülden sonra bir basamağa yuvarlar. `actual - predicted` işlemi 12 farkı tek seferde hesaplar: R'da vektörler arasındaki işlemler eleman eleman yapılır (1. eleman 1. elemandan, 2. eleman 2. elemandan çıkarılır). Bu fark, 8.2'deki hata $e_t = y_t - \hat{y}_t$'dir. Parantez kapanmadığı için komut sonraki iki satırda sürer. `print(comparison)` tabloyu ekrana yazar.
 8. `mae <- mean(abs(actual - predicted))`: İçten dışa: Farkları al, `abs()` ile işaretlerini at (mutlak değer), `mean()` ile ortalamasını bul. Bu, 8.2.1'deki MAE'dir.
@@ -6649,7 +6632,6 @@ Bu blok 8.1'deki eğitim-test mantığını uygular: Veriyi tarihe göre ikiye b
 
 - `print(fit_train)` çıktısı 7.6.5'teki gibi okunur. `Series: train`, modelin eğitim serisine kurulduğunu gösterir. Seçilen model, Bölüm 7.6'da tüm veriyle bulunan **havayolu modeli** ARIMA(0,1,1)(0,1,1)[12] ile aynıdır; yalnızca katsayılar biraz farklıdır (`ma1 = -0.3484`, `sma1 = -0.5623`), çünkü model 1960'ı görmemiştir. Log likelihood ve AIC değerleri 7.6.5'tekilerle karşılaştırılamaz, çünkü farklı uzunlukta veriye kurulmuşlardır (bilgi kriterleri yalnızca aynı veri üzerinde karşılaştırılır, 7.4).
 - `comparison` tablosunda soldaki 1–12 sayıları satır numaralarıdır; R veri çerçevesinin satırlarını kendiliğinden numaralar. Üstteki `Ay`, `Gercek`, `Tahmin`, `Hata` başlıkları `data.frame()` içinde verdiğimiz sütun adlarıdır. `Hata` sütunundaki eksi değerler, modelin o ayı fazla tahmin ettiğini gösterir (8.2).
-- Son satır, `sprintf()` kalıbının doldurulmuş hâlidir: `MAE = 13.26   RMSE = 18.59   MAPE = %2.90`.
 
 **Çıktının yorumu:**
 
@@ -6782,7 +6764,7 @@ Grafikte mavi tahmin çizgisinin kırmızı gerçek çizgiyi yakından izlediği
 > Test set     -12.16 18.59 13.26 2.90 0.44
 > ```
 >
-> Test satırı, 8.3'te elle bulduğumuz sayılarla birebir aynıdır: RMSE = 18.59, MAE = 13.26, MAPE = 2.90, MASE = 0.44. `ME` (*mean error*) 8.2'deki yanlılıktır: −12.16, modelin 1960'ı ortalama 12 bin yolcu fazla tahmin ettiğini söyler (11 hatadan 11'i negatifti). İlk satır eğitim setindeki (örneklem içi) hatadır; test hatasının yaklaşık yarısıdır.
+> Test satırı, 8.3'te elle bulduğumuz sayılarla birebir aynıdır: RMSE = 18.59, MAE = 13.26, MAPE = 2.90, MASE = 0.44. `ME` (*mean error*) 8.2'deki yanlılıktır: −12.16, modelin 1960'ı ortalama 12 bin yolcu fazla tahmin ettiğini söyler (12 hatadan 11'i negatifti). İlk satır eğitim setindeki (örneklem içi) hatadır; test hatasının yaklaşık yarısıdır.
 >
 > **Şimdi siz:** `lambda = 0` argümanını silip modeli log dönüşümü olmadan kurun ve test satırını karşılaştırın. Hangi model seçildi, hata ne oldu?
 >
@@ -6847,12 +6829,12 @@ def evaluate_model(y_true, y_pred, model_name):
 
 **Açıklama:** Fonksiyon, R'daki `metrikler()` yardımcısının biraz daha kapsamlı Python karşılığıdır. Satırları sırayla okuyalım:
 
-- `import numpy as np`, NumPy kütüphanesini yükler ve ona kısa bir takma ad (`np`) verir; bundan sonra `np.sqrt()` gibi yazabiliriz. `from sklearn.metrics import ...` ise bir kütüphaneden yalnızca adı verilen fonksiyonları içeri alır.
+- İlk üç satır kütüphaneleri 7.7.1'deki gibi içe aktarır; `sklearn.metrics`'ten yalnızca iki hata fonksiyonu alınır.
 - `def evaluate_model(y_true, y_pred, model_name):` yeni bir fonksiyon tanımlar; parantez içindekiler fonksiyonun girdileridir ve alttaki girintili satırlar fonksiyonun gövdesidir. Üç tırnak (`"""`) arasındaki metin, fonksiyonun ne yaptığını anlatan açıklamadır (docstring); `help(evaluate_model)` yazınca görüntülenir.
 - `np.array(...).flatten()` girdileri tek boyutlu, düz bir sayı dizisine çevirir. Bu önemlidir, çünkü tahminler farklı modellerden farklı biçimlerde gelir: SARIMA bir Pandas Series, Prophet bir NumPy dizisi döndürür; LSTM gibi derin öğrenme modelleri ise çoğu zaman `(60, 1)` biçimli, yani 60 satır ve 1 sütundan oluşan iki boyutlu bir dizi verir. `flatten()` hepsini `(60,)` biçimine, yani 60 elemanlı tek bir sıraya indirir. Yan etkisi de faydalıdır: Series'in tarih indeksi atılır ve gerçek değerlerle tahminler **sıralarına göre** eşleştirilir. İndeksleri farklı olan iki Series (örneğin 0, 1, 2, ... indeksli tahminler ile tarih indeksli gerçek değerler) bu sayede yine doğru karşılaştırılır.
 - MAE ve RMSE için `scikit-learn`'ün hazır fonksiyonları kullanılır. `mean_absolute_error` doğrudan MAE'yi, `mean_squared_error` ise MSE'yi verir; RMSE için sonucun karekökünü `np.sqrt()` ile kendimiz alıyoruz. Bunlar 8.2'deki formüllerin birebir karşılığıdır.
 - MAPE için `mask = y_true != 0` her eleman için "gerçek değer sıfırdan farklı mı?" sorusunun cevabını tutan bir doğru/yanlış (`True`/`False`) dizisi üretir. `y_true[mask]` bu diziyi süzgeç gibi kullanıp yalnızca `True` olan konumları seçer. Böylece gerçek değeri 0 olan noktalar hesaba katılmaz. Bu, sıfıra bölme hatasını önler, ancak 8.2.3'teki "sıfıra **yakın** değerler" sorununu çözmez. Böyle serilerde MAPE yerine MASE ya da MAE'ye güvenin.
-- `print(f"...")` satırlarındaki `f` önekli metinler (f-string), süslü parantez içindeki ifadelerin değerini metne yerleştirir. `{'=' * 40}` 40 tane `=` karakteri yazar; `{mae:>10.2f}` ise sayıyı virgülden sonra iki basamakla (`.2f`) ve 10 karakterlik bir alana sağa yaslanmış olarak (`>10`) yazar, böylece sütunlar alt alta hizalanır.
+- `print(f"...")` satırları 7.7.2'deki f-dizeleridir. `{'=' * 40}` 40 tane `=` karakteri yazar; `{mae:>10.2f}` ise sayıyı virgülden sonra iki basamakla (`.2f`) ve 10 karakterlik bir alana sağa yaslanmış olarak (`>10`) yazar, böylece sütunlar alt alta hizalanır.
 - `return {'mae': mae, 'rmse': rmse, 'mape': mape}` sonuçları bir sözlük (`dict`) olarak döndürür: Her değer bir isimle (anahtar) eşleştirilir. Bu sayede birden çok modelin sonucu kolayca tabloya dönüştürülebilir.
 
 > **Hemen deneyin 8.4.1 · `evaluate_model()`'i elle hesapladığınız örnekle sınayın** (Python, ~3 dk)
@@ -6888,7 +6870,7 @@ def evaluate_model(y_true, y_pred, model_name):
 
 #### 8.4.2. Örnek Kullanım
 
-Şimdilik elimizde Bölüm 7.7'de kurduğumuz Python SARIMA modeli var. Onu, 8.1.2'deki mevsimsel naive referansla karşılaştıralım. Aşağıdaki kod, Bölüm 7.7'deki `train_data` (1949–1955, 84 ay), `test_data` (1956–1960, 60 ay) ve `predictions_arima` değişkenlerinin tanımlı olduğunu varsayar. Uygulama dosyası bu hazırlığı (veriyi yükleme, ayırma ve `auto_arima` ile modeli kurma) kendi başında kısaca yeniden yaptığı için tek başına çalışır.
+Şimdilik elimizde Bölüm 7.7'de kurduğumuz Python SARIMA modeli var. Onu, 8.1.2'deki mevsimsel naive referansla karşılaştıralım; bu karşılaştırmanın RMSE kısmını (126.01) 7.7.5'teki kutuda elle yapmıştık, şimdi üç metriği birden `evaluate_model()` ile alıyoruz. Aşağıdaki kod, Bölüm 7.7'deki `train_data` (1949–1955, 84 ay), `test_data` (1956–1960, 60 ay) ve `predictions_arima` değişkenlerinin tanımlı olduğunu varsayar. Uygulama dosyası bu hazırlığı (veriyi yükleme, ayırma ve `auto_arima` ile modeli kurma) kendi başında kısaca yeniden yaptığı için tek başına çalışır.
 
 ```python
 # 1) Bölüm 7.7'deki SARIMA (auto_arima) tahminleri
@@ -6915,7 +6897,7 @@ sonuclar = pd.DataFrame({"SARIMA": arima_metrics,
 print(sonuclar.round(2))
 ```
 
-Mevsimsel naive tahminini üreten iki satır biraz açıklama ister. `train_data[-12:]` eksi indeksle **sondan** sayar: "son 12 eleman", yani 1955'in 12 ayı. `.values` bunları tarih indeksinden arındırılmış bir NumPy dizisine çevirir. `np.tile(dizi, k)` diziyi uç uca `k` kez tekrarlar; örneğin `np.tile([1, 2, 3], 2)` sonucu `[1, 2, 3, 1, 2, 3]`'tür. Kaç tekrar gerektiğini `len(test_data) // 12 + 1` hesaplar: `//` tam sayı bölmesidir (kalanı atar), $60 // 12 = 5$, artı 1 ile 6 tekrar, yani 72 değer elde edilir. Sondaki `[:len(test_data)]` bu diziyi ilk 60 elemanda keser. Test uzunluğu 12'nin tam katı olmasaydı (ör. 30 ay), "+1" sayesinde yine yeterli değer üretilir ve fazlası kesilirdi.
+Mevsimsel naive tahminini üreten iki satır biraz açıklama ister. `train_data[-12:]` son 12 elemanı, yani 1955'in 12 ayını seçer (eksi indeks, 7.7.3). `.values` bunları tarih indeksinden arındırılmış bir NumPy dizisine çevirir. `np.tile(dizi, k)` diziyi uç uca `k` kez tekrarlar; örneğin `np.tile([1, 2, 3], 2)` sonucu `[1, 2, 3, 1, 2, 3]`'tür. Kaç tekrar gerektiğini `len(test_data) // 12 + 1` hesaplar: `//` tam sayı bölmesidir (kalanı atar), $60 // 12 = 5$, artı 1 ile 6 tekrar, yani 72 değer elde edilir. Sondaki `[:len(test_data)]` bu diziyi ilk 60 elemanda keser. Test uzunluğu 12'nin tam katı olmasaydı (ör. 30 ay), "+1" sayesinde yine yeterli değer üretilir ve fazlası kesilirdi.
 
 Son adımda `pd.DataFrame({...})` iki sözlüğü yan yana koyarak bir tablo yapar: Sözlüklerin adları (`"SARIMA"`, `"Mevsimsel Naive"`) sütun, içlerindeki anahtarlar (`mae`, `rmse`, `mape`) satır olur. `.T` (transpose, devrik) satırlarla sütunların yerini değiştirir; böylece her model bir satır, her metrik bir sütun olur. `.round(2)` iki basamağa yuvarlar.
 
@@ -6934,9 +6916,9 @@ SARIMA            35.55   47.87   7.95
 Mevsimsel Naive  112.43  126.01  27.05
 ```
 
-**Çıktının yorumu:** SARIMA, 60 aylık uzun ufukta bile mevsimsel naive yöntemin MAE ve MAPE'sini üçte birin altına ($35.55 / 112.43 \approx 0.32$), RMSE'sini ise yaklaşık %38'ine indirmiştir. Mevsimsel naive yöntem her yıl 1955'in desenini kopyaladığı için büyümeyi hiç yakalayamaz ve hatası yıldan yıla artar: Yıllık MAE'si 1956'da yaklaşık 44, 1960'ta ise yaklaşık 192 bin yolcudur. Yine de SARIMA'nın buradaki MAPE'si (yaklaşık %8), R uygulamasındaki %2.9'dan çok yüksektir. Bunun iki nedeni vardır. Birincisi, test ufku 12 yerine 60 aydır; geleceğe ne kadar uzak bakılırsa hata o kadar birikir. İkincisi, Python'un seçtiği model büyümeyi olduğundan düşük tahmin eder: Her ayın geçen yılın aynı ayından yaklaşık 26 bin yolcu fazla olacağını varsayar, oysa test döneminde bu yıllık artış ortalama 38.4 bin olmuştur. Bu yüzden hatalar hep aynı yöndedir ve yıldan yıla büyür (Bölüm 7.7.5). Log dönüşümü bu bölmede tek başına çözüm değildir: Log seri üzerine kurulan model de RMSE ≈ 49.0 verir (Bölüm 7.7.5'teki alıştırma).
+**Çıktının yorumu:** SARIMA, 60 aylık uzun ufukta bile mevsimsel naive yöntemin MAE ve MAPE'sini üçte birin altına ($35.55 / 112.43 \approx 0.32$), RMSE'sini ise yaklaşık %38'ine indirmiştir. Mevsimsel naive yöntem her yıl 1955'in desenini kopyaladığı için büyümeyi hiç yakalayamaz ve hatası yıldan yıla artar: Yıllık MAE'si 1956'da yaklaşık 44, 1960'ta ise yaklaşık 192 bin yolcudur. Yine de SARIMA'nın buradaki MAPE'si (yaklaşık %8), R uygulamasındaki %2.9'dan çok yüksektir. Bunun iki nedeni vardır. Birincisi, test ufku 12 yerine 60 aydır; geleceğe ne kadar uzak bakılırsa hata o kadar birikir. İkincisi, 7.7.5'te gördüğümüz gibi Python'un seçtiği model yıllık büyümeyi olduğundan düşük öğrenmiştir; hatalar bu yüzden hep aynı yöndedir ve yıldan yıla büyür (log seride kurulan model de bu bölmede RMSE ≈ 49.0 verir).
 
-**Not —** Bölüm 9, 13 ve 15'teki modelleri karşılaştırırken **aynı test dönemini** kullandığınızdan emin olun. Farklı dönemler ya da farklı uzunlukta test setleri üzerinde hesaplanmış metrikler karşılaştırılamaz. Bu yüzden 12 aylık testle değerlendirilen Prophet (Bölüm 9.3) ve XGBoost (Bölüm 13.4) sonuçları 8.3'teki R tablosuyla, 60 aylık testle değerlendirilen LSTM sonuçları (Bölüm 15) ise bu tabloyla yan yana konmalıdır.
+**Not —** Bölüm 9, 13 ve 15'teki modelleri karşılaştırırken **aynı test dönemini** kullandığınızdan emin olun; farklı uzunlukta test setleri üzerinde hesaplanmış metrikler karşılaştırılamaz (hangi modelin hangi tabloyla kıyaslanacağı koddaki 3. adımın yorumlarında yazılıdır).
 
 > **Hemen deneyin 8.4.2 · Test seti uzadıkça hata büyür** (Python, ~3 dk)
 >
@@ -7426,7 +7408,7 @@ ds
 
 Kodu adım adım okuyalım:
 
-1. `import pandas as pd` gibi satırlar kütüphaneleri kısa takma adlarla yükler; `from prophet import Prophet` ise `prophet` paketinden yalnızca `Prophet` sınıfını (model şablonunu) alır.
+1. Kütüphane satırları Bölüm 7.7'deki gibidir; `from prophet import Prophet` ise `prophet` paketinden yalnızca `Prophet` sınıfını (model şablonunu) alır.
 2. `pd.read_csv()` CSV dosyasını satır ve sütunlardan oluşan bir tabloya (DataFrame) okur. Dosyadaki sütunlar `Month` ve `Passengers`'tır; `df.columns = ['ds', 'y']` bu adları sırasıyla Prophet'ın beklediği adlarla değiştirir. `pd.to_datetime()` ise `"1949-01"` gibi metinleri gerçek tarih nesnesine (1949-01-01) çevirir; Prophet zamanı ancak tarih nesnesinden hesaplayabilir. `df['ds']` köşeli parantezle tablodan adı verilen sütunu seçer.
 3. `Prophet(...)` henüz eğitilmemiş, boş bir model nesnesi oluşturur; ayarlar argümanlarla verilir. `yearly_seasonality=True`, 9.1.2'deki yıllık Fourier terimlerini (varsayılan $N = 10$) modele ekler. Varsayılan değer `'auto'` olsaydı da veri iki yıldan uzun olduğu için açılırdı; burada niyetimizi açıkça yazıyoruz. `daily_seasonality=False` gün içi döngüyü kapatır. Haftalık döngü (`weekly_seasonality`) varsayılan `'auto'` ayarında kalır ve Prophet gözlemler arasında bir haftadan kısa aralık olmadığını görünce onu kendiliğinden kapatır.
 4. `m.fit(df)` modeli eğitir: Trendin $k$, $m$, $\delta_j$ değerlerini ve mevsimselliğin $a_n$, $b_n$ katsayılarını veriye en iyi uyacak biçimde bulur. Prophet bu hesabı arka planda Stan adlı istatistik yazılımıyla yapar; ekranda görülen "Chain [1] start processing / done processing" satırları bu işlemin bilgi mesajlarıdır, hata değildir.
@@ -7637,7 +7619,7 @@ Kodun önemli noktaları şunlardır:
 2. `for mod in ['additive', 'multiplicative']:` döngüsü, girintili bloğu iki kez çalıştırır: önce `mod = 'additive'` (toplamsal), sonra `mod = 'multiplicative'` (çarpımsal). Böylece aynı kodla iki model kurulur ve tek fark `seasonality_mode=mod` argümanıdır (9.1.4).
 3. `model.fit(train)` yalnızca eğitim verisini kullanır. `make_future_dataframe(periods=12, freq='MS')` eğitim verisinin son tarihinden (Aralık 1959) sonra 12 ay ekler; bu 12 ay tam olarak test yılı olan 1960'tır.
 4. `forecast['yhat'].iloc[-12:].values`: Tahmin tablosu 132 geçmiş + 12 gelecek satır içerir; son 12 satır test dönemidir. `.values` tarih indeksini atıp düz bir NumPy dizisi verir; `test['y'].values` da aynı biçimdedir, böylece iki dizi sıralarına göre karşılaştırılır.
-5. Metrik satırları Bölüm 8.4'teki `evaluate_model()` fonksiyonunun içindekilerle aynıdır. Sonuçlar `sonuclar[mod] = {...}` ile bir sözlükte toplanır; `pd.DataFrame(sonuclar).T` her modeli bir satıra, her metriği bir sütuna yerleştirir.
+5. Metrik satırları Bölüm 8.4'teki `evaluate_model()` fonksiyonunun içindekilerle aynıdır; fonksiyonu tanımladıysanız bu satırların yerine `evaluate_model(test['y'], tahmin, f"Prophet ({mod})")` çağrısını da kullanabilirsiniz. Sonuçlar `sonuclar[mod] = {...}` ile bir sözlükte toplanır; `pd.DataFrame(sonuclar).T` her modeli bir satıra, her metriği bir sütuna yerleştirir.
 
 **Çıktının yorumu:** Tabloda her satır bir modeli, her sütun bir metriği gösterir; üç metrikte de **küçük değer daha iyidir**. Beklendiği gibi çarpımsal model üç metrikte de belirgin biçimde daha iyidir: MAE 33.43'ten 21.87'ye, RMSE 43.05'ten 25.83'e iner. Nedeni 1960 yazıdır. Toplamsal model, bütün yılların ortalaması olan sabit boyda bir dalga kullandığı için Temmuz 1960'ı yaklaşık 524 bin olarak tahmin eder; gerçek değer 622'dir (yaklaşık 98 bin eksik). Dalga genliği seviyeyle büyüyen çarpımsal model aynı ay için yaklaşık 569 bin tahmin ederek farkı yarıya indirir (Şekil 9.6). Sonuçları yorumlarken Bölüm 8'deki sorular burada da geçerlidir:
 
@@ -7649,8 +7631,6 @@ Kodun önemli noktaları şunlardır:
 ![1960 test yılı karşılaştırması](images/ch09_test_karsilastirma.svg)
 
 *Şekil 9.6 — 1960 test yılı: Gerçek değerler, Bölüm 8.3'teki log dönüşümlü SARIMA modeli ve iki Prophet modelinin tahminleri. Toplamsal Prophet yaz tepesini en çok kaçıran modeldir; Mart ayında ise modellerin hepsi gerçeğin üstünde kalır.*
-
-Bölüm 8'deki `evaluate_model()` fonksiyonunu tanımladıysanız, metrik satırlarının yerine `evaluate_model(test['y'], tahmin, f"Prophet ({mod})")` çağrısını da kullanabilirsiniz.
 
 **Not —** 9.1.4'teki diğer yolu, yani seriyi `np.log()` ile dönüştürüp toplamsal model kurmayı ve tahminleri `np.exp()` ile geri çevirmeyi de denedik: Aynı test yılında MAE = 23.52, RMSE = 29.46, MAPE = %4.70 elde edildi. Bu, çarpımsal modele çok yakın bir sonuçtur; iki yol da aynı sorunu (seviyeyle büyüyen dalgalar) çözer.
 
@@ -8085,7 +8065,7 @@ Durağanlık ADF ve KPSS testleriyle sınanır (ayrıntısı Bölüm 3.2 ve 7.5'
 *   **ADF:** Sıfır hipotezi $H_0$: "seri durağan değildir (birim kök vardır)". p-değeri 0,05'ten küçükse $H_0$ reddedilir ve seri durağan kabul edilir.
 *   **KPSS:** Mantık terstir; $H_0$: "seri durağandır".
 
-> **Simge notu:** $`H_0`$ *(H sıfır)*: sıfır (boş) hipotez, yani testin "aksi kanıtlanana kadar doğru kabul ettiği" iddia · **p-değeri**: $`H_0`$ doğru olsaydı, eldeki veri kadar (ya da daha) aykırı bir sonucu tesadüfen görme olasılığı. Küçük p-değeri (ör. 0,01) "bu sonuç $`H_0`$ ile pek bağdaşmıyor" demektir; 0,05 eşiği alışılmış bir sınırdır.
+> **Simge notu:** $`H_0`$ *(H sıfır)*: sıfır hipotezi, testin aksi kanıtlanana kadar doğru kabul ettiği iddia; p-değeri 0,05'ten küçükse reddedilir (p-değerinin anlamı için bkz. Bölüm 3.2)
 
 Durağan olmayan serilerde en yaygın çözüm **fark almaktır**:
 
@@ -8178,19 +8158,13 @@ Bu dengeyi kurmak için **bilgi kriterleri** kullanılır. Hepsi aynı felsefeye
 
 Örneğin iki şokun varyansları 4 ve 9, kovaryansları 1 ise $\lvert \Sigma_u \rvert = 4 \cdot 9 - 1 \cdot 1 = 35$ olur. Hata kovaryans matrisinin determinantı, tüm denklemlerin hatalarının **toplam büyüklüğünü** tek sayıyla özetler: hatalar küçüldükçe determinant da küçülür. (Determinantı 10.5'te öz değerleri bulurken yeniden kullanacağız.)
 
-**Açıklama:** Her kriterin ilk terimi **uyumu** ölçer: model veriyi ne kadar iyi açıklarsa hata kovaryansı o kadar küçük, dolayısıyla terim o kadar küçük olur. İkinci terim **karmaşıklığın cezasıdır** ve parametre sayısı $pk^2$ ile büyür. Kriterler yalnızca ceza katsayısında ayrılır. $p = 1, 2, \dots, p_{max}$ için hesaplanır ve **en küçük değeri veren $`p`$ seçilir** (değerler negatif de olabilir; önemli olan hangisinin en küçük olduğudur).
+**Açıklama:** Mantık, Bölüm 7.4'teki AIC ve BIC ile aynıdır: İlk terim **uyumu** ölçer (hatalar küçüldükçe küçülür), ikinci terim parametre sayısı $pk^2$ ile büyüyen **karmaşıklık cezasıdır**. Kriterler yalnızca ceza katsayısında ayrılır. $p = 1, 2, \dots, p_{max}$ için hesaplanır ve **en küçük değeri veren $`p`$ seçilir** (değerler negatif de olabilir; önemli olan hangisinin en küçük olduğudur).
 
 *   **AIC (Akaike):** Ceza katsayısı ($2/T$) görece hafiftir. Gerçek dinamiği kaçırmamak için biraz daha büyük modellere izin verir; öngörü odaklı çalışmalarda sık tercih edilir.
 *   **BIC (Bayesci, Schwarz):** Ceza katsayısı ($\ln T / T$), $T \geq 8$ için AIC'ninkinden büyüktür ($\ln 8 \approx 2.08 > 2$) ve gözlem sayısıyla artar. Bu yüzden daha az gecikmeli, **tutumlu** (*parsimonious*) modelleri seçer; temel yapıyı anlamaya çalışırken güvenilir bir rehberdir.
 *   **HQ (Hannan-Quinn):** Cezası AIC ile BIC arasındadır; ikisi arasında bir uzlaşma sunar.
 
 > **Simge notu:** $`\geq`$ *(büyük eşit)* · $`p_{max}`$: denenecek en büyük gecikme
-
-| Kriter | Ceza katsayısı | Eğilim | Ne zaman tercih edilir? |
-| --- | --- | --- | --- |
-| **AIC** (Akaike) | $`2/T`$ | Daha büyük $`p`$ | Öngörü performansı öncelikliyse |
-| **BIC** (Bayesci) | $`\ln T / T`$ | Daha küçük $`p`$ | Altta yatan yapıyı, en anlamlı ilişkileri bulmak istiyorsak |
-| **HQ** (Hannan-Quinn) | $`2 \ln(\ln T) / T`$ | Arada | İki kriter arasında denge aranıyorsa |
 
 **Sayısal örnek:** Bölüm 10.9'daki veride $k = 3$ değişken vardır ve gecikme seçimi $T = 112$ ortak gözlemle yapılır. Bir gecikme eklemek $k^2 = 9$ yeni parametre demektir. Gecikme başına ceza:
 
@@ -8335,13 +8309,7 @@ $$
 
 Sezgisi şudur: şoksuz bir sistemde $\mathbf{y}_t$ yaklaşık olarak $A_1^h \mathbf{y}_{t-h}$ ile belirlenir; $A_1^h$, $A_1$'in kendisiyle $h$ kez çarpılmasıdır ($A_1^2 = A_1 A_1$). $A_1$'in öz değerlerinin hepsi 1'den küçükse $A_1^h$, $h$ büyüdükçe sıfır matrise yaklaşır ve geçmişin etkisi söner; tıpkı $0.5^h$'nin sıfıra gitmesi gibi.
 
-**AR(1) ile bağlantı: "içeride öz değer" = "dışarıda kök".** Bölüm 3.2'de AR(1) için gecikme operatörü $L$ yerine $z$ değişkeni konunca $1 - \phi z = 0$ **karakteristik denklemi** elde edilmişti. Kökü $z = 1/\phi$'dir; durağanlık $\lvert \phi \rvert < 1$, yani kökün birim çemberin **dışında** ($\lvert z \rvert > 1$) olmasıdır ve "birim kök", kökün tam 1'e eşit olduğu durumdur. AR(1)'i tek değişkenli bir VAR(1) olarak düşünürsek $A_1$ matrisi tek bir sayıya, $\phi$'ye iner. Öz değer denklemi $\det(\phi - \lambda) = \phi - \lambda = 0$ olur ve tek öz değer $\lambda = \phi$'nin kendisidir. Dolayısıyla $z = 1/\phi = 1/\lambda$: **kök, öz değerin tersidir**. Büyüklüğü 1'den küçük bir sayının tersi 1'den büyük olduğu için, iki ifade aynı koşulu iki taraftan söyler:
-
-| $`\phi`$ | Öz değer $`\lambda = \phi`$ | Kök $`z = 1/\lambda`$ | Şok (100 birim) | Sonuç |
-| --- | --- | --- | --- | --- |
-| 0.5 | 0.5 (çemberin içinde) | 2 (çemberin dışında) | 100 → 50 → 25 | Stabil / durağan |
-| 1 | 1 (çemberin üstünde) | 1 (çemberin üstünde) | 100 → 100 → 100 | Birim kök |
-| 1.2 | 1.2 (çemberin dışında) | 0.83 (çemberin içinde) | 100 → 120 → 144 | Patlayan |
+**AR(1) ile bağlantı: "içeride öz değer" = "dışarıda kök".** Bölüm 3.2'de AR(1)'in karakteristik denklemi $1 - \phi z = 0$'ın kökünün $z = 1/\phi$ olduğunu ve durağanlığın "kök birim çemberin dışında" ($\lvert z \rvert > 1$), yani "katsayı içeride" ($\lvert \phi \rvert < 1$) demek olduğunu görmüştük (Şekil 3.6). AR(1)'i tek değişkenli bir VAR(1) olarak düşünürsek $A_1$ matrisi tek bir sayıya, $\phi$'ye iner. Öz değer denklemi $\det(\phi - \lambda) = \phi - \lambda = 0$ olur ve tek öz değer $\lambda = \phi$'nin kendisidir. Dolayısıyla $z = 1/\phi = 1/\lambda$: **kök, öz değerin tersidir**. Örneğin $\phi = 0.5$ için öz değer 0.5 (çemberin içinde), kök 2'dir (çemberin dışında); $\phi = 1$ için ikisi de tam 1'dir (birim kök).
 
 VAR'da da aynısı geçerlidir: karakteristik denklem $\det(I - A_1 z) = 0$'ın kökleri, öz değerlerin tersleridir. Örnek matrisimizde $z_1 = 1/0.6 \approx 1.67$ ve $z_2 = 1/0.3 \approx 3.33$ bulunur (yukarıdaki NumPy çıktısının ikinci satırı); ikisi de 1'den büyüktür. Şekil 10.2'nin sol paneli bu ilişkiyi gösterir.
 
@@ -8751,10 +8719,10 @@ print(gc.summary())
 #>         0.1776          3.023   0.837 (2, np.int64(333))
 ```
 
-Kodun ilk satırları kütüphaneleri yükler: `import pandas as pd` tablo (veri çerçevesi, *DataFrame*) işlemleri için pandas'ı `pd` kısa adıyla, `from statsmodels.tsa.api import VAR` ise statsmodels'ın zaman serisi modülünden yalnızca `VAR` sınıfını getirir. Ardından kilit satırlar şunları yapar:
+Kütüphane satırları Bölüm 7.7'deki gibi okunur (`from statsmodels.tsa.api import VAR` yalnızca `VAR` sınıfını getirir). Ardından kilit satırlar şunları yapar:
 
 *   `pd.read_csv(..., parse_dates=["date"], index_col="date")`: CSV dosyasını okur, `date` sütununu metin olarak değil tarih olarak yorumlar ve satır etiketi (indeks) yapar; böylece her satır bir aya karşılık gelir. `df[vars_selected]` köşeli parantez içine bir sütun adları listesi vererek yalnızca bu üç sütunu seçer, `.dropna()` eksik değer içeren satırları atar, `.asfreq("MS")` ise verinin aylık ve ay başı tarihli olduğunu açıkça belirtir (statsmodels aksi hâlde frekansı tahmin etmeye çalışıp uyarı verir).
-*   `adfuller(seri, autolag="AIC")[1]`: ADF testini çalıştırır; sonuçlar sıralı bir paket olarak döner ve `[1]` ikinci elemanı, yani p-değerini alır (Python'da sayma 0'dan başlar; `[0]` test istatistiğidir). `autolag="AIC"` testin kaç gecikme kullanacağını AIC ile seçer.
+*   `adfuller(seri, autolag="AIC")[1]`: ADF testinin p-değerini alır (`[1]`, 7.7.2'deki gibi); `autolag="AIC"` testin kaç gecikme kullanacağını AIC ile seçer.
 *   `VAR(df_var)`: Modeli **tanımlar** ama henüz tahmin etmez; yalnızca hangi verinin kullanılacağını kaydeder.
 *   `model.select_order(maxlags=8)`: VAR(0)'dan VAR(8)'e kadar tüm modelleri aynı ortak örnekle ($T = 112$) kurar ve her biri için AIC, BIC, FPE, HQIC değerlerini hesaplar. `.selected_orders` her kriterin önerdiği gecikmeyi tutan bir sözlüktür; `['bic']` BIC'nin önerisini alır. `max(1, ...)` kriterin 0 gecikme önermesi hâlinde en az 1 gecikme kullanmayı garanti eder.
 *   `model.fit(selected_lag)`: Seçilen gecikmeyle her denklemi OLS ile tahmin eder ve sonuç nesnesini (`results`) döndürür; sonraki tüm analizler bu nesnenin metotlarıyla yapılır. Aynı işi tek satırda `model.fit(maxlags=8, ic="bic")` da yapar: `ic` (*information criterion*) argümanı, gecikmeyi verilen kritere göre seçip modeli o gecikmeyle kurar (bu veride yine VAR(2)).
@@ -8798,7 +8766,7 @@ Dosyadaki program sırasıyla şunları yapar:
 **Not —** En büyük öz değerin 1'e bu kadar yakın çıkması (0.997) tesadüf değildir: seriler durağan olmadığı için model neredeyse bir birim kök taşır. Bu durumda IRF'ler çok yavaş söner ve uzun ufuklu yorumlar dikkatle yapılmalıdır. Portmanteau testinin reddi de aynı soruna işaret eder. Kod eğitim amaçlı olarak düzey serilerle devam eder. Alıştırma olarak:
 
 1. Kodun 4. adımında `'bic'` yerine `'aic'` yazıp VAR(7)'nin stabil çıkmadığını görün.
-2. Serilerin birinci farkını alıp (`df_var = df_var.diff().dropna()`) modeli yeniden kurun. Farkı alınmış serilerde ADF p-değerleri 0,05'in altına iner, BIC 1 gecikme önerir ve en büyük öz değer modülü 0.997'den yaklaşık 0.55'e düşer; model artık sınırda değil, rahatça stabildir. Granger sonuçlarına da bakın: döviz kurunun enflasyona (p < 0.001) ve faize (p ≈ 0.006) etkisi sürer, ama "enflasyon → faiz" ilişkisi anlamlılığını yitirir (p ≈ 0.37). Düzey serilerdeki bu sonuç kısmen ortak trendden kaynaklanıyordu.
+2. Serilerin birinci farkını alıp (`df_var = df_var.diff().dropna()`) modeli yeniden kurun. Farkı alınmış serilerde ADF p-değerleri 0,05'in altına iner, BIC 1 gecikme önerir ve en büyük öz değer modülü 0.997'den yaklaşık 0.55'e düşer; model artık sınırda değil, rahatça stabildir. Granger sonuçlarındaki değişimi Hemen deneyin 10.6'da gördünüz: "enflasyon → faiz" ilişkisi anlamlılığını yitirir; döviz kurunun enflasyona (p < 0.001) ve faize (p ≈ 0.006) etkisi ise sürer.
 
 > **Uygulama dosyası:** [`Codes/python/ch10_var.py`](Codes/python/ch10_var.py) · [Notebook](Codes/notebooks/ch10_var.ipynb) · [![Colab'da aç](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/Codes/notebooks/ch10_var.ipynb)
 >
@@ -9009,14 +8977,13 @@ Bir veri kümesini zaman serisi olarak kullanmak için frekansını (aylık, çe
 
 > **Hemen deneyin 11.1 · AirPassengers Gretl'in içinde zaten var** (Gretl menüleri ve konsol, ~3 dk)
 >
-> Gretl'i açın ve **File → Open data → Sample file…** seçin. Açılan pencerenin **Gretl** sekmesinde `bjg` satırını ("Box and Jenkins Series G (airline passengers)") bulup çift tıklayın. Ana pencerenin üstündeki veri bilgisine ve değişken listesine bakın. Ardından **Tools → Gretl console** ile konsolu açın ve aşağıdaki satırları tek tek yazıp her birinden sonra Enter'a basın:
+> Gretl'i açın ve **File → Open data → Sample file…** seçin. Açılan pencerenin **Gretl** sekmesinde `bjg` satırını ("Box and Jenkins Series G (airline passengers)") bulup çift tıklayın. Ana pencerenin üstündeki veri bilgisine ve değişken listesine bakın. Ardından **Tools → Gretl console** ile konsolu açın ve aşağıdaki satırı yazıp Enter'a basın:
 >
 > ```gretl
 > labels          # değişkenlerin açıklamalarını yazar
-> summary g       # g değişkeninin özet istatistikleri
 > ```
 >
-> **Ne göreceksiniz:** Veri aylıktır ve 1949:01–1960:12 aralığını kapsar (144 gözlem). Listede `const` dışında iki değişken vardır: `g` ve `lg`. `labels` çıktısı `g: international airline passengers` ve `lg: natural logarithm of g` yazar. `summary g` çıktısında ortalama (`Mean`) 280.299, en küçük değer (`Minimum`) 104, en büyük değer (`Maximum`) 622'dir. Bunlar 11.3.1'de `Passengers` için verilen değerlerin aynısıdır: `bjg`, AirPassengers'ın Gretl ile birlikte gelen kopyasıdır ve zaman serisi yapısı (aylık, 1949:01'den başlayan) önceden tanımlanmıştır. Bu yüzden 11.2.2'deki adıma gerek kalmaz.
+> **Ne göreceksiniz:** Veri aylıktır ve 1949:01–1960:12 aralığını kapsar (144 gözlem). Listede `const` dışında iki değişken vardır: `g` ve `lg`. `labels` çıktısı `g: international airline passengers` ve `lg: natural logarithm of g` yazar. `bjg`, AirPassengers'ın Gretl ile birlikte gelen kopyasıdır (özet istatistiklerini Hemen deneyin 1.5'te almıştık; ortalama 280.299, en küçük 104, en büyük 622) ve zaman serisi yapısı (aylık, 1949:01'den başlayan) önceden tanımlanmıştır. Bu yüzden 11.2.2'deki adıma gerek kalmaz.
 >
 > **Şimdi siz:** Aynı pencerenin **Gretl** sekmesinden `nile` dosyasını açın (Gretl açık olan veriyi kapatmak isteyip istemediğinizi sorarsa **Yes** deyin). Verinin frekansı, tarih aralığı ve gözlem sayısı nedir? Konsolda `labels` yazarak değişkenin ne ölçtüğünü öğrenin.
 >
@@ -9191,7 +9158,7 @@ Komutlardaki sayılar ve seçenekler şöyle okunur: `corrgm x 36` `x` değişke
 
 ADF testinde $H_0$ "birim kök vardır (seri durağan değildir)", KPSS testinde ise $H_0$ "seri durağandır" şeklindedir; iki testi birlikte kullanmak daha güvenilir bir karar verir. Ljung-Box testinde $H_0$ "artıklarda otokorelasyon yoktur" hipotezidir ve iyi bir modelde reddedilmemesi (p > 0,05) istenir. Normallik testinde de $H_0$ "artıklar normal dağılır" şeklindedir.
 
-> **Simge notu:** $`H_0`$ *(H sıfır)*: sıfır (boş) hipotez; testin aksi kanıtlanana kadar doğru saydığı iddia (p-değeri için bkz. Bölüm 10.3.3)
+> **Simge notu:** $`H_0`$ *(H sıfır)*: sıfır (boş) hipotez; testin aksi kanıtlanana kadar doğru saydığı iddia (p-değeri için bkz. Bölüm 3.2)
 
 Bu testler, ARIMA kurarken ya da daha sonra LSTM/GRU gibi modellere (Bölüm 15) geçmeden önce serinin yapısını anlamak için de yararlıdır.
 
@@ -9213,7 +9180,7 @@ Bu testler, ARIMA kurarken ya da daha sonra LSTM/GRU gibi modellere (Bölüm 15)
 >
 > <details><summary>Cevap</summary>
 >
-> ADF: `tau_c(1) = -6.62375`, p-değeri `3.287e-09`, birim kök hipotezi açıkça reddedilir. KPSS: `Test statistic = 0.0293573`, `P-value > .10`, durağanlık hipotezi reddedilmez. İki test bu kez aynı yönü gösterir: birinci farkı alınmış Nil serisi durağandır ($d = 1$ yeterlidir).
+> ADF: `tau_c(1) = -6.62375`, p-değeri `3.287e-09`, birim kök hipotezi açıkça reddedilir. KPSS: `Test statistic = 0.0293573`, `P-value > .10`, durağanlık hipotezi reddedilmez. İki test bu kez aynı yönü gösterir: 7.5a'da R ile bulduğumuz gibi, birinci farkı alınmış Nil serisi durağandır ($d = 1$ yeterlidir).
 >
 > </details>
 
@@ -9356,7 +9323,7 @@ VAR modelinin teorisi (tanım, gecikme seçimi, stabilite, Granger nedenselliği
 >
 > <details><summary>Cevap</summary>
 >
-> En büyük gecikme 12 iken AIC **12** (9.596395), BIC **2** (10.944913), HQC **2** (10.634847) önerir. AIC'nin önerisi tavanla birlikte yükselir (4 → 7 → 12); bu kadar kısa bir veride (120 ay) AIC'nin önerisine güvenilmez. BIC ise her denemede 2'de kalır; notta VAR(2)'nin seçilmesinin gerekçesi budur. Tablolardaki sayıların değişmesi (ör. 2 gecikmenin AIC'si 10.193 yerine 10.423) normaldir: Gretl her tabloda bütün modelleri aynı örneklemle (en büyük gecikmeden sonraki aylarla) kurar.
+> En büyük gecikme 12 iken AIC **12** (9.596395), BIC **2** (10.944913), HQC **2** (10.634847) önerir: Hemen deneyin 10.4'teki Python sonuçlarının aynısı, dolayısıyla oradaki yorum burada da geçerlidir. Tablolardaki sayıların değişmesi (ör. 2 gecikmenin AIC'si 10.193 yerine 10.423) normaldir: Gretl her tabloda bütün modelleri aynı örneklemle (en büyük gecikmeden sonraki aylarla) kurar.
 >
 > </details>
 
@@ -9443,7 +9410,7 @@ IRF grafiklerini ve ters kök grafiğini görmek için betik çalıştıktan son
 >
 > <details><summary>Cevap</summary>
 >
-> `All lags of d_inflation F(2, 110) = 0.46367 [0.6302]`: farkı alınmış modelde enflasyon artık faizin Granger nedeni görünmez. Düzey serilerdeki ortak yükselen eğilimler, değişkenler arasında gerçekte olmayan bir öngörü ilişkisi varmış gibi görünmesine yol açabilir; durağanlığı kontrol etmenin önemi buradan gelir. Kur → faiz ilişkisi ise farklarla da anlamlı kalır (`All lags of d_exchange F(2, 110) = 4.2257 [0.0171]`).
+> `All lags of d_inflation F(2, 110) = 0.46367 [0.6302]`: farkı alınmış modelde enflasyon artık faizin Granger nedeni görünmez. Python'da (Hemen deneyin 10.6) gördüğümüz sonucun aynısıdır. Kur → faiz ilişkisi ise farklarla da anlamlı kalır (`All lags of d_exchange F(2, 110) = 4.2257 [0.0171]`).
 >
 > </details>
 
@@ -9463,14 +9430,7 @@ Gretl bu resmin içinde, özellikle zaman serisi ve ekonometrik modellerin temel
 
 > **Hemen deneyin 11.7 · Aynı model iki programda: Gretl ve R** (R ve Gretl, ~4 dk)
 >
-> Gretl'de `bjg` açıkken **Tools → Gretl console**'a şunları yazın:
->
-> ```gretl
-> logs g
-> arima 0 1 1 ; 0 1 1 ; l_g --nc
-> ```
->
-> Sonra RStudio konsolunda aynı modeli kurun:
+> 11.3.3'te Gretl'de kurduğunuz sabitsiz airline modelin sonuçlarını hatırlayın: `theta_1 = -0.401823`, `Theta_1 = -0.556937`, `Log-likelihood 244.6965`, `Akaike criterion -483.3930`. Şimdi RStudio konsolunda aynı modeli kurun:
 >
 > ```r
 > library(forecast)
@@ -9478,7 +9438,7 @@ Gretl bu resmin içinde, özellikle zaman serisi ve ekonometrik modellerin temel
 > m      # katsayılar, log-olabilirlik ve AIC
 > ```
 >
-> **Ne göreceksiniz:** Gretl: `theta_1 = -0.401823`, `Theta_1 = -0.556937`, `Log-likelihood 244.6965`, `Akaike criterion -483.3930`. R: `ma1 = -0.4018`, `sma1 = -0.5569`, `log likelihood = 244.7`, `AIC=-483.4`. Sonuçlar aynıdır; yalnızca adlar farklıdır (Gretl'in `theta_1` / `Theta_1`'i, R'da `ma1` / `sma1`). Dördüncü basamaktaki küçük farklar iki programın sayısal optimizasyonunun farklı noktalarda durmasından kaynaklanır.
+> **Ne göreceksiniz:** `ma1 = -0.4018`, `sma1 = -0.5569`, `log likelihood = 244.7`, `AIC=-483.4`. Sonuçlar Gretl'inkilerle aynıdır; yalnızca adlar farklıdır (Gretl'in `theta_1` / `Theta_1`'i, R'da `ma1` / `sma1`). Dördüncü basamaktaki küçük farklar iki programın sayısal optimizasyonunun farklı noktalarda durmasından kaynaklanır.
 >
 > **Şimdi siz:** R'da `exp(forecast(m, h = 12)$mean)` yazarak 1961 tahminlerini yolcu sayısına çevirin. Ocak ve Temmuz 1961 değerlerini 11.5'teki Gretl sonuçlarıyla (yaklaşık 450 ve 670) karşılaştırın.
 >
@@ -9627,11 +9587,11 @@ Pencere boyutu $p$ bir hiperparametredir, yani modelin veriden öğrenmediği, b
 >
 > Satırlar Excel tablonuzla birebir aynıdır. Soldaki 3, 4, ... sayıları satırın serideki sıra numarasıdır (0'dan sayılır); ilk üç satır (0, 1, 2) `dropna()` ile atılmıştır.
 >
-> **Şimdi siz:** (1) Sözlüğün başına `"x_t-4": s.shift(4),` ekleyerek pencereyi $p = 4$ yapın. `shape` ne olur? (2) 10 gözlemlik bu seride $p = 12$ seçseydik kaç satır kalırdı?
+> **Şimdi siz:** 10 gözlemlik bu seride $p = 12$ seçseydik kaç satır kalırdı? Önce tahmin edin, sonra sözlüğe `"x_t-4": s.shift(4)`, …, `"x_t-12": s.shift(12)` sütunlarını ekleyip `shape`'e bakın.
 >
 > <details><summary>Cevap</summary>
 >
-> (1) `(6, 5)`: $10 - 4 = 6$ satır, 4 girdi + 1 hedef sütun; son satır `135, 148, 148, 136 → 119`. (2) Hiç satır kalmaz (`shape` = `(0, 13)`): Hiçbir gözlemin önünde 12 aylık geçmiş yoktur. Pencere boyunu seçerken serinin uzunluğunu da düşünmek gerekir.
+> Hiç satır kalmaz (`shape` = `(0, 13)`): Hiçbir gözlemin önünde 12 aylık geçmiş yoktur. Pencere boyunu seçerken serinin uzunluğunu da düşünmek gerekir.
 >
 > </details>
 
@@ -9693,14 +9653,14 @@ print(X_train.shape, X_test.shape)
 
 Kod üç bölümden oluşur. Önce satırlara yakından bakalım:
 
-1. **Kütüphaneler ve veri:** `import numpy as np` ve `import pandas as pd`, sayısal diziler için NumPy'yi ve tablolar için pandas'ı yükler; `as` ile verilen kısa adlar (`np`, `pd`) sonraki satırlarda bu kütüphaneleri çağırmak için kullanılır. `pd.read_csv(...)` CSV dosyasını bir tabloya (*DataFrame*) okur. `parse_dates=['Month']`, `1949-01` gibi metinleri gerçek tarih türüne çevirir; `index_col='Month'` ise bu tarihleri satır etiketi (indeks) yapar. Böylece ileride her satırın hangi aya ait olduğunu sorabiliriz. `df['Passengers']` köşeli parantezle tek bir sütunu seçer; sonuç, tarih etiketli tek sütunluk bir *Series*'tir.
+1. **Kütüphaneler ve veri:** Kütüphaneleri kısa adlarla (`np`, `pd`) yüklemek (bkz. 6.3.7) ve `pd.read_csv(..., parse_dates=['Month'], index_col='Month')` ile tarihleri satır etiketi (indeks) yaparak okumak önceki bölümlerdekiyle aynıdır (bkz. 10.9). Tarih indeksi sayesinde 6. maddedeki takvim özelliklerini çıkarabiliriz. `df['Passengers']` köşeli parantezle tek bir sütunu seçer; sonuç, tarih etiketli tek sütunluk bir *Series*'tir.
 2. **`kayan_pencere` fonksiyonu:** `def` ile kendi fonksiyonumuzu tanımlarız. `seri.values`, tarih etiketlerini bırakıp yalnızca 144 sayıyı düz bir NumPy dizisi olarak verir; böylece `dizi[i]` ile sıra numarasına göre erişebiliriz. Python'da sayma 0'dan başlar: `dizi[0]` Ocak 1949'dur (112). `range(len(dizi) - p)` döngüyü $i = 0, 1, \dots, 140$ için çalıştırır (141 tur). `dizi[i:i + p]` bir *dilimdir*: $i$. elemandan başlar, $i + p$. elemanı **dahil etmez**. Örneğin $i = 0$ iken `dizi[0:3]` = 112, 118, 132 (Ocak–Mart) ve hedef `dizi[3]` = 129 (Nisan) olur. `append` her turda listeye bir satır ekler, `np.array` de bu listeyi bir diziye çevirir.
 3. **Boyutlar (`shape`):** `X.shape` = `(141, 3)`, "141 satır, 3 sütun" demektir. `y.shape` = `(141,)` ise 141 elemanlı **tek boyutlu** bir dizidir; parantezin içindeki tek sayı ve virgül, tek boyut olduğunu gösterir. `X[:3]` dizinin ilk üç satırını seçer.
-4. **`shift(k)` ile gecikmeler:** `pd.DataFrame({'y': seri})` hedef sütunu `y` olan yeni bir tablo kurar. `for k in [1, 2, 3, 12]` döngüsü listedeki her sayı için bir sütun ekler. `f'lag_{k}'` bir *f-string*'dir: süslü parantezin içine `k`'nin o anki değeri yazılır, böylece `'lag_1'`, `'lag_2'` gibi sütun adları oluşur. `seri.shift(k)` bütün değerleri $k$ satır aşağı kaydırır. Örneğin 112, 118, 132 dizisi `shift(1)` ile NaN, 112, 118 olur; yani her satırın yanına bir önceki ayın değeri gelir. **NaN** (*Not a Number*), "boş, bilinmeyen değer" anlamına gelir: Ocak 1949'dan önceki ay veride yoktur.
+4. **`shift(k)` ile gecikmeler:** `pd.DataFrame({'y': seri})` hedef sütunu `y` olan yeni bir tablo kurar. `for k in [1, 2, 3, 12]` döngüsü listedeki her sayı için bir sütun ekler. `f'lag_{k}'` (f-string, bkz. 6.3.7) `'lag_1'`, `'lag_2'` gibi sütun adları üretir. `seri.shift(k)` bütün değerleri $k$ satır aşağı kaydırır. Örneğin 112, 118, 132 dizisi `shift(1)` ile NaN, 112, 118 olur; yani her satırın yanına bir önceki ayın değeri gelir. **NaN** (*Not a Number*), "boş, bilinmeyen değer" anlamına gelir: Ocak 1949'dan önceki ay veride yoktur.
 5. **`rolling` ile hareketli ortalama:** `seri.shift(1).rolling(window=3).mean()` önce seriyi bir ay kaydırır, ardından her satırda 3 satırlık bir pencerenin ortalamasını alır. Sonuçta her ayın yanına "kendisinden önceki üç ayın ortalaması" yazılır. `shift(1)` olmasaydı ortalamaya o ayın kendi değeri de girerdi (12.1.5'teki sızıntı).
 6. **Takvim özellikleri:** `tablo.index.month` tarih indeksinden ay numarasını (1–12), `tablo.index.quarter` çeyreği (1–4) çıkarır. Ağaç gibi modeller bu sayılar sayesinde "ay 7 ise değer yüksektir" türünden kurallar öğrenebilir. Takvim bilgisi geleceğin her ayı için önceden bilindiği için sızıntı riski taşımaz.
 7. **`dropna()`:** NaN içeren her satırı atar. En uzun gecikme `lag_12` olduğu için ilk 12 satır silinir.
-8. **Zamansal ayrım:** `tablo.drop(columns='y')` hedef sütunu çıkarıp yedi girdi sütununu bırakır. `.iloc[...]` satırları **sıra numarasına** göre seçer. Eksi sayılar sondan saymak demektir: `.iloc[:-12]` "baştan sondan 12. satıra kadar (o satır hariç)", `.iloc[-12:]` ise "sondan 12. satırdan sona kadar", yani son 12 ay demektir.
+8. **Zamansal ayrım:** `tablo.drop(columns='y')` hedef sütunu çıkarıp yedi girdi sütununu bırakır. `.iloc[:-12]` ve `.iloc[-12:]`, 9.3'teki gibi satırları sıra numarasına göre seçerek son 12 ayı teste ayırır.
 
 Çıktı:
 
@@ -9849,9 +9809,7 @@ Sözle: Değerden en küçük değeri çıkarırız (en küçük değer 0'a geli
 
 Model 0–1 ölçeğinde tahmin üretir. Sonucu yolcu sayısı olarak okumak için formülü tersine çeviririz (**ters dönüşüm**, `inverse_transform`): $x_t = x'_t \cdot (x_{\max} - x_{\min}) + x_{\min}$. Örneğin 0.5 tahmini $0.5 \cdot 455 + 104 = 331.5$ bin yolcuya karşılık gelir.
 
-- **Ağaç tabanlı modeller (XGBoost, Random Forest):** Veriyi "değer 300'den büyük mü?" gibi eşik sorularıyla böldükleri için ölçeklemeye ihtiyaç duymazlar; sayıları 0–1'e çevirmek soruların sırasını değiştirmez. Ancak önemli bir sınırlamaları vardır: Eğitimde görmedikleri bir seviyeye **çıkamazlar** (dışdeğerleme, yani ekstrapolasyon yapamazlar). `AirPassengers` gibi sürekli artan bir seride test dönemindeki değerler eğitimdeki en büyük değeri aşıyorsa, ağaç modeli tahminleri o tavanın altında kalır (ayrıntısı 13.3'te). Bu sorun genellikle hedefi farka dönüştürerek ($\nabla x_t = x_t - x_{t-1}$, Bölüm 2.1) ya da trendi önceden ayırarak çözülür. Örneğin Ocak 1949'dan Şubat 1949'a fark $118 - 112 = 6$'dır; farklar seviye gibi yıldan yıla büyümediği için eğitim ve testte benzer aralıkta kalır.
-
-> **Simge notu:** $`\nabla`$ *(nabla)*: fark operatörü; "bu dönemin değerinden bir önceki dönemin değerini çıkar" anlamına gelir. Ters çevrilmiş bir üçgendir; düz üçgen olan Δ (delta) ile karıştırmayın.
+- **Ağaç tabanlı modeller (XGBoost, Random Forest):** Veriyi "değer 300'den büyük mü?" gibi eşik sorularıyla böldükleri için ölçeklemeye ihtiyaç duymazlar; sayıları 0–1'e çevirmek soruların sırasını değiştirmez. Ancak önemli bir sınırlamaları vardır: Eğitimde görmedikleri bir seviyeye **çıkamazlar** (dışdeğerleme, yani ekstrapolasyon yapamazlar). `AirPassengers` gibi sürekli artan bir seride test dönemindeki değerler eğitimdeki en büyük değeri aşıyorsa, ağaç modeli tahminleri o tavanın altında kalır (ayrıntısı 13.3'te). Bu sorun genellikle hedefi farka dönüştürerek ya da trendi önceden ayırarak çözülür (13.3 ve 13.4.2).
 
 **Not —** Ölçekleyici (`scaler`) **yalnızca eğitim verisiyle** uydurulmalı (`fit`: en küçük ve en büyük değeri hesaplama), test verisine ise aynı parametrelerle yalnızca dönüştürme (`transform`: formülü uygulama) yapılmalıdır. Tüm veriyle uydurmak, test dönemindeki en büyük ve en küçük değerin bilgisini eğitime sızdırır. Örneğin ölçekleyici tüm seriyle uydurulsaydı en büyük değer 622 olurdu ve eğitimdeki tepe 559, 1 yerine $455 / 518 \approx 0.878$'e dönüşürdü; model, eğitim sırasında "ileride daha yüksek bir değer gelecek" bilgisini dolaylı olarak almış olurdu.
 
@@ -9946,41 +9904,7 @@ Pratik bir kontrol sorusu: *"Bu özelliğin değerini, tahmin yapacağım anda g
 
 Makine öğrenmesi yaklaşımında geçmişi elle hazırladığımız sütunlarla (gecikmeler, hareketli ortalamalar) modele veriyoruz. Derin öğrenme ise farklı bir yol izler: Diziyi olduğu gibi, adım adım okuyup hangi geçmiş bilginin önemli olduğunu **kendisi** öğrenen özel sinir ağı mimarileri kullanır.
 
-Girdi yine kayan pencereyle hazırlanır (12.1.1), ancak her örnek artık düz bir satır değil, bir **dizidir**. Bu yüzden LSTM gibi katmanlar veriyi üç boyutlu biçimde bekler: `(örnek sayısı, zaman adımı sayısı, özellik sayısı)`. Örneğin yukarıdaki `X` dizisi `X.reshape(141, 3, 1)` ile "141 örnek, her biri 3 zaman adımı, her adımda 1 değer" biçimine getirilir. `reshape` sayıları değiştirmez, yalnızca kutulara yeniden yerleştirir: İlk örnek `[112, 118, 132]` satırıyken `[[112], [118], [132]]` biçimine, yani "üç adım, her adımda tek bir sayı" biçimine girer. Her adımda birden fazla bilgi olsaydı (ör. yolcu sayısı ve sıcaklık) son boyut 2 olurdu. Bölüm 15'teki uygulamada bu adımı ayrıntılı göreceğiz.
-
-> **Hemen deneyin 12.2 · `reshape` ile üç boyutlu girdi** (Python, ~3 dk)
->
-> ```python
-> import numpy as np
-> x = np.array([112, 118, 132, 129, 121, 135, 148, 148, 136, 119])
-> X = np.array([x[i:i + 3] for i in range(len(x) - 3)])   # kayan pencere, p = 3 (tek satırlık yazım)
-> print(X.shape)
-> X3 = X.reshape(7, 3, 1)          # (örnek sayısı, zaman adımı, özellik sayısı)
-> print(X3.shape)
-> print(X3[0])                     # ilk örnek: 3 adım, her adımda 1 sayı
-> print(X3[0, 2, 0])               # 1. örneğin 3. adımı (sayma 0'dan başlar)
-> ```
->
-> **Ne göreceksiniz:**
->
-> ```text
-> (7, 3)
-> (7, 3, 1)
-> [[112]
->  [118]
->  [132]]
-> 132
-> ```
->
-> Sayılar değişmedi, yalnızca kutulara yeniden yerleşti: İlk örnek artık "üç adım, her adımda bir sayı" biçimindedir.
->
-> **Şimdi siz:** (1) `X.reshape(7, 2, 1)` yazarsanız ne olur? Önce tahmin edin. (2) `X.reshape(-1, 3, 1)` deneyin; `-1` ne işe yarar?
->
-> <details><summary>Cevap</summary>
->
-> (1) `ValueError: cannot reshape array of size 21 into shape (7,2,1)`: 21 sayı $7 \cdot 2 \cdot 1 = 14$ kutuya sığmaz; `reshape` sayı eklemez ya da atmaz. (2) Sonuç yine `(7, 3, 1)` olur: `-1`, "bu boyutu diğerlerinden sen hesapla" demektir ($21 / 3 = 7$). Örnek sayısını bilmediğinizde kullanışlıdır.
->
-> </details>
+Girdi yine kayan pencereyle hazırlanır (12.1.1), ancak her örnek artık düz bir satır değil, bir **dizidir**. Bu yüzden LSTM gibi katmanlar veriyi üç boyutlu biçimde bekler: `(örnek sayısı, zaman adımı sayısı, özellik sayısı)`. Örneğin yukarıdaki `X` dizisi `X.reshape(141, 3, 1)` ile "141 örnek, her biri 3 zaman adımı, her adımda 1 değer" biçimine getirilir; `reshape` sayıları değiştirmez, yalnızca yeniden yerleştirir. Bu adımı Bölüm 15.1.3'te ayrıntılı olarak uygulayacağız.
 
 #### 12.2.1. Tekrarlayan Sinir Ağları (RNN) ve Kaybolan Gradyan Sorunu
 
@@ -10629,7 +10553,7 @@ $$\min_i y_i \le \hat{y}(x) \le \max_i y_i$$
 
 > **Simge notu:** $`\le`$ *(küçük eşittir)* · $`\min_i y_i`$, $`\max_i y_i`$ *(minimum, maksimum)*: i'yi tüm eğitim gözlemleri üzerinde gezdirerek bulunan en küçük ve en büyük y değeri
 
-Şekil 13.1'deki ağaçta bunu doğrudan görürüz: `lag_1` = 600 gibi eğitimde hiç görülmemiş bir değer gelse bile gözlem en sağdaki yaprağa düşer ve tahmin 465.8 olur. Gradient boosting topluluğunda bu sınır tam olarak kesin olmasa da (çok sayıda ağacın küçük katkıları toplanır) pratikte geçerlidir: model, eğitimde gördüğü düzeyin belirgin biçimde üstüne çıkamaz.
+Bunu Hemen deneyin 13.1.1'de doğrudan gördük: `lag_1` = 600 için bile tahmin 465.8'de kalır. Gradient boosting topluluğunda bu sınır tam olarak kesin olmasa da (çok sayıda ağacın küçük katkıları toplanır) pratikte geçerlidir: model, eğitimde gördüğü düzeyin belirgin biçimde üstüne çıkamaz.
 
 **Bu neden zaman serilerinde sorun?** Trendli bir seride (AirPassengers gibi) gelecek değerler çoğu zaman geçmişte hiç görülmemiş düzeydedir. Model, girdi olarak "zaman" veya "yıl" bilgisi verilse bile, eğitim aralığının dışındaki bir yıl için en son öğrendiği yaprağı kullanır ve tahmin düz bir tavana takılır. Model trendi "devam ettiremez"; yalnızca eğitimde gördüğü en yüksek düzeyi tekrar eder.
 
@@ -10729,7 +10653,7 @@ Bu satırların her biri belirli bir iş görür:
 3. **`dropna()`:** En uzun kaydırma `shift(13)` olduğu için ilk 13 satır NaN içerir ve atılır; 144 aydan **131** satır (Şubat 1950 – Aralık 1960) kalır.
 4. **Bölme:** `split_point = len(X) - test_size` = $131 - 12 = 119$'dur. `X.iloc[:119]` ilk 119 satırı (Şubat 1950 – Aralık 1959) eğitime, `X.iloc[119:]` son 12 satırı (1960) teste ayırır. Eğitimin içinden `iloc[:-12]` ile ilk 107 satır (Şubat 1950 – Aralık 1958) asıl eğitime, `iloc[-12:]` ile 1959 yılı doğrulamaya ayrılır. Hiçbir aşamada satırlar karıştırılmaz.
 5. **`params` ve `**params`:** `dict(...)` hiperparametreleri bir sözlükte (anahtar–değer listesi) toplar. `XGBRegressor(..., **params)` yazımındaki iki yıldız sözlüğü "açar", yani `learning_rate=0.05, max_depth=4, ...` argümanlarını tek tek yazmışız gibi iletir. Böylece aynı ayarlar üç ayrı modelde tekrar yazılmadan kullanılır. Ayarların anlamı: `learning_rate=0.05` her ağacın katkısını %5'e indirir; `max_depth=4` her ağacın en fazla 4 soru sormasına izin verir; `subsample=0.8` her ağacın satırların rastgele %80'iyle, `colsample_bytree=0.8` ise 21 özelliğin rastgele %80'iyle (16 özellik) kurulmasını sağlar; `random_state=SEED` bu rastgeleliği sabitler, böylece kod her çalıştığında aynı sonucu verir.
-6. **Erken durdurma:** `XGBRegressor(n_estimators=1000, early_stopping_rounds=50, ...)` en fazla 1000 ağaç kurmaya hazırdır, ama doğrulama hatası art arda 50 ağaç boyunca iyileşmezse durur. `fit(X_tr_in, y_tr_in, eval_set=[(X_val, y_val)], verbose=False)` modeli asıl eğitim verisiyle kurar; `eval_set`, içinde `(girdi, hedef)` çiftleri bulunan bir listedir ve model her yeni ağaçtan sonra bu kümedeki hatayı (varsayılan olarak RMSE) ölçer. `verbose=False`, her turun hatasının ekrana yazdırılmasını engeller. xgboost 2.0 ve sonrasında `early_stopping_rounds` kurucuya yazılır; `fit()` içine yazılırsa hata alınır.
+6. **Erken durdurma:** `XGBRegressor(n_estimators=1000, early_stopping_rounds=50, ...)` en fazla 1000 ağaç kurmaya hazırdır, ama doğrulama hatası art arda 50 ağaç boyunca iyileşmezse durur. `fit(X_tr_in, y_tr_in, eval_set=[(X_val, y_val)], verbose=False)` modeli asıl eğitim verisiyle kurar; `eval_set`, içinde `(girdi, hedef)` çiftleri bulunan bir listedir ve model her yeni ağaçtan sonra bu kümedeki hatayı (varsayılan olarak RMSE) ölçer. `verbose=False`, her turun hatasının ekrana yazdırılmasını engeller. (`early_stopping_rounds`'un neden kurucuya yazıldığı için bkz. 13.1.4'teki tablo.)
 7. **`best_iteration`:** Doğrulama hatasının en düşük olduğu turun numarasıdır. Python'da sayma 0'dan başladığı için bu numaranın 1 fazlası ağaç sayısıdır: `best_n = best_iteration + 1`. Bizim çalıştırmamızda `best_iteration` = 172, yani `best_n` = 173'tür; eğitim, 173. ağaçtan sonra 50 tur daha denenip iyileşme görülmeyince 223. ağaçta durmuştur.
 8. **Yeniden eğitim ve tahmin:** `XGBRegressor(n_estimators=best_n, **params)` aynı ayarlarla, ama tam 173 ağaçlık yeni bir model kurar ve `fit(X_train, y_train)` ile doğrulama yılı dahil bütün eğitim verisinde eğitir. `model.predict(X_test)` 12 test ayı için 12 sayılık bir NumPy dizisi döndürür. `calculate_metrics` ise üç değer döndürür; `a, b, c = ...` yazımı bu üç değeri sırayla üç değişkene atar.
 
@@ -10737,8 +10661,8 @@ Program sırasıyla şu adımları izler:
 
 1. **Tekrarlanabilirlik ve veri:** Tohum sabitlenir (`SEED = 42`), AirPassengers okunur ve `Month` sütunu tarih indeksi yapılır.
 2. **Özellik mühendisliği:** 12 gecikme (`lag_1`–`lag_12`), 3/6/12 aylık hareketli ortalamalar, 3 ve 12 aylık hareketli standart sapmalar, yıllık değişim (`seasonal_diff`), ay, çeyrek ve normalize yıl üretilir; toplam 21 özellik. Normalize yıl, yılı 0–1 aralığına taşır: (yıl − 1949) / (1960 − 1949); örneğin 1955 için $6 / 11 \approx 0.545$. Hepsi `shift` ile yalnızca geçmiş bilgiden hesaplanır (takvim bilgileri zaten önceden bilinir); NaN içeren ilk satırlar atılır.
-3. **Eğitim / doğrulama / test ayrımı:** Son 12 ay test, eğitimin son 12 ayı erken durdurma için doğrulama kümesidir.
-4. **Model:** Erken durdurmayla uygun ağaç sayısı (`best_n`) bulunur, model bu sayıyla tüm eğitim verisinde yeniden eğitilir.
+3. **Eğitim / doğrulama / test ayrımı:** Yukarıdaki 4. maddede anlatıldığı gibidir.
+4. **Model:** Erken durdurma ve yeniden eğitim, yukarıdaki 6.–8. maddelerdeki gibidir.
 5. **Değerlendirme:** `calculate_metrics` eğitim ve test için MAE, RMSE ve MAPE yazdırır; ardından eğitimdeki en büyük değer, testteki en büyük gerçek değer ve en büyük tahmin yan yana basılır (ekstrapolasyon kontrolü).
 6. **Özellik önemi:** `feature_importances_` yatay çubuk grafikle çizilir ve en önemli beş özellik listelenir.
 7. **Görselleştirme:** Tüm seri üzerinde eğitim/test tahminleri ve test döneminin, eğitimdeki tavanı gösteren yatay çizgiyle ayrıntılı görünümü çizilir.
@@ -10802,9 +10726,9 @@ Ortalama Sonuçlar:
 #### 13.4.1. Kodun Önemli Noktaları ve Çıktının Yorumlanması
 
 - **Üç parçalı ayrım:** Son 12 ay test setidir ve yalnızca en sonda, performansı raporlamak için kullanılır. Erken durdurma için gereken doğrulama seti, eğitim verisinin son 12 ayından ayrılır. Test setini erken durdurmada (`eval_set`) kullanmak, test bilgisini model seçimine sızdırır ve sonuçları olduğundan iyi gösterir.
-- **İki aşamalı eğitim:** Önce doğrulama seti üzerinde uygun ağaç sayısı (`best_n`, bizde 173) bulunur, sonra model bu ağaç sayısıyla tüm eğitim verisinde yeniden eğitilir. Böylece en yakın tarihli 12 ay da öğrenmeye katılır.
+- **İki aşamalı eğitim:** Ağaç sayısı doğrulama yılıyla seçildikten sonra model bütün eğitim verisinde yeniden eğitilir; böylece en yakın tarihli 12 ay (1959) da öğrenmeye katılır.
 - **Metrikler:** MAE, RMSE ve MAPE'nin tanımları ve yorumu için Bölüm 8'e bakınız. Testte MAE = 30.48, model 1960'ın her ayında ortalama yaklaşık 30 bin yolcu yanılıyor demektir; MAPE = %6.23 ise bu hatanın gerçek değerlerin ortalama %6'sı kadar olduğunu söyler. Eğitim hatasının test hatasından düşük çıkması beklenen bir durumdur; ancak burada fark çok büyüktür (eğitim MAE 1.54, test MAE 30.48). Model eğitim verisine neredeyse birebir uymuştur; bu, aşırı öğrenmenin ve aşağıdaki ekstrapolasyon sorununun birlikte görüldüğü bir durumdur.
-- **Ekstrapolasyon kontrolü:** Kod, eğitimdeki en büyük değeri, testteki en büyük gerçek değeri ve testteki en büyük tahmini yan yana yazdırır. Seviye modelinin en büyük tahmini (544), eğitimdeki en büyük değerin (559) bile altında, gerçek zirvenin (622) ise çok altındadır. Bu, 13.3'te anlatılan sınırlılığın ta kendisidir. Detaylı test grafiğine eklenen yatay kesikli çizgi de bu tavanı gösterir.
+- **Ekstrapolasyon kontrolü:** Seviye modelinin en büyük tahmini (544), eğitimdeki en büyük değerin (559) bile altında, gerçek zirvenin (622) ise çok altındadır. Bu, 13.3'te anlatılan sınırlılığın ta kendisidir. Detaylı test grafiğine eklenen yatay kesikli çizgi de bu tavanı gösterir.
 - **Özellik önemi:** `feature_importances_`, her özelliğin ağaçlarda yaptığı bölmelerin hatayı ne kadar azalttığının (XGBoost'ta varsayılan ölçü *gain*) payıdır; tüm özelliklerin değerleri toplanınca 1 eder. AirPassengers'ta `lag_12` (geçen yılın aynı ayı) 0.38 ile açık ara en önemli özellik çıkar; onu 12 ve 3 aylık hareketli ortalamalar izler. Bu, serinin güçlü yıllık mevsimselliğini ve yerel düzeyini modelin kendiliğinden keşfettiğini gösterir. Önemi sıfıra yakın özellikler modelden çıkarılarak daha sade bir model denenebilir.
 - **Çapraz doğrulama:** `TimeSeriesSplit(n_splits=5)`, 119 aylık eğitim verisini her biri 19 aylık beş doğrulama dilimine böler; ilk katta model yalnızca 24 ayla, son katta 100 ayla eğitilir. Katlar arasındaki hata farkı (± işaretinden sonraki değer, yani beş katın standart sapması) modelin farklı dönemlerdeki tutarlılığını gösterir: RMSE ortalaması 39.16, katlar arası yayılım 11.52'dir. Çapraz doğrulama yalnızca eğitim verisi üzerinde yapılır; test seti yine dokunulmadan kalır.
 
@@ -11150,16 +11074,12 @@ Bu liste, modelin hangi aylarda başarılı, hangi aylarda (ör. yaz zirvelerind
 
 Burada önemli bir ayrıma dikkat edin. Yukarıdaki işlem, elimizde zaten var olan ama modelden sakladığımız veriler içindi. Peki veri setimiz Aralık 1960'ta bitiyorsa ve biz **Ocak 1961**'i tahmin etmek istiyorsak ne yapacağız?
 
-`TSLagMaker` ile özellikleri elle ürettiğimiz bu yöntem buna doğrudan izin vermez. Ocak 1961'i tahmin etmek için modele "bir önceki ayın (Aralık 1960) yolcu sayısını" girdi olarak vermemiz gerekir; bu değer elimizdedir. Ancak Şubat 1961'i tahmin etmek için henüz gerçekleşmemiş olan Ocak 1961 değerine ihtiyaç duyarız. Elimizdeki tek şey, modelin Ocak 1961 için ürettiği tahmindir. Bu tahmini girdi olarak kullanıp bir sonraki ayı, onu da kullanıp bir sonrakini tahmin etmeye **özyinelemeli tahmin** (recursive forecasting) denir (12.1.3). Bir adım ileri tahmin eden model $f$ ile, $T$ son gözlem zamanı olmak üzere:
-
-$$\hat{y}_{T+1} = f(y_T, y_{T-1}, \dots), \qquad \hat{y}_{T+2} = f(\hat{y}_{T+1}, y_T, \dots), \qquad \hat{y}_{T+3} = f(\hat{y}_{T+2}, \hat{y}_{T+1}, \dots)$$
-
-Burada $T$ = Aralık 1960, $T + 1$ = Ocak 1961'dir; şapkasız $y$ gerçek değerleri, şapkalı $\hat{y}$ tahminleri gösterir. Ufuk uzadıkça girdilerin giderek daha büyük bir kısmı modelin kendi tahminlerinden oluşur; bu yüzden hatalar birikir. Bu mekanizmanın ayrıntısını Bölüm 14'te göreceğiz.
+`TSLagMaker` ile özellikleri elle ürettiğimiz bu yöntem buna doğrudan izin vermez. Ocak 1961'i tahmin etmek için modele "bir önceki ayın (Aralık 1960) yolcu sayısını" girdi olarak vermemiz gerekir; bu değer elimizdedir. Ancak Şubat 1961'i tahmin etmek için henüz gerçekleşmemiş olan Ocak 1961 değerine ihtiyaç duyarız. Elimizdeki tek şey, modelin Ocak 1961 için ürettiği tahmindir. Bu tahmini girdi olarak kullanıp bir sonraki ayı, onu da kullanıp bir sonrakini tahmin etmeye **özyinelemeli tahmin** (recursive forecasting) denir (12.1.3). Ufuk uzadıkça girdilerin giderek daha büyük bir kısmı modelin kendi tahminlerinden oluşur ve hatalar birikir; mekanizmanın formülünü ve Weka'daki işleyişini Bölüm 14.2.1'de göreceğiz.
 
 Veri setinin bittiği tarihten ileri bir tarihi tahmin etmek için iki yolunuz vardır:
 
 1. **Elle yöntem (zahmetli):** Veri setinin altına yeni tarihleri ekleyip yolcu sayılarını boş (`?`) bırakırsınız. Weka'da tahmin alıp çıkan sonucu bir sonraki satırın gecikme sütunlarına elle kopyalayarak ilerlersiniz. Bu yöntem yavaş ve hataya açıktır.
-2. **Forecast sekmesi (önerilen yöntem):** `timeseriesForecasting` paketiyle gelen `Forecast` sekmesi bu işi otomatik yapar: gecikme özelliklerini kendisi üretir, kurduğunuz modelle bir adım ileri tahmin yapar, bu tahmini bir sonraki adımın girdisi yapar ve 1961 yılının tahminlerini tablo ve grafik olarak sunar.
+2. **Forecast sekmesi (önerilen yöntem):** `timeseriesForecasting` paketiyle gelen `Forecast` sekmesi bu işi otomatik yapar (Bölüm 14).
 
 Bu bölümde temel mantığı kavramak için `Explorer` ekranındaki `Classify` sekmesini kullandık. Geleceğe yönelik bir tahmin raporu hazırlayacaksanız, burada öğrendiğiniz veri hazırlığı mantığıyla `Forecast` sekmesini kullanmanız daha doğru olacaktır. Bir sonraki bölüm tamamen bu sekmeye ayrılmıştır.
 
@@ -11172,8 +11092,6 @@ Bu bölümde temel mantığı kavramak için `Explorer` ekranındaki `Classify` 
 Bölüm 13.5'te Weka `Explorer` içindeki `Classify` sekmesini kullanarak işin mutfağını gördük: gecikme özelliklerini `TSLagMaker` filtresiyle elle ürettik ve bir regresyon algoritmasıyla test dönemini tahmin ettik. Bu yolun iki eksiği vardı: veri setinin bittiği tarihten sonrasını (ör. 1961 yılını) tahmin etmek zahmetliydi ve modelin "1 ay sonrası" ile "12 ay sonrası" için ne kadar başarılı olduğunu ayrı ayrı göremiyorduk.
 
 Bu bölümde her iki sorunu da çözen **`Forecast`** sekmesini inceleyeceğiz. Bu sekme, Bölüm 13.5.1'de kurduğumuz `timeseriesForecasting` paketiyle birlikte `Explorer` penceresine eklenir. Forecast sekmesi gecikme ve takvim özelliklerini kendisi üretir, seçtiğiniz algoritmayla **özyinelemeli** çok adımlı tahmin yapar ve modelin başarısını her tahmin ufku için ayrı ayrı raporlar. Gecikmeleri arka planda kendisi ürettiği için 13.5.3'teki kopyalama, yeniden adlandırma ve sıralama adımlarına burada gerek yoktur.
-
-Bu sekmeyi hatasız kullanabilmek için veri setinin teknik olarak doğru hazırlanması gerekir: Weka'nın zamanı anlayabilmesi için tarih sütununun `Date` tipinde olması ve sütun adının `Month` **olmaması** (Weka'nın kendi ürettiği sütunlarla çakışmaması) şarttır.
 
 ### 14.1. Veri Hazırlığı: İki Farklı Yöntem
 
@@ -11290,7 +11208,7 @@ Formülü $p = 12$ ile somutlaştıralım:
 
 **Yorum:** Bu yöntemin doğal bir sonucu **hata birikimidir**. 1 adım ileri tahminde bütün girdiler gerçek değerdir. 12 adım ileri tahminde ise yukarıdaki örnekte görüldüğü gibi 12 girdinin 11'i modelin kendi (hatalı olabilecek) tahminleridir; ilk adımlarda yapılan küçük bir hata sonraki adımlara taşınır ve büyüyebilir. Bu yüzden uzun ufuklu tahminlerin hatasını ayrıca incelemek gerekir (14.5).
 
-**Not —** Ağaç tabanlı bir temel öğrenici (ör. `RandomForest`) seçerseniz, Bölüm 13.3'teki ekstrapolasyon sınırlılığı burada da geçerlidir: özyinelemeli tahmin trendi eğitimde görülen düzeyin üzerine taşıyamaz. Bizim denememizde (held out 0.1, bkz. 14.3.5) RandomForest'ın 1961 tahminlerinin en büyüğü 517.6 (Ağustos 1961) çıktı: Eğitimdeki en büyük değer olan 559'un bile altında ve Temmuz 1960'ın gerçek değeri 622'nin çok altında. Aynı ayarlarla `SMOreg` Temmuz 1961 için yaklaşık 660 tahmin etti. Forecast sekmesinin trend ayarlaması (`Lag creation` sekmesindeki zaman indeksi özellikleri: zamanın kendisi, karesi, küpü ve gecikmelerle çarpımı) bu sorunu doğrusal öğrenicilerde (ör. `LinearRegression`, doğrusal çekirdekli `SMOreg`) kısmen çözer; ağaçlarda ise çözmez.
+**Not —** Ağaç tabanlı bir temel öğrenici (ör. `RandomForest`) seçerseniz, Bölüm 13.3'teki ekstrapolasyon sınırlılığı burada da geçerlidir: özyinelemeli tahmin trendi eğitimde görülen düzeyin üzerine taşıyamaz. Bunu 14.3.1'deki alıştırmada ve 14.4'teki çıktıda sayılarla göreceksiniz. Forecast sekmesinin trend ayarlaması (`Lag creation` sekmesindeki zaman indeksi özellikleri: zamanın kendisi, karesi, küpü ve gecikmelerle çarpımı) bu sorunu doğrusal öğrenicilerde (ör. `LinearRegression`, doğrusal çekirdekli `SMOreg`) kısmen çözer; ağaçlarda ise çözmez.
 
 > **Hemen deneyin 14.2.1 · Ufku 12'den 24'e çıkarın: 1961 tahminleri değişir mi?** (Weka Explorer, ~4 dk)
 >
@@ -11546,7 +11464,7 @@ Aşağıdaki değerler `RandomForest`, `Monthly` periyot, gecikme 1–12 ve held
 - `5-steps-ahead` sütununda MAE **38.9**'dur: 5 ay sonrasını tahmin ederken hata payı artmıştır; 8 adımda 48.5'e kadar çıkar.
 - 10, 11 ve 12 adımda hata yeniden düşer (12 adımda 17.4). Bu, modelin uzak geleceği daha iyi bildiği anlamına **gelmez**: Bu sütunlardaki ortalamalar yalnızca 5, 4 ve 3 tahmine dayanır (N değeri, 14.6).
 
-**Yorumlama mantığı:** Normal şartlarda geleceğe ne kadar uzak bakarsak belirsizlik o kadar artar; MAE ve RMSE değerlerinin tabloda sağa (yukarıdaki tabloda aşağıya) doğru büyümesi beklenir.
+**Yorumlama mantığı:** Tabloyu şu üç duruma göre okuyun:
 
 - Hata değerleri 1. aydan 12. aya doğru **çok hızlı artıyorsa**, model kısa vade için güvenilirdir ama uzun vadeli planlama (ör. gelecek yılın yatırım kararları) için risklidir.
 - Hata değerleri **sabit kalıyor veya az artıyorsa**, model kararlı (stabil) ve güvenilir bir yapıdadır.
@@ -11685,13 +11603,13 @@ Bu alt bölümdeki kod, 15.2–15.5'teki bütün modellerin başlangıç noktas�
 
 #### 15.1.1. Veri, Eğitim-Test Ayrımı ve Ölçekleme
 
-Sinir ağları, girdiler küçük ve benzer aralıklarda olduğunda daha kararlı öğrenir. Yolcu sayıları 104 ile 622 arasında değişir. Bu büyüklükteki değerler sigmoid ve `tanh` gibi aktivasyon fonksiyonlarını **doygun** bölgelerine iter: sigmoid(300) ile sigmoid(600) bilgisayarda ikisi de 1.0000 çıkar, yani nöron 300 yolcu ile 600 yolcuyu birbirinden ayıramaz. Daha da kötüsü, eğri o bölgede tamamen düzleştiği için bir ağırlığı biraz değiştirmek çıktıyı hiç değiştirmez. Eğitim, "ağırlığı biraz değiştirirsem hata ne kadar değişir?" bilgisine dayanır (bu bilgiye **gradyan** denir). Çıktı değişmeyince gradyan sıfıra yaklaşır ve öğrenme durur. Bu yüzden veriyi `MinMaxScaler` ile 0–1 aralığına çekiyoruz:
+Sinir ağları, girdiler küçük ve benzer aralıklarda olduğunda daha kararlı öğrenir. Bölüm 12.1.4'te gördüğümüz gibi, yolcu sayıları (104–622) gibi büyük değerler sigmoid ve `tanh`'i **doygun** bölgelerine iter: sigmoid(300) ile sigmoid(600) bilgisayarda ikisi de 1.0000 çıkar, yani nöron 300 yolcu ile 600 yolcuyu ayıramaz. Eğri o bölgede düzleştiği için gradyan da sıfıra yaklaşır ve öğrenme durur. Bu yüzden veriyi 12.1.4'teki `MinMaxScaler` dönüşümüyle 0–1 aralığına çekiyoruz:
 
 $$
 x'_t = \frac{x_t - x_{\min}}{x_{\max} - x_{\min}}
 $$
 
-> **Simge notu:** $`x_t`$: $`t`$. aydaki yolcu sayısı (alt indis $`t`$ ayın sırasını gösterir: $`x_1`$ Ocak 1949, $`x_2`$ Şubat 1949, …) · $`x'_t`$ *(x tırnak t)*: aynı değerin ölçeklenmiş hâli; buradaki tırnak işareti türev anlamına gelmez, yalnızca "dönüştürülmüş x" demektir · $`x_{\min}`$, $`x_{\max}`$ *(x min, x maks)*: eğitim dönemindeki en küçük ve en büyük değer
+> **Simge notu:** Simgeler 12.1.4'tekiyle aynıdır: $`x_t`$ $`t`$. aydaki yolcu sayısı, $`x'_t`$ *(x tırnak t)* ölçeklenmiş değer (tırnak türev değildir), $`x_{\min}`$, $`x_{\max}`$ *(x min, x maks)* eğitim dönemindeki en küçük ve en büyük değer.
 
 Formül, her değerden en küçük değeri çıkarıp sonucu aralığın genişliğine böler. Böylece en küçük değer 0'a, en büyük değer 1'e gider. Eğitim dönemimizde (1949–1955, ilk 84 ay) en küçük değer 104, en büyük değer 364'tür; aralığın genişliği $364 - 104 = 260$ olur. Buna göre:
 
@@ -11699,7 +11617,7 @@ Formül, her değerden en küçük değeri çıkarıp sonucu aralığın genişl
 - 234 yolcu: $(234 - 104) / 260 = 130 / 260 = 0.5$, yani aralığın tam ortası
 - Temmuz 1960 (622 yolcu, test döneminde): $(622 - 104) / 260 = 518 / 260 \approx 1.99$
 
-Burada $x_{\min}$ ve $x_{\max}$ **yalnızca eğitim döneminden** hesaplanır. Ölçekleyiciyi tüm seriyle fit etmek, test dönemindeki en büyük değeri (1960'taki 622) modele önceden "fısıldamak" demektir: o zaman 622 tam 1'e, eğitim dönemindeki 364 ise yaklaşık 0.50'ye denk gelirdi ve model "serinin ileride neredeyse iki katına çıkacağını" girdilerin ölçeğinden sezebilirdi. Bu, küçük ama gerçek bir veri sızıntısıdır. Konunun çapraz doğrulamadaki karşılığını Bölüm 16.4'te ayrıntılı ele alacağız.
+Burada $x_{\min}$ ve $x_{\max}$ **yalnızca eğitim döneminden** hesaplanır. Ölçekleyiciyi tüm seriyle fit etmek, 12.1.4'teki notta gördüğümüz sızıntıdır: Bu bölümün ayrımında 1960'taki 622 tam 1'e, eğitim dönemindeki 364 ise yaklaşık 0.50'ye denk gelir ve model "serinin ileride neredeyse iki katına çıkacağını" girdilerin ölçeğinden sezebilir. Konunun çapraz doğrulamadaki karşılığı Bölüm 16.4'tedir.
 
 ```python
 import numpy as np
@@ -11760,67 +11678,11 @@ Kodu satır satır okuyalım:
 
 > **Not —** Güçlü trend içeren serilerde sinir ağları eğitim aralığının dışına **ekstrapolasyon** (bilinen aralığın dışına taşma) yapmakta zorlanır ve tahminler sistematik olarak düşük kalabilir. Bunu hafifletmek için seriye önce log dönüşümü ve/veya fark alma (Bölüm 2.4 ve 7.6.3) uygulanıp model farklar üzerinde eğitilebilir; aynı fikrin XGBoost'taki uygulaması Bölüm 13.4.2'dedir. Bu bölümde kodu sade tutmak için ham seriyle çalışıyoruz.
 
-> **Hemen deneyin 15.1.1 · Ölçekleyiciyi doğru ve yanlış fit etmek** (Python, ~4 dk)
->
-> Aynı üç yolcu sayısını iki ölçekleyiciyle 0–1 aralığına çevirin: biri yalnızca eğitim dönemiyle (ilk 84 ay), öteki bütün seriyle fit edilsin.
->
-> ```python
-> import numpy as np
-> from pmdarima.datasets import load_airpassengers
-> from sklearn.preprocessing import MinMaxScaler
->
-> v = load_airpassengers(as_series=True).values.reshape(-1, 1)   # 144 satır, 1 sütun
-> dogru  = MinMaxScaler().fit(v[:84])     # yalnızca eğitim dönemi (ilk 84 ay)
-> yanlis = MinMaxScaler().fit(v)          # bütün seri: sızıntılı
-> for deger in [112, 364, 622]:
->     print(deger, "->  doğru:", dogru.transform([[deger]])[0, 0].round(2),
->           "  yanlış:", yanlis.transform([[deger]])[0, 0].round(2))
-> sigmoid = lambda u: 1 / (1 + np.exp(-u))
-> print("sigmoid(300) =", sigmoid(300.0), "  sigmoid(600) =", sigmoid(600.0))
-> ```
->
-> `transform([[deger]])` tek bir sayıyı ölçekleyicinin beklediği tablo biçiminde (1 satır, 1 sütun) verir; `[0, 0]` sonuç tablosunun tek hücresini alır. `lambda u: ...` tek satırlık küçük bir fonksiyon tanımlar.
->
-> **Ne göreceksiniz:**
->
-> ```text
-> 112 ->  doğru: 0.03   yanlış: 0.02
-> 364 ->  doğru: 1.0   yanlış: 0.5
-> 622 ->  doğru: 1.99   yanlış: 1.0
-> sigmoid(300) = 1.0   sigmoid(600) = 1.0
-> ```
->
-> Doğru ölçekleyicide eğitimin en büyük değeri (364) tam 1'e, test dönemindeki 622 ise 1.99'a gider: metindeki elle hesapla aynı. Yanlış ölçekleyicide 364 yalnızca 0.5'tir; model "ölçeğin üst yarısı ileride dolacak" bilgisini girdilerden sezebilir. Son satır doygunluğu gösterir: ölçeklenmemiş büyük sayılarda sigmoid 300 ile 600'ü ayırt edemez.
->
-> **Şimdi siz:** 500 yolcunun iki ölçekleyicideki değerini önce formülle ($`(x - x_{\min}) / (x_{\max} - x_{\min})`$) tahmin edin, sonra döngüdeki listeye 500'ü ekleyip kontrol edin. Ardından `sigmoid(0.5)` ile `sigmoid(1.0)`'ı yazdırın: ölçeklenmiş değerlerde nöron farkı görebiliyor mu?
->
-> <details><summary>Cevap</summary>
->
-> Doğru: $(500 - 104) / 260 \approx 1.52$; yanlış: $(500 - 104) / 518 \approx 0.76$. Çıktı da `doğru: 1.52   yanlış: 0.76` verir. `sigmoid(0.5)` ≈ 0.622, `sigmoid(1.0)` ≈ 0.731: 0–2 aralığındaki girdilerde sigmoid hâlâ farklı sonuçlar üretir, yani nöron değerleri birbirinden ayırabilir.
->
-> </details>
-
 #### 15.1.2. Kayan Pencere: Seriden Girdi-Hedef Çiftlerine
 
-Bölüm 12'de gördüğümüz gibi, zaman serisini denetimli öğrenmeye çevirmenin yolu **kayan penceredir (sliding window)**: Son `look_back` gözlem girdi, hemen sonraki gözlem hedef olur. `look_back = 3` için:
+Bölüm 12.1.1'deki kayan pencereyi (Şekil 12.1) burada `look_back` adıyla kullanıyoruz; `look_back`, 12.1.1'deki pencere boyu $p$'dir: Son `look_back` gözlem girdi, hemen sonraki gözlem hedef olur ve $n$ gözlemli seriden `n - look_back` örnek elde edilir.
 
-| Girdi (X) | Hedef (y) |
-| --- | --- |
-| $`x_1, x_2, x_3`$ | $`x_4`$ |
-| $`x_2, x_3, x_4`$ | $`x_5`$ |
-| $`x_3, x_4, x_5`$ | $`x_6`$ |
-
-Tablodaki alt indisler gözlemin sırasını gösterir: $x_1$ birinci ay, $x_4$ dördüncü ay. Somut sayılarla düşünelim: Seri 10, 20, 30, 40, 50, 60 olsun ve `look_back = 3` seçelim. Pencere her satırda bir adım sağa kayar:
-
-| Örnek | Girdi (X) | Hedef (y) |
-| --- | --- | --- |
-| 1 | 10, 20, 30 | 40 |
-| 2 | 20, 30, 40 | 50 |
-| 3 | 30, 40, 50 | 60 |
-
-6 gözlemden $6 - 3 = 3$ örnek çıkar, çünkü ilk 3 gözlemin önünde yeterli geçmiş yoktur ve hiçbir zaman hedef olamazlar. Genel kural: $n$ gözlemli seriden `n - look_back` örnek elde edilir.
-
-Aylık ve 12 aylık mevsimselliği olan bir seride `look_back = 12` iyi bir başlangıçtır: Model her tahminde tam bir yıllık döngüyü görür. Çok küçük pencere yeterli bağlam vermez; çok büyük pencere ise örnek sayısını azaltır ve aşırı öğrenme (modelin genel deseni değil eğitim verisinin ayrıntılarını ezberlemesi) riskini artırır. AirPassengers'ta $144 - 12 = 132$ örnek elde ederiz.
+12.1.1'de önerildiği gibi aylık mevsimsel seride `look_back = 12` seçiyoruz: Model her tahminde tam bir yıllık döngüyü görür. Pencere çok büyürse örnek sayısı azalır ve aşırı öğrenme (modelin genel deseni değil eğitim verisinin ayrıntılarını ezberlemesi) riski artar. AirPassengers'ta $144 - 12 = 132$ örnek elde ederiz.
 
 ```python
 def create_dataset(series, look_back=1):
@@ -11863,12 +11725,7 @@ test_dates = dates[train_size:]
 trainX: (72, 12, 1)  testX: (60, 12, 1)
 ```
 
-`create_dataset` fonksiyonu yukarıdaki küçük tabloyu kurmanın kod hâlidir:
-
-1. `def create_dataset(series, look_back=1):` bir fonksiyon tanımlar. `look_back=1` varsayılan değerdir; çağırırken başka bir değer verilmezse 1 kullanılır. Üç tırnak arasındaki metin (*docstring*) fonksiyonun ne aldığını ve ne döndürdüğünü anlatan açıklamadır.
-2. `X, y = [], []` iki boş liste açar. `for i in range(len(series) - look_back):` döngüsü `i = 0, 1, 2, …` değerlerini sırayla dener. Python saymaya 0'dan başlar; 144 gözlem ve `look_back = 12` için `i` 0'dan 131'e kadar gider, yani 132 tur atılır.
-3. `series[i:(i + look_back), 0]` dilimi, `i`. satırdan başlayıp 12 satır alır (son sınır dahil değildir: `i = 0` için 0–11. satırlar) ve yalnızca 0. sütunu seçer. Bu 12 sayı bir girdi penceresidir. `series[i + look_back, 0]` ise pencerenin hemen arkasındaki tek değerdir, yani hedeftir (`i = 0` için 12. satır, Ocak 1950). `.append(...)` her turda bulunanı listenin sonuna ekler.
-4. `np.array(X)` listeyi 132 satır ve 12 sütunlu bir tabloya çevirir; şekli `(132, 12)` olur. `y` ise 132 sayılık bir dizidir: `(132,)`.
+`create_dataset`, 12.1.2'deki `kayan_pencere` fonksiyonunun aynısıdır (satır satır açıklaması orada). `look_back=1` varsayılan değerdir, yani çağırırken başka değer verilmezse 1 kullanılır; üç tırnak arasındaki metin (*docstring*) fonksiyonun ne aldığını ve ne döndürdüğünü anlatır. Tek fark, girdinin `(n, 1)` biçiminde tek sütunlu bir tablo olmasıdır: Bu yüzden dilimlerde `, 0` ile 0. sütun seçilir (`series[i:(i + look_back), 0]` girdi penceresi, `series[i + look_back, 0]` hedef). 144 gözlem ve `look_back = 12` için döngü 132 tur atar; `X`'in şekli `(132, 12)`, `y`'ninki `(132,)` olur.
 
 Ardından örnekler eğitim ve test olarak ayrılır. `i`. örneğin hedefi serinin `i + 12` numaralı gözlemidir. Eğitim dönemi 0–83 numaralı gözlemlerdir; hedefi bu aralıkta kalan örnekler `i + 12 ≤ 83`, yani `i ≤ 71` olanlardır. Bu da $0$'dan $71$'e kadar $72$ örnek eder: `split = 84 - 12 = 72`. Kalan $132 - 72 = 60$ örneğin hedefleri tam olarak test dönemindeki 60 aydır. `X_all[:split]` ilk 72 satırı, `X_all[split:]` 72. satırdan sonuna kadar olanları seçer.
 
@@ -11985,7 +11842,7 @@ Sayılar ve sıraları değişmez; değişen yalnızca kabın düzenidir. Sağda
 
 ### 15.2. LSTM ile Tahmin
 
-LSTM'in iç yapısını Bölüm 12.2.2'de kavramsal olarak gördük. Kısaca hatırlarsak: Hücre, uzun süreli bilgiyi taşıyan bir **hücre durumu** $C_t$ ve her adımda dışarıya verilen bir **gizli durum** $h_t$ tutar. Hücre durumunu bir defter, gizli durumu ise o defterden o gün dışarıya söylenen özet gibi düşünebilirsiniz. Üç **kapı** bu iki durum arasındaki bilgi akışını denetler. Kapı, 0 ile 1 arasında bir değer alan bir vanadır: 0 "tamamen kapalı, hiçbir şey geçmez", 1 "tamamen açık, her şey geçer", 0.9 ise "bilginin yüzde 90'ı geçer" demektir.
+LSTM'in iç yapısını Bölüm 12.2.2'de kavramsal olarak gördük: Hücre, uzun süreli bilgiyi taşıyan bir **hücre durumu** $C_t$ (defter) ve her adımda dışarıya verilen bir **gizli durum** $h_t$ tutar; 0 ile 1 arasında değer alan üç **kapı** (vana) bu iki durum arasındaki bilgi akışını denetler.
 
 Her kapı aynı tarifle hesaplanır: Bu ayın girdisi $x_t$ ve bir önceki adımın çıktısı $h_{t-1}$ birer ağırlıkla çarpılıp toplanır, yanlılık eklenir ve sonuç sigmoid ile 0–1 arasına sıkıştırılır. Kapılar arasındaki tek fark, her birinin kendi ağırlıklarına sahip olmasıdır. Bir zaman adımındaki hesaplamanın tamamı şöyledir:
 
@@ -12000,7 +11857,7 @@ h_t &= o_t \odot \tanh\left(C_t\right) &&\text{(çıktı)}
 \end{aligned}
 ```
 
-> **Simge notu:** Alt indis zamanı gösterir: $`t`$ "bu adım" (bu ay), $`t-1`$ "bir önceki adım" (geçen ay) · $`x_t`$: bu adımın girdisi (pencere içindeki o ayın ölçeklenmiş yolcu sayısı) · $`h_t`$, $`h_{t-1}`$ *(h t, h t eksi bir)*: bu adımın ve önceki adımın gizli durumu (çıktısı) · $`C_t`$, $`C_{t-1}`$ *(C t)*: bu adımın ve önceki adımın hücre durumu (uzun süreli hafıza) · $`f_t, i_t, o_t`$ *(ef, i, o)*: unutma (*forget*), giriş (*input*) ve çıkış (*output*) kapılarının değerleri · $`\sigma`$ *(sigma)*: sigmoid fonksiyonu, çıktısı 0 ile 1 arasındadır ve kapının "ne kadar açık" olduğunu belirtir. Burada standart sapma anlamına gelmez; büyük harf $`\Sigma`$ (toplam işareti) ile de karıştırılmamalıdır · $`\tanh`$ *(tanjant hiperbolik)*: çıktısı −1 ile 1 arasında olan aktivasyon · $`W, U`$ *(dabılyu, u)*: öğrenilen ağırlıklar; $`W`$ girdiyle, $`U`$ önceki gizli durumla çarpılır. Alt indisleri ($`W_f`$, $`W_i`$, …) hangi kapıya ait olduklarını gösterir · $`b`$: öğrenilen yanlılık · $`\tilde{C}_t`$ *(C tilda t)*: hafızaya eklenmeye aday yeni bilgi · $`\odot`$ *(eleman eleman çarpım, "Hadamard çarpımı")*: iki sayı listesinin aynı sıradaki elemanlarını çarpar: $`[1, 2] \odot [3, 4] = [3, 8]`$
+> **Simge notu:** Alt indis zamanı gösterir: $`t`$ "bu adım" (bu ay), $`t-1`$ "bir önceki adım" (geçen ay) · $`x_t`$: bu adımın girdisi (pencere içindeki o ayın ölçeklenmiş yolcu sayısı) · $`h_t`$, $`h_{t-1}`$ *(h t, h t eksi bir)*: bu adımın ve önceki adımın gizli durumu (çıktısı) · $`C_t`$, $`C_{t-1}`$ *(C t)*: bu adımın ve önceki adımın hücre durumu (uzun süreli hafıza) · $`f_t, i_t, o_t`$ *(ef, i, o)*: unutma (*forget*), giriş (*input*) ve çıkış (*output*) kapılarının değerleri · $`\sigma`$ *(sigma)*: sigmoid fonksiyonu; kapının "ne kadar açık" olduğunu 0–1 arası bir sayıyla verir (standart sapma değildir, bkz. 12.2.2) · $`\tanh`$ *(tanjant hiperbolik)*: çıktısı −1 ile 1 arasında olan aktivasyon · $`W, U`$ *(dabılyu, u)*: öğrenilen ağırlıklar; $`W`$ girdiyle, $`U`$ önceki gizli durumla çarpılır. Alt indisleri ($`W_f`$, $`W_i`$, …) hangi kapıya ait olduklarını gösterir · $`b`$: öğrenilen yanlılık · $`\tilde{C}_t`$ *(C tilda t)*: hafızaya eklenmeye aday yeni bilgi · $`\odot`$ *(eleman eleman çarpım, "Hadamard çarpımı")*: iki sayı listesinin aynı sıradaki elemanlarını çarpar: $`[1, 2] \odot [3, 4] = [3, 8]`$
 
 Tek birimli bir hücrede bütün bu harfler sıradan sayılardır. 50 birimli bir katmanda ise her harf 50 sayılık bir listeyi, $W$ ve $U$ de ağırlık tablolarını temsil eder; hesap her birim için aynı biçimde tekrarlanır.
 
@@ -12013,54 +11870,7 @@ f_t &= \text{sigmoid}(2.2) \approx 0.90
 \end{aligned}
 ```
 
-Diğer kapıların da aynı yolla $i_t = 0.2$, $\tilde{C}_t = 0.5$ ve $o_t = 0.5$ çıktığını varsayalım. Hafıza güncellemesi ve çıktı:
-
-```math
-\begin{aligned}
-C_t &= 0.9 \cdot 2.0 + 0.2 \cdot 0.5 = 1.8 + 0.1 = 1.9\\
-h_t &= 0.5 \cdot \tanh(1.9) \approx 0.5 \cdot 0.956 \approx 0.48
-\end{aligned}
-```
-
-Eski hafızanın yüzde 90'ı korunmuş, üzerine yeni bilgiden küçük bir pay eklenmiştir. Unutma kapısı 0.1 olsaydı $C_t = 0.1 \cdot 2.0 + 0.1 = 0.3$ çıkardı: Hücre eski hafızayı büyük ölçüde silmiş olurdu.
-
-**Açıklama:** $C_t$ denklemi LSTM'in kalbidir. Unutma kapısı $f_t$ sıfıra yakınsa eski hafıza silinir, bire yakınsa korunur. Giriş kapısı $i_t$ yeni bilginin ne kadarının yazılacağını belirler. Hafıza **toplama** ile güncellendiği için gradyan uzun diziler boyunca kolayca sönmez. Sade bir RNN'de hata sinyali geriye doğru her adımda 1'den küçük bir sayıyla çarpılır: Çarpan her adımda 0.5 olsaydı 12 adım sonra sinyal $0.5^{12} \approx 0.00024$'e, yani neredeyse sıfıra inerdi. LSTM'de unutma kapısı 1'e yakın tutulduğunda bu çarpan da 1'e yakın kalır. Bölüm 12.2.1'de sözünü ettiğimiz **kaybolan gradyan** sorununa LSTM'in çözümü budur.
-
-> **Hemen deneyin 15.2a · LSTM hücresinde bir adım** (Python, ~3 dk)
->
-> Metindeki tek birimlik sayısal örneği kodla hesaplayın ve kaybolan gradyan çarpanını görün.
->
-> ```python
-> import numpy as np
-> sigmoid = lambda u: 1 / (1 + np.exp(-u))
->
-> C_eski, x, h_eski = 2.0, 0.4, 0.5
-> f = sigmoid(1.5 * x + 2 * h_eski + 0.6)    # unutma kapısı: W_f = 1.5, U_f = 2, b_f = 0.6
-> i, C_aday, o = 0.2, 0.5, 0.5               # diğer kapılar (metindeki varsayım)
-> C = f * C_eski + i * C_aday                # hafıza güncellemesi
-> h = o * np.tanh(C)                         # çıktı
-> print(f"f = {f:.3f}   C = {C:.3f}   h = {h:.3f}")
-> print("12 adım, çarpan 0.5 :", 0.5 ** 12)
-> print("12 adım, çarpan 0.95:", round(0.95 ** 12, 3))
-> ```
->
-> **Ne göreceksiniz:**
->
-> ```text
-> f = 0.900   C = 1.900   h = 0.478
-> 12 adım, çarpan 0.5 : 0.000244140625
-> 12 adım, çarpan 0.95: 0.54
-> ```
->
-> Unutma kapısı 0.90 açık; eski hafızanın yüzde 90'ı korunur ve $C_t = 1.9$, $h_t \approx 0.48$ olur (metindeki değerler). Son iki satır: çarpan 0.5 iken sinyal 12 adımda neredeyse sıfıra iner, 1'e yakın (0.95) iken yarısından fazlası kalır. LSTM'in uzun hafızasının sırrı budur.
->
-> **Şimdi siz:** Unutma kapısının yanlılığını `+ 0.6` yerine `- 3` yapın. `f`, `C` ve `h` ne olur? Eski hafızaya ne oldu? Ayrıca `0.9 ** 12`'yi hesaplayın.
->
-> <details><summary>Cevap</summary>
->
-> `f = 0.198   C = 0.496   h = 0.229`. Kapı büyük ölçüde kapandı: eski hafızanın (2.0) yalnızca yaklaşık beşte biri kaldı ($0.198 \cdot 2 \approx 0.40$, üstüne $0.1$ yeni bilgi). `0.9 ** 12` ≈ 0.282: çarpan 0.95'ten 0.9'a inince 12 adım sonra kalan sinyal 0.54'ten 0.28'e düşer.
->
-> </details>
+Diğer kapılar için 12.2.2'deki değerleri ($i_t = 0.2$, $\tilde{C}_t = 0.5$, $o_t = 0.5$) kullanırsak $C_t = 0.9 \cdot 2.0 + 0.2 \cdot 0.5 = 1.9$ ve $h_t = 0.5 \cdot \tanh(1.9) \approx 0.48$ bulunur: Eski hafızanın yüzde 90'ı korunmuş, üzerine yeni bilgiden küçük bir pay eklenmiştir. Hafızanın **toplama** ile güncellenmesinin kaybolan gradyan sorununu (12.2.1) nasıl hafiflettiğini 12.2.2'deki denklem yorumunda gördük.
 
 Modelimiz tek bir LSTM katmanı (50 birim) ve tek nöronlu bir çıktı katmanından (`Dense(1)`) oluşuyor. Keras'ta bir model dört adımda hazırlanır: (1) katmanlar sırayla dizilir, (2) `compile` ile hatanın nasıl ölçüleceği ve ağırlıkların nasıl düzeltileceği seçilir, (3) `fit` ile model eğitilir, (4) `predict` ile tahmin üretilir.
 
@@ -12124,9 +11934,9 @@ Kodun önemli satırları şunlardır:
 
 - `model_lstm.summary()` LSTM katmanı için 10.400 parametre gösterir. Dört ağırlık seti ($f, i, o, \tilde{C}$) vardır. Her set, her birim için 1 girdi ağırlığı, önceki gizli durumdaki 50 değer için 50 ağırlık ve 1 yanlılık, yani 52 sayı içerir: $50 \times (1 + 50) + 50 = 2550 + 50 = 2600$. Dört set için $4 \times 2600 = 10.400$ olur. Buna `Dense` katmanının $50 + 1 = 51$ parametresi eklenir; toplam 10.451.
 - Eğitim tahminleri gerçek seriyi yakından izliyorsa ama test tahminleri özellikle 1959–1960 tepelerinde gerçek değerlerin altında kalıyorsa bu, 15.1.1'deki ekstrapolasyon sorununun işaretidir.
-- `rmse_lstm` yolcu sayısıyla aynı birimdedir (bin yolcu). Bizim çalıştırmamızda 46.19 çıktı. Aynı bilgisayarda kod tekrar çalıştırıldığında aynı sayı elde edildi; ama başka bir işletim sistemi, işlemci ya da TensorFlow sürümünde sizin değeriniz farklı olabilir. Farkın ne kadar büyük olabileceğini 15.3'te göreceğiz. 15.5'te diğer modellerle bu değer üzerinden karşılaştıracağız.
+- `rmse_lstm` yolcu sayısıyla aynı birimdedir (bin yolcu). Bizim çalıştırmamızda 46.19 çıktı. Sizin değeriniz 15.1.1'de (2. madde) belirttiğimiz nedenlerle farklı olabilir. Farkın ne kadar büyük olabileceğini 15.3'te göreceğiz. 15.5'te diğer modellerle bu değer üzerinden karşılaştıracağız.
 
-> **Hemen deneyin 15.2b · Parametre sayısını formülle doğrulayın** (Python, ~4 dk)
+> **Hemen deneyin 15.2 · Parametre sayısını formülle doğrulayın** (Python, ~4 dk)
 >
 > Küçük bir LSTM kurun (eğitmeden) ve `summary()`'deki parametre sayısını formülle karşılaştırın. $h$ birim ve $x$ özellik için LSTM katmanı $4 \cdot [h \cdot (h + x) + h]$ parametre taşır.
 >
@@ -12292,7 +12102,7 @@ Tablo ve Şekil 15.3 bu bölümün belki de en önemli dersini veriyor: Küçük
 
 CNN'leri çoğunlukla "bu resimde kedi var mı?" sorusuyla duyarız. Orada ağ, resmin üzerinde küçük pencereler gezdirerek kenarları ve köşeleri öğrenir. Zaman serisinde mantık aynıdır; yalnızca pencere iki boyutlu bir resim yerine tek boyutlu bir dizi üzerinde kayar. Filtreler, verinin içindeki yükseliş eğilimini, ani düşüşü veya tepe noktasını birer **desen** olarak tanımayı öğrenir.
 
-LSTM veriyi bir hikâye gibi baştan sona okuyup aklında tutmaya çalışır; CNN ise veriye desen taraması gibi yaklaşır. "Geçen ay ne oldu?" sorusundan çok "Son üç aydaki hareketin şekli neye benziyor?" sorusuna odaklanır. Bu özellik gürültüyü süzmede ve kısa vadeli desenleri yakalamada etkilidir. Ayrıca hesaplamalar paralel yapılabildiği için LSTM'e göre daha hızlı eğitilir.
+LSTM veriyi bir hikâye gibi baştan sona okuyup aklında tutmaya çalışır; CNN ise veriye desen taraması gibi yaklaşır. "Geçen ay ne oldu?" sorusundan çok "Son üç aydaki hareketin şekli neye benziyor?" sorusuna odaklanır. Bu özellik gürültüyü süzmede ve kısa vadeli desenleri yakalamada etkilidir.
 
 #### 15.4.1. Evrişim, Filtre, `kernel_size` ve Havuzlama
 
@@ -12513,13 +12323,11 @@ Kilit satırları sırayla açıklayalım:
 
 Program sırasıyla şu adımları izler:
 
-1. **Ayrım:** 15.1'deki 72 eğitim penceresinin son 12'si doğrulama kümesi olur; test kümesi 60 örnektir.
-2. **Mimari:** İki evrişim bloğu (`Conv1D` → `MaxPooling1D` → `Dropout`), ardından `Flatten` ve iki `Dense` katmanı. `padding='same'` ile uzunluk evrişimde korunur, havuzlamada 12 → 6 → 3 olur.
-3. **Eğitim:** En fazla 300 epoch, `batch_size=16`; doğrulama kaybı 20 epoch iyileşmezse erken durdurma devreye girer ve en iyi ağırlıklar geri yüklenir. Kayıp ve MAE öğrenme eğrileri çizilir.
-4. **Değerlendirme:** Tahminler `inverse_transform` ile orijinal ölçeğe döndürülür; eğitim, doğrulama ve test için RMSE, MAE ve MAPE yazdırılır. Test RMSE'si `rmse_cnn` olarak saklanır.
-5. **Görselleştirme:** Gerçek seri üzerinde eğitim, doğrulama ve test tahminleri çizilir.
-6. **Hata analizi:** Test hatalarının histogramı, zaman içindeki seyri ve gerçek–tahmin saçılım grafiği çizilir; hataların ortalaması ve standart sapması yazdırılır.
-7. **Hiperparametre karşılaştırması (isteğe bağlı):** Üç farklı `filters` / `kernel_size` / `dropout_rate` yapılandırması denenir; en iyisi **doğrulama** RMSE'sine göre seçilir.
+1. **Ayrım, mimari ve eğitim:** Yukarıdaki kilit satırlarda anlatıldığı gibidir (72 eğitim penceresinin son 12'si doğrulama; iki evrişim bloğu; en fazla 300 epoch ve erken durdurma). Ek olarak kayıp ve MAE öğrenme eğrileri çizilir.
+2. **Değerlendirme:** Tahminler `inverse_transform` ile orijinal ölçeğe döndürülür; eğitim, doğrulama ve test için RMSE, MAE ve MAPE yazdırılır. Test RMSE'si `rmse_cnn` olarak saklanır.
+3. **Görselleştirme:** Gerçek seri üzerinde eğitim, doğrulama ve test tahminleri çizilir.
+4. **Hata analizi:** Test hatalarının histogramı, zaman içindeki seyri ve gerçek–tahmin saçılım grafiği çizilir; hataların ortalaması ve standart sapması yazdırılır.
+5. **Hiperparametre karşılaştırması (isteğe bağlı):** Üç farklı `filters` / `kernel_size` / `dropout_rate` yapılandırması denenir; en iyisi **doğrulama** RMSE'sine göre seçilir.
 
 Tam kod: [`Codes/python/ch15_derin_ogrenme.py`](Codes/python/ch15_derin_ogrenme.py) · [Notebook](Codes/notebooks/ch15_derin_ogrenme.ipynb)
 
@@ -12552,7 +12360,7 @@ Bu yapılandırmanın test RMSE değeri: 27.91
 **Çıktının yorumu:**
 
 - **Parametre sayısı:** 44.261 parametrenin hesabı: ilk evrişim katmanında her filtre 3 ağırlık ve 1 yanlılık taşır, $64 \times (3 + 1) = 256$. İkinci katmanda her filtre 3 zaman adımı × 64 özellik haritası = 192 ağırlık ve 1 yanlılık taşır, $128 \times (192 + 1) = 24.704$. `Dense(50)` için $384 \times 50 + 50 = 19.250$, çıktı katmanı için $50 + 1 = 51$. Toplam $256 + 24.704 + 19.250 + 51 = 44.261$.
-- **Öğrenme eğrileri (Şekil 15.5):** Erken durdurma devreye girdiğinde doğrulama kaybının en düşük olduğu epoch'un ağırlıkları geri yüklenir. Bu çalıştırmada en iyi epoch 16, eğitimin durduğu epoch $16 + 20 = 36$'dır. Doğrulama kaybı eğitim kaybından çok yüksekse model ezberliyordur; dropout oranını artırmak ya da filtre sayısını azaltmak denenebilir.
+- **Öğrenme eğrileri (Şekil 15.5):** Durma ve geri yükleme noktaları (16. epoch'un ağırlıkları, 36. epoch'ta durma) şeklin alt yazısında açıklanmıştır. Doğrulama kaybı eğitim kaybından çok yüksekse model ezberliyordur; dropout oranını artırmak ya da filtre sayısını azaltmak denenebilir.
 - **Eğitim, doğrulama ve test RMSE:** Eğitimden teste doğru hatanın artması (13.65 → 24.66 → 32.43) normaldir: Model eğitim verisini zaten görmüştür, doğrulama yılı (1955) eğitime en yakın dönemdir, test dönemi ise hem daha uzun hem de eğitimde hiç görülmemiş yolcu düzeyleri içerir. Test RMSE'nin eğitimin birkaç katı olması hem aşırı öğrenmeye hem de 15.1.1'deki ekstrapolasyon sorununa işaret eder; burada oran $32.43 / 13.65 \approx 2.4$'tür.
 - **Hata analizi:** Hata burada "gerçek eksi tahmin" olarak hesaplanır. Ortalama hata 18.38, yani pozitiftir: Model test döneminde ortalama olarak yaklaşık 18 bin yolcu **düşük** tahmin yapıyor. Bu, sistematik bir sapmadır ve yine ekstrapolasyon sorununun işaretidir. Hataların zamanla büyümesi, trendin model tarafından tam yakalanamadığını gösterir.
 - **Hiperparametre karşılaştırması:** Doğrulama RMSE'si en küçük olan yapılandırma (2) seçildi. Bu yapılandırma ana modelle aynı ayarlara sahip olduğu hâlde doğrulama RMSE'si farklıdır (22.23 ve 24.66), çünkü döngüdeki modeller farklı rastgele başlangıç ağırlıklarıyla kurulur ve erken durdurma sabrı 15'tir. Üç yapılandırma arasındaki farklar (22–27) bu rastgelelikten kaynaklanan farkla aynı büyüklüktedir; yani bu küçük deneyle hangi ayarın gerçekten daha iyi olduğunu kesin olarak söyleyemeyiz.
@@ -12653,7 +12461,7 @@ Bu yapılandırmanın test RMSE değeri: 27.91
 >
 > <details><summary>Cevap</summary>
 >
-> Parametre sayıları değişmez (4385 ve 3265): pencere uzunluğu ağırlık sayısını etkilemez (15.2b'deki sonuçla aynı). Bizde LSTM yaklaşık 2.7–3.3 sn'ye çıktı (adım sayısıyla birlikte yaklaşık 4 kat), 1D-CNN ise yalnızca 0.3–0.45 sn'ye. Pencere uzadıkça sıralı hesabın dezavantajı büyür.
+> Parametre sayıları değişmez (4385 ve 3265): pencere uzunluğu ağırlık sayısını etkilemez (Hemen deneyin 15.2'deki sonuçla aynı). Bizde LSTM yaklaşık 2.7–3.3 sn'ye çıktı (adım sayısıyla birlikte yaklaşık 4 kat), 1D-CNN ise yalnızca 0.3–0.45 sn'ye. Pencere uzadıkça sıralı hesabın dezavantajı büyür.
 >
 > </details>
 
@@ -12749,7 +12557,7 @@ Mevsimsel naive (geçen yıl)  42.54
 
 ARIMA, XGBoost ve iki naive satırı her çalıştırmada aynıdır. LSTM, GRU ve 1D-CNN satırları ise tohuma, işletim sistemine ve TensorFlow sürümüne göre değişir; sizin tablonuzda sıralama bile farklı çıkabilir.
 
-**Sonuçların yorumu:** Tablo en düşük RMSE'den en yükseğe doğru sıralanır. Sonuçlar tohum ve kütüphane sürümüne göre değişse de bu veri setinde şu genel tablo ortaya çıkar:
+**Sonuçların yorumu:** Tablo en düşük RMSE'den en yükseğe doğru sıralanır. Bu veri setinde şu genel tablo ortaya çıkar:
 
 - **1D-CNN** bu çalıştırmada en düşük hatayı verdi (32.43) ve iki naive referansı da belirgin biçimde geçen tek model oldu. Kısa vadeli desenleri iyi yakalar ve her ay bir önceki 12 ayın gerçek değerlerini gördüğü için (tek adımlı tahmin) işi görece kolaydır. Yine de 15.3'teki tohum deneyi, bu sıralamanın tek bir çalıştırmaya dayandığını hatırlatır.
 - **Naive referanslar** tablonun ikinci ve üçüncü sırasındadır: Hiçbir şey öğrenmeden geçen yılın aynı ayını (42.54) ya da geçen ayı (45.57) yazmak, LSTM'den, XGBoost'tan ve GRU'dan daha düşük hata verir. Tek adımlı bir model bu çıtayı geçemiyorsa, eğitim için harcanan çaba pratikte bir şey kazandırmamıştır (Bölüm 17.3).
@@ -12758,7 +12566,7 @@ ARIMA, XGBoost ve iki naive satırı her çalıştırmada aynıdır. LSTM, GRU v
 - **XGBoost** bu testte zorlandı (89.42): Karar ağaçları eğitimde gördükleri en büyük değerin üzerinde tahmin üretemez (ekstrapolasyon sorunu, bkz. Bölüm 13.3). Eğitim döneminin en büyük değeri 364 iken XGBoost'un 60 test ayındaki en büyük tahmini yaklaşık 361'dir; test dönemindeki 364'ün üzerindeki rekor yolcu sayılarına (en yüksek 622) hiç ulaşamaz.
 - **GRU** (183.64), 15.3'te gördüğümüz gibi bu tohumla test döneminde çöktü; başka tohumlarla LSTM'e yakın sonuçlar (yaklaşık 47–53) verdi. Derin öğrenme modelleri kısa vadeli desenleri iyi yakalar, ancak 72 eğitim örneği derin öğrenme için çok küçüktür ve 15.1.1'de gördüğümüz ekstrapolasyon sorunu tahminleri kararsız kılabilir.
 
-> **Not —** Bu karşılaştırma tamamen simetrik değildir. Bölüm 7'deki ARIMA, test dönemini tek seferde, **60 ay ileriye** tahmin eder (çok adımlı tahmin). Diğer modeller ise her ay için bir önceki ayların **gerçek** değerlerini görür (tek adımlı tahmin), yani daha kolay bir görev çözer. Örneğin Aralık 1960'ı tahmin ederken ARIMA'nın elinde yalnızca 1955 sonuna kadarki veri vardır; LSTM ise Aralık 1959–Kasım 1960 arasındaki 12 gerçek değeri görür. ARIMA buna rağmen LSTM'e yakın sonuç veriyorsa bu, onun lehine güçlü bir kanıttır; 1D-CNN'in bu çalıştırmadaki üstünlüğü de aynı gözle, yani daha kolay bir görevde elde edildiği bilinerek okunmalıdır (çok adımlı tahmin için bkz. Bölüm 12.1.3 ve 14.2.1). Tamamen eşit koşullar için ya ARIMA da her ay yeni gözlemle güncellenerek tek adımlı tahmin yaptırılmalı ya da sinir ağları kendi tahminlerini girdi olarak kullanarak (özyinelemeli) çok adımlı tahmine zorlanmalıdır.
+> **Not —** Bu karşılaştırma tamamen simetrik değildir (tablonun son sütunu). Örneğin Aralık 1960'ı tahmin ederken ARIMA'nın elinde yalnızca 1955 sonuna kadarki veri vardır; LSTM ise Aralık 1959–Kasım 1960 arasındaki 12 gerçek değeri görür. ARIMA buna rağmen LSTM'e yakın sonuç veriyorsa bu, onun lehine güçlü bir kanıttır; 1D-CNN'in bu çalıştırmadaki üstünlüğü de aynı gözle, yani daha kolay bir görevde elde edildiği bilinerek okunmalıdır (çok adımlı tahmin için bkz. Bölüm 12.1.3 ve 14.2.1). Tamamen eşit koşullar için ya ARIMA da her ay yeni gözlemle güncellenerek tek adımlı tahmin yaptırılmalı ya da sinir ağları kendi tahminlerini girdi olarak kullanarak (özyinelemeli) çok adımlı tahmine zorlanmalıdır.
 
 Genel ders şudur: Bu tür küçük, düzenli ve klasik zaman serilerinde iyi ayarlanmış bir ARIMA modeli oldukça başarılıdır. LSTM, GRU ve 1D-CNN gibi derin öğrenme modelleri ise çok daha fazla veriye sahip, çok değişkenli, karmaşık ve doğrusal olmayan desenler içeren problemlerde gerçekten öne çıkar. Veri bilimcinin ustalığı, verinin yapısına bakarak hangi aracın daha iyi çalışacağına karar verebilmesindedir. Her problemin kendine özgü dinamikleri vardır; en iyi modeli bulmak için denemeler yapmak ve sonuçları dikkatle analiz etmek gerekir.
 
@@ -12826,7 +12634,7 @@ Burada $K$ yalnızca parça (fold) sayısını gösteren bir harftir. Örneğin 
 Bu yöntem, gözlemlerin birbirinden bağımsız olduğu tablo verilerinde (ör. farklı hastalar, farklı müşteriler) sorunsuz çalışır. Zaman serisinde ise iki temel sorun doğurur:
 
 1. **Gelecekten sızıntı (look-ahead leakage):** Karıştırılmış bir fold'da model, örneğin 1958 ve 1960 verileriyle eğitilip 1955'i "tahmin eder". Bu gerçek hayatta asla mümkün değildir; 2010 verisiyle 2008'i tahmin etmek istemeyiz. Model, geleceğe ait trend düzeyini zaten öğrendiği için doğrulama hatası yapay olarak düşük çıkar.
-2. **Otokorelasyon nedeniyle komşu sızıntısı:** Zaman serisinde ardışık gözlemler birbirine çok benzer (Bölüm 6'daki ACF). Mart 1955 doğrulamadaysa ama Şubat ve Nisan 1955 eğitimdeyse, model Mart'ı komşularından neredeyse "okuyarak" tahmin eder. Bu, gerçek bir tahmin başarısı değildir. Gecikmeli özellikler (`lag_1`, `lag_2`, …) kullanıldığında sorun daha da belirginleşir: Bir satırın hedefi, başka bir satırın girdisidir.
+2. **Otokorelasyon nedeniyle komşu sızıntısı:** Zaman serisinde ardışık gözlemler birbirine çok benzer (Bölüm 6'daki ACF). 8.1.1'deki Mart örneğinde olduğu gibi model, doğrulamadaki bir ayı eğitimdeki komşularından neredeyse "okuyarak" tahmin eder. Gecikmeli özellikler (`lag_1`, `lag_2`, …) kullanıldığında sorun daha da belirginleşir: Bir satırın hedefi, başka bir satırın girdisidir.
 
 > **Hemen deneyin 16.1a · Rastgele K-fold'da "gelecekten gelen" ayları sayın** (Python, ~3 dk)
 >
@@ -13124,7 +12932,7 @@ Kod üç adımdan oluşur. `np.arange(24)` 0'dan 23'e kadar 24 tam sayı üretir
 
 Zamana saygılı bölmek tek başına yetmez. Veriyi dönüştüren **her** adım (ölçekleme, eksik değer doldurma, özellik seçimi, PCA gibi boyut indirgeme yöntemleri vb.) yalnızca o fold'un eğitim kümesinden öğrenilmelidir. Aksi hâlde sızıntı bölme yoluyla değil, ön işleme yoluyla gerçekleşir.
 
-**Açıklama:** `MinMaxScaler`'ı döngüden önce **tüm seriyle** fit ettiğimizi düşünelim. Ölçekleyicinin öğrendiği $x_{\max}$, 1960'taki 622 yolcudur. Aşağıdaki kodun 1. fold'unda model yalnızca 1949–1955 ile eğitilir ve bu dönemin en büyük değeri 364'tür. Tüm seriyle fit edilmiş bir ölçekleyici bu 364'ü 1'e değil, $(364 - 104) / (622 - 104) = 260 / 518 \approx 0.50$'ye çevirirdi. Model, eğitim verisinin hiçbir zaman 0.50'nin üstüne çıkmadığını görür ve "ölçeğin geri kalanı ileride doldurulacak" bilgisini dolaylı olarak almış olur. Doğru sıra şudur:
+**Açıklama:** 15.1.1'de gördüğümüz ölçekleme sızıntısı her fold'da yeniden ortaya çıkabilir. `MinMaxScaler` döngüden önce **tüm seriyle** fit edilirse, aşağıdaki kodun 1. fold'unda (eğitim 1949–1955) eğitimin en büyük değeri olan 364, 1'e değil $(364 - 104) / (622 - 104) = 260 / 518 \approx 0.50$'ye gider ve model "ölçeğin geri kalanı ileride dolacak" bilgisini dolaylı olarak almış olur. Doğru sıra şudur:
 
 1. Fold'u böl: `train_idx`, `val_idx`.
 2. Ölçekleyiciyi **yalnızca** `train_idx` ile `fit` et.
@@ -13263,12 +13071,7 @@ Ortalama $(31.67 + 25.72 + 33.82 + 40.78 + 28.84) / 5 = 160.83 / 5 \approx 32.17
 
 ### 16.5. Uygulama: GRU ve XGBoost ile Kapsamlı Bir Örnek
 
-Aşağıdaki kod, bu bölümdeki fikirleri önceki bölümlerle birleştiren uçtan uca bir örnektir:
-
-- **GRU (Bölüm 15.3):** Veri ölçeklenir (ölçekleyici yalnızca eğitim dönemiyle fit edilir), kayan pencereyle (`look_back = 12`) üç boyutlu tensöre çevrilir, erken durdurmalı bir GRU modeli eğitilir ve son 24 ay üzerinde test edilir.
-- **XGBoost (Bölüm 13):** 12 gecikme, hareketli ortalama ve standart sapmalar, mevsimsel fark ve takvim özellikleri üretilir.
-- **TimeSeriesSplit:** XGBoost için 5 fold'lu genişleyen pencere çapraz doğrulaması yapılır; her fold'da RMSE, MAE ve MAPE hesaplanır.
-- **Karşılaştırma:** Son olarak iki model, aynı son 24 aylık test dönemi üzerinde karşılaştırılır.
+Aşağıdaki kod, bu bölümdeki fikirleri önceki bölümlerle birleştiren uçtan uca bir örnektir: Bölüm 15.3'teki GRU ile Bölüm 13'teki XGBoost aynı son 24 aylık test döneminde karşılaştırılır ve XGBoost `TimeSeriesSplit` ile çapraz doğrulanır. Programın adımları kodun ardından sırayla verilmiştir.
 
 Programın tamamı (yaklaşık 380 satır) uygulama dosyasındadır; aşağıda kilit satırlar yer alıyor (dosyada MAPE de hesaplanır ve her fold'un tarih aralığı yazdırılır).
 
@@ -13425,40 +13228,6 @@ Neden özet istatistik yetmez? İki seri düşünün: A serisi 1, 2, 3, 4, 5 ve 
 
 Bileşenler ve ayrıştırma Bölüm 2'de, görselleştirme ve ACF/PACF grafikleri Bölüm 6'da ele alınmıştır.
 
-> **Hemen deneyin 17.1 · Aynı özet, bambaşka seri** (R, ~3 dk)
->
-> AirPassengers'ın 144 değerini rastgele karıştırın. Sayılar aynı kalır, yalnızca sıraları değişir. Özet istatistiklere ve grafiğe bakın.
->
-> ```r
-> x <- AirPassengers
-> set.seed(1)
-> y <- ts(sample(as.numeric(x)), start = c(1949, 1), frequency = 12)  # aynı 144 sayı, karışık sıra
-> summary(as.numeric(x))
-> summary(as.numeric(y))
-> par(mfrow = c(2, 1))                  # grafik penceresini alt alta iki parçaya böl
-> plot(x, main = "Gerçek sıra")
-> plot(y, main = "Aynı sayılar, karıştırılmış sıra")
-> ```
->
-> `sample()` bir vektörün elemanlarını rastgele sıraya dizer; `set.seed(1)` herkesin aynı karışımı görmesini sağlar.
->
-> **Ne göreceksiniz:** İki `summary` satırı birebir aynıdır:
->
-> ```text
->    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
->   104.0   180.0   265.5   280.3   360.5   622.0 
-> ```
->
-> Grafikler ise hiç benzemez: Üstte düzenli yükselen trend ve her yıl büyüyen yaz tepeleri, altta 100 ile 600 arasında rastgele zıplayan, ne trendi ne mevsimselliği olan bir çizgi. Özet istatistikler sırayı görmez; grafik görür.
->
-> **Şimdi siz:** `sd(x)` ile `sd(y)`'yi karşılaştırın. Sonra her iki serinin ilk ve son yılının ortalamasını hesaplayın: `mean(window(x, end = c(1949, 12)))` ve `mean(window(x, start = c(1960, 1)))` (aynısını `y` için). Hangi sayı trendi ortaya çıkarır?
->
-> <details><summary>Cevap</summary>
->
-> Standart sapmalar da aynıdır (119.97). Yıl ortalamaları ise farklıdır: gerçek seride 1949'da 126.7, 1960'ta 476.2 (güçlü trend); karışık seride 260.3 ve 220.9 (trend yok). Trendi gösteren, sıraya bağlı olan ölçüdür; sıradan bağımsız özetler (ortalama, std, çeyrekler) bunu yakalayamaz.
->
-> </details>
-
 ### 17.2. Veriyi Asla Karıştırmayın (Never Shuffle Your Data)
 
 Standart makine öğrenmesinde eğitim/test ayrımı için veriyi karıştırmak (shuffle) yaygındır, ancak zaman serilerinde bu büyük bir hatadır. Zaman tek yönde akar; bugünü tahmin etmek için gelecek haftanın verisini kullanamazsınız. Daima **zamansal ayrım (temporal split)** kullanın:
@@ -13471,7 +13240,7 @@ Eğitim-test ayrımı Bölüm 8'de, zaman sırasını koruyan çapraz doğrulama
 
 > **Hemen deneyin 17.2 · Karıştırınca otokorelasyon kaybolur** (R, ~3 dk)
 >
-> Zaman serisindeki bilginin "sırada" saklandığını ACF ile görün.
+> Bölüm 1.2'deki kutuda karıştırınca komşu aylar arasındaki korelasyonun 0.96'dan 0.03'e düştüğünü gördük. Aynı deneyi ACF ve güven sınırıyla, yıllık gecikme (12) dahil yapın.
 >
 > ```r
 > set.seed(1)
@@ -13646,48 +13415,9 @@ Zaman serilerinde veri sızıntısı sinsi olabilir. Model eğitilirken tahmin a
 - *Örnek:* Ocak 2024'ün günlük satışlarını tahmin etmek için Ocak 2024'ün "aylık ortalama sıcaklığını" kullanmak. (Ay bitene kadar aylık ortalamayı bilemezsiniz!)
 - *Diğer sık hatalar:* Ölçekleyiciyi tüm veriyle uydurmak (Bölüm 15.1.1 ve 16.4), hareketli ortalamayı `shift(1)` olmadan hesaplamak, sıradan k-katlı çapraz doğrulama kullanmak (Bölüm 16.1).
 
-`shift(1)` hatasını sayılarla görelim. Satışlar 10, 20, 30 olsun ve 3. günü tahmin etmek için "son 3 günün ortalaması" özelliğini kullanalım. `shift(1)` olmadan bu özellik 3. gün için $(10 + 20 + 30) / 3 = 20$ olur; yani tahmin etmeye çalıştığımız 30 değerini zaten içerir. Doğrusu, ortalamayı yalnızca önceki günlerden almaktır: $(10 + 20) / 2 = 15$. İlk hâliyle model eğitimde harika görünür, çünkü cevabın bir parçası sorunun içindedir; ama yarın için bu özelliği hesaplayamazsınız, çünkü yarının satışını henüz bilmiyorsunuz.
+`shift(1)` hatasının sayısal örneği Bölüm 12.1.5'tedir: `shift(1)` olmadan hesaplanan hareketli ortalama, tahmin etmeye çalıştığımız değeri zaten içerir. Model eğitimde harika görünür, çünkü cevabın bir parçası sorunun içindedir; ama yarın için bu özelliği hesaplayamazsınız, çünkü yarının satışını henüz bilmiyorsunuz.
 
 Zamansal ayrım Bölüm 8'de, sızıntı türleri Bölüm 12.1.5'te, zaman serisine uygun çapraz doğrulama Bölüm 16'da anlatılmıştır.
-
-> **Hemen deneyin 17.6 · `shift(1)` unutulursa ne olur?** (Python, ~4 dk)
->
-> Yolcu sayısını tek bir özellikten, "son 3 ayın ortalaması"ndan tahmin eden bir doğrusal regresyon kurun: bir kez sızıntılı, bir kez doğru hesaplanmış özellikle.
->
-> ```python
-> import numpy as np, pandas as pd
-> from sklearn.linear_model import LinearRegression
->
-> s = pd.read_csv("data/AirPassengers.csv")["Passengers"]
-> df = pd.DataFrame({"y": s,
->                    "ort_sizinti": s.rolling(3).mean(),            # YANLIŞ: bu ayı da içerir
->                    "ort_dogru": s.shift(1).rolling(3).mean()})    # DOĞRU: yalnızca önceki 3 ay
-> df = df.dropna()
-> egitim, test = df.iloc[:-24], df.iloc[-24:]                       # son 24 ay test
-> for ozellik in ["ort_sizinti", "ort_dogru"]:
->     m = LinearRegression().fit(egitim[[ozellik]], egitim["y"])
->     hata = test["y"] - m.predict(test[[ozellik]])
->     print(f"{ozellik:12s}: test RMSE = {np.sqrt(np.mean(hata ** 2)):.2f}")
-> ```
->
-> `rolling(3).mean()` her satırda o satır dahil son 3 değerin ortalamasını alır. `LinearRegression` $y = a + b \cdot x$ doğrusunu en küçük kareler yöntemiyle bulur.
->
-> **Ne göreceksiniz:**
->
-> ```text
-> ort_sizinti : test RMSE = 43.34
-> ort_dogru   : test RMSE = 74.72
-> ```
->
-> Sızıntılı özellik test döneminde bile çok daha iyi görünür, çünkü test ayının kendi değeri özelliğin içindedir. Ama bu model gerçekte kullanılamaz: Gelecek ayın ortalamasını hesaplamak için gelecek ayın yolcu sayısını bilmeniz gerekir. Gerçek performans 74.72'dir.
->
-> **Şimdi siz:** Sızıntılı satırda `rolling(3)` yerine `rolling(1)` yazın. Test RMSE ne olur, neden?
->
-> <details><summary>Cevap</summary>
->
-> `ort_sizinti : test RMSE = 0.00`. `rolling(1).mean()` hedefin kendisidir; model cevabı soruda bulur ve "kusursuz" görünür. Sızıntı ne kadar doğrudansa sonuç o kadar inanılmaz iyi görünür; inanılmaz iyi bir sonuç görünce ilk yapılacak iş sızıntı aramaktır.
->
-> </details>
 
 ### 17.7. Diyagnostikler Önemlidir: Hataları Kontrol Edin (Diagnostics Matter)
 
@@ -13790,38 +13520,11 @@ Yalnızca R² değerine güvenmeyin. **R²** ("R kare"), modelin serideki deği�
 - **MAE:** Yorumlaması daha kolaydır (hataların ortalama büyüklüğü, serinin kendi biriminde).
 - **MAPE:** Yüzdelik olduğu için farklı ölçekteki serileri karşılaştırmaya uygundur, ancak gerçek değerler sıfır ya da sıfıra çok yakınsa kullanılamaz.
 
-*Sayısal örnek:* Beş günün mutlak hataları 1, 1, 1, 1 ve 10 olsun. MAE bunların ortalamasıdır: $(1 + 1 + 1 + 1 + 10) / 5 = 14 / 5 = 2.8$. RMSE ise önce kareleri alır, ortalar ve karekök alır: $\sqrt{(1 + 1 + 1 + 1 + 100) / 5} = \sqrt{104 / 5} = \sqrt{20.8} \approx 4.56$. Tek bir büyük hata (10) RMSE'yi MAE'nin 1.6 katına çıkarmıştır; büyük hatalar sizin için özellikle pahalıysa (ör. hastane yatak planlaması) RMSE'ye bakmak bu yüzden anlamlıdır. MAPE'nin sıfır sorunu da sayılarla görülür: Gerçek değer 0.5, tahmin 1 ise hata yalnızca 0.5 birimdir, ama yüzde hata $0.5 / 0.5 = 1$, yani %100'dür; gerçek değer 0 olsaydı sıfıra bölme yüzünden hiç hesaplanamazdı.
-
-> **Hemen deneyin 17.9a · MAE, RMSE ve MAPE'yi hesap tablosunda kurun** (Excel / LibreOffice Calc, ~5 dk)
->
-> Boş bir sayfada aşağıdaki tabloyu oluşturun (A1–E1 başlıklar):
->
-> | | A: Gerçek | B: Tahmin | C: Mutlak hata | D: Kare hata | E: Yüzde hata |
-> | --- | --- | --- | --- | --- | --- |
-> | 2 | 20 | 19 | | | |
-> | 3 | 22 | 23 | | | |
-> | 4 | 25 | 24 | | | |
-> | 5 | 21 | 22 | | | |
-> | 6 | 30 | 20 | | | |
->
-> 1. **C2**'ye `=MUTLAK(A2-B2)` (İngilizce: `=ABS(A2-B2)`), **D2**'ye `=C2^2`, **E2**'ye `=C2/A2` yazın; üç hücreyi seçip sağ alt köşedeki tutamacı 6. satıra kadar sürükleyin.
-> 2. **G2**'ye MAE: `=ORTALAMA(C2:C6)` (İngilizce: `=AVERAGE(C2:C6)`).
-> 3. **G3**'e RMSE: `=KAREKÖK(ORTALAMA(D2:D6))` (İngilizce: `=SQRT(AVERAGE(D2:D6))`).
-> 4. **G4**'e MAPE: `=ORTALAMA(E2:E6)`; hücreyi **Giriş → Sayı → %** ile yüzde biçimine çevirin.
->
-> **Ne göreceksiniz:** C sütununda metindeki hatalar (1, 1, 1, 1, 10), D'de 1, 1, 1, 1, 100. MAE = 2,8; RMSE ≈ 4,560702; MAPE ≈ %10,33 (Türkçe ayarlı programda ondalık ayırıcı virgüldür). Tek büyük hata RMSE'yi MAE'nin 1.6 katına çıkarır. MAPE'ye en büyük katkıyı yine son gün yapar: $10 / 30 \approx \%33$.
->
-> **Şimdi siz:** B6'yı 28 yapın (büyük hata 10'dan 2'ye iner). Üç metriğin yeni değerini tahmin edin. Hangisi en çok düştü?
->
-> <details><summary>Cevap</summary>
->
-> MAE = 1,2; RMSE ≈ 1,264911; MAPE ≈ %4,99. RMSE 4.56'dan 1.26'ya, yani yaklaşık 3.6 kat düştü; MAE 2.8'den 1.2'ye (yaklaşık 2.3 kat). Büyük hatayı en ağır cezalandıran RMSE olduğu için onu düzeltmek en çok RMSE'yi iyileştirir.
->
-> </details>
+*Sayısal örnek:* Beş günün mutlak hataları 1, 1, 1, 1 ve 10 ise MAE $= 14 / 5 = 2.8$, RMSE $= \sqrt{104 / 5} \approx 4.56$ olur: Tek bir büyük hata RMSE'yi MAE'nin 1.6 katına çıkarır. Büyük hatalar sizin için özellikle pahalıysa (ör. hastane yatak planlaması) RMSE'ye bakmak bu yüzden anlamlıdır. MAPE'nin sıfıra yakın değerlerde nasıl patladığı Bölüm 8.2.3'te sayılarla gösterilmiştir.
 
 Bu metriklerin formülleri, karşılaştırması ve Python uygulaması Bölüm 8.2'de verilmiştir.
 
-> **Hemen deneyin 17.9b · Hiçbir şey öğrenmeyen modelin R²'si** (R, ~3 dk)
+> **Hemen deneyin 17.9 · Hiçbir şey öğrenmeyen modelin R²'si** (R, ~3 dk)
 >
 > Metindeki iddiayı doğrulayın: AirPassengers'ta "bu ay = geçen ay" tahmininin $R^2$'si yaklaşık 0.92 mi?
 >
@@ -13864,44 +13567,6 @@ Her problem için en yeni Transformer veya derin öğrenme modelini kullanma eğ
 Bu dersin kendi sonuçları da bunu gösterir: Bölüm 15.5'teki karşılaştırmada yalnızca birkaç parametresi olan ARIMA modeli, 60 ay ileriye tahmin gibi çok daha zor bir görevde bile, her ay gerçek geçmişi gören 10 binden fazla parametreli LSTM ile aynı düzeyde hata verdi. Aynı GRU mimarisi tohum değiştiğinde 47 ile 184 arasında değişen hatalar üretti; 1D-CNN'de iki evrişim katmanının arkasına birer `BatchNormalization` katmanı eklemek ise test hatasını 32'den 248'e çıkardı. Karmaşık model daha fazla veri, daha fazla ayar ve daha fazla denetim ister; bunlar yoksa üstünlüğü kâğıt üzerinde kalır.
 
 Klasik, makine öğrenmesi ve derin öğrenme yaklaşımlarının karşılaştırması Bölüm 12.3'te, derin öğrenme modellerinin karşılaştırmalı uygulaması Bölüm 15'te yer almaktadır.
-
-> **Hemen deneyin 17.10 · Daha karmaşık trend, daha kötü tahmin** (R, ~4 dk)
->
-> AirPassengers'ı 1949–1957 ile eğitip 1958–1960'ı tahmin edin. Model, aylık mevsimsellik artı derecesi $d$ olan bir polinom trendinden oluşsun; $d$ büyüdükçe model karmaşıklaşır.
->
-> ```r
-> library(forecast)
-> egitim <- window(AirPassengers, end = c(1957, 12))
-> test   <- window(AirPassengers, start = c(1958, 1))        # son 36 ay
-> for (d in 1:6) {                                           # d: trend polinomunun derecesi
->   m <- tslm(egitim ~ poly(trend, d) + season, lambda = 0)  # lambda = 0: log ölçekte kur
->   a <- accuracy(forecast(m, h = 36), test)[, "RMSE"]
->   cat("derece", d, ": eğitim RMSE", round(a[1], 1), "  test RMSE", round(a[2], 1), "\n")
-> }
-> ```
->
-> `poly(trend, d)` trend için $t, t^2, \dots, t^d$ terimlerini üretir (derece 1 düz çizgi, derece 2 hafif eğri, …). `lambda = 0` modeli log seride kurup tahminleri otomatik olarak geri çevirir. `accuracy()` ilk satırda eğitim, ikinci satırda test hatasını verir.
->
-> **Ne göreceksiniz:**
->
-> ```text
-> derece 1 : eğitim RMSE 9.2   test RMSE 63.3 
-> derece 2 : eğitim RMSE 9.3   test RMSE 46.2 
-> derece 3 : eğitim RMSE 9.2   test RMSE 71.9 
-> derece 4 : eğitim RMSE 9.5   test RMSE 266.1 
-> derece 5 : eğitim RMSE 8.2   test RMSE 298.3 
-> derece 6 : eğitim RMSE 7.9   test RMSE 181.4 
-> ```
->
-> Eğitim hatası bütün derecelerde neredeyse aynıdır (8–9.5); en karmaşık modeller eğitimde en iyi bile görünür. Test hatası ise derece 2'den sonra hızla büyür ve derece 5'te 298'e çıkar: Yüksek dereceli polinomlar eğitim döneminin sonunda kıvrılır ve bu kıvrımı geleceğe uzatır. Eğitimdeki küçük kazanç, testte büyük kayba dönüşür.
->
-> **Şimdi siz:** Aynı test döneminde iki hazır referansı ölçün: `accuracy(snaive(egitim, h = 36), test)` ve `accuracy(forecast(ets(egitim), h = 36), test)`. En iyi polinom modeli bunlarla nasıl kıyaslanır?
->
-> <details><summary>Cevap</summary>
->
-> Test RMSE: mevsimsel naive 73.6, ETS 47.6. Derece 2 modeli (46.2) ETS ile aynı düzeydedir ve hem naive'i hem de yüksek dereceli polinomları açık farkla geçer. En iyi sonuç, birkaç parametreli basit modellerden gelir; karmaşıklık ancak testte kendini kanıtlarsa eklenmelidir.
->
-> </details>
 
 ---
 
