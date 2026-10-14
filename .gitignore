@@ -1,0 +1,12 @@
+# Gretl betiği gretlcli ile çalıştırılınca üretilen grafikler (Bölüm 11.5)
+Codes/gretl/ch11_grafik*.png
+
+# Python: Codes/README.md'deki sanal ortam ve önbellekler
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+
+# R / RStudio oturum dosyaları
+.Rhistory
+.RData
+.Rproj.user/
