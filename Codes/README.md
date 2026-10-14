@@ -36,7 +36,7 @@ Veri dosyaları depo kökündeki [`data/`](../data) klasöründedir. Python kodl
 | 15 | LSTM, GRU, 1D-CNN | | [ch15_derin_ogrenme.py](python/ch15_derin_ogrenme.py) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/Codes/notebooks/ch15_derin_ogrenme.ipynb) |
 | 16 | TimeSeriesSplit | | [ch16_timeseriessplit.py](python/ch16_timeseriessplit.py) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/Codes/notebooks/ch16_timeseriessplit.ipynb) |
 
-Bölüm 1, 14 ve 17'de kod yoktur. Bölüm 14'te Weka'nın grafik arayüzü kullanılır.
+Bölüm 1, 14 ve 17 için ayrı kod dosyası yoktur; Bölüm 14'te Weka'nın grafik arayüzü kullanılır. Bunlar dahil her bölümdeki kısa alıştırmalar, ders notunun içindeki **Hemen deneyin** kutularındadır; bu kutulardaki kodlar da depo kök dizininden çalıştırılır.
 
 ## Nasıl çalıştırılır?
 
