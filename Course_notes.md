@@ -3189,7 +3189,7 @@ Elimizde artık bir `ts` nesnesi var (Bölüm 5). Bu bölümde üç soruyu yanı
 
 > **Uygulama dosyası:** [`Codes/R/ch06_manipulasyon_acf.R`](Codes/R/ch06_manipulasyon_acf.R)
 >
-> Bu bölümdeki R kodlarının tamamı bu dosyada. RStudio'da açıp satır satır çalıştırabilir ya da depo kök dizininde `Rscript Codes/R/ch06_manipulasyon_acf.R` komutunu kullanabilirsiniz. Python örnekleri [`Codes/ACF_PACF.py`](Codes/ACF_PACF.py) dosyasındadır (Bölüm 6.3.7 ve 6.4.3).
+> Bu bölümdeki R kodlarının tamamı bu dosyada. RStudio'da açıp satır satır çalıştırabilir ya da depo kök dizininde `Rscript Codes/R/ch06_manipulasyon_acf.R` komutunu kullanabilirsiniz. Python örnekleri [`Codes/python/ch06_acf_pacf.py`](Codes/python/ch06_acf_pacf.py) dosyasındadır (Bölüm 6.3.7 ve 6.4.3).
 
 
 İlk kural: **Veriyi çizin. Her zaman.** Grafiğe bakmadan analize başlamak, gözü kapalı araba kullanmaya benzer. Bir zaman serisi grafiğinde şu dört soruya cevap ararız:
@@ -3945,7 +3945,9 @@ Tek tek çubuklardan çok, çubukların oluşturduğu **desen** önemlidir. Prat
 
 #### 6.3.7. Python ve R ile ACF
 
-> **Uygulama dosyası:** [`Codes/ACF_PACF.py`](Codes/ACF_PACF.py) (Python kodları) ve [`Codes/R/ch06_manipulasyon_acf.R`](Codes/R/ch06_manipulasyon_acf.R) (R kodları). Python dosyasını depo kök dizininden `python Codes/ACF_PACF.py` komutuyla çalıştırın; veri yolu (`data/...`) bu dizine göre yazılmıştır.
+> **Uygulama dosyası:** [`Codes/python/ch06_acf_pacf.py`](Codes/python/ch06_acf_pacf.py) · [Notebook](Codes/notebooks/ch06_acf_pacf.ipynb) · [![Colab'da aç](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/Codes/notebooks/ch06_acf_pacf.ipynb) (Python kodları) ve [`Codes/R/ch06_manipulasyon_acf.R`](Codes/R/ch06_manipulasyon_acf.R) (R kodları)
+>
+> Python dosyası 6.3.7 ve 6.4.3'teki Python kodlarının tamamını içerir. Bilgisayarınızda depo kök dizininde `python Codes/python/ch06_acf_pacf.py` komutuyla çalıştırın ya da dosyayı VS Code'da açıp hücre hücre çalıştırın; kurulum yapmadan denemek için Colab bağlantısını kullanabilirsiniz. Dosyadaki `veri_yolu()` yardımcı fonksiyonu, `data/` klasörü bulunamazsa (ör. Colab'da) veriyi doğrudan GitHub'dan okur. Dosya, aşağıdaki kodlara ek olarak notta yalnızca sözü geçen iki seçeneği de çalıştırır: sabit bantlı ACF grafiği (`bartlett_confint=False`) ve R ile aynı PACF sonucunu veren `method="ywm"`.
 
 Aşağıda `[20, 22, 21, 23, 24]` serisi için lag-1 otokorelasyonunu iki dilde hesaplıyoruz.
 

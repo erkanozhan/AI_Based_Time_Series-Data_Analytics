@@ -25,7 +25,7 @@ Veri dosyaları depo kökündeki [`data/`](../data) klasöründedir. Python kodl
 | 3 | Durağanlık (ADF) | [ch03_duraganlik.R](R/ch03_duraganlik.R) | | |
 | 4 | Tarih ve zaman nesneleri | [ch04_tarih_zaman.R](R/ch04_tarih_zaman.R) | | |
 | 5 | `ts` ve `xts` | [ch05_ts_xts.R](R/ch05_ts_xts.R) | | |
-| 6 | Manipülasyon, ACF/PACF | [ch06_manipulasyon_acf.R](R/ch06_manipulasyon_acf.R) | [ACF_PACF.py](ACF_PACF.py) (kısa örnek) | |
+| 6 | Manipülasyon, ACF/PACF | [ch06_manipulasyon_acf.R](R/ch06_manipulasyon_acf.R) | [ch06_acf_pacf.py](python/ch06_acf_pacf.py) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/Codes/notebooks/ch06_acf_pacf.ipynb) |
 | 7 | ARIMA / SARIMA | [ch07_sarima_airpassengers.R](R/ch07_sarima_airpassengers.R) | [ch07_sarima_airpassengers.py](python/ch07_sarima_airpassengers.py) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/Codes/notebooks/ch07_sarima_airpassengers.ipynb) |
 | 8 | Model değerlendirme | [ch08_egitim_test.R](R/ch08_egitim_test.R) | [ch08_model_degerlendirme.py](python/ch08_model_degerlendirme.py) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/Codes/notebooks/ch08_model_degerlendirme.ipynb) |
 | 9 | Prophet | | [ch09_prophet.py](python/ch09_prophet.py) | [![Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/Codes/notebooks/ch09_prophet.ipynb) |
