@@ -89,7 +89,7 @@ Model kurarken "Çarpımsal" yapıyı "Toplamsal" yapıya çevirmek ve varyansı
 
 Zaman serisi öngörülerinde endüstri standardı olan **ARIMA (AutoRegressive Integrated Moving Average \- Otoregresif Bütünleşik Hareketli Ortalama)** modellerini kullanacağız. Verimiz mevsimsel olduğu için bu, **SARIMA (Seasonal ARIMA)** formuna dönüşecektir.
 
-Bir SARIMA modeli $(p, d, q) \\times (P, D, Q)\_s$ parametreleri ile tanımlanır:
+Bir SARIMA modeli $(p, d, q) \times (P, D, Q)_ s$ parametreleri ile tanımlanır:
 
 * **Trend Bileşenleri:**  
   * $p$ (AR \- AutoRegressive): Geçmiş değerlerin bugüne etkisi.  
@@ -106,8 +106,8 @@ Hangi parametrelerin seçileceği normalde ACF (Autocorrelation Function \- Otok
 Bu yapının mantığı şudur:
 
 * **Logaritmik Veri:** Varyansı sabitlemek için.  
-* **$d=1$:** Trendi yok etmek için serinin birinci farkı alınır ($Y\_t \- Y\_{t-1}$).  
-* **$D=1$:** Mevsimselliği yok etmek için serinin 12\. dereceden (mevsimsel) farkı alınır ($Y\_t \- Y\_{t-12}$).  
+* **$d=1$:** Trendi yok etmek için serinin birinci farkı alınır ($Y_t - Y_{t-1}$).  
+* **$D=1$:** Mevsimselliği yok etmek için serinin 12\. dereceden (mevsimsel) farkı alınır ($Y_t - Y_{t-12}$).  
 * **$q=1$ ve $Q=1$:** Hem kısa vadeli hem de mevsimsel düzeltmeler için birer adet Hareketli Ortalama (MA) terimi eklenir.
 
 Gretl'de bu modeli nasıl kuracağımızı görelim.
@@ -212,7 +212,7 @@ Gretl'de "Tek Tıkla Anomali Bul" butonu yoktur. Ancak ekonometrik yaklaşım, "
 
 Mantık basit: Eğer biz sistemin "normal" davranışını açıklayan bir model kurarsak, bu modelin hata yaptığı (açıklayamadığı) noktalar, tanım gereği anomalidir.
 
-$$Kalıntı (Residual) \= Gerçek Değer (Actual) \- Tahmin Edilen Değer (Fitted)$$  
+$$Kalıntı (Residual) = Gerçek Değer (Actual) - Tahmin Edilen Değer (Fitted)$$  
 **Adım Adım Uygulama:**
 
 1\. Normal Davranışı Modelleme (AR Modeli):  
@@ -221,21 +221,21 @@ CPU kullanımı genellikle güçlü bir otokorelasyona sahiptir; yani şu anki k
 * **Model** \> **Ordinary Least Squares (En Küçük Kareler)** menüsünü açın.  
 * Bağımlı değişken olarak cpu\_usage seçin.  
 * Bağımsız değişkenler (Regressor) listesine cpu\_usage'ı eklemeyin. Bunun yerine, "lags" (gecikmeler) özelliğini kullanacağız. Gretl'de bir değişkenin gecikmesini eklemek için değişkeni seçip **Add** \> **Lags of selected variables** menüsünü kullanın; Gretl birinci gecikmeyi cpu\_usage\_1 adıyla ekler ve bunu regresörler listesine alırsınız. Betik ya da konsolda aynı modeli `ols cpu_usage const cpu_usage(-1)` diye de yazabilirsiniz.  
-* Yani modelimiz: $CPU\_t \= \\alpha \+ \\beta \\cdot CPU\_{t-1} \+ u\_t$ olacaktır.  
+* Yani modelimiz: $CPU_t = \alpha + \beta \cdot CPU_{t-1} + u_t$ olacaktır.  
 * **OK** deyin.
 
 2\. Kalıntıları (Residuals) Çıkarma:  
-Model sonucunda elde ettiğimiz $u\_t$ (hata terimi), modelin açıklayamadığı kısımdır. Normal zamanlarda bu hata terimi sıfıra yakın küçük rastgele değerler olmalıdır. Anomalilerde ise bu değer fırlayacaktır.
+Model sonucunda elde ettiğimiz $u_t$ (hata terimi), modelin açıklayamadığı kısımdır. Normal zamanlarda bu hata terimi sıfıra yakın küçük rastgele değerler olmalıdır. Anomalilerde ise bu değer fırlayacaktır.
 
 * Model penceresinde **Save (Kaydet)** \> **Residuals (Kalıntılar)** seçeneğine tıklayın.7  
 * Veri setine uhat adında yeni bir değişken eklenecektir.
 
 3\. Eşik Değer (Threshold) Belirleme:  
-Hangi hata değeri "çok büyük" kabul edilir? İstatistikte yaygın kullanılan 3-Sigma Kuralı (Empirical Rule) burada devreye girer. Bir veri normal dağılıyorsa, verilerin %99.7'si ortalamadan $\\pm 3$ standart sapma uzaklıkta yer alır.20 Bunun dışına çıkan %0.3'lük kısım, potansiyel anomalidir.
+Hangi hata değeri "çok büyük" kabul edilir? İstatistikte yaygın kullanılan 3-Sigma Kuralı (Empirical Rule) burada devreye girer. Bir veri normal dağılıyorsa, verilerin %99.7'si ortalamadan $\pm 3$ standart sapma uzaklıkta yer alır.20 Bunun dışına çıkan %0.3'lük kısım, potansiyel anomalidir.
 
 * Ana pencerede uhat değişkenini seçin.  
-* **Variable** \> **Summary statistics (Özet istatistikler)** diyerek standart sapmasını ($SD$) öğrenin. Diyelim ki $SD \= 2.0$.  
-* O halde Eşik Değerimiz: $3 \\times 2.0 \= 6.0$.  
+* **Variable** \> **Summary statistics (Özet istatistikler)** diyerek standart sapmasını ($SD$) öğrenin. Diyelim ki $SD = 2.0$.  
+* O halde Eşik Değerimiz: $3 \times 2.0 = 6.0$.  
 * Eğer herhangi bir andaki hata (mutlak değer olarak) 6.0'dan büyükse, o an bir anomalidir.
 
 4\. Anomalileri Görselleştirme:  

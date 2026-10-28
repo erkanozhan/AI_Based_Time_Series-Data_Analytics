@@ -1,0 +1,591 @@
+[İçindekiler](../Course_notes.md) · [← 15. Derin Öğrenme ile Tahmin: LSTM, GRU ve 1D-CNN](15_derin_ogrenme_ile_tahmin_lstm_gru_ve_1d_cnn.md) · [17. Zaman Serisi Tahmininde 10 Altın Kural →](17_zaman_serisi_tahmininde_10_altin_kural.md)
+
+## 16. TimeSeriesSplit: Zaman Serisinde Çapraz Doğrulama
+
+Bölüm 8'de modeli eğitim ve test olarak ikiye ayırıp hata metrikleriyle değerlendirdik. Bölüm 15'te beş modeli aynı 60 aylık test dönemi üzerinden karşılaştırdık. Her iki durumda da sonuç **tek bir** test dönemine dayanıyordu. O dönem bir model için "şanslı", öteki için "şanssız" olabilir: Test dönemine denk gelen bir kriz, bir tatil kayması ya da olağandışı bir yıl sıralamayı tek başına değiştirebilir.
+
+Makine öğrenmesinde bu sorunun standart çözümü **çapraz doğrulamadır (cross-validation)**: Veri birkaç kez farklı biçimlerde bölünür, model her bölmede yeniden eğitilir ve performans bölmelerin ortalaması olarak raporlanır. Ancak alışılmış çapraz doğrulama zaman serisinde doğrudan kullanılamaz. Bu bölümde nedenini ve doğru yöntemi, `TimeSeriesSplit`'i ele alıyoruz.
+
+### 16.1. Neden Rastgele K-Fold Zaman Serisinde Yanlıştır?
+
+**Tanım (K-fold çapraz doğrulama):** Veri $K$ eşit parçaya (fold) bölünür. Her turda bir parça doğrulama, kalan $K-1$ parça eğitim için kullanılır. $K$ turun hatalarının ortalaması modelin performans tahminidir. Genellikle bölmeden önce veri **rastgele karıştırılır** (`shuffle=True`).
+
+Burada $K$ yalnızca parça (fold) sayısını gösteren bir harftir. Örneğin 100 gözlem ve $K = 5$ için her parça 20 gözlemdir. 1. turda 1. parça doğrulamaya ayrılır ve model kalan $5 - 1 = 4$ parçayla (80 gözlem) eğitilir; 2. turda 2. parça doğrulamaya ayrılır, ve böyle devam eder. 5 tur sonunda her gözlem tam bir kez doğrulamada yer almış olur. Turların hataları 10, 12, 9, 11 ve 13 çıktıysa performans tahmini $(10 + 12 + 9 + 11 + 13) / 5 = 55 / 5 = 11$ olur.
+
+Bu yöntem, gözlemlerin birbirinden bağımsız olduğu tablo verilerinde (ör. farklı hastalar, farklı müşteriler) sorunsuz çalışır. Zaman serisinde ise iki temel sorun doğurur:
+
+1. **Gelecekten sızıntı (look-ahead leakage):** Karıştırılmış bir fold'da model, örneğin 1958 ve 1960 verileriyle eğitilip 1955'i "tahmin eder". Bu gerçek hayatta asla mümkün değildir; 2010 verisiyle 2008'i tahmin etmek istemeyiz. Model, geleceğe ait trend düzeyini zaten öğrendiği için doğrulama hatası yapay olarak düşük çıkar.
+2. **Otokorelasyon nedeniyle komşu sızıntısı:** Zaman serisinde ardışık gözlemler birbirine çok benzer (Bölüm 6'daki ACF). 8.1.1'deki Mart örneğinde olduğu gibi model, doğrulamadaki bir ayı eğitimdeki komşularından neredeyse "okuyarak" tahmin eder. Gecikmeli özellikler (`lag_1`, `lag_2`, …) kullanıldığında sorun daha da belirginleşir: Bir satırın hedefi, başka bir satırın girdisidir.
+
+> **Hemen deneyin 16.1a · Rastgele K-fold'da "gelecekten gelen" ayları sayın** (Python, ~3 dk)
+>
+> 12 aylık bir dizide rastgele K-fold ile `TimeSeriesSplit`'in fold'larını yan yana yazdırın ve her fold'un eğitim kümesinde, doğrulamanın ilk ayından **sonra** gelen kaç ay olduğunu sayın.
+>
+> ```python
+> import numpy as np
+> from sklearn.model_selection import KFold, TimeSeriesSplit
+>
+> X = np.arange(12).reshape(-1, 1)            # 12 ay: 0, 1, ..., 11
+> for ad, cv in [("KFold", KFold(n_splits=4, shuffle=True, random_state=0)),
+>                ("TSS  ", TimeSeriesSplit(n_splits=4))]:
+>     for k, (tr, te) in enumerate(cv.split(X), 1):
+>         gelecek = (tr > te.min()).sum()     # doğrulamanın ilk ayından SONRA gelen eğitim ayları
+>         print(f"{ad} {k}: doğrulama {te}  eğitimde gelecekten {gelecek} ay")
+> ```
+>
+> `KFold(..., shuffle=True, random_state=0)` veriyi karıştırıp 4 parçaya böler; `random_state` herkesin aynı karışımı görmesini sağlar. `(tr > te.min())` her eğitim ayı için "doğrulamanın ilk ayından sonra mı?" sorusuna `True`/`False` cevabı verir; `.sum()` `True`'ları sayar.
+>
+> **Ne göreceksiniz:**
+>
+> ```text
+> KFold 1: doğrulama [ 4  6 11]  eğitimde gelecekten 5 ay
+> KFold 2: doğrulama [ 2  8 10]  eğitimde gelecekten 7 ay
+> KFold 3: doğrulama [1 7 9]  eğitimde gelecekten 8 ay
+> KFold 4: doğrulama [0 3 5]  eğitimde gelecekten 9 ay
+> TSS   1: doğrulama [4 5]  eğitimde gelecekten 0 ay
+> TSS   2: doğrulama [6 7]  eğitimde gelecekten 0 ay
+> TSS   3: doğrulama [8 9]  eğitimde gelecekten 0 ay
+> TSS   4: doğrulama [10 11]  eğitimde gelecekten 0 ay
+> ```
+>
+> Rastgele K-fold'da doğrulama ayları zamana dağılır ve her fold'un eğitiminde 5–9 "gelecek" ay vardır (örneğin 4. fold'da 0. ay, 1–11. aylar görülerek tahmin edilir). `TimeSeriesSplit`'te bu sayı her zaman 0'dır.
+>
+> **Şimdi siz:** `shuffle=True, random_state=0` kısmını silin (`KFold(n_splits=4)`). Karıştırma olmayınca sorun çözülür mü? Önce tahmin edin.
+>
+> <details><summary>Cevap</summary>
+>
+> Çözülmez. Doğrulama blokları artık bitişiktir (`[0 1 2]`, `[3 4 5]`, …), ama eğitimde gelecekten sırasıyla 9, 6, 3 ve 0 ay vardır. Yalnızca son fold zamana saygılıdır; ilk fold'da model 3–11. aylarla eğitilip 0–2. ayları "tahmin eder".
+>
+> </details>
+
+Sonuç: Rastgele K-fold, zaman serisinde **gerçekte olduğundan çok daha iyi** görünen, iyimser performans tahminleri üretir. Bu tahminlere güvenerek seçilen model, canlıya alındığında hayal kırıklığı yaratır.
+
+Doğru değerlendirme **gerçek tahmin koşulunu taklit etmelidir**. Tahminin yapıldığı ana $t$ diyelim (ör. Aralık 1955'in sonu). Model, $t$ anına kadar olan veriyle eğitilir ve yalnızca $t$'den **sonraki** gözlemler üzerinde test edilir. Bu işlem farklı $t$ noktaları için tekrarlanır. Literatürde bu yaklaşıma **kayan başlangıç noktası (rolling origin)** ya da **ileriye doğru yürüyen doğrulama (walk-forward validation)** denir.
+
+![Rastgele K-Fold ve TimeSeriesSplit fold diyagramı](../images/ch16_tss_foldlar.svg)
+
+*Şekil 16.1 — (a) Rastgele K-fold'da doğrulama gözlemleri (turuncu) zamana dağılır ve her fold'un eğitim kümesinde doğrulamadan sonraki gözlemler bulunur. (b) TimeSeriesSplit'te doğrulama her zaman eğitimden sonra gelir ve eğitim kümesi genişler. (c) Kayan pencere varyantında eğitim uzunluğu sabittir; `gap` eğitim ile doğrulama arasına tampon koyar.*
+
+> **Hemen deneyin 16.1b · İyimserliği sayıyla görün** (Python, ~4 dk)
+>
+> Aynı model ve aynı özelliklerle (12 gecikme) AirPassengers'ta rastgele K-fold ile `TimeSeriesSplit`'in verdiği hatayı karşılaştırın. Kodu depo kök dizininden çalıştırın (Colab'da dosya yolu yerine depo bağlantısını kullanın: `https://raw.githubusercontent.com/erkanozhan/AI_Based_Time_Series-Data_Analytics/main/data/AirPassengers.csv`).
+>
+> ```python
+> import numpy as np, pandas as pd
+> from sklearn.ensemble import RandomForestRegressor
+> from sklearn.model_selection import KFold, TimeSeriesSplit, cross_val_score
+>
+> s = pd.read_csv("data/AirPassengers.csv")["Passengers"]
+> X = pd.DataFrame({f"lag_{l}": s.shift(l) for l in range(1, 13)}).dropna()  # 12 gecikme
+> y = s.loc[X.index]                                                          # 132 satır
+> model = RandomForestRegressor(n_estimators=200, random_state=0)
+> for ad, cv in [("Rastgele KFold ", KFold(n_splits=5, shuffle=True, random_state=0)),
+>                ("TimeSeriesSplit", TimeSeriesSplit(n_splits=5))]:
+>     rmse = -cross_val_score(model, X, y, cv=cv, scoring="neg_root_mean_squared_error")
+>     print(f"{ad} ortalama RMSE: {rmse.mean():6.2f}   fold'lar: {np.round(rmse, 1)}")
+> ```
+>
+> `RandomForestRegressor` 200 karar ağacının tahminlerinin ortalamasını alan bir ağaç modelidir (Bölüm 13'teki XGBoost'un akrabası). `cross_val_score` her fold'da modeli sıfırdan eğitip doğrulama puanını döndürür. scikit-learn "büyük puan iyidir" kuralıyla çalıştığı için RMSE'yi eksi işaretli verir; baştaki `-` bunu düzeltir. `{... for l in range(1, 13)}` 12 sütunu (`lag_1` … `lag_12`) tek satırda üretir.
+>
+> **Ne göreceksiniz:**
+>
+> ```text
+> Rastgele KFold  ortalama RMSE:  19.65   fold'lar: [18.4 22.3 18.8 18.6 20.2]
+> TimeSeriesSplit ortalama RMSE:  41.15   fold'lar: [33.7 26.  46.2 47.5 52.2]
+> ```
+>
+> Aynı model, rastgele K-fold'a göre yaklaşık iki kat daha iyi görünüyor. Bu "başarı" gerçek değildir: Karıştırılmış fold'larda model, doğrulama yılının hem öncesini hem sonrasını görür ve trendin düzeyini önceden bilir. Gerçek kullanımda beklenecek hata `TimeSeriesSplit`'in 41 civarındaki değeridir.
+>
+> **Şimdi siz:** Rastgele K-fold'u karıştırmasız hâle getirin (`KFold(n_splits=5)`). Ortalama RMSE iki sonucun arasında mı kalır? Hangi fold'lar kötüleşir?
+>
+> <details><summary>Cevap</summary>
+>
+> Ortalama 32.01 çıkar, fold'lar `[40.8 20.6 26.3 24.1 48.2]`. İlk fold (Ocak 1950–Mart 1952, yalnızca sonraki yıllarla eğitilmiş) ve son fold (Kasım 1958–Aralık 1960, ağaçların eğitimde görmediği rekor düzeyler) kötüleşir; aradaki fold'lar ise iki yanındaki komşu yıllardan "okuyarak" iyimser kalır. Karıştırmamak tek başına yetmez; doğrulama her zaman eğitimden sonra gelmelidir.
+>
+> </details>
+
+### 16.2. Genişleyen Pencere ve Kayan Pencere Doğrulaması
+
+Zamana saygılı çapraz doğrulamanın iki temel biçimi vardır. Günlük hayattan bir benzetmeyle: **Genişleyen pencere**, her yeni tahminde doğduğunuz günden bu yana tuttuğunuz bütün günlükleri yeniden okumaktır; okunacak sayfa sayısı her seferinde artar. **Kayan pencere** ise yalnızca son altı ayın günlüklerini okumaktır; yeni bir ay eklendiğinde en eski ay rafa kaldırılır ve okunan miktar hep aynı kalır.
+
+Bunu kesin olarak yazmak için birkaç harf kullanacağız. $n$ gözlemli bir seride $k$. fold'un doğrulama kümesi $t_k$ anından hemen sonra başlayan $h$ gözlemden oluşsun.
+
+**Tanım 1 (Genişleyen pencere, expanding window):** $k$. fold'da eğitim kümesi serinin başından $t_k$'ye kadar olan tüm gözlemlerdir:
+
+$$
+\text{Eğitim}_k = \lbrace 1, \dots, t_k \rbrace, \quad \text{Doğrulama}_k = \lbrace t_k + 1, \dots, t_k + h \rbrace, \quad t_1 < t_2 < \dots < t_K
+$$
+
+**Tanım 2 (Kayan pencere, sliding / rolling window):** Eğitim kümesi sabit uzunlukta, $m$ gözlemdir ve fold'lar ilerledikçe pencere ileri kayar:
+
+$$
+\text{Eğitim}_k = \lbrace t_k - m + 1, \dots, t_k \rbrace, \quad \text{Doğrulama}_k = \lbrace t_k + 1, \dots, t_k + h \rbrace
+$$
+
+> **Simge notu:** $`\lbrace \dots \rbrace`$ *(küme parantezi)*: içine yazılan gözlem sıra numaralarının oluşturduğu küme; $`\lbrace 1, \dots, 12 \rbrace`$ "1'den 12'ye kadar bütün gözlemler" diye okunur, üç nokta aradaki sayıların atlandığını gösterir · $`k`$ *(küçük k)*: fold'un sıra numarası (1., 2., …) · $`K`$ *(büyük K)*: toplam fold sayısı · $`t_k`$ *(t k)*: $`k`$. fold'da eğitimin bittiği an (tahmin başlangıç noktası); alt indis $`k`$ bu anın hangi fold'a ait olduğunu söyler · $`t_1 < t_2 < \dots < t_K`$: her fold'un başlangıç noktası bir öncekinden daha ileridedir · $`h`$: doğrulama kümesinin uzunluğu (tahmin ufku) · $`m`$: kayan penceredeki sabit eğitim uzunluğu · "Eğitim" ve "Doğrulama" yanındaki alt indis $`k`$: o kümelerin $`k`$. fold'a ait olduğu
+
+**Sayısal örnek:** $n = 24$ gözlem, $K = 5$ fold ve $h = 4$ olsun. Fold'ların başlangıç noktaları $t_1 = 4$, $t_2 = 8$, $t_3 = 12$, $t_4 = 16$, $t_5 = 20$ olur. 3. fold'a bakalım ($t_3 = 12$):
+
+- Genişleyen pencere: Eğitim $\lbrace 1, \dots, 12 \rbrace$ (12 gözlem), doğrulama $\lbrace 13, \dots, 16 \rbrace$, çünkü $t_3 + 1 = 13$ ve $t_3 + h = 12 + 4 = 16$.
+- Kayan pencere, $m = 4$: Eğitim $\lbrace 12 - 4 + 1, \dots, 12 \rbrace = \lbrace 9, \dots, 12 \rbrace$ (4 gözlem), doğrulama yine $\lbrace 13, \dots, 16 \rbrace$.
+
+Beşinci fold'da ($t_5 = 20$) genişleyen pencerenin eğitimi 20 gözleme çıkar, kayan pencereninki ise $\lbrace 17, \dots, 20 \rbrace$ olur ve yine 4 gözlemdir. Pencere boyu olarak $m = 4$'ün seçilmesi tesadüf değildir: İlk fold'un eğitimi $t_1 = 4$'te bittiği için seride o ana kadar yalnızca 4 gözlem vardır. $m$ bundan büyük seçilseydi (ör. $m = 6$), ilk fold'da $\lbrace 4 - 6 + 1, \dots, 4 \rbrace = \lbrace -1, \dots, 4 \rbrace$ gibi var olmayan gözlemler istenirdi; pencere ilk fold'larda dolmaz ve o fold'lar diğerlerinden daha az veriyle eğitilirdi. Bu yüzden kayan pencerede $m \le t_1$ olmalıdır; ya pencere daraltılır ya da daha uzun bir seri kullanılır. Genişleyen pencerenin bu beş fold'unu 16.3'teki kod çıktısının ilk bölümünde aynen göreceksiniz; tek fark, Python saymaya 0'dan başladığı için orada her sıra numarasının bir eksik yazılmasıdır (1–12 yerine 0–11, 13–16 yerine 12–15).
+
+| Özellik | Genişleyen pencere | Kayan pencere |
+| --- | --- | --- |
+| Eğitim uzunluğu | Her fold'da büyür | Sabit ($`m`$) |
+| Eski veriler | Hep kullanılır | Pencereden çıkınca unutulur |
+| Uygun olduğu durum | Serinin yapısı zamanla fazla değişmiyorsa, veri azsa | Yapısal değişim (rejim değişikliği) varsa, eski veri yanıltıcıysa |
+| Fold'lar arası karşılaştırma | İlk fold'lar az veriyle eğitildiği için daha kötü görünebilir | Her fold aynı miktarda veri gördüğü için daha dengeli |
+| `TimeSeriesSplit` ayarı | Varsayılan | `max_train_size=m` |
+
+> **Hemen deneyin 16.2a · Genişleyen ve kayan pencereyi tanımdan üretin** (Python, ~3 dk)
+>
+> Tanım 1 ve Tanım 2'yi (1'den sayan numaralarla) birkaç satırla uygulayın: $n = 20$, $K = 4$, $h = 3$, $m = 5$.
+>
+> ```python
+> n, K, h, m = 20, 4, 3, 5          # gözlem, fold, doğrulama uzunluğu, kayan pencere boyu
+> for k in range(1, K + 1):
+>     t = n - (K - k + 1) * h       # t_k: bu fold'da eğitimin bittiği gözlem (1'den sayarak)
+>     print(f"Fold {k}: genişleyen eğitim 1-{t:2d} ({t:2d} gözlem) | "
+>           f"kayan eğitim {t - m + 1:2d}-{t:2d} ({m} gözlem) | doğrulama {t + 1:2d}-{t + h:2d}")
+> ```
+>
+> $t_k$ formülü `TimeSeriesSplit`'in yaptığı gibi fold'ları sondan geriye yerleştirir: son doğrulama serinin son gözlemiyle biter.
+>
+> **Ne göreceksiniz:**
+>
+> ```text
+> Fold 1: genişleyen eğitim 1- 8 ( 8 gözlem) | kayan eğitim  4- 8 (5 gözlem) | doğrulama  9-11
+> Fold 2: genişleyen eğitim 1-11 (11 gözlem) | kayan eğitim  7-11 (5 gözlem) | doğrulama 12-14
+> Fold 3: genişleyen eğitim 1-14 (14 gözlem) | kayan eğitim 10-14 (5 gözlem) | doğrulama 15-17
+> Fold 4: genişleyen eğitim 1-17 (17 gözlem) | kayan eğitim 13-17 (5 gözlem) | doğrulama 18-20
+> ```
+>
+> Genişleyen pencerede eğitim her fold'da $h = 3$ gözlem büyür; kayan pencerede hep 5 gözlemdir ve ileri kayar. Doğrulama her iki yöntemde de aynıdır.
+>
+> **Şimdi siz:** (1) İlk satırı metindeki örneğe çevirin: `n, K, h, m = 24, 5, 4, 4`. 3. ve 5. fold'u metinle karşılaştırın. (2) Sonra pencereyi büyütün: `m = 6`. 1. fold'da ne olur? Önce tahmin edin.
+>
+> <details><summary>Cevap</summary>
+>
+> (1) Üçüncü fold: genişleyen 1–12, kayan 9–12, doğrulama 13–16; beşinci fold: kayan 17–20, doğrulama 21–24. Metinle aynı. 1. fold'da iki pencere çakışır (ikisi de 1–4), çünkü $m = t_1 = 4$'tür. (2) 1. fold `kayan eğitim -1- 4` yazar: $t_1 = 4$ iken 6 gözlemlik pencere için yeterli geçmiş yoktur, formül var olmayan −1. ve 0. gözlemleri ister (metindeki $m \le t_1$ kuralı). Gerçekte kütüphane elde ne varsa onu kullanır: `TimeSeriesSplit(n_splits=5, test_size=4, max_train_size=6)` 1. fold'da yalnızca `[0 1 2 3]` (4 gözlem) verir, sonraki fold'larda 6'ya çıkar. Yani bu fold diğerlerinden daha az veriyle eğitilir ve hatası diğerleriyle tam karşılaştırılamaz.
+>
+> </details>
+
+**Açıklama:** Her iki yöntemde de doğrulama kümesi **daima** eğitim kümesinden sonra gelir. Aradaki fark, eski bilginin ne kadar süre "hafızada" tutulduğudur. AirPassengers gibi kısa ve düzenli bir seride genişleyen pencere doğal tercihtir. Pazarlama politikası değişmiş bir satış serisinde ya da kriz öncesi ve sonrası davranışı farklı olan finansal bir seride kayan pencere daha gerçekçi olabilir.
+
+> **Hemen deneyin 16.2b · Rejim değişikliğinde kayan pencere: Nil Nehri** (R, ~4 dk)
+>
+> Nil'in yıllık akışı (1871–1970) 1898 civarında belirgin biçimde düşer (eski Asvan barajının yapımına bu yıl başlanmıştır). "Tahmin = penceredeki değerlerin ortalaması" modelini genişleyen ve kayan pencereyle yürütün. `forecast` paketindeki `tsCV()` bu ileriye doğru yürüyen doğrulamayı tek satırda yapar: her yıl modeli o yıla kadarki veriyle kurar ve bir sonraki yılın hatasını kaydeder; `window` verilirse yalnızca son `window` gözlemi kullanır.
+>
+> ```r
+> library(forecast)
+> # meanf: tahmin = eğitim penceresindeki değerlerin ortalaması
+> e_gen <- tsCV(Nile, meanf, h = 1)                # genişleyen pencere: tüm geçmiş
+> e_kay <- tsCV(Nile, meanf, h = 1, window = 15)   # kayan pencere: yalnızca son 15 yıl
+> ortak <- !is.na(e_gen) & !is.na(e_kay)           # ikisinin de hata ürettiği yıllar
+> rmse <- function(e) sqrt(mean(e^2))
+> round(c(genisleyen = rmse(e_gen[ortak]), kayan = rmse(e_kay[ortak])), 1)
+> sum(ortak)
+> ```
+>
+> Kayan pencere ilk yıllarda hata üretemez (`NA`), çünkü elinde henüz 15 yıl yoktur; adil olsun diye iki yöntemi yalnızca ortak yıllarda karşılaştırıyoruz. `!is.na(...)` "boş değil mi?" sorusunun cevabıdır, `&` iki koşulun birlikte sağlanmasını ister.
+>
+> **Ne göreceksiniz:**
+>
+> ```text
+> genisleyen      kayan 
+>      175.8      149.2 
+> [1] 85
+> ```
+>
+> 85 ortak yılda kayan pencerenin hatası belirgin biçimde küçüktür. Genişleyen pencerenin ortalaması 1898 öncesinin yüksek akışlarını (ortalama yaklaşık 1098) yıllarca taşır; oysa sonraki dönemin ortalaması yaklaşık 850'dir. Kayan pencere eski rejimi 15 yıl sonra "unutur".
+>
+> **Şimdi siz:** `window = 5` ve `window = 30` deneyin (her seferinde `e_kay` ve `ortak` satırlarını yeniden çalıştırın). Kayan pencere her iki durumda da kazanır mı? Hangi pencere boyu en iyisi?
+>
+> <details><summary>Cevap</summary>
+>
+> `window = 5`: genişleyen 174.5, kayan 153.2 (95 ortak yıl). `window = 30`: genişleyen 178.4, kayan 154.5 (70 ortak yıl). Kayan pencere hepsinde kazanır. Kayan pencerenin kendi hataları (153.2, 149.2, 154.5) birbirine yakındır; 15 yıl en düşüğünü verdi, ama her pencerenin ortak yılları farklı olduğu için bu kesin bir sıralama değildir. Genel kural: çok kısa pencere gürültüye fazla tepki verir, çok uzun pencere eski rejimi daha uzun taşır.
+>
+> </details>
+
+### 16.3. `TimeSeriesSplit` Parametreleri
+
+> **Uygulama dosyası:** [`Codes/python/ch16_timeseriessplit.py`](../Codes/python/ch16_timeseriessplit.py) · [Notebook](../Codes/notebooks/ch16_timeseriessplit.ipynb) · [![Colab'da aç](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/Codes/notebooks/ch16_timeseriessplit.ipynb)
+>
+> Bu bölümdeki kodların tamamı bu dosyada. Bilgisayarınızda çalıştırmak için depo kök dizininde `python Codes/python/ch16_timeseriessplit.py` komutunu kullanın ya da dosyayı VS Code'da açıp hücre hücre çalıştırın. Kurulum yapmadan denemek için Colab bağlantısını kullanabilirsiniz.
+
+
+scikit-learn'deki `TimeSeriesSplit` sınıfı, yukarıdaki iki yöntemi dört parametreyle uygular:
+
+| Parametre | Varsayılan | Anlamı |
+| --- | --- | --- |
+| `n_splits` | 5 | Fold sayısı $`K`$ |
+| `test_size` | `n // (n_splits + 1)` | Her doğrulama kümesinin uzunluğu $`h`$. Aylık veride 12 seçmek, her fold'u tam bir yılla test etmek demektir. |
+| `gap` | 0 | Eğitimin sonu ile doğrulamanın başı arasında atlanan gözlem sayısı |
+| `max_train_size` | `None` | Verilirse eğitim kümesi en fazla bu kadar son gözlemden oluşur (kayan pencere, $`m`$) |
+
+Tablodaki `//` işareti Python'da **tam sayı bölmesidir**: Bölümün yalnızca tam kısmı alınır, küsurat atılır. 24 gözlem ve 5 fold için varsayılan doğrulama uzunluğu $24 / 6 = 4$; 131 gözlem için $131 / 6 = 21.83…$ olduğundan `131 // 6 = 21` olur. `None` "değer verilmedi" anlamına gelir; `max_train_size=None` eğitim uzunluğuna sınır konmadığını, yani genişleyen pencereyi gösterir.
+
+`TimeSeriesSplit` fold'ları serinin **sonundan geriye doğru** yerleştirir. Doğrulama kümelerinin toplamı $K \cdot h$ gözlemdir ve son doğrulama kümesi serinin son gözlemiyle biter. Bu yüzden ilk doğrulama kümesi $n - K \cdot h$ numaralı gözlemden başlar (Python'un 0'dan sayan numaralandırmasıyla). Her fold'un eğitimi ise doğrulamanın başlangıcından `gap` kadar önce biter.
+
+**`gap` neden gerekir?** İki tipik durum vardır. Birincisi, gerçek hayatta verinin gecikmeli gelmesidir: Bu ayın satış raporu ancak iki ay sonra kesinleşiyorsa model, son iki ayı görmeden tahmin yapmak zorundadır. İkincisi, çok adımlı tahmindir: 3 ay sonrasını tahmin eden bir modelde, eğitimin son gözlemleriyle doğrulamanın ilk gözlemleri arasındaki güçlü otokorelasyon sonucu iyimser gösterebilir. `gap`, bu tamponu kurar.
+
+Aşağıdaki kısa kod, 24 gözlemlik bir dizide üç farklı ayarın fold'larını yazdırır. Şekil 16.1'deki (b) ve (c) panelleri tam olarak bu çıktılardan çizilmiştir.
+
+```python
+import numpy as np
+from sklearn.model_selection import TimeSeriesSplit
+
+X = np.arange(24).reshape(-1, 1)   # 24 ardışık gözlem (ör. 2 yıllık aylık veri)
+
+def show_folds(tscv, title):
+    print(title)
+    for k, (tr, te) in enumerate(tscv.split(X), 1):
+        print(f"  Fold {k}: eğitim {tr.min():>2}-{tr.max():>2} ({len(tr):>2} gözlem)  "
+              f"doğrulama {te.min():>2}-{te.max():>2}")
+
+show_folds(TimeSeriesSplit(n_splits=5), "Genişleyen pencere (varsayılan):")
+show_folds(TimeSeriesSplit(n_splits=3, test_size=4, gap=2), "Genişleyen pencere + gap=2:")
+show_folds(TimeSeriesSplit(n_splits=4, test_size=4, max_train_size=6, gap=2),
+           "Kayan pencere (max_train_size=6) + gap=2:")
+```
+
+Çıktı:
+
+```text
+Genişleyen pencere (varsayılan):
+  Fold 1: eğitim  0- 3 ( 4 gözlem)  doğrulama  4- 7
+  Fold 2: eğitim  0- 7 ( 8 gözlem)  doğrulama  8-11
+  Fold 3: eğitim  0-11 (12 gözlem)  doğrulama 12-15
+  Fold 4: eğitim  0-15 (16 gözlem)  doğrulama 16-19
+  Fold 5: eğitim  0-19 (20 gözlem)  doğrulama 20-23
+Genişleyen pencere + gap=2:
+  Fold 1: eğitim  0- 9 (10 gözlem)  doğrulama 12-15
+  Fold 2: eğitim  0-13 (14 gözlem)  doğrulama 16-19
+  Fold 3: eğitim  0-17 (18 gözlem)  doğrulama 20-23
+Kayan pencere (max_train_size=6) + gap=2:
+  Fold 1: eğitim  0- 5 ( 6 gözlem)  doğrulama  8-11
+  Fold 2: eğitim  4- 9 ( 6 gözlem)  doğrulama 12-15
+  Fold 3: eğitim  8-13 ( 6 gözlem)  doğrulama 16-19
+  Fold 4: eğitim 12-17 ( 6 gözlem)  doğrulama 20-23
+```
+
+Kod üç adımdan oluşur. `np.arange(24)` 0'dan 23'e kadar 24 tam sayı üretir; `reshape(-1, 1)` bunları tek sütunlu bir tabloya çevirir (her satır bir "gözlem", değeri de kendi sıra numarası olduğu için çıktıyı okumak kolaydır). `show_folds` fonksiyonu kendisine verilen ayarlı `TimeSeriesSplit` nesnesinin `split(X)` metodunu çağırır. `split`, her fold için iki dizi verir: eğitim satırlarının sıra numaraları (`tr`) ve doğrulama satırlarının sıra numaraları (`te`). Verinin kendisini değil, yalnızca hangi satırların hangi kümeye gideceğini söyler. `enumerate(..., 1)` fold'ları 1'den başlayarak numaralandırır. `tr.min()` ve `tr.max()` eğitim kümesinin ilk ve son sıra numarasını, `len(tr)` eleman sayısını verir. f-string içindeki `:>2` sayıyı iki karakterlik alana sağa yaslı yazar; tek basamaklı sayıların önüne boşluk gelmesinin nedeni budur.
+
+**Çıktının yorumu:** Varsayılan ayarda `test_size = 24 // 6 = 4` olur ve fold'lar serinin **sonundan geriye doğru** yerleştirilir: son fold daima serinin son gözlemleriyle biter. İkinci ayarda 3 fold × 4 gözlem = 12 gözlem doğrulamaya gider; ilk doğrulama kümesi $24 - 3 \cdot 4 = 12$ numaralı gözlemde başlar. `gap=2` ile eğitimin son iki gözlemi atlanır: 1. fold'da doğrulama 12'de başladığı için 10 ve 11 numaralı gözlemler kullanılmaz ve eğitim 9'da biter. Üçüncü ayarda ilk doğrulama $24 - 4 \cdot 4 = 8$'de başlar; eğitim yine iki gözlem önce (5'te) biter. `max_train_size=6` ile eğitim kümesi her fold'da en son 6 gözlemle sınırlanır ve ileri kayar: 2. fold'da eğitim 9'da bittiği için $9 - 6 + 1 = 4$'ten başlar.
+
+> **Not —** `TimeSeriesSplit` veriyi **sıralı** kabul eder; karıştırmaz ve tarihlere bakmaz. Bu yüzden veri çerçevesinin tarihe göre sıralı olduğundan ve (panel verilerde) her satırın tek bir zaman noktasına karşılık geldiğinden emin olun.
+
+> **Hemen deneyin 16.3 · İndeksleri önce tahmin edin, sonra yazdırın** (Python, ~4 dk)
+>
+> 15 gözlemlik bir dizide `n_splits=3, test_size=3, gap=1` ayarının fold'larını **çalıştırmadan önce** kâğıda yazın (ipucu: ilk doğrulama $15 - 3 \cdot 3 = 6$'da başlar), sonra kontrol edin.
+>
+> ```python
+> import numpy as np
+> from sklearn.model_selection import TimeSeriesSplit
+>
+> X = np.arange(15).reshape(-1, 1)              # 15 gözlem: 0, 1, ..., 14
+> tss = TimeSeriesSplit(n_splits=3, test_size=3, gap=1)
+> for k, (tr, te) in enumerate(tss.split(X), 1):
+>     print(f"Fold {k}: eğitim {tr}  doğrulama {te}")
+> ```
+>
+> **Ne göreceksiniz:**
+>
+> ```text
+> Fold 1: eğitim [0 1 2 3 4]  doğrulama [6 7 8]
+> Fold 2: eğitim [0 1 2 3 4 5 6 7]  doğrulama [ 9 10 11]
+> Fold 3: eğitim [ 0  1  2  3  4  5  6  7  8  9 10]  doğrulama [12 13 14]
+> ```
+>
+> `gap=1` yüzünden her fold'da doğrulamadan hemen önceki gözlem (5, 8, 11) hiçbir kümeye girmez.
+>
+> **Şimdi siz:** Her birinin sonucunu önce tahmin edin: (1) aynı ayara `max_train_size=4` ekleyin; (2) yalnızca `TimeSeriesSplit(n_splits=4)` yazın (varsayılan `test_size` kaç olur?); (3) `TimeSeriesSplit(n_splits=5, test_size=3)` yazın.
+>
+> <details><summary>Cevap</summary>
+>
+> (1) Eğitim kümeleri son 4 gözlemle sınırlanır: `[1 2 3 4]`, `[4 5 6 7]`, `[7 8 9 10]`; doğrulamalar aynı kalır. (2) `test_size = 15 // 5 = 3`: eğitim `[0 1 2]` → doğrulama `[3 4 5]`, …, son fold eğitim 0–11 → doğrulama `[12 13 14]` (4 fold). (3) Hata: `ValueError: Too many splits=5 for number of samples=15 with test_size=3 and gap=0.` Beş doğrulama kümesi $5 \cdot 3 = 15$ gözlemin tamamını kaplar; eğitime hiçbir şey kalmaz.
+>
+> </details>
+
+### 16.4. Her Fold'da Ön İşleme Yalnızca Eğitim Verisiyle Fit Edilmeli
+
+Zamana saygılı bölmek tek başına yetmez. Veriyi dönüştüren **her** adım (ölçekleme, eksik değer doldurma, özellik seçimi, PCA gibi boyut indirgeme yöntemleri vb.) yalnızca o fold'un eğitim kümesinden öğrenilmelidir. Aksi hâlde sızıntı bölme yoluyla değil, ön işleme yoluyla gerçekleşir.
+
+**Açıklama:** 15.1.1'de gördüğümüz ölçekleme sızıntısı her fold'da yeniden ortaya çıkabilir. `MinMaxScaler` döngüden önce **tüm seriyle** fit edilirse, aşağıdaki kodun 1. fold'unda (eğitim 1949–1955) eğitimin en büyük değeri olan 364, 1'e değil $(364 - 104) / (622 - 104) = 260 / 518 \approx 0.50$'ye gider ve model "ölçeğin geri kalanı ileride dolacak" bilgisini dolaylı olarak almış olur. Doğru sıra şudur:
+
+1. Fold'u böl: `train_idx`, `val_idx`.
+2. Ölçekleyiciyi **yalnızca** `train_idx` ile `fit` et.
+3. Aynı ölçekleyiciyle hem eğitim hem doğrulama verisini `transform` et.
+4. Modeli eğit, doğrulamada tahmin yap, tahmini `inverse_transform` ile orijinal ölçeğe döndür ve hatayı hesapla.
+
+Aşağıdaki kod bu kalıbı Bölüm 15.3'teki GRU modeliyle uygular. Her fold'da doğrulama kümesi tam bir yıldır (`test_size=12`).
+
+```python
+import numpy as np
+import pandas as pd
+import tensorflow as tf
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import TimeSeriesSplit
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, GRU, Dense
+
+SEED = 42
+tf.keras.utils.set_random_seed(SEED)   # Python, NumPy ve TensorFlow tohumları
+
+df = pd.read_csv('data/AirPassengers.csv', parse_dates=['Month'], index_col='Month')
+if '#Passengers' in df.columns:
+    df.rename(columns={'#Passengers': 'Passengers'}, inplace=True)
+values = df['Passengers'].values.astype('float32').reshape(-1, 1)
+
+look_back = 12
+
+def create_dataset(sequence, look_back=1):
+    """Kayan pencere (Bölüm 15.1): look_back geçmiş değer girdi, sonraki değer hedef."""
+    X, y = [], []
+    for i in range(len(sequence) - look_back):
+        X.append(sequence[i:(i + look_back), 0])
+        y.append(sequence[i + look_back, 0])
+    return np.array(X), np.array(y)
+
+tscv = TimeSeriesSplit(n_splits=5, test_size=12)
+fold_rmse = []
+
+for k, (train_idx, val_idx) in enumerate(tscv.split(values), 1):
+    # 1) Ölçekleyici YALNIZCA bu fold'un eğitim gözlemleriyle fit edilir
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaler.fit(values[train_idx])
+    scaled = scaler.transform(values)   # dönüşüm tüm seriye uygulanabilir; öğrenilen min/max yalnızca eğitimden
+
+    # 2) Pencereler: i. örneğin hedefi serinin (i + look_back). gözlemidir
+    X_all, y_all = create_dataset(scaled, look_back)
+    target_idx = np.arange(look_back, len(values))
+    tr_mask = target_idx <= train_idx[-1]      # hedefi eğitim döneminde olanlar
+    va_mask = np.isin(target_idx, val_idx)     # hedefi doğrulama döneminde olanlar
+    X_tr = X_all[tr_mask].reshape(-1, look_back, 1)
+    X_va = X_all[va_mask].reshape(-1, look_back, 1)
+    y_tr, y_va = y_all[tr_mask], y_all[va_mask]
+
+    # 3) Her fold'da SIFIRDAN yeni bir model (önceki fold'un ağırlıkları taşınmaz)
+    model = Sequential([Input(shape=(look_back, 1)), GRU(50), Dense(1)])
+    model.compile(loss='mean_squared_error', optimizer='adam')
+    model.fit(X_tr, y_tr, epochs=100, batch_size=8, verbose=0)
+
+    # 4) Tahmini orijinal ölçeğe döndürüp hatayı hesapla
+    pred = scaler.inverse_transform(model.predict(X_va, verbose=0))
+    true = scaler.inverse_transform(y_va.reshape(-1, 1))
+    rmse = np.sqrt(mean_squared_error(true, pred))
+    fold_rmse.append(rmse)
+    print(f"Fold {k}: eğitim {df.index[train_idx[0]]:%Y-%m} - {df.index[train_idx[-1]]:%Y-%m}, "
+          f"doğrulama {df.index[val_idx[0]]:%Y-%m} - {df.index[val_idx[-1]]:%Y-%m}, RMSE = {rmse:.2f}")
+
+print(f"\nGRU çapraz doğrulama RMSE: {np.mean(fold_rmse):.2f} ± {np.std(fold_rmse):.2f}")
+```
+
+Kodun 15. bölümden farklı olan kısımları döngünün içindedir:
+
+1. `pd.read_csv(..., parse_dates=['Month'], index_col='Month')` CSV dosyasını okur, `Month` sütununu tarihe çevirir ve satır etiketi (indeks) yapar. Bazı kopyalarda sütun adı `#Passengers` olduğu için `rename` ile `Passengers`'a çevrilir.
+2. `TimeSeriesSplit(n_splits=5, test_size=12)` 144 aylık seride son $5 \cdot 12 = 60$ ayı beş yıllık doğrulama dilimine ayırır; ilk doğrulama dilimi $144 - 60 = 84$ numaralı gözlemde, yani Ocak 1956'da başlar. `tscv.split(values)` her turda `train_idx` (eğitim aylarının sıra numaraları) ve `val_idx` (doğrulama aylarının sıra numaraları) verir.
+3. Her turda **yeni** bir `MinMaxScaler` oluşturulur ve yalnızca `values[train_idx]` ile fit edilir. Dönüşüm tüm seriye uygulanır; bu bir sızıntı değildir, çünkü kullanılan en küçük ve en büyük değerler yalnızca eğitim aylarından öğrenilmiştir.
+4. Pencereler bütün seriden bir kez kurulur; sonra her pencerenin hedefinin hangi aya düştüğüne bakılarak ayrılır. `target_idx = np.arange(12, 144)` her pencerenin hedef ayının sıra numarasıdır (1. pencerenin hedefi 12. ay, …). `target_idx <= train_idx[-1]` her pencere için "hedefi eğitimin son ayında ya da öncesinde mi?" sorusunu sorar ve `True`/`False` değerlerinden oluşan bir **maske** üretir. `train_idx[-1]` eğitimin son ayının numarasıdır (`[-1]` "sondan birinci eleman"). `np.isin(target_idx, val_idx)` ise "hedefi doğrulama aylarından biri mi?" sorusunun maskesidir. `X_all[tr_mask]` yalnızca maskesi `True` olan satırları seçer.
+5. Her fold'da model **sıfırdan** kurulur. Önceki fold'un ağırlıklarıyla devam etmek, o fold'un doğrulama yılını görmüş bir modelle başlamak, yani sızıntı olurdu.
+6. Tahminler ve gerçek değerler `inverse_transform` ile yolcu sayısına çevrilir, RMSE hesaplanır ve `fold_rmse` listesine eklenir. `{df.index[train_idx[0]]:%Y-%m}` biçimi bir tarihi "yıl-ay" olarak yazar.
+7. Son satır beş RMSE'nin **ortalamasını** (`np.mean`) ve **standart sapmasını** (`np.std`) yazdırır. Standart sapma, sayıların ortalamadan tipik olarak ne kadar uzaklaştığını ölçer: Her sayının ortalamadan farkının karesi alınır, bu kareler ortalanır ve karekök alınır.
+
+Bizim çalıştırmamızda çıktı şöyle oldu (GRU'nun rastgele başlangıcı yüzünden sizin sayılarınız birkaç birim farklı olabilir; tarih aralıkları ise hep aynıdır):
+
+```text
+Fold 1: eğitim 1949-01 - 1955-12, doğrulama 1956-01 - 1956-12, RMSE = 31.67
+Fold 2: eğitim 1949-01 - 1956-12, doğrulama 1957-01 - 1957-12, RMSE = 25.72
+Fold 3: eğitim 1949-01 - 1957-12, doğrulama 1958-01 - 1958-12, RMSE = 33.82
+Fold 4: eğitim 1949-01 - 1958-12, doğrulama 1959-01 - 1959-12, RMSE = 40.78
+Fold 5: eğitim 1949-01 - 1959-12, doğrulama 1960-01 - 1960-12, RMSE = 28.84
+
+GRU çapraz doğrulama RMSE: 32.17 ± 5.09
+```
+
+Ortalama $(31.67 + 25.72 + 33.82 + 40.78 + 28.84) / 5 = 160.83 / 5 \approx 32.17$'dir. ± işaretinin ("artı eksi") sağındaki 5.09 standart sapmadır ve fold hatalarının ortalamanın çevresinde tipik olarak 5 birim kadar dağıldığını söyler.
+
+**Çıktının yorumu:** Beş fold, 1956'dan 1960'a kadar her yılı ayrı ayrı test eder ve eğitim kümesi her fold'da bir yıl büyür (genişleyen pencere). Fold'ların RMSE değerleri birbirinden belirgin biçimde farklıdır: En kolay yıl (1957) ile en zor yıl (1959) arasında 15 birimden fazla fark vardır. Yolcu sayısı ve mevsimsel dalgalanmalar yıllar içinde büyüdüğü için son yıllarda hata büyüme eğilimindedir, ama bu artış düzenli değildir; bir yılın kolay ya da zor olması o yılın kendine özgü hareketlerine de bağlıdır. Bu nedenle performansı tek bir sayı olarak değil, **ortalama ± standart sapma** olarak raporlamak gerekir. Standart sapmanın büyük olması, modelin dönemden döneme kararsız olduğunu gösterir. İki modeli karşılaştırırken aradaki fark bu standart sapmadan küçükse, "biri diğerinden daha iyi" demek için yeterli kanıt yoktur. Yalnızca 1956'yı test etseydik (Fold 1) bu modelin hatasını 31.67 sanacaktık; yalnızca 1959'u test etseydik 40.78. Hangisinin "doğru" olduğunu tek bir dönemle bilemeyiz.
+
+> **Not —** Aynı ilke hiperparametre seçimi ve erken durdurma için de geçerlidir. Erken durdurmada izlenen doğrulama kümesi, hatası raporlanan fold'un kendisiyse sonuç yine iyimser olur: Model tam da o dönemde en iyi göründüğü noktada durdurulmuş olur. Doğrusu, erken durdurma için fold'un **eğitim** kısmının sonundan ayrı bir iç doğrulama dilimi ayırmaktır. Ağaç tabanlı modellerde ölçekleme gerekmez, ancak gecikme ve hareketli ortalama gibi özelliklerin yalnızca geçmiş değerlerden (`shift(1)` ile) üretildiğinden emin olmak gerekir. scikit-learn'de ön işlemeyi `Pipeline` içine koymak, `fit` işleminin her fold'da otomatik olarak yalnızca eğitim verisiyle yapılmasını garanti eder.
+
+> **Hemen deneyin 16.4 · Ölçekleyici fold içinde mi, dışında mı?** (Python, ~4 dk)
+>
+> Ölçekleyiciyi bir kez döngüden önce tüm seriyle (yanlış), bir kez de her fold'da yalnızca eğitimle (doğru) fit edin; eğitim ve doğrulama kümelerinin ölçeklenmiş en büyük değerlerine bakın.
+>
+> ```python
+> import pandas as pd
+> from sklearn.model_selection import TimeSeriesSplit
+> from sklearn.preprocessing import MinMaxScaler
+>
+> v = pd.read_csv("data/AirPassengers.csv")["Passengers"].values.astype(float).reshape(-1, 1)
+> disarida = MinMaxScaler().fit(v)               # YANLIŞ: döngüden önce, tüm seriyle
+> for k, (tr, va) in enumerate(TimeSeriesSplit(n_splits=5, test_size=12).split(v), 1):
+>     icerde = MinMaxScaler().fit(v[tr])         # DOĞRU: yalnızca bu fold'un eğitimiyle
+>     print(f"Fold {k}: eğitim maks  içeride {icerde.transform(v[tr]).max():.2f}  "
+>           f"dışarıda {disarida.transform(v[tr]).max():.2f}  |  doğrulama maks  "
+>           f"içeride {icerde.transform(v[va]).max():.2f}  dışarıda {disarida.transform(v[va]).max():.2f}")
+> ```
+>
+> **Ne göreceksiniz:**
+>
+> ```text
+> Fold 1: eğitim maks  içeride 1.00  dışarıda 0.50  |  doğrulama maks  içeride 1.19  dışarıda 0.60
+> Fold 2: eğitim maks  içeride 1.00  dışarıda 0.60  |  doğrulama maks  içeride 1.17  dışarıda 0.70
+> Fold 3: eğitim maks  içeride 1.00  dışarıda 0.70  |  doğrulama maks  içeride 1.10  dışarıda 0.77
+> Fold 4: eğitim maks  içeride 1.00  dışarıda 0.77  |  doğrulama maks  içeride 1.13  dışarıda 0.88
+> Fold 5: eğitim maks  içeride 1.00  dışarıda 0.88  |  doğrulama maks  içeride 1.14  dışarıda 1.00
+> ```
+>
+> Doğru ölçeklemede eğitim hep 1.00'de biter ve doğrulama yılı 1'in üzerine taşar (1.10–1.19): Model gerçek hayattaki gibi "yeni rekor" görür. Yanlış ölçeklemede 1. fold'un eğitimi 0.50'de kalır; doğrulama bile 0.60'ı geçmez. Model "ölçeğin yarısı boş, seri büyüyecek" bilgisini fold'u görmeden almış olur. Metindeki $260 / 518 \approx 0.50$ hesabının aynısı.
+>
+> **Şimdi siz:** "Dışarıda" sütununda hiçbir değer 1'i geçmiyor. Neden? Bu, gelecek hakkında modelin bilmemesi gereken hangi bilgiyi verir?
+>
+> <details><summary>Cevap</summary>
+>
+> Dışarıdaki ölçekleyici serinin tamamındaki en büyük değeri (Temmuz 1960, 622) 1'e eşitlemiştir; hiçbir gözlem bundan büyük olamaz. Yani her fold, serinin ileride ulaşacağı en yüksek düzeyi önceden "biliyor": 1. fold'da 0.50 ile 1 arasında kalan boş aralık, model 1956'yı tahmin ederken yolcu sayısının 1960'a kadar eğitimdeki rekorun yaklaşık 1.7 katına (364'ten 622'ye) çıkacağının ipucudur. Fold 5'te iki sütunun doğrulama maksimumu farklıdır (1.14 ve 1.00), çünkü içerideki ölçekleyici 1960'ı görmemiştir.
+>
+> </details>
+
+### 16.5. Uygulama: GRU ve XGBoost ile Kapsamlı Bir Örnek
+
+Aşağıdaki kod, bu bölümdeki fikirleri önceki bölümlerle birleştiren uçtan uca bir örnektir: Bölüm 15.3'teki GRU ile Bölüm 13'teki XGBoost aynı son 24 aylık test döneminde karşılaştırılır ve XGBoost `TimeSeriesSplit` ile çapraz doğrulanır. Programın adımları kodun ardından sırayla verilmiştir.
+
+Programın tamamı (yaklaşık 380 satır) uygulama dosyasındadır; aşağıda kilit satırlar yer alıyor (dosyada MAPE de hesaplanır ve her fold'un tarih aralığı yazdırılır).
+
+```python
+# GRU + XGBoost + TimeSeriesSplit — kilit satırlar (tam kod: Codes/python/ch16_timeseriessplit.py)
+# 3) Ölçekleyici YALNIZCA eğitim dönemiyle fit edilir; son 24 ay test
+scaler = MinMaxScaler(feature_range=(0, 1))
+scaler.fit(values[:-test_size])
+values_scaled = scaler.transform(values)
+X_all, y_all = create_dataset(values_scaled, look_back)       # (132, 12), (132,)
+X_all = X_all.reshape(X_all.shape[0], X_all.shape[1], 1)     # [örnek, zaman adımı, özellik]
+
+# 5)-6) GRU: erken durdurmayla en iyi epoch'u bul, sonra tüm eğitim verisiyle yeniden eğit
+history = model_gru.fit(X_train_final, y_train_final, epochs=200, batch_size=8,
+                        validation_data=(X_val, y_val), callbacks=[early_stop], verbose=1)
+best_epoch = int(np.argmin(history.history['val_loss'])) + 1
+model_gru_final = build_gru_model(look_back, units=50, dropout_rate=0.2)
+model_gru_final.fit(X_train, y_train, epochs=best_epoch, batch_size=8, verbose=0)
+
+# 8) XGBoost için TimeSeriesSplit: her fold'da sıfırdan model ve fold metrikleri
+tscv = TimeSeriesSplit(n_splits=5)
+for fold, (train_index, val_index) in enumerate(tscv.split(X), 1):
+    X_tr, X_va = X.iloc[train_index], X.iloc[val_index]
+    y_tr, y_va = y.iloc[train_index], y.iloc[val_index]
+    model_xgb = xgb.XGBRegressor(n_estimators=500, learning_rate=0.05, max_depth=4,
+                                 subsample=0.8, colsample_bytree=0.8, random_state=SEED)
+    model_xgb.fit(X_tr, y_tr)
+    y_va_pred = model_xgb.predict(X_va)
+    rmse_list.append(np.sqrt(mean_squared_error(y_va, y_va_pred)))
+    mae_list.append(mean_absolute_error(y_va, y_va_pred))
+print(f"RMSE: {np.mean(rmse_list):.2f} ± {np.std(rmse_list):.2f}")
+```
+
+Kilit satırlarda iki yeni fikir vardır. Birincisi **en iyi epoch'u bulup yeniden eğitmektir**. Erken durdurma için eğitimin son 12 ayı doğrulamaya ayrıldığından ilk model bu 12 ayı hiç görmez. Oysa bu aylar test döneminden hemen önceki, en güncel bilgidir. Bu yüzden önce doğrulamalı eğitimle "kaç epoch iyi?" sorusu cevaplanır: `np.argmin(history.history['val_loss'])` doğrulama kaybı listesinde en küçük değerin sıra numarasını verir; Python 0'dan saydığı için `+ 1` ile epoch numarasına çevrilir (ör. liste [0.30, 0.20, 0.25] ise `argmin` 1 döndürür ve en iyi epoch 2'dir). Sonra aynı mimari sıfırdan kurulur ve doğrulama dahil bütün eğitim verisiyle (`X_train`, 108 örnek) tam o kadar epoch eğitilir. İkincisi, XGBoost döngüsünde `X.iloc[train_index]` kullanılır: `.iloc[...]` bir pandas tablosundan satırları **sıra numarasıyla** seçer; `split` sıra numarası verdiği için doğru seçim budur. Her fold'da `XGBRegressor` yeniden oluşturulur, `fit` ile eğitilir, `predict` ile doğrulama aylarını tahmin eder ve hatalar listelere eklenir. XGBoost'un parametreleri (`n_estimators`, `learning_rate`, `max_depth`, `subsample`, `colsample_bytree`) Bölüm 13.1.4'te açıklanmıştır.
+
+Program sırasıyla şu adımları izler:
+
+1. **Hazırlık:** Tohumlar sabitlenir, AirPassengers yüklenir, özet istatistikler yazdırılır ve seri çizilir.
+2. **GRU için veri:** Ölçekleyici yalnızca eğitim dönemiyle fit edilir, kayan pencereyle (`look_back = 12`) üç boyutlu tensör kurulur; son 24 ay test, eğitimin son 12 ayı doğrulama kümesidir.
+3. **GRU modeli:** `GRU(50)` → `Dropout(0.2)` → `Dense(1)`; erken durdurmayla eğitilir, öğrenme eğrileri çizilir ve doğrulama kaybının en düşük olduğu epoch (`best_epoch`) bulunur.
+4. **Son GRU modeli:** Doğrulama dahil tüm eğitim verisiyle `best_epoch` kadar yeniden eğitilir; eğitim ve test için RMSE, MAE, MAPE hesaplanıp tahminler çizilir.
+5. **XGBoost özellikleri:** 12 gecikme, `shift(1)` ile hareketli ortalama ve standart sapmalar, sızıntısız mevsimsel fark ve takvim özellikleri üretilir.
+6. **TimeSeriesSplit:** 5 fold'lu genişleyen pencere; her fold'da sıfırdan bir XGBoost modeli eğitilir, RMSE, MAE ve MAPE hesaplanır ve sonuç "ortalama ± std" olarak raporlanır.
+7. **Son XGBoost modeli:** Son 24 ay dışarıda bırakılarak eğitilir, test metrikleri ve özellik önemi grafiği üretilir.
+8. **Karşılaştırma:** GRU ve XGBoost aynı son 24 ay üzerinde tabloyla ve yan yana grafiklerle karşılaştırılır.
+
+Tam kod: [`Codes/python/ch16_timeseriessplit.py`](../Codes/python/ch16_timeseriessplit.py) · [Notebook](../Codes/notebooks/ch16_timeseriessplit.ipynb)
+
+Programın bizim çalıştırmamızdaki çıktısının özeti aşağıdadır. XGBoost sonuçları her çalıştırmada aynı çıkar (tohum sabit, ağaçlar CPU'da belirlenimci biçimde kurulur). GRU satırları ise işletim sistemine ve TensorFlow sürümüne göre birkaç birim değişebilir.
+
+```text
+Eğitim (final): 96, Doğrulama: 12, Test: 24
+Eğitim 200 epoch sürdü; en iyi epoch: 195
+GRU Eğitim      RMSE:   16.84   MAE:   13.30   MAPE:  5.38%
+GRU Test        RMSE:   43.51   MAE:   35.80   MAPE:  7.77%
+
+Özellik mühendisliği sonrası gözlem sayısı: 131
+Özellik sayısı: 22
+Fold 1: eğitim 26 gözlem (1950-02 - 1952-03), doğrulama 21 gözlem (1952-04 - 1953-12)
+         RMSE: 34.74, MAE: 27.26, MAPE: 11.69%
+Fold 2: eğitim 47 gözlem (1950-02 - 1953-12), doğrulama 21 gözlem (1954-01 - 1955-09)
+         RMSE: 39.19, MAE: 27.17, MAPE: 9.38%
+Fold 3: eğitim 68 gözlem (1950-02 - 1955-09), doğrulama 21 gözlem (1955-10 - 1957-06)
+         RMSE: 26.00, MAE: 17.91, MAPE: 5.18%
+Fold 4: eğitim 89 gözlem (1950-02 - 1957-06), doğrulama 21 gözlem (1957-07 - 1959-03)
+         RMSE: 42.10, MAE: 30.79, MAPE: 7.48%
+Fold 5: eğitim 110 gözlem (1950-02 - 1959-03), doğrulama 21 gözlem (1959-04 - 1960-12)
+         RMSE: 54.52, MAE: 42.39, MAPE: 8.66%
+RMSE: 39.31 ± 9.35
+MAE:  29.10 ± 7.90
+MAPE: 8.48% ± 2.15%
+XGBoost Test    RMSE:   58.04   MAE:   45.87   MAPE:  9.58%
+
+Model                 RMSE        MAE       MAPE
+GRU                  43.51      35.80      7.77%
+XGBoost              58.04      45.87      9.58%
+```
+
+**Çıktının yorumu:**
+
+- **GRU bölümü:** 132 pencereden son 24'ü test, kalan 108'in son 12'si doğrulama olduğu için ilk eğitim 96 örnekle yapılır. Bu çalıştırmada doğrulama kaybı 200 epoch boyunca yavaş da olsa iyileşmeye devam etti; en düşük değer 195. epoch'ta görüldüğü için erken durdurma devreye girmedi ve eğitim üst sınırda (200) bitti. Son model bu yüzden 195 epoch eğitildi. Son model doğrulama dahil tüm eğitim verisiyle yeniden eğitildiği için tek bir test dönemi (son 24 ay) üzerinden değerlendirilir. Test hatasının eğitim hatasının yaklaşık 2.6 katı olması ($43.51 / 16.84 \approx 2.6$), modelin eğitimde görmediği 1959–1960 yolcu düzeylerinde zorlandığını gösterir.
+- **XGBoost özellikleri:** Gecikmeler, hareketli ortalamalar ve `seasonal_diff` için 13 aylık geçmiş gerektiğinden ilk 13 satır eksik değer içerir ve atılır; $144 - 13 = 131$ gözlem kalır ve ilk satır Şubat 1950'dir. 12 gecikme, 3 hareketli ortalama, 2 hareketli standart sapma, 1 mevsimsel fark ve 4 takvim sütunu toplam $12 + 3 + 2 + 1 + 4 = 22$ özellik eder.
+- **XGBoost çapraz doğrulaması:** `n_splits=5` ve `test_size` verilmediği için doğrulama uzunluğu `131 // 6 = 21` aydır; eğitim kümesi her fold'da 21 ay büyür (26, 47, 68, 89, 110). Her fold'un tarih aralığı yazdırılır; doğrulama dönemlerinin her zaman eğitimden sonra geldiğini buradan teyit edebilirsiniz. İlk fold'lar az veriyle eğitildiği için ve son fold'lar eğitim aralığının üzerindeki rekor değerlerle karşılaştığı için (ağaçların ekstrapolasyon sorunu, Bölüm 13.3) fold hataları farklılaşır: En iyi fold (3) ile en kötü fold (5) arasında iki kattan fazla fark vardır. Raporlanan "ortalama ± std" değeri (39.31 ± 9.35), tek bir test döneminden elde edilen sayıdan çok daha güvenilir bir performans tahminidir.
+- **Özellik önemi:** Bu çalıştırmada `lag_12` (bir yıl önceki aynı ay) toplam önemin yaklaşık yarısını (0.49) tek başına alır; onu 12, 3 ve 6 aylık hareketli ortalamalar (0.15, 0.12, 0.12) ve `lag_11` (0.05) izler. Önem skorlarının toplamı 1'dir. Bu tablo, serinin güçlü mevsimselliğini (`lag_12`) ve trendini (hareketli ortalamalar) yansıtır.
+- **Karşılaştırma:** Bu çalıştırmada aynı son 24 ayda GRU (RMSE 43.51) XGBoost'tan (58.04) daha iyi sonuç verdi. XGBoost'un zayıflığının kaynağı Bölüm 13.3'teki tavan sorunudur: Eğitim döneminin (1950–1958) en büyük değeri 505 iken XGBoost'un testteki en büyük tahmini yaklaşık 493'te kalır, oysa Temmuz 1960'ta gerçek değer 622'dir. XGBoost elle çıkarılan özelliklerle çalışır, daha kolay yorumlanır ve tohumdan etkilenmez; GRU ise ölçeklenmiş girdilerle eğitim aralığının biraz dışına çıkabilir, ama sonucu tohuma ve donanıma bağlı olarak değişir (15.3'te aynı GRU mimarisinin bir tohumda test döneminde çöktüğünü gördük). Seçim, verinin büyüklüğüne ve problemin yapısına göre yapılmalıdır. Buradaki karşılaştırma yine **tek** bir 24 aylık döneme dayanır; daha adil bir karşılaştırma için GRU'yu da 16.4'teki gibi aynı `TimeSeriesSplit` fold'larıyla değerlendirip iki modelin "ortalama ± std" değerlerini yan yana koymak gerekir.
+
+> **Not —** Bu kodda iki sızıntı tuzağından özellikle kaçınılmıştır: (1) `MinMaxScaler` tüm seriyle değil yalnızca eğitim dönemiyle fit edilir; (2) `seasonal_diff` özelliği hedefin kendisini içermez. `Passengers - Passengers.shift(12)` yazılsaydı bu ayın gerçek değeri özelliğin içine girer ve model cevabı soru içinde bulurdu; `past - past.shift(12)` ise yalnızca geçen ayın ve ondan 12 ay öncesinin değerini kullanır. Ayrıca XGBoost'un çapraz doğrulama döngüsünde erken durdurma kullanılmaz (16.4'teki nota bakın) ve son GRU modeli toplam epoch sayısıyla değil, doğrulama kaybının en düşük olduğu epoch sayısıyla eğitilir.
+
+> **Hemen deneyin 16.5 · Fold fold XGBoost'a karşı mevsimsel naive** (Python, ~5 dk)
+>
+> Her fold'da XGBoost'u bir referansla (mevsimsel naive: "bu ay = geçen yılın aynı ayı") karşılaştırın. Doğrulama dilimleri tam birer yıldır (`test_size=12`).
+>
+> ```python
+> import numpy as np, pandas as pd, xgboost as xgb
+> from sklearn.model_selection import TimeSeriesSplit
+>
+> s = pd.read_csv("data/AirPassengers.csv")["Passengers"]
+> X = pd.DataFrame({f"lag_{l}": s.shift(l) for l in range(1, 13)}).dropna()  # 12 gecikme
+> y = s.loc[X.index]                                                          # 132 satır
+> r_xgb, r_sn = [], []
+> for k, (tr, va) in enumerate(TimeSeriesSplit(n_splits=5, test_size=12).split(X), 1):
+>     m = xgb.XGBRegressor(n_estimators=300, max_depth=3, learning_rate=0.05, random_state=42)
+>     m.fit(X.iloc[tr], y.iloc[tr])
+>     r_xgb.append(np.sqrt(np.mean((y.iloc[va] - m.predict(X.iloc[va])) ** 2)))
+>     r_sn.append(np.sqrt(np.mean((y.iloc[va] - X["lag_12"].iloc[va]) ** 2)))  # mevsimsel naive
+>     print(f"Fold {k} ({1955 + k}): XGBoost {r_xgb[-1]:6.2f}   mevsimsel naive {r_sn[-1]:6.2f}")
+> print(f"Ortalama ± std: XGBoost {np.mean(r_xgb):.2f} ± {np.std(r_xgb):.2f}   "
+>       f"mevsimsel naive {np.mean(r_sn):.2f} ± {np.std(r_sn):.2f}")
+> ```
+>
+> Mevsimsel naive için model gerekmez: tahmin zaten `lag_12` sütunudur. `r_xgb[-1]` listeye son eklenen değerdir.
+>
+> **Ne göreceksiniz:**
+>
+> ```text
+> Fold 1 (1956): XGBoost  21.69   mevsimsel naive  45.18
+> Fold 2 (1957): XGBoost  32.35   mevsimsel naive  41.47
+> Fold 3 (1958): XGBoost  30.63   mevsimsel naive  17.01
+> Fold 4 (1959): XGBoost  55.26   mevsimsel naive  49.25
+> Fold 5 (1960): XGBoost  40.28   mevsimsel naive  50.71
+> Ortalama ± std: XGBoost 36.04 ± 11.28   mevsimsel naive 40.73 ± 12.29
+> ```
+>
+> XGBoost beş yılın üçünde kazanır, ama 1958 ve 1959'da hiçbir şey öğrenmeyen referansa yenilir. Ortalamalar arasındaki fark (yaklaşık 4.7) fold'ların standart sapmasından (11–12) küçüktür: Bu veriyle "XGBoost referanstan kesin olarak iyidir" demek için yeterli kanıt yoktur (16.4'teki ölçüt).
+>
+> **Şimdi siz:** `max_depth=3` yerine `max_depth=6` deneyin. Ortalama değişir mi? Naive'i hâlâ hangi yıllarda yenemiyor?
+>
+> <details><summary>Cevap</summary>
+>
+> `XGBoost 33.80 ± 9.55` (fold'lar 24.49, 29.61, 28.25, 51.69, 34.99); naive satırları değişmez. Ortalama biraz iyileşti, ama 1958 (28.25'e karşı 17.01) ve 1959 (51.69'a karşı 49.25) yine naive'in yılı. Fark (yaklaşık 6.9) hâlâ standart sapmalar düzeyinde; tek bir ayarı değiştirmek tabloyu kökten değiştirmedi.
+>
+> </details>
+
+---
+
+[İçindekiler](../Course_notes.md) · [← 15. Derin Öğrenme ile Tahmin: LSTM, GRU ve 1D-CNN](15_derin_ogrenme_ile_tahmin_lstm_gru_ve_1d_cnn.md) · [17. Zaman Serisi Tahmininde 10 Altın Kural →](17_zaman_serisi_tahmininde_10_altin_kural.md)
