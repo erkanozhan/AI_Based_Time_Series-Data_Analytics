@@ -521,7 +521,7 @@ Bu denklemi örnek matrisimiz için adım adım çözelim. Bir denklemin **kök�
 
 1.  $A_1 - \lambda I$ matrisini yazalım: köşegendeki elemanlardan $\lambda$ çıkarılır, diğerleri aynen kalır:
 
-    $\displaystyle A_1 - \lambda I = \begin{bmatrix} 0.5 - \lambda & 0.2 \cr  0.1 & 0.4 - \lambda \end{bmatrix}$
+    $`\displaystyle A_1 - \lambda I = \begin{bmatrix} 0.5 - \lambda & 0.2 \\ 0.1 & 0.4 - \lambda \end{bmatrix}`$
 
 2.  Determinantı "çapraz çarpımların farkı" kuralıyla (Bölüm 10.4) alalım: $(0.5 - \lambda)(0.4 - \lambda) - 0.2 \cdot 0.1$.
 3.  Parantezleri açalım: $(0.5 - \lambda)(0.4 - \lambda) = 0.2 - 0.5\lambda - 0.4\lambda + \lambda^2 = \lambda^2 - 0.9\lambda + 0.2$. Bundan $0.2 \cdot 0.1 = 0.02$ çıkarınca **ikinci dereceden bir denklem** elde ederiz:
