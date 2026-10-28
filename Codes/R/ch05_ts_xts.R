@@ -140,7 +140,7 @@ head(as.xts(AirPassengers), 3)
 #> Feb 1949  118
 #> Mar 1949  132
 
-# ---- 5.4 Veri Alt Kümesi Alma: window() ----
+# ---- 5.2.4 Veri Alt Kümesi Alma: window() ----
 # AirPassengers'tan 1955-1957 dönemini seçelim
 ap_pencere <- window(AirPassengers, start = c(1955, 1), end = c(1957, 12))
 print(ap_pencere)

@@ -31,14 +31,14 @@ Eğitim-test ayrımı Bölüm 8'de, zaman sırasını koruyan çapraz doğrulama
 
 > **Hemen deneyin 17.2 · Karıştırınca otokorelasyon kaybolur** (R, ~3 dk)
 >
-> Bölüm 1.2'deki kutuda karıştırınca komşu aylar arasındaki korelasyonun 0.96'dan 0.03'e düştüğünü gördük. Aynı deneyi ACF ve güven sınırıyla, yıllık gecikme (12) dahil yapın.
+> Bölüm 1.2'deki kutuda karıştırınca komşu aylar arasındaki korelasyonun 0.96'dan 0.03'e düştüğünü gördük (aşağıda ACF biraz farklı bir formülle hesaplandığı için 0.95 çıkar). Aynı deneyi ACF ve güven sınırıyla, yıllık gecikme (12) dahil yapın.
 >
 > ```r
 > set.seed(1)
 > karisik <- sample(as.numeric(AirPassengers))          # sıra rastgele bozuldu
 > round(acf(AirPassengers, plot = FALSE)$acf[c(2, 13)], 2)   # gecikme 1 ve 12
 > round(acf(karisik, plot = FALSE)$acf[c(2, 13)], 2)
-> round(1.96 / sqrt(144), 2)                            # %95 güven sınırı (Bölüm 6.3.3)
+> round(1.96 / sqrt(144), 2)                            # %95 güven sınırı (Bölüm 6.3.4)
 > ```
 >
 > `acf(..., plot = FALSE)$acf` korelasyonları bir liste olarak verir; ilk eleman gecikme 0'dır (her zaman 1), bu yüzden 2. eleman gecikme 1'e, 13. eleman gecikme 12'ye karşılık gelir.
@@ -110,14 +110,14 @@ Referans modelle karşılaştırma ve hata metrikleri Bölüm 8.1.2'de ele alın
 
 ### 17.4. Durağanlığa Saygı Gösterin (Respect Stationarity)
 
-Çoğu klasik istatistiksel model (ARIMA, VAR gibi), serinin istatistiksel özelliklerinin (ortalama, varyans) zaman içinde değişmemesini varsayar. **Ortalama** serinin tipik düzeyidir; **varyans** ise değerlerin bu düzeyin çevresinde ne kadar geniş dalgalandığının ölçüsüdür. Ortalaması ve dalgalanma genişliği zamanla değişmeyen seriye **durağan** denir.
+Çoğu klasik istatistiksel model (ARIMA, VAR gibi), serinin istatistiksel özelliklerinin (ortalama, varyans) zaman içinde değişmemesini, yani serinin **durağan** olmasını varsayar (Bölüm 2.2, 3.2).
 
 - Veride trend varsa farkını alın (difference it): Her değerden bir öncekini çıkarın. 100, 110, 125, 135 serisinin farkları $110 - 100 = 10$, $125 - 110 = 15$, $135 - 125 = 10$ olur; sürekli yükselen seri, 10–15 civarında dolaşan bir seriye dönüşür.
 - Mevsimsellik varsa mevsimsel fark alın: Aylık veride her değerden bir yıl önceki aynı ayın değerini çıkarın (ör. Temmuz 1950 eksi Temmuz 1949: $170 - 148 = 22$).
-- Varyans seviyeyle birlikte artıyorsa logaritmik dönüşüm uygulayın. Logaritma büyük sayıları küçüklere göre daha çok sıkıştırır; böylece seri büyüdükçe genişleyen dalgalar eşitlenir. Örneğin 10 tabanında 100'ün logaritması 2, 1000'inki 3'tür: 900'lük fark 1'lik farka iner.
+- Varyans seviyeyle birlikte artıyorsa logaritmik dönüşüm uygulayın: Logaritma büyük sayıları küçüklere göre daha çok sıkıştırır ve seri büyüdükçe genişleyen dalgaları eşitler (Bölüm 2.5 ve 7.6).
 - Durağanlığı yalnızca gözle değil, ADF ve KPSS gibi testlerle de doğrulayın.
 
-Durağanlığın tanımı Bölüm 2.5 ve 3.2'de, ADF ve KPSS testleri Bölüm 7.5'te, fark alma ve log dönüşümünün ARIMA/SARIMA'da uygulanması Bölüm 7.6'da işlenmiştir. Makine öğrenmesi modelleri durağanlık varsaymasa da, trendli serilerde fark almanın ağaç tabanlı modellere nasıl yardımcı olduğu Bölüm 12.1.4 ve 13.4.2'de tartışılmıştır.
+Durağanlığın tanımı Bölüm 2.6 ve 3.2'de, ADF ve KPSS testleri Bölüm 7.5'te, fark alma ve log dönüşümünün ARIMA/SARIMA'da uygulanması Bölüm 7.6'da işlenmiştir. Makine öğrenmesi modelleri durağanlık varsaymasa da, trendli serilerde fark almanın ağaç tabanlı modellere nasıl yardımcı olduğu Bölüm 12.1.4 ve 13.4.2'de tartışılmıştır.
 
 > **Hemen deneyin 17.4 · Log dönüşümü dalgaları eşitler mi?** (R, ~4 dk)
 >
@@ -204,20 +204,15 @@ Prophet'ta tatil etkileri Bölüm 9'da, gecikme ve takvim özellikleriyle özell
 Zaman serilerinde veri sızıntısı sinsi olabilir. Model eğitilirken tahmin anında bilinemeyecek bir gelecek bilgisi kullanılırsa, model eğitimde harika görünür ama üretimde (production) çuvallar.
 
 - *Örnek:* Ocak 2024'ün günlük satışlarını tahmin etmek için Ocak 2024'ün "aylık ortalama sıcaklığını" kullanmak. (Ay bitene kadar aylık ortalamayı bilemezsiniz!)
-- *Diğer sık hatalar:* Ölçekleyiciyi tüm veriyle uydurmak (Bölüm 15.1.1 ve 16.4), hareketli ortalamayı `shift(1)` olmadan hesaplamak, sıradan k-katlı çapraz doğrulama kullanmak (Bölüm 16.1).
+- *Diğer sık hatalar:* Ölçekleyiciyi tüm veriyle uydurmak (Bölüm 12.1.4, 15.1.1 ve 16.4), hareketli ortalamayı `shift(1)` olmadan hesaplamak, sıradan k-katlı çapraz doğrulama kullanmak (Bölüm 16.1).
 
-`shift(1)` hatasının sayısal örneği Bölüm 12.1.5'tedir: `shift(1)` olmadan hesaplanan hareketli ortalama, tahmin etmeye çalıştığımız değeri zaten içerir. Model eğitimde harika görünür, çünkü cevabın bir parçası sorunun içindedir; ama yarın için bu özelliği hesaplayamazsınız, çünkü yarının satışını henüz bilmiyorsunuz.
+`shift(1)` unutulursa hareketli ortalama tahmin edilen değeri içerir (sayısal örnek 12.1.5'te).
 
 Zamansal ayrım Bölüm 8'de, sızıntı türleri Bölüm 12.1.5'te, zaman serisine uygun çapraz doğrulama Bölüm 16'da anlatılmıştır.
 
 ### 17.7. Diyagnostikler Önemlidir: Hataları Kontrol Edin (Diagnostics Matter)
 
-İyi bir model tüm "sinyali" alır ve geriye yalnızca "gürültü" bırakır. Modelin artıklarını (hatalarını) kontrol edin. **Artık**, her dönem için gerçek değer eksi tahmindir. Hatalar **beyaz gürültü (white noise)** gibi, yani önceden kestirilemeyen, birbirinden bağımsız küçük sapmalar gibi görünmelidir:
-
-- Ortalama sıfır olmalı.
-- Varyans sabit olmalı.
-- Otokorelasyon olmamalı (hataların ACF grafiğine bakın).
-- *Hatalarda bir desen varsa, modeliniz bir şeyi gözden kaçırmış demektir.*
+İyi bir model tüm "sinyali" alır ve geriye yalnızca "gürültü" bırakır. Modelin artıklarını (gerçek değer eksi tahmin) kontrol edin: Artıklar Bölüm 7.4 ve 7.6.6'daki üç koşulu sağlamalıdır: beyaz gürültü (Bölüm 2.2; otokorelasyon yok, artıkların ACF grafiğine bakın), sıfır ortalama ve sabit varyans. *Hatalarda bir desen varsa, modeliniz bir şeyi gözden kaçırmış demektir.*
 
 *Örnek:* Altı ayın artıkları +5, +7, +6, +8, +6, +7 ise hepsi pozitiftir ve ortalamaları $(5 + 7 + 6 + 8 + 6 + 7) / 6 = 39 / 6 = 6.5$'tir. Model her ay yaklaşık 6.5 birim düşük tahmin ediyordur; bu bir desendir ve düzeltilebilir (ör. trend eksik modellenmiş olabilir). Artıklar +3, −2, +1, −4, +2, 0 gibi işaret değiştirerek sıfır çevresinde dağılıyorsa (ortalama $0 / 6 = 0$) modelin kaçırdığı belirgin bir yapı görünmez. Bölüm 15.4.2'deki CNN'in "Ortalama hata" satırı bu kontrolün bir örneğidir.
 
@@ -305,7 +300,7 @@ Aralığın düzeyini de mutlaka belirtin: Örneğin Prophet'ın `yhat_lower`/`y
 
 ### 17.9. Doğru Metriği Seçin (Choose the Right Metric)
 
-Yalnızca R² değerine güvenmeyin. **R²** ("R kare"), modelin serideki değişkenliğin ne kadarını açıkladığını 0 ile 1 arasında bir sayıyla özetler; 1'e yakın olması iyi sayılır. Trendli serilerde ise bu ölçüt kolayca yanıltır: AirPassengers'ta hiçbir şey öğrenmeyen naive yöntem bile ("bu ay = geçen ay") yaklaşık 0.92'lik bir R² verir, çünkü seviyesi sürekli artan bir seride dünkü değer bugünün düzeyini zaten büyük ölçüde belirler. İş durumunuza uygun metriği seçin:
+Yalnızca R² (Bölüm 10.3.3) değerine güvenmeyin. Trendli serilerde bu ölçüt kolayca yanıltır: AirPassengers'ta hiçbir şey öğrenmeyen naive yöntem bile ("bu ay = geçen ay") yaklaşık 0.92'lik bir R² verir, çünkü seviyesi sürekli artan bir seride dünkü değer bugünün düzeyini zaten büyük ölçüde belirler. İş durumunuza uygun metriği seçin:
 
 - **RMSE:** Büyük hataları ağır cezalandırır (büyük sapmaların kritik olduğu tahminler için iyidir).
 - **MAE:** Yorumlaması daha kolaydır (hataların ortalama büyüklüğü, serinin kendi biriminde).
@@ -351,7 +346,7 @@ Bu metriklerin formülleri, karşılaştırması ve Python uygulaması Bölüm 8
 
 ### 17.10. Karmaşıklık ≠ Doğruluk (Complexity ≠ Accuracy)
 
-Her problem için en yeni Transformer veya derin öğrenme modelini kullanma eğilimi vardır. Oysa birçok gerçek dünya tek değişkenli (univariate) zaman serisinde üstel düzeltme (ETS) veya ARIMA gibi basit modeller, karmaşık sinir ağlarından daha iyi performans gösterir.
+Her problem için en yeni Transformer veya derin öğrenme modelini kullanma eğilimi vardır. Oysa birçok gerçek dünya tek değişkenli (univariate) zaman serisinde üstel düzeltme (ETS: geçmiş değerlerin, yakın geçmişe daha çok ağırlık veren ağırlıklı ortalamasıyla tahmin yapan klasik yöntem ailesi) veya ARIMA gibi basit modeller, karmaşık sinir ağlarından daha iyi performans gösterir.
 
 - Basit başlayın; karmaşıklığı ancak basit modeller yetersiz kaldığında artırın.
 

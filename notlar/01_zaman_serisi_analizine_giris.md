@@ -23,7 +23,7 @@ $$
 \lbrace x_t : t \in \mathcal{T} \rbrace
 $$
 
-Burada $x_t$, $t$ anındaki gözlemdir. $\mathcal{T}$ ise gözlem anlarının kümesidir. Bu derste çoğunlukla $\mathcal{T} = \lbrace 1, 2, \dots, T \rbrace$ biçiminde, eşit aralıklı ve sonlu sayıda gözlem içeren serilerle çalışacağız. Büyük $T$ toplam gözlem sayısıdır: `AirPassengers` serisinde 12 yıl × 12 ay = 144 gözlem olduğu için $T = 144$'tür. İstatistiksel bakış açısıyla elimizdeki seri, rastgele bir sürecin (stokastik süreç) gözlenmiş **tek bir gerçekleşmesi** olarak düşünülür. Bu fikre Bölüm 3.4'te yeniden döneceğiz.
+Burada $\mathcal{T}$, gözlem anlarının kümesidir. Bu derste çoğunlukla $\mathcal{T} = \lbrace 1, 2, \dots, T \rbrace$ biçiminde, eşit aralıklı ve sonlu sayıda gözlem içeren serilerle çalışacağız. Büyük $T$ toplam gözlem sayısıdır: `AirPassengers` serisinde 12 yıl × 12 ay = 144 gözlem olduğu için $T = 144$'tür. İstatistiksel bakış açısıyla elimizdeki seri, rastgele bir sürecin (stokastik süreç) gözlenmiş **tek bir gerçekleşmesi** olarak düşünülür. Bu fikre Bölüm 3.4'te yeniden döneceğiz.
 
 Bu gösterimi bir kez okumayı öğrenmek dersin geri kalanını çok kolaylaştırır. $x$, ölçtüğümüz büyüklüğün adıdır (örneğin yolcu sayısı). Harfin sağ altına küçük yazılan $t$ ise **alt indis**tir ve "kaçıncı zaman noktası?" sorusunun cevabını taşır; harf, İngilizce *time* (zaman) kelimesinden gelir. `AirPassengers` serisinde $x_1 = 112$ (Ocak 1949), $x_2 = 118$ (Şubat 1949) ve $x_7 = 148$'dir (Temmuz 1949). Alt indiste işlem de yapılabilir: $t$ "bugün" ise $x_{t-1}$ "dün", yani bir önceki dönemin değeri, $x_{t+1}$ ise "yarın" demektir. Örneğin $t = 7$ için $x_{t-1} = x_6 = 135$, yani Haziran 1949 değeridir.
 
@@ -64,13 +64,13 @@ Bu gösterimi bir kez okumayı öğrenmek dersin geri kalanını çok kolaylaşt
 > 2. B1:B13 aralığını seçin. Excel'de **Ekle → Grafikler → Çizgi** (İngilizce: **Insert → Charts → Line**), LibreOffice Calc'ta **Ekle → Grafik… → Çizgi** (İngilizce: **Insert → Chart… → Line**) seçin.
 > 3. D2 hücresine `=MAK(B2:B13)` (İngilizce: `=MAX(B2:B13)`), D3'e `=MİN(B2:B13)` (İngilizce: `=MIN(B2:B13)`), D4'e `=ORTALAMA(B2:B13)` (İngilizce: `=AVERAGE(B2:B13)`) yazın. Arayüzünüz İngilizceyse İngilizce adları kullanın.
 >
-> **Ne göreceksiniz:** Grafik 7. ve 8. aylarda (Temmuz, Ağustos) tepe, 11. ayda (Kasım) dip yapar. D2'de 148, D3'te 104, D4'te 126,6666667 (yaklaşık 126.67) görünür. Yalnızca 12 gözlemle bile yaz zirvesi fark edilir; ama trendi görmek için birkaç yıl gerekir.
+> **Ne göreceksiniz:** Grafik 7. ve 8. aylarda (Temmuz, Ağustos) tepe, 11. ayda (Kasım) dip yapar. D2'de 148, D3'te 104, D4'te 126,6666667 görünür (Türkçe arayüz ondalık ayracı olarak virgül kullanır; değer yaklaşık 126.67'dir). Yalnızca 12 gözlemle bile yaz zirvesi fark edilir; ama trendi görmek için birkaç yıl gerekir.
 >
 > **Şimdi siz:** C sütununa 1950 değerlerini girin (115, 126, 141, 135, 125, 149, 170, 170, 158, 133, 114, 140) ve grafiğe ikinci çizgi olarak ekleyin. Tepe ve dip ayları değişti mi? 1950'nin ortalaması 1949'dan büyük mü?
 >
 > <details><summary>Cevap</summary>
 >
-> Tepe yine Temmuz–Ağustos (170), dip yine Kasım (114). Ortalama 139,67'dir; 1949'daki 126,67'den büyüktür. Aynı desen bir üst seviyede tekrar eder: mevsimsellik + artan trend.
+> Tepe yine Temmuz–Ağustos (170), dip yine Kasım (114). Ortalama yaklaşık 139.67'dir; 1949'daki 126.67'den büyüktür. Aynı desen bir üst seviyede tekrar eder: mevsimsellik + artan trend.
 >
 > </details>
 
@@ -96,6 +96,8 @@ $$
 
 Kovaryansı şimdilik şöyle düşünebilirsiniz: İki büyüklük birlikte ortalamanın üstüne çıkıp birlikte altına iniyorsa kovaryans pozitif, biri yükselirken öteki düşüyorsa negatif, aralarında bir düzen yoksa sıfıra yakındır. Buradaki iki büyüklük aynı serinin $h$ adım uzaktaki değerleridir; $h = 1$ için "bu ay" ile "geçen ay". Formül yalnızca şunu söyler: en azından bazı gecikmelerde bu ilişki sıfır değildir. Kovaryansın küçük bir sayısal örnekle nasıl hesaplandığını Bölüm 3.2'de göreceğiz.
 
+**Günlük hayattan bir örnek:** Bir otoyoldaki trafik yoğunluğunu 5 dakikada bir ölçtüğümüzü düşünelim. Şu an yoğunluk ortalamanın üstündeyse 5 dakika sonra da büyük olasılıkla üstündedir: $h = 1$ için kovaryans pozitiftir. 6 saat sonrasıyla ilişki zayıftır (sabah zirvesi geçmiştir), ama 24 saat sonrasıyla yine güçlüdür. Yani ilişki bazı $h$ değerlerinde güçlü, bazılarında zayıftır.
+
 Bu ilişkiye **otokorelasyon** (kendi geçmişiyle korelasyon) denir ve ölçülmesi Bölüm 6'da ayrıntılı olarak ele alınır. Bu basit gözlemin üç önemli sonucu vardır:
 
 1. **Bağımlılık bir engel değil, bir fırsattır.** Geçmiş gelecek hakkında bilgi taşıdığı için tahmin yapabiliriz. ARIMA'dan LSTM'e kadar dersteki tüm modeller bu bağımlılığı farklı yollarla öğrenir.
@@ -116,7 +118,7 @@ Bu ilişkiye **otokorelasyon** (kendi geçmişiyle korelasyon) denir ve ölçül
 > par(mfrow = c(1, 1))                  # grafik alanını eski hâline döndür
 > ```
 >
-> `<-` işareti sağdaki sonucu soldaki isimle saklar (ayrıntısı Bölüm 2.6'da). `;` aynı satıra iki komut yazmayı sağlar.
+> `<-` işareti sağdaki sonucu soldaki isimle saklar (ayrıntısı Bölüm 2.5'te). `;` aynı satıra iki komut yazmayı sağlar.
 >
 > **Ne göreceksiniz:** İki ortalama da `[1] 280.2986`'dır. Solda trend ve yaz tepeleri, sağda hiçbir düzeni olmayan, 104 ile 622 arasında rastgele zıplayan bir çizgi vardır. Sayılar aynı, hikâye kaybolmuştur.
 >
@@ -153,6 +155,8 @@ $$
 Burada $g$, kullandığımız modeldir (ARIMA, Prophet, XGBoost, LSTM vb.). Matematikte **fonksiyon**, girdiyi alıp bir çıktı üreten kuraldır; burada girdi geçmiş gözlemler, çıktı tahmindir. $x$'in üzerindeki şapka işareti, değerin gözlenmiş değil **tahmin edilmiş** olduğunu belirtir. Örneğin `AirPassengers` serisi Aralık 1960'ta bittiği için $T = 144$'tür. $h = 1$ için $\hat{x}_ {145}$ Ocak 1961'in, $h = 12$ için $\hat{x}_ {156}$ Aralık 1961'in tahminidir.
 
 Tahmin ufku ($h$) büyüdükçe belirsizlik artar. Bu nedenle iyi bir tahmin, tek bir sayıyla birlikte bir **tahmin aralığı** da verir: "Tahmin 450; gerçek değer %95 olasılıkla 420 ile 480 arasında olacak" gibi. Aralık ne kadar genişse, model gelecek hakkında o kadar emin değildir.
+
+**Günlük hayattan bir örnek:** Hava durumu yarın için "22–24 °C" diyebilir, ama 10 gün sonrası için ancak "15–28 °C" gibi geniş bir aralık verebilir. Ne kadar ileriye bakarsak belirsizlik o kadar birikir.
 
 > **Simge notu:** $`\hat{x}_{T+h}`$ *(x şapka, T artı h)*: T anındaki bilgiyle, h adım sonrası için yapılan tahmin · $`g(\cdot)`$ *(ge)*: geçmiş gözlemleri tahmine dönüştüren model fonksiyonu · $`h`$: tahmin ufku, yani kaç adım ileriye bakıldığı
 

@@ -304,7 +304,7 @@ plt.tight_layout()
 plt.show()
 
 print("\nEn önemli 5 özellik:")
-print(feature_importance.tail(5).to_string(index=False))
+print(feature_importance.iloc[::-1].head(5).to_string(index=False))  # en önemliden başlayarak
 
 # %% [markdown]
 # ### 7) Tahminlerin görselleştirilmesi

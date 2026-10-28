@@ -75,6 +75,8 @@ Bölüm 7'deki AR($p$) modeli de aslında aynı şeyi yapar, ancak $f$'yi **doğ
 
 Dönüşümün en temel yolu **kayan penceredir**: $p$ uzunluğunda bir pencere serinin başından itibaren birer adım kaydırılır. Her konumda pencerenin içindeki $p$ değer bir satırın girdilerini (`X`), pencereden hemen sonraki değer ise o satırın hedefini (`y`) oluşturur.
 
+**Günlük hayattan bir örnek:** Bir spor yorumcusunun, bir takımın sonraki maçını yalnızca son üç maçının skoruna bakarak tahmin ettiğini düşünün. Her hafta yeni maç listeye eklenir, en eskisi listeden düşer; yorumcu hep "son üç maç"a bakar. Geçmiş haftaların her biri "üç maçlık geçmiş → sonraki maç" biçiminde bir örnek satır oluşturur. Benzetmenin sınırı: Yorumcu sakatlık haberlerini de duyar; kayan pencere ise dışsal değişken eklenmedikçe yalnızca serinin kendi geçmiş değerlerini görür (12.1.2).
+
 ![Kayan pencere ile X/y tablosu oluşturma](../images/ch12_kayan_pencere.svg)
 
 *Şekil 12.1 — Kayan pencere yöntemi: Pencere boyutu $`p = 3`$ iken her satırın girdisi son üç ay (mavi), hedefi bir sonraki ay (turuncu) olur. Pencere bir adım sağa kaydıkça tabloya yeni bir satır eklenir.*
@@ -82,7 +84,7 @@ Dönüşümün en temel yolu **kayan penceredir**: $p$ uzunluğunda bir pencere 
 Şekilden iki önemli sonuç çıkar:
 
 - $n$ gözlemli bir seriden $n - p$ satırlık bir tablo elde edilir ($n$: serideki toplam gözlem sayısı). İlk $p$ gözlemin kendinden önce yeterli geçmişi olmadığı için hedef olamaz. Şekildeki 10 aylık örnekte $10 - 3 = 7$ satır, 144 aylık `AirPassengers` serisinin tamamında ise $144 - 3 = 141$ satır oluşur.
-- Satırlar arasında **zaman sırası korunur**. Tablo, sıradan bir veri seti gibi görünse de satırları karıştırmak geleceğin bilgisini geçmişe taşır (bkz. 12.1.5).
+- Satırlar arasında **zaman sırası korunur**. Tablo, sıradan bir veri seti gibi görünse de satırları **eğitim-test ayrımından önce** karıştırmak geleceğin bilgisini geçmişe taşır (bkz. 12.1.5).
 
 Pencere boyutu $p$ bir hiperparametredir, yani modelin veriden öğrenmediği, bizim önceden seçtiğimiz bir ayardır. Bölüm 6'daki PACF grafiği hangi gecikmelerin anlamlı olduğu konusunda ipucu verir. Aylık mevsimsel verilerde $p = 12$ (bir tam yıl) iyi bir başlangıç noktasıdır.
 
@@ -159,7 +161,7 @@ Kayan pencere yalnızca son $p$ gözlemi kullanır. Özellik mühendisliğiyle b
 | Takvim özellikleri | Ay (1–12), çeyrek, haftanın günü, hafta sonu mu, tatil mi | Takvime bağlı etkiler |
 | Dışsal değişkenler | Sıcaklık, fiyat, kampanya göstergesi | Serinin dışındaki nedenler |
 
-"Gecikme" (lag), bir değerin kaç dönem önceki hâlidir: `lag_1` bir ay önceki, `lag_12` on iki ay önceki değerdir. Aşağıdaki kod, `AirPassengers` verisi üzerinde hem kayan pencereyi hem de gecikme ve takvim özelliklerini oluşturur.
+Tablodaki `lag_1` bir ay önceki, `lag_12` on iki ay önceki değerdir (gecikme ve kaydırma: bkz. 6.2.2). Aşağıdaki kod, `AirPassengers` verisi üzerinde hem kayan pencereyi hem de gecikme ve takvim özelliklerini oluşturur.
 
 ```python
 import numpy as np
@@ -204,11 +206,11 @@ Kod üç bölümden oluşur. Önce satırlara yakından bakalım:
 1. **Kütüphaneler ve veri:** Kütüphaneleri kısa adlarla (`np`, `pd`) yüklemek (bkz. 6.3.7) ve `pd.read_csv(..., parse_dates=['Month'], index_col='Month')` ile tarihleri satır etiketi (indeks) yaparak okumak önceki bölümlerdekiyle aynıdır (bkz. 10.9). Tarih indeksi sayesinde 6. maddedeki takvim özelliklerini çıkarabiliriz. `df['Passengers']` köşeli parantezle tek bir sütunu seçer; sonuç, tarih etiketli tek sütunluk bir *Series*'tir.
 2. **`kayan_pencere` fonksiyonu:** `def` ile kendi fonksiyonumuzu tanımlarız. `seri.values`, tarih etiketlerini bırakıp yalnızca 144 sayıyı düz bir NumPy dizisi olarak verir; böylece `dizi[i]` ile sıra numarasına göre erişebiliriz. Python'da sayma 0'dan başlar: `dizi[0]` Ocak 1949'dur (112). `range(len(dizi) - p)` döngüyü $i = 0, 1, \dots, 140$ için çalıştırır (141 tur). `dizi[i:i + p]` bir *dilimdir*: $i$. elemandan başlar, $i + p$. elemanı **dahil etmez**. Örneğin $i = 0$ iken `dizi[0:3]` = 112, 118, 132 (Ocak–Mart) ve hedef `dizi[3]` = 129 (Nisan) olur. `append` her turda listeye bir satır ekler, `np.array` de bu listeyi bir diziye çevirir.
 3. **Boyutlar (`shape`):** `X.shape` = `(141, 3)`, "141 satır, 3 sütun" demektir. `y.shape` = `(141,)` ise 141 elemanlı **tek boyutlu** bir dizidir; parantezin içindeki tek sayı ve virgül, tek boyut olduğunu gösterir. `X[:3]` dizinin ilk üç satırını seçer.
-4. **`shift(k)` ile gecikmeler:** `pd.DataFrame({'y': seri})` hedef sütunu `y` olan yeni bir tablo kurar. `for k in [1, 2, 3, 12]` döngüsü listedeki her sayı için bir sütun ekler. `f'lag_{k}'` (f-string, bkz. 6.3.7) `'lag_1'`, `'lag_2'` gibi sütun adları üretir. `seri.shift(k)` bütün değerleri $k$ satır aşağı kaydırır. Örneğin 112, 118, 132 dizisi `shift(1)` ile NaN, 112, 118 olur; yani her satırın yanına bir önceki ayın değeri gelir. **NaN** (*Not a Number*), "boş, bilinmeyen değer" anlamına gelir: Ocak 1949'dan önceki ay veride yoktur.
-5. **`rolling` ile hareketli ortalama:** `seri.shift(1).rolling(window=3).mean()` önce seriyi bir ay kaydırır, ardından her satırda 3 satırlık bir pencerenin ortalamasını alır. Sonuçta her ayın yanına "kendisinden önceki üç ayın ortalaması" yazılır. `shift(1)` olmasaydı ortalamaya o ayın kendi değeri de girerdi (12.1.5'teki sızıntı).
+4. **`shift(k)` ile gecikmeler:** `pd.DataFrame({'y': seri})` hedef sütunu `y` olan yeni bir tablo kurar. `for k in [1, 2, 3, 12]` döngüsü listedeki her sayı için bir sütun ekler. `f'lag_{k}'` (f-string, bkz. 6.3.7) `'lag_1'`, `'lag_2'` gibi sütun adları üretir. `seri.shift(k)` bütün değerleri $k$ satır aşağı kaydırır. Örneğin 112, 118, 132 dizisi `shift(1)` ile NaN, 112, 118 olur; yani her satırın yanına bir önceki ayın değeri gelir. Önünde geçmişi olmayan hücreler **NaN** (*Not a Number*, bilinmeyen değer) olur; NaN içeren sütunlar ondalık türde tutulduğu için çıktıda `118.0` gibi görünür.
+5. **`rolling` ile hareketli ortalama:** `seri.shift(1).rolling(window=3).mean()` önce seriyi bir ay kaydırır, ardından her satırda 3 satırlık bir pencerenin ortalamasını alır. Sonuçta her ayın yanına "kendisinden önceki üç ayın ortalaması" yazılır; `shift(1)` sızıntıyı önler (bkz. 12.1.5).
 6. **Takvim özellikleri:** `tablo.index.month` tarih indeksinden ay numarasını (1–12), `tablo.index.quarter` çeyreği (1–4) çıkarır. Ağaç gibi modeller bu sayılar sayesinde "ay 7 ise değer yüksektir" türünden kurallar öğrenebilir. Takvim bilgisi geleceğin her ayı için önceden bilindiği için sızıntı riski taşımaz.
-7. **`dropna()`:** NaN içeren her satırı atar. En uzun gecikme `lag_12` olduğu için ilk 12 satır silinir.
-8. **Zamansal ayrım:** `tablo.drop(columns='y')` hedef sütunu çıkarıp yedi girdi sütununu bırakır. `.iloc[:-12]` ve `.iloc[-12:]`, 9.3'teki gibi satırları sıra numarasına göre seçerek son 12 ayı teste ayırır.
+7. **`dropna()`:** NaN içeren her satırı atar. En uzun gecikme `lag_12` olduğu için ilk 12 satır silinir; tablo 1950-01'den başlar ve $144 - 12 = 132$ satır kalır.
+8. **Zamansal ayrım:** `tablo.drop(columns='y')` hedef sütunu çıkarıp yedi girdi sütununu bırakır. `.iloc[:-12]` ve `.iloc[-12:]`, 9.3'teki gibi satırları sıra numarasına göre seçerek son 12 ayı teste ayırır. 132 satırın 120'si eğitime, 12'si teste gider; ikisinde de 7 özellik sütunu olduğu için boyutlar `(120, 7)` ve `(12, 7)` olur.
 
 Çıktı:
 
@@ -228,8 +230,6 @@ Month
 **Çıktının yorumu:**
 
 - `kayan_pencere` çıktısının ilk üç satırı, Şekil 12.1'deki tablonun aynısıdır: `[112, 118, 132] → 129`, `[118, 132, 129] → 121`, ...
-- `shift(k)` seriyi $k$ adım aşağı kaydırır; böylece her satırda $k$ ay önceki değer yan yana gelir. Örneğin 1950-01 satırında `lag_1 = 118` (Aralık 1949) ve `lag_12 = 112` (Ocak 1949) yazar. Gecikme sütunlarının ondalıklı (`118.0`) görünmesi, NaN içeren sütunların pandas'ta ondalık sayı türünde tutulmasındandır.
-- `lag_12` en uzun gecikme olduğu için ilk 12 satır `NaN` içerir ve `dropna()` ile atılır. Tablo bu yüzden 1950-01'den başlar ve 144 − 12 = 132 satırdır. Bunun 120'si eğitim, 12'si test için ayrılır; her ikisinde de 7 özellik sütunu vardır, bu yüzden boyutlar `(120, 7)` ve `(12, 7)` olur.
 - `ort_3`, 1950-01 için Ekim–Aralık 1949 ortalamasıdır: (119 + 104 + 118) / 3 = 341 / 3 ≈ 113.67. Ocak 1950'nin kendi değeri (115) bu ortalamaya **girmez**.
 
 Bu tablo artık herhangi bir regresyon algoritmasına verilebilir. Bölüm 13'te aynı yaklaşımı daha fazla özellikle XGBoost üzerinde uygulayacağız.
@@ -291,6 +291,8 @@ Yukarıdaki tablo **tek adımlı (one-step-ahead)** bir tahmin kurar: Bilinen ge
 - **Doğrudan (direct) strateji:** Her ufuk $h$ için ayrı bir model eğitilir: "1 ay sonrası modeli", "2 ay sonrası modeli" vb. Örneğin 2 ay sonrası modelinin eğitim tablosunda girdi son üç ay, hedef ise iki ay sonraki değerdir (aradaki ay atlanır). Hata birikimi yoktur, ancak $H$ tane model eğitmek gerekir ve modeller birbirinden habersizdir.
 - **Çok çıktılı (MIMO) strateji:** Özellikle sinir ağlarında tek bir model, çıktı katmanında $H$ değeri birden üretir. Derin öğrenme modellerinde sık kullanılır.
 
+**Günlük hayattan bir örnek:** Özyinelemeli tahmin, tünele giren bir aracın navigasyonuna benzer. Sinyal kesilince cihaz yeni konumu, bir önceki tahmin ettiği konuma hız ve yönü ekleyerek bulur; tünel uzadıkça küçük hatalar birikir. Doğrudan strateji ise her mesafeyi ayrı bir rehbere sormaktır: "1 km sonra" ve "5 km sonra" sorularını farklı kişiler, ikisi de son bilinen gerçek konumdan yola çıkarak cevaplar. Benzetmenin sınırı: Rehberler birbirinden habersiz olduğu için cevapları birbiriyle tutarsız olabilir; doğrudan stratejideki ayrı modeller için de bu geçerlidir.
+
 **Küçük bir örnek (özyinelemeli):** Modelimiz çok basit olsun: "$`f`$ = son üç değerin ortalaması". Son üç gözlem 100, 110 ve 120 ise:
 
 1. $\hat{x}_ {t+1} = (100 + 110 + 120) / 3 = 110$
@@ -341,7 +343,12 @@ Yukarıdaki tablo **tek adımlı (one-step-ahead)** bir tahmin kurar: Bilinen ge
 
 Farklı algoritmaların verinin ölçeğine (sayıların büyüklüğüne) duyarlılığı farklıdır:
 
-- **Sinir ağları (LSTM, GRU, CNN):** Ağın ağırlıkları **gradyan inişiyle** öğrenilir: Ağ bir tahmin yapar, hatasını ölçer ve her ağırlığı hatayı biraz azaltan yönde küçük bir adımla düzeltir; bu tekrar tekrar yapılır. *Gradyan*, "bu ağırlığı çok az artırırsam hata ne kadar ve hangi yönde değişir?" sorusunun cevabı olan sayıdır (bir eğim). Ağın içindeki `sigmoid` ve `tanh` gibi aktivasyon fonksiyonları (Şekil 12.3) ise yalnızca sıfıra yakın girdilerde birbirinden ayırt edilebilir çıktılar üretir: $\tanh(1) \approx 0.76$ ile $\tanh(2) \approx 0.96$ farklıdır, ama yolcu sayısı gibi büyük değerlerde $\tanh(400)$ ile $\tanh(500)$ ikisi de 1'e eşit çıkar ve aradaki fark kaybolur. Bu yüzden veri genellikle 0–1 aralığına ölçeklenir. Bölüm 15'te kullanacağımız `MinMaxScaler` bunu şu dönüşümle yapar:
+- **Sinir ağları (Bölüm 12.2 ve 15):** Ağırlıklarını küçük adımlarla öğrenir (ağırlık ve gradyan inişi kavramları 12.2'nin başında anlatılıyor). İçlerindeki `sigmoid` ve `tanh` gibi sıkıştırma fonksiyonları (12.2.1, Şekil 12.3) yalnızca sıfıra yakın girdilerde ayırt edilebilir çıktılar üretir: $\tanh(1) \approx 0.76$ ile $\tanh(2) \approx 0.96$ farklıdır, ama $\tanh(400)$ ile $\tanh(500)$ ikisi de 1'e eşit çıkar; 400 ile 500 yolcu ağ için aynı görünür. Bu yüzden veri 0–1 aralığına ölçeklenir.
+- **Ağaç tabanlı modeller (XGBoost, Random Forest):** Veriyi "değer 300'den büyük mü?" gibi eşik sorularıyla böldükleri için ölçeklemeye ihtiyaç duymazlar, ama eğitimde görmedikleri düzeyin üstüne çıkamazlar (13.3; çözümü fark üzerinden tahmin, 13.4.2).
+
+**Günlük hayattan bir örnek:** En fazla 120 km/s gösterebilen bir hız ibresi düşünün: Araç 150 ile de 200 ile de gitse ibre 120'ye dayanır ve aradaki fark okunamaz. tanh ve sigmoid de büyük girdilerde böyle dayanır. MinMax ölçekleme, değerleri ibrenin okunabildiği aralığa taşımaktır. Benzetmenin sınırı: İbre sınıra birden dayanır, tanh ise sınıra yumuşakça yaklaşır; yine de 3'ün üstündeki girdilerde fark pratikte okunamaz.
+
+Bölüm 15'te kullanacağımız `MinMaxScaler` ölçeklemeyi şu dönüşümle yapar:
 
 $$
 x'_t = \frac{x_t - x_{\min}}{x_{\max} - x_{\min}}
@@ -356,8 +363,6 @@ Sözle: Değerden en küçük değeri çıkarırız (en küçük değer 0'a geli
 - Test dönemindeki 622 (Temmuz 1960) → $(622 - 104) / 455 = 518 / 455 \approx 1.138$. Değer 1'i aşar; bu bir hata değildir, test döneminde eğitimde görülmemiş bir seviyeye çıkıldığını gösterir.
 
 Model 0–1 ölçeğinde tahmin üretir. Sonucu yolcu sayısı olarak okumak için formülü tersine çeviririz (**ters dönüşüm**, `inverse_transform`): $x_t = x'_ t \cdot (x_{\max} - x_{\min}) + x_{\min}$. Örneğin 0.5 tahmini $0.5 \cdot 455 + 104 = 331.5$ bin yolcuya karşılık gelir.
-
-- **Ağaç tabanlı modeller (XGBoost, Random Forest):** Veriyi "değer 300'den büyük mü?" gibi eşik sorularıyla böldükleri için ölçeklemeye ihtiyaç duymazlar; sayıları 0–1'e çevirmek soruların sırasını değiştirmez. Ancak önemli bir sınırlamaları vardır: Eğitimde görmedikleri bir seviyeye **çıkamazlar** (dışdeğerleme, yani ekstrapolasyon yapamazlar). `AirPassengers` gibi sürekli artan bir seride test dönemindeki değerler eğitimdeki en büyük değeri aşıyorsa, ağaç modeli tahminleri o tavanın altında kalır (ayrıntısı 13.3'te). Bu sorun genellikle hedefi farka dönüştürerek ya da trendi önceden ayırarak çözülür (13.3 ve 13.4.2).
 
 **Not —** Ölçekleyici (`scaler`) **yalnızca eğitim verisiyle** uydurulmalı (`fit`: en küçük ve en büyük değeri hesaplama), test verisine ise aynı parametrelerle yalnızca dönüştürme (`transform`: formülü uygulama) yapılmalıdır. Tüm veriyle uydurmak, test dönemindeki en büyük ve en küçük değerin bilgisini eğitime sızdırır. Örneğin ölçekleyici tüm seriyle uydurulsaydı en büyük değer 622 olurdu ve eğitimdeki tepe 559, 1 yerine $455 / 518 \approx 0.878$'e dönüşürdü; model, eğitim sırasında "ileride daha yüksek bir değer gelecek" bilgisini dolaylı olarak almış olurdu.
 
@@ -397,15 +402,15 @@ Model 0–1 ölçeğinde tahmin üretir. Sonucu yolcu sayısı olarak okumak iç
 
 #### 12.1.5. Veri Sızıntısı Uyarısı
 
-**Tanım:** **Veri sızıntısı (data leakage)**, modelin eğitim sırasında, tahmin anında gerçekte bilinemeyecek bir bilgiye erişmesidir. Sızıntılı bir model eğitim ve test metriklerinde harika görünür, ancak gerçek kullanımda çuvallar. Sınavdan önce cevap anahtarını görmüş bir öğrenci gibidir: Notu yüksektir, ama konuyu öğrenmemiştir.
+Bölüm 8.1.1'de tanımlanan **veri sızıntısı (data leakage)**, modelin eğitim sırasında, tahmin anında gerçekte bilinemeyecek bir bilgiye erişmesidir. Sızıntılı bir model eğitim ve test metriklerinde harika görünür, ancak gerçek kullanımda çuvallar. Sınavdan önce cevap anahtarını görmüş bir öğrenci gibidir: Notu yüksektir, ama konuyu öğrenmemiştir.
 
 Zaman serisinde sızıntının en sık görülen biçimleri:
 
-1. **Veriyi karıştırmak:** `train_test_split(..., shuffle=True)` ile rastgele ayırmak, geleceğe ait satırları eğitime koyar. Her zaman Bölüm 8'deki gibi **zamansal ayrım** yapın: eğitim geçmiş, test gelecek.
+1. **Veriyi karıştırmak:** Rastgele ayırmak geleceğe ait satırları eğitime koyar; her zaman zamansal ayrım yapın (bkz. 8.1.1).
 2. **Hedefi içeren özellikler:** `rolling(3).mean()` başına `shift(1)` konmazsa hareketli ortalama o ayın kendi değerini de içerir; model hedefi "kopya çekerek" öğrenir. Ocak 1950 satırında `shift(1)` olmadan ortalama $(104 + 118 + 115) / 3 \approx 112.33$ çıkar ve tahmin etmeye çalıştığımız 115'i içerir; `shift(1)` ile ise $(119 + 104 + 118) / 3 \approx 113.67$ olur ve yalnızca geçmişi kullanır.
-3. **Tüm veriyle ölçekleme veya dönüştürme:** 12.1.4'teki not.
+3. **Tüm veriyle ölçekleme veya dönüştürme:** bkz. 12.1.4'teki not.
 4. **Tahmin anında bilinmeyen dışsal değişkenler:** Örneğin bir ayın günlük satışlarını tahmin ederken o ayın ortalama sıcaklığını kullanmak; ortalama ancak ay bitince bilinir.
-5. **Çapraz doğrulamada geleceği görmek:** Sıradan k-katlı çapraz doğrulama, gelecekteki katlarla eğitip geçmişi test eder. Bunun zaman serisine uygun karşılığı Bölüm 16'daki TimeSeriesSplit'tir.
+5. **Çapraz doğrulamada geleceği görmek:** Sıradan k-katlı çapraz doğrulama gelecekle eğitip geçmişi test eder; doğrusu Bölüm 16'daki TimeSeriesSplit'tir.
 
 Pratik bir kontrol sorusu: *"Bu özelliğin değerini, tahmin yapacağım anda gerçekten bilebilir miyim?"* Cevap hayırsa özellik sızıntılıdır.
 
@@ -452,7 +457,58 @@ Pratik bir kontrol sorusu: *"Bu özelliğin değerini, tahmin yapacağım anda g
 
 Makine öğrenmesi yaklaşımında geçmişi elle hazırladığımız sütunlarla (gecikmeler, hareketli ortalamalar) modele veriyoruz. Derin öğrenme ise farklı bir yol izler: Diziyi olduğu gibi, adım adım okuyup hangi geçmiş bilginin önemli olduğunu **kendisi** öğrenen özel sinir ağı mimarileri kullanır.
 
-Girdi yine kayan pencereyle hazırlanır (12.1.1), ancak her örnek artık düz bir satır değil, bir **dizidir**. Bu yüzden LSTM gibi katmanlar veriyi üç boyutlu biçimde bekler: `(örnek sayısı, zaman adımı sayısı, özellik sayısı)`. Örneğin yukarıdaki `X` dizisi `X.reshape(141, 3, 1)` ile "141 örnek, her biri 3 zaman adımı, her adımda 1 değer" biçimine getirilir; `reshape` sayıları değiştirmez, yalnızca yeniden yerleştirir. Bu adımı Bölüm 15.1.3'te ayrıntılı olarak uygulayacağız.
+Girdi yine kayan pencereyle hazırlanır (12.1.1), ancak her örnek artık düz bir satır değil, bir **dizidir**. Bu yüzden LSTM, GRU ve 1D-CNN gibi mimariler veriyi üç boyutlu biçimde bekler: `(örnek sayısı, zaman adımı sayısı, özellik sayısı)`. Örneğin yukarıdaki `X` dizisi `X.reshape(141, 3, 1)` ile "141 örnek, her biri 3 zaman adımı, her adımda 1 değer" biçimine getirilir; `reshape` sayıları değiştirmez, yalnızca yeniden yerleştirir. Bu adımı Bölüm 15.1.3'te ayrıntılı olarak uygulayacağız.
+
+#### Sinir ağının yapı taşları
+
+Bu mimarilere geçmeden önce bir sinir ağının ne hesapladığını görelim. Bu bölümdeki ve Bölüm 15'teki bütün modeller aynı küçük yapı taşından, **nörondan** kurulur. Bir nöron üç şey yapar: (1) Gelen her sayıyı kendine ait bir **ağırlıkla** (katsayıyla) çarpar, (2) bu çarpımları toplayıp üzerine **yanlılık (bias)** adı verilen sabit bir sayı ekler, (3) sonucu bir **aktivasyon fonksiyonundan** geçirir. Örneğin girdiler 0.2 ve 0.5, ağırlıklar 0.4 ve −0.1, yanlılık 0.05 ise toplam $0.2 \cdot 0.4 + 0.5 \cdot (-0.1) + 0.05 = 0.08 - 0.05 + 0.05 = 0.08$ olur. Aktivasyon fonksiyonu bu ara sonucu belirli bir biçime sokar. Bölüm 12 ve 15'te üç tanesini kullanacağız (sigmoid ve tanh'in grafikleri: Şekil 12.3):
+
+| Aktivasyon | İşlevi | Örnek değerler |
+| --- | --- | --- |
+| **ReLU** | Negatifi 0 yapar, pozitifi olduğu gibi bırakır: $`\max(0, u)`$ | ReLU(0.08) = 0.08, ReLU(−3) = 0 |
+| **Sigmoid** | Her sayıyı 0 ile 1 arasına sıkıştırır | sigmoid(−3) ≈ 0.05, sigmoid(0) = 0.5, sigmoid(3) ≈ 0.95 |
+| **tanh** *(tanjant hiperbolik)* | Her sayıyı −1 ile 1 arasına sıkıştırır | tanh(−3) ≈ −0.995, tanh(0) = 0, tanh(0.5) ≈ 0.46 |
+
+Yan yana duran nöronların oluşturduğu gruba **katman (layer)** denir. Keras'taki `Dense` katmanı, her nöronun önceki katmanın bütün çıktılarına bağlı olduğu en basit katmandır. Ağırlıklar ve yanlılıklar başta rastgele küçük sayılardır. **Eğitim**, bu sayıları modelin tahmin hatası küçülecek biçimde adım adım düzeltme işidir. Hatayı ölçen formüle **kayıp fonksiyonu (loss)**, düzeltmeyi yapan yönteme **optimizasyon algoritması (optimizer)** denir. Bu ikisini 15.2'de kodla birlikte ayrıntılı göreceğiz.
+
+Düzeltme **gradyan inişiyle** (gradient descent) yapılır: Ağ bir tahmin yapar, hatasını ölçer ve her ağırlığı hatayı biraz azaltan yönde küçük bir adımla düzeltir; bu tekrar tekrar yapılır. *Gradyan*, "bu ağırlığı çok az artırırsam hata ne kadar ve hangi yönde değişir?" sorusunun cevabı olan sayıdır (bir eğim). Adımın büyüklüğünü **öğrenme oranı** belirler.
+
+**Günlük hayattan bir örnek:** Sisli bir dağda vadiye inmeye çalışan bir yürüyüşçü uzağı göremez. Yalnızca ayağının altındaki eğime bakıp en dik inen yöne küçük bir adım atar ve bunu tekrarlar. Gradyan bu eğimdir, öğrenme oranı adımın boyudur: Adım çok büyükse karşı yamaca sıçrar, çok küçükse iniş çok uzun sürer. Benzetmenin sınırı: Yürüyüşçü en derin vadiye değil, yakındaki bir çukura inebilir; gradyan inişi de en iyi ağırlıkları bulmayı garanti etmez.
+
+> **Hemen deneyin 12.2 · Tek bir nöronu elle hesaplayın** (Python, ~3 dk)
+>
+> Yukarıdaki nöron örneğini (girdiler 0.2 ve 0.5, ağırlıklar 0.4 ve −0.1, yanlılık 0.05) NumPy ile hesaplayın ve sonucu üç aktivasyondan geçirin. VS Code, Jupyter ya da Colab'da yeni bir hücreye yazın:
+>
+> ```python
+> import numpy as np
+> x = np.array([0.2, 0.5])              # iki girdi
+> w = np.array([0.4, -0.1])             # her girdinin ağırlığı
+> b = 0.05                              # yanlılık
+> u = np.sum(x * w) + b                 # çarp, topla, yanlılığı ekle
+> print("u       =", round(u, 4))
+> print("ReLU    =", round(max(0, u), 4))
+> print("sigmoid =", round(1 / (1 + np.exp(-u)), 4))
+> print("tanh    =", round(np.tanh(u), 4))
+> ```
+>
+> **Ne göreceksiniz:**
+>
+> ```text
+> u       = 0.08
+> ReLU    = 0.08
+> sigmoid = 0.52
+> tanh    = 0.0798
+> ```
+>
+> `x * w` iki listenin aynı sıradaki elemanlarını çarpar (`[0.08, -0.05]`), `np.sum` bunları toplar. Ara sonuç metindeki gibi 0.08'dir. ReLU pozitif sayıyı olduğu gibi bırakır; sigmoid 0'a yakın bir girdiyi 0.5'in biraz üstüne, tanh ise yaklaşık kendisine götürür.
+>
+> **Şimdi siz:** Yanlılığı `b = -0.2` yapın. Önce `u`'yu elle hesaplayın ve ReLU'nun ne vereceğini tahmin edin, sonra çalıştırın.
+>
+> <details><summary>Cevap</summary>
+>
+> $u = 0.08 - 0.05 - 0.2 = -0.17$. Çıktı: `u = -0.17`, `ReLU = 0`, `sigmoid = 0.4576`, `tanh = -0.1684`. ReLU negatif ara sonucu 0'a çevirdi; sigmoid 0.5'in altına, tanh ise eksi tarafa geçti.
+>
+> </details>
 
 #### 12.2.1. Tekrarlayan Sinir Ağları (RNN) ve Kaybolan Gradyan Sorunu
 
@@ -465,6 +521,8 @@ h_t = \tanh\left(W_h h_{t-1} + W_x x_t + b\right), \qquad \hat{y}_t = W_y h_t + 
 $$
 
 > **Simge notu:** $`h_t`$ *(h t)*: t anındaki gizli durum (ağın "hafızası"); $`h_{t-1}`$: bir önceki adımdaki gizli durum · $`x_t`$: t anındaki girdi (ör. bu ayın ölçeklenmiş yolcu sayısı) · $`W_h, W_x, W_y`$ *(W h, W x, W y)*: öğrenilen ağırlıklar; buradaki alt indis zaman değil, ağırlığın neyle çarpıldığını gösteren bir etikettir · $`b, c`$: sabit (bias) terimleri · $`\tanh`$ *(tanjant hiperbolik, "tanh" diye okunur)*: girdisini −1 ile 1 arasına sıkıştıran aktivasyon fonksiyonu (Şekil 12.3) · $`\hat{y}_t`$ *(y şapka t)*: t anındaki tahmin
+
+**Günlük hayattan bir örnek:** Bir diziyi bölüm bölüm izlerken her bölümün sonunda aklınızda "şimdiye kadar neler oldu?" diye kısa bir özet tutarsınız; yeni bölümü bu özetle birleştirip özeti güncellersiniz. Gizli durum $h_t$ bu özettir; $W_h$ ağırlığı eski özete ne kadar tutunduğunuzu belirler. Benzetmenin sınırı: Basit RNN'de neyin özette kalıp neyin silineceğini seçen bir kapı yoktur; bu seçiciliği LSTM getirir (12.2.2).
 
 Gerçek bir ağda $h_t$ onlarca sayıdan oluşan bir vektör, $W_h$ gibi ağırlıklar ise **matrislerdir** (sayılardan oluşan tablolar); $W_h h_{t-1}$ çarpımı, vektörün her elemanını tablodaki ağırlıklarla çarpıp toplamak demektir. Mantığı görmek için her şeyi tek bir sayı olarak düşünebiliriz. $W_h = 0.5$, $W_x = 1$, $b = 0$ ve başlangıç hafızası $h_0 = 0$ olsun; ağa sırayla $x_1 = 1$ ve $x_2 = 2$ gelsin:
 
@@ -728,36 +786,23 @@ Bilinmesi gereken birkaç nokta:
 
 **Hangisini seçmeliyim?** Tek bir kısa ve düzenli seride klasik modeller çoğu zaman yeterlidir, hatta daha iyidir. Çok sayıda dışsal değişken, doğrusal olmayan etkiler ya da takvim etkileri söz konusuysa makine öğrenmesi öne çıkar. Çok büyük veri setlerinde ve karmaşık ardışık desenlerde ise derin öğrenme avantaj sağlar. Hangi yaklaşım seçilirse seçilsin, modeller Bölüm 8'deki metriklerle, aynı test dönemi üzerinde ve basit bir referans modelle (naive) karşılaştırılarak değerlendirilmelidir. Bu ilkeler Bölüm 17'deki altın kurallarda da özetlenmektedir.
 
-> **Hemen deneyin 12.3 · Her model için "geçilmesi gereken çıta": naive tahminler** (R, ~4 dk)
+> **Hemen deneyin 12.3 · Her model için "geçilmesi gereken çıta"** (R, ~3 dk)
 >
-> Bölüm 13'te XGBoost'un 1960 test hatasını göreceğiz. Onu yorumlayabilmek için önce en basit iki referans modelin hatasını bilelim. RStudio'da çalıştırın:
+> Çıta: Bölüm 8.3'teki tabloya göre mevsimsel naive (her ay = geçen yılın aynı ayı) 1960'ta MAE 47.83 verir. Bir makine öğrenmesi modelinin bu çıtayı geçmesi gerekir; 13.4'teki XGBoost'un test MAE'si 30.48'dir. Mevsimsel naive trendi kaçırır: 1960'ın her ayı 1959'un aynı ayından yüksektir. Trendi kaba bir büyüme oranıyla ekleyen bir kural deneyelim. RStudio'da çalıştırın:
 >
 > ```r
 > library(forecast)
 > egitim <- window(AirPassengers, end = c(1959, 12))   # 1949-1959
 > test   <- window(AirPassengers, start = c(1960, 1))  # 1960
-> n  <- naive(egitim, h = 12)     # her ay = son gözlem (Aralık 1959 = 405)
-> sn <- snaive(egitim, h = 12)    # her ay = 1959'un aynı ayı
-> round(accuracy(n,  test)["Test set", c("MAE", "RMSE", "MAPE")], 2)
-> round(accuracy(sn, test)["Test set", c("MAE", "RMSE", "MAPE")], 2)
+> sn <- snaive(egitim, h = 12)        # her ay = 1959'un aynı ayı; sn$mean tahminlerin kendisi
+> mean(abs(test - sn$mean))           # çıta: mevsimsel naive MAE
 > ```
 >
-> **Ne göreceksiniz** (paket yüklenirken çıkan "Registered S3 method" iletileri önemsizdir):
->
-> ```text
->    MAE   RMSE   MAPE
->  76.00 102.98  14.25
->   MAE  RMSE  MAPE
-> 47.83 50.71  9.99
-> ```
->
-> Mevsimsel naive (geçen yılın aynı ayı), düz naive'den çok daha iyidir: MAE 47.83'tür. Bir makine öğrenmesi modelinin bu çıtayı geçmesi gerekir; 13.4'teki XGBoost'un test MAE'si 30.48'dir.
->
-> **Şimdi siz:** (1) `mean(test - sn$mean)` yazın (`sn$mean`, tahmin değerlerinin kendisidir). İşaret size ne söylüyor? (2) "Geçen yılın aynı ayı + %10" kuralını deneyin: `mean(abs(test - sn$mean * 1.1))`. XGBoost'la karşılaştırın.
+> **Şimdi siz:** "Geçen yılın aynı ayı + %10" kuralını deneyin: `mean(abs(test - sn$mean * 1.1))`. Sonucu çıtayla ve XGBoost'la karşılaştırın.
 >
 > <details><summary>Cevap</summary>
 >
-> (1) `[1] 47.83333` çıkar, MAE ile aynıdır: 1960'ın her ayı 1959'un aynı ayından yüksektir, yani mevsimsel naive trendi kaçırıp her ayı düşük tahmin eder. (2) `[1] 14.91667` çıkar: Trendi kaba bir büyüme oranıyla ekleyen bu basit kural, 13.4'teki seviye XGBoost modelinden (30.48) daha iyidir. Karmaşık bir modeli her zaman basit referanslarla karşılaştırmanın nedeni budur.
+> Çıta satırı `[1] 47.83333`, yeni kural `[1] 14.91667` verir: Trendi kaba bir büyüme oranıyla ekleyen bu basit kural, 13.4'teki seviye XGBoost modelinden (30.48) daha iyidir. Karmaşık bir modeli her zaman basit referanslarla karşılaştırmanın nedeni budur.
 >
 > </details>
 

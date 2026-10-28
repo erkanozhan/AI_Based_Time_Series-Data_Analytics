@@ -6,7 +6,7 @@ Bölüm 7'de ARIMA/SARIMA ile seriyi önce durağanlaştırıp sonra kendi geçm
 
 **Açıklama:** Prophet, bir zaman serisini "zamanın bir fonksiyonu" olarak görür ve bu fonksiyonu anlaşılır parçalara ayırarak kurar: genel gidişat (trend), düzenli tekrarlar (mevsimsellik) ve özel günlerin etkisi (tatiller). ARIMA'daki gibi fark alma, ACF/PACF okuma ya da $(p,d,q)$ derecelerini seçme zorunluluğu yoktur; seri durağan olmasa da doğrudan uygulanabilir. LSTM gibi (Bölüm 15) içyapısı kapalı bir model de değildir: Her bileşeni ayrı ayrı çizip yorumlayabiliriz.
 
-Bu fikir size tanıdık gelmeli. Bölüm 2.2 ve 2.6'da bir seriyi trend, mevsimsellik ve düzensiz bileşene **ayrıştırmıştık**. Prophet, bu ayrıştırma düşüncesini bir **tahmin modeline** dönüştürür: Bileşenleri yalnızca geçmişte ayırmakla kalmaz, her birini matematiksel bir fonksiyonla ifade edip geleceğe uzatır.
+Bu fikir size tanıdık gelmeli. Bölüm 2.2 ve 2.5'da bir seriyi trend, mevsimsellik ve düzensiz bileşene **ayrıştırmıştık**. Prophet, bu ayrıştırma düşüncesini bir **tahmin modeline** dönüştürür: Bileşenleri yalnızca geçmişte ayırmakla kalmaz, her birini matematiksel bir fonksiyonla ifade edip geleceğe uzatır.
 
 ---
 
@@ -62,50 +62,10 @@ Değişim noktalarını elle vermemiz gerekmez. Prophet varsayılan olarak verin
 
 Bu esnekliği `changepoint_prior_scale` parametresi (varsayılan 0.05) belirler. Parametre, yukarıdaki cezanın ne kadar gevşek olduğunu ayarlar:
 
-- **Büyük değer** (ör. 0.5): Ceza hafifler, trend daha esnek olur, her kıvrımı izler. Aşırı uyum (overfitting) riski artar.
+- **Büyük değer** (ör. 0.5): Ceza hafifler, trend daha esnek olur, her kıvrımı izler. Aşırı öğrenme (overfitting) riski artar.
 - **Küçük değer** (ör. 0.01): Ceza ağırlaşır, trend katılaşır, gerçek yön değişimlerini kaçırabilir.
 
-> **Hemen deneyin 9.1.1a · `changepoint_prior_scale` ile trendi esnetin** (Python, ~4 dk)
->
-> Prophet kodunun ayrıntıları 9.2–9.3'te satır satır açıklanıyor; burada yalnızca tek bir ayarın etkisine bakıyoruz. Modeli 1949–1959 ile eğitip 1960'ı tahmin ediyor, üç farklı esneklik değerini karşılaştırıyoruz. Depo kök dizininden çalıştırın (üç model birkaç saniyede kurulur).
->
-> ```python
-> import numpy as np
-> import pandas as pd
-> from prophet import Prophet
-> import logging; logging.getLogger("cmdstanpy").disabled = True   # "Chain ..." bilgi satırlarını gizler
->
-> df = pd.read_csv("data/AirPassengers.csv")
-> df.columns = ["ds", "y"]                             # Prophet'ın beklediği sütun adları
-> df["ds"] = pd.to_datetime(df["ds"])
-> train, test = df.iloc[:-12], df.iloc[-12:]           # 1949-1959 eğitim, 1960 test
->
-> for cps in [0.002, 0.05, 0.5]:                       # trendin esnekliği
->     m = Prophet(changepoint_prior_scale=cps, seasonality_mode="multiplicative")  # çarpımsal: 9.1.4
->     m.fit(train)
->     fc = m.predict(m.make_future_dataframe(periods=12, freq="MS"))
->     tahmin = fc["yhat"].iloc[-12:].values            # son 12 satır = 1960
->     print(cps, " MAE:", round(np.mean(np.abs(test["y"].values - tahmin)), 2),
->           " Aralık 1960 trendi:", round(fc["trend"].iloc[-1], 1))
-> ```
->
-> **Ne göreceksiniz** (Prophet 1.5; en üstte "Importing plotly failed" uyarısı çıkabilir, etkisi yoktur):
->
-> ```text
-> 0.002  MAE: 31.77  Aralık 1960 trendi: 461.8
-> 0.05  MAE: 21.87  Aralık 1960 trendi: 476.3
-> 0.5  MAE: 21.05  Aralık 1960 trendi: 476.7
-> ```
->
-> Çok küçük değerde (0.002) ceza o kadar ağırdır ki trend eğimini neredeyse hiç değiştiremez; trend daha yavaş büyür, Aralık 1960'ta 461.8'de kalır ve MAE 31.77'ye çıkar. Varsayılan 0.05 (MAE 21.87, 9.3'teki çarpımsal modelle aynı sayı) ile 0.5 arasında ise fark küçüktür.
->
-> **Şimdi siz:** Listeye `0.01` ekleyin. MAE kaç çıkıyor? Bu değeri "en iyi" diye seçmek doğru olur mu?
->
-> <details><summary>Cevap</summary>
->
-> `0.01  MAE: 19.83  Aralık 1960 trendi: 478.6`. Denenenler arasında en küçük MAE budur. Ama bu değeri 1960'a (test setine) bakarak seçersek 8.1.1'deki "test setine bakarak model seçmek" hatasını yapmış oluruz. Doğrusu, ayarı eğitim setinin sonundan ayrılan bir doğrulama döneminde seçmek, test setini yalnızca en sonda bir kez kullanmaktır.
->
-> </details>
+Bu ayarın test hatasına etkisini, Prophet kodunu ve test değerlendirmesini öğrendikten sonra 9.3'ün sonunda (Hemen deneyin 9.3b) deneyeceğiz.
 
 **Tanım 2 (lojistik büyüme trendi):** Bazı seriler sonsuza kadar büyüyemez; bir doygunluk seviyesine yaklaşır (ör. bir ülkedeki internet kullanıcı sayısı nüfusu aşamaz). Böyle bir büyüme önce yavaş başlar, sonra hızlanır, üst sınıra yaklaştıkça yeniden yavaşlar ve durur. Grafiği S harfine benzeyen bu eğri şöyle yazılır:
 
@@ -127,7 +87,7 @@ $C = 100$, $k = 1$, $m = 5$ alıp birkaç noktada hesaplayalım:
 
 Tablo eğrinin hikâyesini anlatır: Başta neredeyse sıfır, orta noktada ($t = m$) tam olarak üst sınırın yarısı (50), sonra 100'e yaklaşır ama onu hiç aşmaz. Prophet'ta bu seçenek `Prophet(growth='logistic')` ile kullanılır; veri çerçevesine üst sınırı gösteren bir `cap` sütunu eklemek gerekir. Lojistik trendde de büyüme hızı $k$ değişim noktalarında ayarlanabilir.
 
-> **Hemen deneyin 9.1.1b · Lojistik eğriyi Excel'de çizin** (Excel / LibreOffice Calc, ~4 dk)
+> **Hemen deneyin 9.1.1 · Lojistik eğriyi Excel'de çizin** (Excel / LibreOffice Calc, ~4 dk)
 >
 > 1. **A1**'e `t`, **B1**'e `g(t)` yazın. **A2:A12** hücrelerine 0'dan 10'a kadar sayıları girin (A2'ye 0, A3'e 1 yazıp ikisini seçin ve aşağı sürükleyin).
 > 2. **B2**'ye `=100/(1+ÜS(-1*(A2-5)))` yazın (İngilizce: `=100/(1+EXP(-1*(A2-5)))`). `ÜS(x)`, formüldeki $\exp(x) = e^x$'tir. B2'yi B12'ye kadar aşağı sürükleyin.
@@ -279,7 +239,9 @@ Artık $s(t)$ bir miktar değil, trendin **oransal** bir düzeltmesidir: $s(t) =
 | 200 | $`200 + 60 = 260`$ | $`200 \cdot 1.20 = 240`$ |
 | 450 | $`450 + 60 = 510`$ | $`450 \cdot 1.20 = 540`$ |
 
-Toplamsal modelde yaz artışı seviye ne olursa olsun 60 yolcudur. Çarpımsal modelde ise trend 200'deyken 40, 450'deyken 90 yolcudur: Trend yükseldikçe aynı %20'nin mutlak karşılığı da büyür; tıpkı Bölüm 2.4'teki çarpımsal modelde olduğu gibi. 9.3'te kuracağımız çarpımsal modelde Temmuz 1960 için trend yaklaşık 462.4, yıllık etki $s(t) \approx 0.230$'dur ve tahmin $462.4 \cdot 1.230 \approx 568.9$ bin yolcu olur. Bu %23'lük Temmuz etkisi, Bölüm 2.6'daki çarpımsal ayrıştırmada bulduğumuz Temmuz katsayısıyla (yaklaşık 1.23) neredeyse aynıdır.
+Toplamsal modelde yaz artışı seviye ne olursa olsun 60 yolcudur. Çarpımsal modelde ise trend 200'deyken 40, 450'deyken 90 yolcudur (bkz. Bölüm 2.4'teki çarpımsal model). 9.3'te kuracağımız çarpımsal modelde Temmuz 1960 için trend yaklaşık 462.4, yıllık etki $s(t) \approx 0.2304$'tür ve tahmin $462.4 \cdot 1.2304 \approx 568.9$ bin yolcu olur. Bu %23'lük Temmuz etkisi, Bölüm 2.5'daki çarpımsal ayrıştırmada bulduğumuz Temmuz katsayısıyla (yaklaşık 1.23) neredeyse aynıdır.
+
+**Günlük hayattan bir örnek:** Bu fark iki tür yaz ikramiyesine benzer. Toplamsal modelde herkese, maaşı ne olursa olsun, aynı tutar eklenir (+60 yolcu). Çarpımsal modelde ise ikramiye maaşın %20'sidir: Maaş (trend) büyüdükçe aynı oran daha büyük bir tutara karşılık gelir. Benzetmenin sınırı: İkramiye hep eklenir; mevsim etkisi ise yıl içinde artıları ve eksileri birbirini götüren geçici bir sapmadır (kış aylarında trendin altına iner).
 
 **Not —** Bölüm 7'de SARIMA'yı `log(AirPassengers)` üzerine kurarak aynı sorunu log dönüşümüyle çözmüştük. Prophet'ta iki yol da mümkündür: Ya seriyi `np.log()` ile dönüştürüp toplamsal model kurarsınız (tahminleri sonra `np.exp()` ile geri çevirirsiniz), ya da doğrudan `seasonality_mode='multiplicative'` kullanırsınız.
 
@@ -317,45 +279,17 @@ import pandas as pd
 from prophet import Prophet
 import matplotlib.pyplot as plt
 
-# Veri setini yükleyelim. Orijinal CSV dosyasında sütun isimleri 'Month' ve 'Passengers'.
-df = pd.read_csv('data/AirPassengers.csv')
+df = pd.read_csv('data/AirPassengers.csv')   # sütunlar: Month, Passengers
+df.columns = ['ds', 'y']                     # Prophet'ın beklediği adlar
+df['ds'] = pd.to_datetime(df['ds'])          # metin -> tarih nesnesi
 
-# Prophet'ın gerektirdiği şekilde sütun isimlerini 'ds' ve 'y' olarak değiştirelim.
-df.columns = ['ds', 'y']
+m = Prophet(yearly_seasonality=True, daily_seasonality=False)   # yıllık açık, günlük kapalı
+m.fit(df)                                    # trendi ve mevsimselliği öğren
 
-# Prophet, 'ds' sütununun tarih-zaman nesneleri içerdiğinden emin olmak ister.
-# Bu yüzden pandas'ın to_datetime fonksiyonu ile bu dönüşümü yapıyoruz.
-df['ds'] = pd.to_datetime(df['ds'])
+future = m.make_future_dataframe(periods=12, freq='MS')   # 144 tarih + 12 yeni ay başı
+np.random.seed(42)                           # aynı belirsizlik aralığı için
+forecast = m.predict(future)                 # her tarih için yhat, yhat_lower, yhat_upper
 
-# Şimdi modelimizi oluşturalım.
-# AirPassengers verisi aylık olduğu ve yıllık bir döngüye sahip olduğu için
-# yearly_seasonality=True parametresini kullanıyoruz.
-# Günlük döngüyü açıkça kapatıyoruz; haftalık döngüyü Prophet aylık veride zaten
-# kendiliğinden kapatır (varsayılan ayar 'auto').
-m = Prophet(yearly_seasonality=True, daily_seasonality=False)
-
-# fit() metodu ile modelimizi hazırladığımız veri setine eğitiyoruz.
-# Bu aşamada Prophet, veriden trendi ve mevsimsel desenleri öğrenir.
-m.fit(df)
-
-# Tahmin yapabilmek için gelecekteki tarihleri içeren bir veri çerçevesine ihtiyacımız var.
-# Prophet bu işlemi make_future_dataframe metodu ile bizim için kolaylaştırır.
-# periods=12 ile 12 dönem (ay) ileriye, freq='MS' ile de her ayın başına
-# denk gelecek şekilde tarihler oluşturmasını söylüyoruz.
-future = m.make_future_dataframe(periods=12, freq='MS')
-
-# predict() metodu, oluşturduğumuz bu gelecek tarihleri alır ve her bir tarih için
-# bir tahmin üretir. Belirsizlik aralığı rastgele simülasyonla hesaplandığı için
-# aynı sonuçları almak üzere rastgele sayı üretecini sabitliyoruz.
-np.random.seed(42)
-forecast = m.predict(future)
-
-# Tahmin sonuçları oldukça detaylı bir veri çerçevesi olarak döner.
-# Bizi en çok ilgilendiren sütunlar şunlardır:
-# 'ds': Tarih
-# 'yhat': Modelin yaptığı tahmin
-# 'yhat_lower' ve 'yhat_upper': Tahminin belirsizlik aralığı. Model, gerçek değerin
-# büyük olasılıkla bu iki sınır arasında olacağını öngörür.
 print("--- Tahmin Sonuçları (Son 12 Ay) ---")
 print(forecast.set_index('ds')[['yhat', 'yhat_lower', 'yhat_upper']].tail(12).round(1))
 ```
@@ -393,20 +327,13 @@ Kodu adım adım okuyalım:
 Ardından Prophet'ın hazır grafik fonksiyonlarıyla sonuçları çizelim:
 
 ```python
-# Prophet'ın en güzel yanlarından biri, sonuçları görselleştirmek için
-# kendi içerisinde hazır fonksiyonlar sunmasıdır.
-# plot() fonksiyonu, geçmiş verileri, tahminleri ve belirsizlik aralığını çizer.
-fig1 = m.plot(forecast)
+fig1 = m.plot(forecast)                # gözlemler, tahmin ve belirsizlik bandı
 plt.title('Prophet ile Yolcu Sayısı Tahmini')
 plt.xlabel('Tarih')
 plt.ylabel('Yolcu Sayısı')
 plt.show()
 
-# plot_components() fonksiyonu ise modelin öğrendiği bileşenleri ayrı ayrı görmemizi sağlar.
-# Bu, serinin yapısını anlamak için çok değerlidir.
-# Trend grafiği, yolcu sayısındaki genel artışı gösterir.
-# Yıllık mevsimsellik grafiği ise hangi aylarda artış, hangilerinde azalış olduğunu net bir şekilde ortaya koyar.
-fig2 = m.plot_components(forecast)
+fig2 = m.plot_components(forecast)     # trend ve yıllık mevsimsellik panelleri
 plt.show()
 ```
 
@@ -420,7 +347,73 @@ plt.show()
 
 *Şekil 9.5 — `m.plot_components(forecast)` çıktısı: Üstte trend, altta yıllık mevsimsellik bileşeni. Aylık veride alt paneldeki eğrinin yalnızca ay başlarındaki değerleri anlamlıdır.*
 
-> **Hemen deneyin 9.2 · Prophet'ı başka bir seride deneyin: Mauna Loa CO₂** (Python, ~5 dk)
+#### 9.2.1. Çıktının Yorumlanması
+
+`forecast` veri çerçevesi, `future` içindeki **her tarih** için (geçmiş 144 ay + gelecek 12 ay) bir satır içerir. Yani geçmiş dönem için de modelin uydurduğu değerleri verir. `tail(12)` ile yalnızca gelecek 12 ayı (1961) görürüz. Başlıca sütunlar:
+
+| Sütun | Anlamı | Nasıl okunur? |
+| --- | --- | --- |
+| `ds` | Tahmin edilen tarih | 1961-01-01, 1961-02-01, ... |
+| `yhat` | Nokta tahmini; toplamsal modelde $`\hat{y}(t) = g(t) + s(t) + h(t)`$ | "Bu ay için en olası yolcu sayısı" |
+| `yhat_lower` | Belirsizlik aralığının alt sınırı | Gerçek değerin büyük olasılıkla bu değerin üstünde kalması beklenir |
+| `yhat_upper` | Belirsizlik aralığının üst sınırı | Gerçek değerin büyük olasılıkla bu değerin altında kalması beklenir |
+| `trend`, `yearly` | Bileşenlerin tek tek katkısı | Toplamsal modelde `yhat` = `trend` + `yearly` (tatil eklenmişse onun da katkısı) |
+
+> **Simge notu:** $`\hat{y}`$ *(y şapka)*: modelin tahmin ettiği değer
+
+Örneğin Ocak 1961 satırı şöyle okunur: Model 1961 Ocak'ında yaklaşık 466 bin yolcu bekliyor ve gerçek değerin 437 ile 495 bin arasında kalacağını %80 olasılıkla öngörüyor. Temmuz ve Ağustos (yaklaşık 577) yılın en yüksek, Kasım (yaklaşık 460) ve Şubat (yaklaşık 461) en düşük ayları olarak tahmin edilmiştir.
+
+Yorumlarken şunlara dikkat edin:
+
+- **Aralığın düzeyi:** Prophet'ın belirsizlik aralığı varsayılan olarak **%80**'dir (`interval_width=0.8`), %95 değil. Bu, model doğruysa gerçek değerlerin yaklaşık 10'da 8'inin bandın içine düşmesi gerektiği anlamına gelir. Nitekim geçmiş 144 aydan 27'si (yaklaşık %19) bandın dışında kalır. %95'lik aralık için modeli `Prophet(interval_width=0.95)` ile kurun; bant genişler.
+- **Aralığın genişliği:** Bandın iki kaynağı vardır: gözlemlerin modelin çevresindeki olağan dağınıklığı (gürültü) ve trendin gelecekte değişebilme ihtimali. İkincisi ufuk uzadıkça büyür, çünkü Prophet geçmişte gördüğü değişim noktası sıklığına ve büyüklüğüne bakarak gelecekte de benzer eğim değişimleri olabileceğini simüle eder (Şekil 9.2'deki genişleyen bant). Burada ise 12 aylık kısa ufukta gürültü baskındır: `yhat_upper - yhat_lower` farkı Ocak 1961'de yaklaşık 58, Aralık 1961'de yaklaşık 59'dur; genişleme ancak çok yıllık ufuklarda belirginleşir.
+- **Toplamsal modelin zayıflığı:** Varsayılan toplamsal modelde mevsimsel genlik sabittir; model bütün yıllara aynı boyda bir dalga uydurur. `AirPassengers`'ta ise dalgalar zamanla büyür. Sonuç Şekil 9.4'te açıkça görülür: İlk yıllarda model dalgayı abartır, son yıllarda ise yetersiz kalır (sayılar 9.3'te). Bandın dışına taşan siyah noktaların ilk ve son yıllarda toplanması bundandır. Bu yüzden model 1961 yazının tepesini olduğundan **düşük**, kış çukurunu olduğundan **yüksek** tahmin etme eğilimindedir.
+- **Bileşen grafiği (Şekil 9.5):** *Trend* paneli, yolcu sayısının 1949'da yaklaşık 107 binden 1960 sonunda yaklaşık 484 bine neredeyse doğrusal arttığını gösterir; eğim 1954 civarında, 9.1.1'de sözünü ettiğimiz değişim noktalarında hafifçe dikleşir. *Yearly* paneli yılın günlerine göre mevsimsel etkiyi gösterir. Ay başlarındaki değerlere bakıldığında Temmuz (yaklaşık +71) ve Ağustos (yaklaşık +69) en yüksek, Kasım (yaklaşık −60) en düşük, Şubat, Aralık ve Ocak da (yaklaşık −35, −33, −25) ortalamanın altındadır. Bu sıralama, Bölüm 2.5'daki ayrıştırmada elde ettiğimiz mevsimsel katsayılarla tutarlıdır.
+- **Ay aralarındaki kıvrımlar:** Yearly panelindeki eğri ay başları arasında da inip çıkar (ör. Şubat ortasında +50'nin üstüne çıkan bir tepe, Aralık ortasında −90'a inen bir çukur). Bunlar gerçek değildir: Aylık veride yalnızca her ayın 1'inde gözlem vardır ve 10 Fourier çiftiyle ($N = 10$, yani 20 katsayı) kurulan esnek eğri, gözlem olmayan günlerde serbestçe kıvrılabilir. Aylık veride bu panelin yalnızca ay başı değerlerini okuyun. Daha düzgün bir eğri isterseniz `Prophet(yearly_seasonality=5)` gibi bir tam sayı vererek Fourier terimi sayısını azaltabilirsiniz.
+
+**Günlük hayattan bir örnek:** İlk maddedeki %80'lik bant, "%80 eminim" diyen bir arkadaşa benzer: Böyle konuştuğu durumların yaklaşık 10'da 8'inde haklı çıkıyorsa sözüne güvenebilirsiniz. Hemen deneyin 9.3a'daki çarpımsal model "%80 eminim" deyip 1960'ın 12 ayının yalnızca 4'ünde haklı çıkar; yani gereğinden fazla kendinden emindir. Benzetmenin sınırı: 12 ay küçük bir örneklemdir; tek bir yılın sonucu şanstan da etkilenebilir.
+
+> **Hemen deneyin 9.2.1a · Fourier terimi sayısını azaltınca kıvrımlar kaybolur mu?** (Python, ~4 dk)
+>
+> Yukarıdaki son maddeyi sayılarla sınayalım. Modeli tüm veriyle iki kez kuruyoruz ($N = 10$ ve $N = 5$) ve yıllık bileşeni 1960'ın **her günü** için hesaplıyoruz.
+>
+> ```python
+> import pandas as pd
+> from prophet import Prophet
+> import logging; logging.getLogger("cmdstanpy").disabled = True
+>
+> df = pd.read_csv("data/AirPassengers.csv")
+> df.columns = ["ds", "y"]
+> df["ds"] = pd.to_datetime(df["ds"])
+> gunler = pd.DataFrame({"ds": pd.date_range("1960-01-01", "1960-12-31", freq="D")})  # 1960'ın her günü
+>
+> for N in [10, 5]:                                    # yıllık Fourier dalga sayısı
+>     m = Prophet(yearly_seasonality=N, daily_seasonality=False)
+>     m.fit(df)
+>     yearly = m.predict(gunler).set_index("ds")["yearly"]
+>     ay_basi = yearly[yearly.index.day == 1]          # yalnızca ayların 1'i
+>     print("N =", N, " ay başlarında en düşük:", round(ay_basi.min(), 1),
+>           "  tüm günlerde en düşük:", round(yearly.min(), 1))
+> ```
+>
+> **Ne göreceksiniz:**
+>
+> ```text
+> N = 10  ay başlarında en düşük: -59.5   tüm günlerde en düşük: -91.8
+> N = 5  ay başlarında en düşük: -59.5   tüm günlerde en düşük: -59.9
+> ```
+>
+> Ay başlarındaki en düşük değer (Kasım, −59.5) iki modelde de aynıdır; diğer ay başı değerleri de en fazla 2–3 birim farklıdır. Ama $N = 10$'da eğri ay araları gözlemsiz günlerde −91.8'e kadar iner (Aralık ortası; maddedeki "−90'a inen çukur"). $N = 5$'te bu sahte çukur kaybolur: Günlük en düşük değer (−59.9) ay başı değerine neredeyse eşittir. Aylık veride 5 dalga, ay başı değerlerini neredeyse bozmadan eğriyi düzgünleştirmeye yetmektedir.
+>
+> **Şimdi siz:** Listeye `3` ekleyin. Ay başlarındaki en düşük değer ne olur? Daha da azaltmak iyi bir fikir mi?
+>
+> <details><summary>Cevap</summary>
+>
+> `N = 3  ay başlarında en düşük: -47.7   tüm günlerde en düşük: -47.9`. Kıvrım yoktur, ama Kasım çukuru artık −59.5 değil −47.7'dir: Üç dalga, Kasım'ın keskin düşüşünü yakalayacak kadar esnek değildir. Çok büyük $N$ gürültüye, çok küçük $N$ ise yetersiz uyuma yol açar; 9.1.2'deki dengedir.
+>
+> </details>
+
+> **Hemen deneyin 9.2.1b · Prophet'ı başka bir seride deneyin: Mauna Loa CO₂** (Python, ~5 dk)
 >
 > statsmodels kütüphanesi, Hawaii'deki Mauna Loa gözlemevinin 1958–2001 arası haftalık atmosferik CO₂ ölçümlerini (ppm, milyonda bir) hazır veri olarak içerir; ek dosya gerekmez. Seriyi aylığa çevirip Prophet'la 2 yıl ileriye tahmin edelim.
 >
@@ -467,70 +460,6 @@ plt.show()
 > <details><summary>Cevap</summary>
 >
 > Aralık 2011 satırı: `388.7  376.3  400.1`; genişlik yaklaşık 23.8, yani 2 yıllık ufuktakinin 13 katı. Kısa ufukta bandı gürültü belirler; uzun ufukta ise Prophet'ın gelecekteki olası trend değişimlerini simüle etmesi baskın hâle gelir ve bant hızla açılır (9.2.1'deki "Aralığın genişliği" maddesi, Şekil 9.2).
->
-> </details>
-
-#### 9.2.1. Çıktının Yorumlanması
-
-`forecast` veri çerçevesi, `future` içindeki **her tarih** için (geçmiş 144 ay + gelecek 12 ay) bir satır içerir. Yani geçmiş dönem için de modelin uydurduğu değerleri verir. `tail(12)` ile yalnızca gelecek 12 ayı (1961) görürüz. Başlıca sütunlar:
-
-| Sütun | Anlamı | Nasıl okunur? |
-| --- | --- | --- |
-| `ds` | Tahmin edilen tarih | 1961-01-01, 1961-02-01, ... |
-| `yhat` | Nokta tahmini; toplamsal modelde $`\hat{y}(t) = g(t) + s(t) + h(t)`$ | "Bu ay için en olası yolcu sayısı" |
-| `yhat_lower` | Belirsizlik aralığının alt sınırı | Gerçek değerin büyük olasılıkla bu değerin üstünde kalması beklenir |
-| `yhat_upper` | Belirsizlik aralığının üst sınırı | Gerçek değerin büyük olasılıkla bu değerin altında kalması beklenir |
-| `trend`, `yearly` | Bileşenlerin tek tek katkısı | Toplamsal modelde `yhat` = `trend` + `yearly` (tatil eklenmişse onun da katkısı) |
-
-> **Simge notu:** $`\hat{y}`$ *(y şapka)*: modelin tahmin ettiği değer
-
-Örneğin Ocak 1961 satırı şöyle okunur: Model 1961 Ocak'ında yaklaşık 466 bin yolcu bekliyor ve gerçek değerin 437 ile 495 bin arasında kalacağını %80 olasılıkla öngörüyor. Temmuz ve Ağustos (yaklaşık 577) yılın en yüksek, Kasım (yaklaşık 460) ve Şubat (yaklaşık 461) en düşük ayları olarak tahmin edilmiştir.
-
-Yorumlarken şunlara dikkat edin:
-
-- **Aralığın düzeyi:** Prophet'ın belirsizlik aralığı varsayılan olarak **%80**'dir (`interval_width=0.8`), %95 değil. Bu, model doğruysa gerçek değerlerin yaklaşık 10'da 8'inin bandın içine düşmesi gerektiği anlamına gelir. Nitekim geçmiş 144 aydan 27'si (yaklaşık %19) bandın dışında kalır. %95'lik aralık için modeli `Prophet(interval_width=0.95)` ile kurun; bant genişler.
-- **Aralığın genişliği:** Bandın iki kaynağı vardır: gözlemlerin modelin çevresindeki olağan dağınıklığı (gürültü) ve trendin gelecekte değişebilme ihtimali. İkincisi ufuk uzadıkça büyür, çünkü Prophet geçmişte gördüğü değişim noktası sıklığına ve büyüklüğüne bakarak gelecekte de benzer eğim değişimleri olabileceğini simüle eder (Şekil 9.2'deki genişleyen bant). Burada ise 12 aylık kısa ufukta gürültü baskındır: `yhat_upper - yhat_lower` farkı Ocak 1961'de yaklaşık 58, Aralık 1961'de yaklaşık 59'dur; genişleme ancak çok yıllık ufuklarda belirginleşir.
-- **Toplamsal modelin zayıflığı:** Varsayılan toplamsal modelde mevsimsel genlik sabittir; model bütün yıllara aynı boyda bir dalga uydurur. `AirPassengers`'ta ise dalgalar zamanla büyür. Sonuç Şekil 9.4'te açıkça görülür: İlk yıllarda model dalgayı abartır (Temmuz 1949'da tahmin yaklaşık 191, gerçek 148), son yıllarda ise yetersiz kalır (Temmuz 1960'ta gerçek değer 622, tahminin yaklaşık 80 üzerinde). Bandın dışına taşan siyah noktaların ilk ve son yıllarda toplanması bundandır. Bu yüzden model 1961 yazının tepesini olduğundan **düşük**, kış çukurunu olduğundan **yüksek** tahmin etme eğilimindedir.
-- **Bileşen grafiği (Şekil 9.5):** *Trend* paneli, yolcu sayısının 1949'da yaklaşık 107 binden 1960 sonunda yaklaşık 484 bine neredeyse doğrusal arttığını gösterir; eğim 1954 civarında, 9.1.1'de sözünü ettiğimiz değişim noktalarında hafifçe dikleşir. *Yearly* paneli yılın günlerine göre mevsimsel etkiyi gösterir. Ay başlarındaki değerlere bakıldığında Temmuz (yaklaşık +71) ve Ağustos (yaklaşık +69) en yüksek, Kasım (yaklaşık −60) en düşük, Şubat, Aralık ve Ocak da (yaklaşık −35, −33, −25) ortalamanın altındadır. Bu sıralama, Bölüm 2.6'daki ayrıştırmada elde ettiğimiz mevsimsel katsayılarla tutarlıdır.
-- **Ay aralarındaki kıvrımlar:** Yearly panelindeki eğri ay başları arasında da inip çıkar (ör. Şubat ortasında +50'nin üstüne çıkan bir tepe, Aralık ortasında −90'a inen bir çukur). Bunlar gerçek değildir: Aylık veride yalnızca her ayın 1'inde gözlem vardır ve 10 Fourier çiftiyle ($N = 10$, yani 20 katsayı) kurulan esnek eğri, gözlem olmayan günlerde serbestçe kıvrılabilir. Aylık veride bu panelin yalnızca ay başı değerlerini okuyun. Daha düzgün bir eğri isterseniz `Prophet(yearly_seasonality=5)` gibi bir tam sayı vererek Fourier terimi sayısını azaltabilirsiniz.
-
-> **Hemen deneyin 9.2.1 · Fourier terimi sayısını azaltınca kıvrımlar kaybolur mu?** (Python, ~4 dk)
->
-> Yukarıdaki son maddeyi sayılarla sınayalım. Modeli tüm veriyle iki kez kuruyoruz ($N = 10$ ve $N = 5$) ve yıllık bileşeni 1960'ın **her günü** için hesaplıyoruz.
->
-> ```python
-> import pandas as pd
-> from prophet import Prophet
-> import logging; logging.getLogger("cmdstanpy").disabled = True
->
-> df = pd.read_csv("data/AirPassengers.csv")
-> df.columns = ["ds", "y"]
-> df["ds"] = pd.to_datetime(df["ds"])
-> gunler = pd.DataFrame({"ds": pd.date_range("1960-01-01", "1960-12-31", freq="D")})  # 1960'ın her günü
->
-> for N in [10, 5]:                                    # yıllık Fourier dalga sayısı
->     m = Prophet(yearly_seasonality=N, daily_seasonality=False)
->     m.fit(df)
->     yearly = m.predict(gunler).set_index("ds")["yearly"]
->     ay_basi = yearly[yearly.index.day == 1]          # yalnızca ayların 1'i
->     print("N =", N, " ay başlarında en düşük:", round(ay_basi.min(), 1),
->           "  tüm günlerde en düşük:", round(yearly.min(), 1))
-> ```
->
-> **Ne göreceksiniz:**
->
-> ```text
-> N = 10  ay başlarında en düşük: -59.5   tüm günlerde en düşük: -91.8
-> N = 5  ay başlarında en düşük: -59.5   tüm günlerde en düşük: -59.9
-> ```
->
-> Ay başlarındaki en düşük değer (Kasım, −59.5) iki modelde de aynıdır; diğer ay başı değerleri de en fazla 2–3 birim farklıdır. Ama $N = 10$'da eğri ay araları gözlemsiz günlerde −91.8'e kadar iner (Aralık ortası; maddedeki "−90'a inen çukur"). $N = 5$'te bu sahte çukur kaybolur: Günlük en düşük değer (−59.9) ay başı değerine neredeyse eşittir. Aylık veride 5 dalga, ay başı değerlerini neredeyse bozmadan eğriyi düzgünleştirmeye yetmektedir.
->
-> **Şimdi siz:** Listeye `3` ekleyin. Ay başlarındaki en düşük değer ne olur? Daha da azaltmak iyi bir fikir mi?
->
-> <details><summary>Cevap</summary>
->
-> `N = 3  ay başlarında en düşük: -47.7   tüm günlerde en düşük: -47.9`. Kıvrım yoktur, ama Kasım çukuru artık −59.5 değil −47.7'dir: Üç dalga, Kasım'ın keskin düşüşünü yakalayacak kadar esnek değildir. Çok büyük $N$ gürültüye, çok küçük $N$ ise yetersiz uyuma yol açar; 9.1.2'deki dengedir.
 >
 > </details>
 
@@ -593,7 +522,7 @@ Kodun önemli noktaları şunlardır:
 2. `for mod in ['additive', 'multiplicative']:` döngüsü, girintili bloğu iki kez çalıştırır: önce `mod = 'additive'` (toplamsal), sonra `mod = 'multiplicative'` (çarpımsal). Böylece aynı kodla iki model kurulur ve tek fark `seasonality_mode=mod` argümanıdır (9.1.4).
 3. `model.fit(train)` yalnızca eğitim verisini kullanır. `make_future_dataframe(periods=12, freq='MS')` eğitim verisinin son tarihinden (Aralık 1959) sonra 12 ay ekler; bu 12 ay tam olarak test yılı olan 1960'tır.
 4. `forecast['yhat'].iloc[-12:].values`: Tahmin tablosu 132 geçmiş + 12 gelecek satır içerir; son 12 satır test dönemidir. `.values` tarih indeksini atıp düz bir NumPy dizisi verir; `test['y'].values` da aynı biçimdedir, böylece iki dizi sıralarına göre karşılaştırılır.
-5. Metrik satırları Bölüm 8.4'teki `evaluate_model()` fonksiyonunun içindekilerle aynıdır; fonksiyonu tanımladıysanız bu satırların yerine `evaluate_model(test['y'], tahmin, f"Prophet ({mod})")` çağrısını da kullanabilirsiniz. Sonuçlar `sonuclar[mod] = {...}` ile bir sözlükte toplanır; `pd.DataFrame(sonuclar).T` her modeli bir satıra, her metriği bir sütuna yerleştirir.
+5. Metrik satırları Bölüm 8.4.1'deki `evaluate_model()` fonksiyonunun içindekilerle aynıdır; fonksiyonu tanımladıysanız bu satırların yerine `evaluate_model(test['y'], tahmin, f"Prophet ({mod})")` çağrısını da kullanabilirsiniz. Sonuçlar `sonuclar[mod] = {...}` ile bir sözlükte toplanır; `pd.DataFrame(sonuclar).T` her modeli bir satıra, her metriği bir sütuna yerleştirir.
 
 **Çıktının yorumu:** Tabloda her satır bir modeli, her sütun bir metriği gösterir; üç metrikte de **küçük değer daha iyidir**. Beklendiği gibi çarpımsal model üç metrikte de belirgin biçimde daha iyidir: MAE 33.43'ten 21.87'ye, RMSE 43.05'ten 25.83'e iner. Nedeni 1960 yazıdır. Toplamsal model, bütün yılların ortalaması olan sabit boyda bir dalga kullandığı için Temmuz 1960'ı yaklaşık 524 bin olarak tahmin eder; gerçek değer 622'dir (yaklaşık 98 bin eksik). Dalga genliği seviyeyle büyüyen çarpımsal model aynı ay için yaklaşık 569 bin tahmin ederek farkı yarıya indirir (Şekil 9.6). Sonuçları yorumlarken Bölüm 8'deki sorular burada da geçerlidir:
 
@@ -610,7 +539,7 @@ Kodun önemli noktaları şunlardır:
 
 **Not —** Tek bir test yılı, şansa bağlı iyi ya da kötü bir sonuç verebilir. Daha güvenilir bir değerlendirme için test penceresini zaman içinde kaydırarak birden çok kez ölçmek gerekir. Prophet bunun için `prophet.diagnostics` modülünde `cross_validation()` ve `performance_metrics()` fonksiyonlarını sunar. Bu yaklaşımın genel mantığı Bölüm 16'da (TimeSeriesSplit) ele alınmaktadır.
 
-> **Hemen deneyin 9.3 · 1960'ın gerçek değerleri %80'lik bandın içinde mi?** (Python, ~4 dk)
+> **Hemen deneyin 9.3a · 1960'ın gerçek değerleri %80'lik bandın içinde mi?** (Python, ~4 dk)
 >
 > MAE yalnızca nokta tahmini (`yhat`) ölçer. Belirsizlik bandının da dürüst olup olmadığına bakalım: %80'lik bandın 12 test ayının yaklaşık 10'unu içine alması beklenir.
 >
@@ -661,6 +590,48 @@ Kodun önemli noktaları şunlardır:
 >
 > </details>
 
+> **Hemen deneyin 9.3b · `changepoint_prior_scale` ile trendi esnetin** (Python, ~4 dk)
+>
+> 9.1.1'deki `changepoint_prior_scale` ayarının test hatasına etkisine bakalım. Kod, yukarıdaki değerlendirme kodunun kısaltılmış hâlidir: Modeli 1949–1959 ile eğitip 1960'ı tahmin ediyor, üç farklı esneklik değerini karşılaştırıyoruz. Depo kök dizininden çalıştırın (üç model birkaç saniyede kurulur).
+>
+> ```python
+> import numpy as np
+> import pandas as pd
+> from prophet import Prophet
+> import logging; logging.getLogger("cmdstanpy").disabled = True   # "Chain ..." bilgi satırlarını gizler
+>
+> df = pd.read_csv("data/AirPassengers.csv")
+> df.columns = ["ds", "y"]                             # Prophet'ın beklediği sütun adları
+> df["ds"] = pd.to_datetime(df["ds"])
+> train, test = df.iloc[:-12], df.iloc[-12:]           # 1949-1959 eğitim, 1960 test
+>
+> for cps in [0.002, 0.05, 0.5]:                       # trendin esnekliği
+>     m = Prophet(changepoint_prior_scale=cps, seasonality_mode="multiplicative")  # çarpımsal: 9.1.4
+>     m.fit(train)
+>     fc = m.predict(m.make_future_dataframe(periods=12, freq="MS"))
+>     tahmin = fc["yhat"].iloc[-12:].values            # son 12 satır = 1960
+>     print(cps, " MAE:", round(np.mean(np.abs(test["y"].values - tahmin)), 2),
+>           " Aralık 1960 trendi:", round(fc["trend"].iloc[-1], 1))
+> ```
+>
+> **Ne göreceksiniz** (Prophet 1.5; en üstte "Importing plotly failed" uyarısı çıkabilir, etkisi yoktur):
+>
+> ```text
+> 0.002  MAE: 31.77  Aralık 1960 trendi: 461.8
+> 0.05  MAE: 21.87  Aralık 1960 trendi: 476.3
+> 0.5  MAE: 21.05  Aralık 1960 trendi: 476.7
+> ```
+>
+> Çok küçük değerde (0.002) ceza o kadar ağırdır ki trend eğimini neredeyse hiç değiştiremez; trend daha yavaş büyür, Aralık 1960'ta 461.8'de kalır ve MAE 31.77'ye çıkar. Varsayılan 0.05 (MAE 21.87, yukarıdaki çarpımsal modelle aynı sayı) ile 0.5 arasında ise fark küçüktür.
+>
+> **Şimdi siz:** Listeye `0.01` ekleyin. MAE kaç çıkıyor? Bu değeri "en iyi" diye seçmek doğru olur mu?
+>
+> <details><summary>Cevap</summary>
+>
+> `0.01  MAE: 19.83  Aralık 1960 trendi: 478.6`. Denenenler arasında en küçük MAE budur. Ama bu değeri 1960'a (test setine) bakarak seçersek 8.1.1'deki "test setine bakarak model seçmek" hatasını yapmış oluruz. Doğrusu, ayarı eğitim setinin sonundan ayrılan bir doğrulama döneminde seçmek, test setini yalnızca en sonda bir kez kullanmaktır.
+>
+> </details>
+
 ---
 
 ### 9.4. Güçlü ve Zayıf Yönler
@@ -677,7 +648,7 @@ Kodun önemli noktaları şunlardır:
 
 > **Hemen deneyin 9.4 · Desensiz seride Prophet naive'i yenebilir mi?** (Python, ~4 dk)
 >
-> Tablodaki son zayıf yönü görelim: Trendi ve mevsimi olmayan bir **rastgele yürüyüş** (her gün bir öncekine rastgele bir adım eklenen seri) üretip son 30 günü tahmin ediyoruz.
+> Tablodaki son zayıf yönü görelim: Deterministik trendi ve mevsimi olmayan bir **rastgele yürüyüş** (her gün bir öncekine rastgele bir adım eklenen seri) üretip son 30 günü tahmin ediyoruz.
 >
 > ```python
 > import numpy as np

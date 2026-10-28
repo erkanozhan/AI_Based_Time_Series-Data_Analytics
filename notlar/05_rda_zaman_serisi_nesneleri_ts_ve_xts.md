@@ -14,7 +14,7 @@ Bir `ts` nesnesi iki temel bilgiden oluşur:
 
 ### 5.1. Frekans Kavramı ve `start`/`end` Argümanları
 
-**Tanım (frekans):** Frekans, **bir temel döngü (çoğunlukla bir yıl) içindeki gözlem sayısıdır.** Aylık veride yıl 12 aya bölündüğü için `frequency = 12`, çeyreklik veride `frequency = 4` olur. Frekans aynı zamanda mevsimsel dönemin uzunluğudur: `decompose()` ve mevsimsel ARIMA gibi yöntemler "kaç gözlemde bir tekrar eden desen aranacağını" bu sayıdan öğrenir.
+**Tanım (frekans):** Frekans, **bir temel döngü (çoğunlukla bir yıl) içindeki gözlem sayısıdır.** Aylık veride yıl 12 aya bölündüğü için `frequency = 12`, çeyreklik veride `frequency = 4` olur. Frekans aynı zamanda mevsimsel dönemin uzunluğudur: `decompose()` ve mevsimsel ARIMA (Bölüm 7.3) gibi yöntemler "kaç gözlemde bir tekrar eden desen aranacağını" bu sayıdan öğrenir.
 
 Bu parametre yanlış ayarlanırsa mevsimsellik gibi önemli desenler modellenemez. Örneğin aylık bir seriyi `frequency = 1` ile tanımlarsanız R, her yıl yaz aylarında tekrar eden zirveyi mevsimsellik olarak göremez; çünkü ona göre seride bir "yıl içi" yoktur, her gözlem ayrı bir yıldır.
 
@@ -43,13 +43,15 @@ Bu parametre yanlış ayarlanırsa mevsimsellik gibi önemli desenler modellenem
 - `start = 2020` ve `frequency = 1` → yıllık seride tek sayı yeterlidir.
 - `end` verilmezse veri uzunluğundan hesaplanır; verilirse seri o noktada kesilir.
 
+**Günlük hayattan bir örnek:** Okulun haftalık ders programını düşünün: satırlar günler, her satırda 8 ders saati var. "Salı, 3. ders" demek dersi bulmaya yeter, saatini ayrıca yazmaya gerek yoktur; çünkü çizelgenin düzeni bellidir. `ts` de böyledir: `frequency = 12` "her satırda (yılda) 12 hücre var", `start = c(2024, 1)` "ilk değer 2024 satırının 1. hücresinde" der. Sonraki her değer sıradaki hücreye yazılır ve tarihi hücresinden hesaplanır. Benzetmenin sınırı: `ts`'de hücre atlanamaz; eksik dönem `NA` ile doldurulmalıdır.
+
 R içeride zamanı ondalıklı bir yıl sayısı olarak tutar. `c(yıl, p)` biçimindeki bir başlangıç (p: döngü içindeki sıra) şu sayıya çevrilir: yıl + (p − 1) / frekans. Örneğin `c(2023, 3)` ve frekans 4 için 2023 + 2/4 = 2023,5 (3. çeyrek, yılın yarısı geçmişken başlar). Sonraki her gözlem bir öncekinden sabit bir adım sonra gelir. $k$'inci gözlemin zamanı şöyle hesaplanır:
 
 $$t_k = t_1 + \frac{k-1}{f}, \qquad \Delta t = \frac{1}{f}$$
 
 > **Simge notu:** $`t_k`$ *(t alt k)*: k'inci gözlemin zamanı; alt indis $`k`$ gözlemin sıra numarasıdır ($`k = 1, 2, 3, \dots`$) · $`t_1`$: ilk gözlemin zamanı (başlangıç) · $`f`$: frekans · $`\Delta t`$ *(delta t; Δ büyük Yunan harfi "delta", "fark/adım" anlamında kullanılır)*: ardışık iki gözlem arasındaki sabit zaman adımı (aylık veride 1/12 yıl)
 
-Formül şunu söyler: birinci gözlemden $k$'inci gözleme gelmek için $k - 1$ adım atılır ve her adım $1/f$ yıl uzunluğundadır. Aylık veride ($f = 12$) adım $1/12 \approx 0{,}0833$ yıldır. Ocak 2024 için $t_1 = 2024$; Şubat ($k = 2$) için $2024 + 1/12 \approx 2024{,}083$; Aralık ($k = 12$) için $2024 + 11/12 \approx 2024{,}917$ olur. `time()` fonksiyonu tam olarak bu değerleri döndürür.
+Aylık seride ($f = 12$) adım $1/12$ yıldır: Ocak 2024 için $t_1 = 2024$, Aralık ($k = 12$) için $2024 + 11/12 \approx 2024.917$. `time()` tam olarak bu değerleri döndürür.
 
 ![Bir ts nesnesinin anatomisi](../images/ch05_ts_anatomi.svg)
 
@@ -115,8 +117,8 @@ tapply(satis_ts, cycle(satis_ts), mean)
 
 Bu kod, on iki aylık satış değerini zaman bilgisi taşıyan bir `ts` nesnesine dönüştürür ve 5.1'de anlattığımız `start` ve `frequency` bilgisinin nesnede nasıl saklandığını, nasıl geri okunduğunu gösterir. Kodu satır satır okuyalım:
 
-1. `veri <- c(100, 105, 98, ...)`: `c()` (5.1) on iki aylık satış değerini tek bir vektörde toplar; `<-` (atama, 2.6) bu vektörü `veri` adıyla saklar. Bu vektör yalnızca sayılardan oluşur; hangi aya ait olduklarını bilmez. Üstteki `#` satırı bir yorumdur (2.6).
-2. `satis_ts <- ts(data = veri, start = c(2024, 1), frequency = 12)`: `ts()` vektöre zaman bilgisini ekleyip bir `ts` nesnesi oluşturur; sonuç `satis_ts` adıyla saklanır. Üç argüman da adıyla verilmiştir: `data = veri` serinin değerleri, `start = c(2024, 1)` ilk değerin zamanı (2024'ün 1. ayı, yani Ocak 2024), `frequency = 12` bir yıldaki gözlem sayısıdır (veri aylık). `end` verilmediği için bitiş, veri uzunluğundan hesaplanır. Geri kalan her değerin ayı bu iki bilgiden hesaplanır; ayrıca saklanmaz (Şekil 5.1).
+1. `veri <- c(100, 105, 98, ...)`: `c()` (2.1) on iki aylık satış değerini tek bir vektörde toplar; `<-` (atama, 2.5) bu vektörü `veri` adıyla saklar. Bu vektör yalnızca sayılardan oluşur; hangi aya ait olduklarını bilmez. Üstteki `#` satırı bir yorumdur (2.5).
+2. `satis_ts <- ts(data = veri, start = c(2024, 1), frequency = 12)`: `ts()` vektöre zaman bilgisini ekleyip bir `ts` nesnesi oluşturur; sonuç `satis_ts` adıyla saklanır. Üç argüman da adıyla verilmiştir: `data = veri` serinin değerleri, `start = c(2024, 1)` ilk değerin zamanı (2024'ün 1. ayı, yani Ocak 2024), `frequency = 12` bir yıldaki gözlem sayısıdır (veri aylık). `end` verilmediği için bitiş, veri uzunluğundan hesaplanır (Şekil 5.1).
 3. `print(satis_ts)`: Nesneyi ekrana yazar. Konsolda yalnızca `satis_ts` yazmak da aynı işi yapar. R, frekansın 12 olduğunu bildiği için değerleri ay adlarıyla bir tabloya yerleştirir (ay kısaltmaları R'ın kendi İngilizce etiketleridir, dil ayarına bağlı değildir).
 4. `start(satis_ts)` ve `end(satis_ts)`: Serinin başlangıç ve bitiş zamanını `c(yıl, ay)` biçiminde iki sayılık bir vektör olarak verir. Bitiş, 12 değer olduğu için başlangıçtan 11 adım sonrası olarak hesaplanmıştır.
 5. `frequency(satis_ts)`: Nesnenin frekansını tek bir sayı olarak verir.
@@ -127,7 +129,7 @@ Bu kod, on iki aylık satış değerini zaman bilgisi taşıyan bir `ts` nesnesi
 Çıktıları sırayla okuyalım:
 
 - `print()` çıktısında üst satır sütun başlıklarıdır (aylar), soldaki `2024` satır başlığıdır (yıl); tablonun içi değerlerdir.
-- `[1] 2024    1`: Baştaki `[1]`, satırın vektörün 1. elemanıyla başladığını gösteren sıra numarasıdır (2.6). `2024 1` Ocak 2024 demektir; sayılar arasındaki fazla boşluklar yalnızca hizalama içindir. `[1] 2024   12` aynı biçimde Aralık 2024'tür. `[1] 12` frekanstır.
+- `[1] 2024    1`: Baştaki `[1]`, satırın vektörün 1. elemanıyla başladığını gösteren sıra numarasıdır (2.5). `2024 1` Ocak 2024 demektir; sayılar arasındaki fazla boşluklar yalnızca hizalama içindir. `[1] 2024   12` aynı biçimde Aralık 2024'tür. `[1] 12` frekanstır.
 - `[1] 2024.000 2024.917   12.000`: Başlangıç (2024.000, yani Ocak 2024), bitiş ve frekans. `2024.917` değeri, Aralık 2024'ün ondalıklı yıl karşılığıdır ($`2024 + 11/12`$). R aynı vektördeki sayıları aynı ondalık basamak sayısıyla yazdığı için frekans da `12.000` görünür; değeri 12'dir.
 - `cycle()` çıktısı, `print()` tablosuyla aynı düzendedir; yalnızca değerlerin yerinde ay numaraları (1–12) vardır.
 - `tapply()` çıktısında `[1]` yoktur, çünkü sonuç **adlandırılmış** bir vektördür (teknik olarak tek boyutlu bir dizi, `array`): üst satır grup adlarını (ay numaraları 1–12), alt satır her grubun ortalamasını gösterir.
@@ -207,11 +209,11 @@ Bu kod, hazır bir veri setini bir paketten yükler ve zaman bilgisini kontrol e
 
 1. `# install.packages("TSstudio") # Yüklü değilse`: Başındaki `#` yüzünden çalışmayan bir satırdır. `TSstudio` kurulu değilse baştaki `#` silinip satır **bir kez** çalıştırılır; `install.packages()` paketi internetten (CRAN'dan) indirip kurar (3.2).
 2. `library(TSstudio)`: `TSstudio` paketini bu oturuma yükler; `USgas` verisi ve `ts_info()` fonksiyonu bu paketten gelir. Yüklerken `package 'TSstudio' was built under R version ...` gibi bir uyarı görebilirsiniz; paketin sizin R'ınızdan biraz farklı bir sürümle hazırlandığını söyler ve kodu etkilemez.
-3. `data(USgas)`: Paketle gelen `USgas` veri setini çalışma alanına getirir. Ad burada tırnaksız yazılmıştır; `data("USgas")` ile aynıdır (2.6).
+3. `data(USgas)`: Paketle gelen `USgas` veri setini çalışma alanına getirir. Ad burada tırnaksız yazılmıştır; `data("USgas")` ile aynıdır (2.5).
 4. `ts_info(USgas)`: Bir `ts` nesnesinin özetini tek seferde ekrana yazar. Bu fonksiyon yalnızca yazdırır; saklanacak bir sonuç döndürmez.
 5. `start(USgas)`, `end(USgas)`, `frequency(USgas)`: 5.2.1'deki fonksiyonlardır. Bu kez beklenen çıktılar ayrı `#>` satırları yerine her satırın sonuna yorum olarak yazılmıştır (`# [1] 2000    1` gibi).
 
-`ts_info()` çıktısı dört satırdır. İlk satır serinin tek değişkenli (*1 variable*) ve 238 gözlemli bir `ts` nesnesi olduğunu, `Frequency: 12` aylık olduğunu söyler. `Start time: 2000 1` Ocak 2000, `End time: 2019 10` Ekim 2019 demektir; `start()` ve `end()` aynı bilgiyi `[1] 2000    1` ve `[1] 2019   10` biçiminde verir. Gözlem sayısını kontrol edelim: 2000–2018 arası 19 tam yıl $19 \times 12 = 228$ ay eder, 2019'un ilk 10 ayıyla $228 + 10 = 238$.
+`ts_info()` çıktısı dört satırdır. İlk satır serinin tek değişkenli (*1 variable*) ve 238 gözlemli bir `ts` nesnesi olduğunu, `Frequency: 12` aylık olduğunu söyler. `Start time: 2000 1` Ocak 2000, `End time: 2019 10` Ekim 2019'dur; kontrol: $19 \times 12 + 10 = 238$.
 
 **Not —** Paketin eski sürümlerinde `USgas` Kasım 2018'de biten 227 gözlemlik bir seriydi; kitaplarda ve eski kaynaklarda bu değerleri görebilirsiniz. Yukarıdaki çıktı güncel `TSstudio` sürümüne aittir.
 
@@ -238,7 +240,7 @@ Bu kod, hazır bir veri setini bir paketten yükler ve zaman bilgisini kontrol e
 
 #### 5.2.3. R'ın Yerleşik Veri Seti: `AirPassengers`
 
-`AirPassengers`, 1949–1960 yılları arasındaki aylık uluslararası havayolu yolcu sayılarını (bin kişi) içerir. Bölüm 2.6'da ayrıştırdığımız bu seriyi ders boyunca defalarca kullanacağız.
+`AirPassengers`, 1949–1960 yılları arasındaki aylık uluslararası havayolu yolcu sayılarını (bin kişi) içerir. Bölüm 2.5'da ayrıştırdığımız bu seriyi ders boyunca defalarca kullanacağız.
 
 ```r
 data(AirPassengers)
@@ -265,11 +267,11 @@ grid()
 
 Bu kod, ders boyunca kullanacağımız `AirPassengers` serisinin zaten bir `ts` olduğunu ve zaman bilgisinin doğru ayarlandığını kontrol eder; sonra seriyi çizerek trendi ve mevsimselliği gözle görmemizi sağlar. Kodu satır satır okuyalım:
 
-1. `data(AirPassengers)`: R ile birlikte gelen veri setini çalışma alanına yükler (2.6); paket kurmak gerekmez.
+1. `data(AirPassengers)`: R ile birlikte gelen veri setini çalışma alanına yükler (2.5); paket kurmak gerekmez.
 2. `class(AirPassengers)`: Nesnenin sınıfını, yani R'ın onu hangi tür nesne olarak gördüğünü verir. Seri zaten `ts` olduğu için `ts()` ile dönüştürmeye gerek yoktur.
 3. `start(AirPassengers)`, `end(AirPassengers)`, `frequency(AirPassengers)`: 5.2.1'deki fonksiyonlardır.
 4. `length(AirPassengers)`: Nesnedeki eleman, yani gözlem sayısını verir.
-5. `plot(AirPassengers, main = ..., ylab = ..., xlab = ..., col = "darkblue")`: Bu, beş satıra bölünmüş **tek** bir komuttur. R, açılan parantez kapanana kadar sonraki satırları aynı komutun devamı olarak okur; bu yüzden argümanları ayıran virgüller satır sonlarında durur. `plot()` (2.6) bir `ts` nesnesi gördüğünde yatay ekseni otomatik olarak zaman ekseni (yıllar) yapar ve gözlemleri çizgiyle birleştirir. `main` grafik başlığını, `ylab` dikey (y) eksenin adını, `xlab` yatay (x) eksenin adını, `col` çizgi rengini belirler. Bu dört argümanın değerleri tırnak içinde metindir; `"darkblue"` R'ın tanıdığı renk adlarından biridir (koyu mavi). `col  =` yazımındaki fazladan boşluk yalnızca satırları hizalamak içindir, sonucu değiştirmez.
+5. `plot(AirPassengers, main = ..., ylab = ..., xlab = ..., col = "darkblue")`: Bu, beş satıra bölünmüş **tek** bir komuttur. R, açılan parantez kapanana kadar sonraki satırları aynı komutun devamı olarak okur; bu yüzden argümanları ayıran virgüller satır sonlarında durur. `plot()` (2.5) bir `ts` nesnesi gördüğünde yatay ekseni otomatik olarak zaman ekseni (yıllar) yapar ve gözlemleri çizgiyle birleştirir. `main` grafik başlığını, `ylab` dikey (y) eksenin adını, `xlab` yatay (x) eksenin adını, `col` çizgi rengini belirler. Bu dört argümanın değerleri tırnak içinde metindir; `"darkblue"` R'ın tanıdığı renk adlarından biridir (koyu mavi). `col  =` yazımındaki fazladan boşluk yalnızca satırları hizalamak içindir, sonucu değiştirmez.
 6. `grid()`: Var olan grafiğin arka planına açık gri, noktalı yardımcı ızgara çizgileri ekler. Yeni bir grafik açmaz, mevcut grafiğin üzerine çizer; bu yüzden `plot()`'tan sonra çalıştırılır.
 
 İlk çıktı `[1] "ts"`: Değerin tırnak içinde yazılması, sonucun bir sayı değil bir metin olduğunu gösterir. `[1] 1949    1` Ocak 1949, `[1] 1960   12` Aralık 1960, `[1] 12` aylık frekanstır. `[1] 144` gözlem sayısıdır: 1949'dan 1960'a 12 yıl × 12 ay = 144. Grafikte hem artan bir trend (yıllar içinde yolcu sayısının artması) hem de belirgin bir mevsimsellik (her yıl yaz aylarında zirve) görülür; ayrıca mevsimsel dalgalanmaların genliği seviyeyle birlikte büyür, bu da çarpımsal bir yapıya işaret eder (bkz. 2.4).
@@ -301,11 +303,92 @@ Bu kod, ders boyunca kullanacağımız `AirPassengers` serisinin zaten bir `ts` 
 >
 > </details>
 
+#### 5.2.4. Veri Alt Kümesi Alma: `window()`
+
+Bir `ts` serisinin belirli bir dönemini seçmek için `window()` fonksiyonu kullanılır. Bu, en sık kullanacağınız fonksiyonlardan biridir: belirli bir dönemi incelemek, bir kırılma öncesini ve sonrasını karşılaştırmak ve özellikle **eğitim/test ayrımı** yapmak (Bölüm 8) için kullanılır.
+
+`start` ve `end` argümanları 5.1'deki `c(yıl, dönem)` biçimini izler; ikisinden biri verilmezse serinin başı ya da sonu kabul edilir. Sonuç yine bir `ts` nesnesidir, yani frekans ve zaman bilgisi korunur.
+
+```r
+# AirPassengers'tan 1955-1957 dönemini seçelim
+ap_pencere <- window(AirPassengers, start = c(1955, 1), end = c(1957, 12))
+print(ap_pencere)
+#>      Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
+#> 1955 242 233 267 269 270 315 364 347 312 274 237 278
+#> 1956 284 277 317 313 318 374 413 405 355 306 271 306
+#> 1957 315 301 356 348 355 422 465 467 404 347 305 336
+length(ap_pencere)
+#> [1] 36
+
+# USgas'tan 2010-2015 yılları arasındaki veri
+subset_gas <- window(USgas, start = c(2010, 1), end = c(2015, 12))
+length(subset_gas)   # 6 yıl × 12 ay
+#> [1] 72
+
+# Eğitim/test ayrımı: son iki yılı test için ayıralım
+egitim <- window(AirPassengers, end = c(1958, 12))     # 1949-1958
+test   <- window(AirPassengers, start = c(1959, 1))    # 1959-1960
+length(egitim)
+#> [1] 120
+length(test)
+#> [1] 24
+```
+
+Bu kod `window()` ile üç kesim yapar: `AirPassengers`'tan üç yıllık bir dönem, `USgas`'tan altı yıllık bir dönem ve modelleme için eğitim/test ayrımı. Kodu satır satır okuyalım:
+
+1. `ap_pencere <- window(AirPassengers, start = c(1955, 1), end = c(1957, 12))`: İlk argüman (konumsal) kesilecek seridir. `start = c(1955, 1)` Ocak 1955'ten, `end = c(1957, 12)` Aralık 1957'ye kadar kesileceğini söyler; iki uç da dahildir. Sonuç `ap_pencere` adlı yeni bir `ts` nesnesidir; `AirPassengers`'ın kendisi değişmez.
+2. `print(ap_pencere)` ve `length(ap_pencere)`: Kesilen seriyi tablo olarak yazar ve gözlem sayısını verir (5.2.1, 5.2.3).
+3. `subset_gas <- window(USgas, start = c(2010, 1), end = c(2015, 12))`: `USgas`'tan Ocak 2010 – Aralık 2015 dönemini keser. Bu satır `USgas`'ı kullandığı için 5.2.2'deki `library(TSstudio)` ve `data(USgas)` satırlarının önceden çalıştırılmış olması gerekir.
+4. `length(subset_gas)`: Kesilen dönemin gözlem sayısıdır.
+5. `egitim <- window(AirPassengers, end = c(1958, 12))`: Yalnızca `end` verilmiştir; `start` yazılmadığı için serinin başı (Ocak 1949) kabul edilir. Satır sonundaki `# 1949-1958` bir yorumdur.
+6. `test   <- window(AirPassengers, start = c(1959, 1))`: Yalnızca `start` verilmiştir; `end` yazılmadığı için serinin sonuna (Aralık 1960) kadar gider. `test` ile `<-` arasındaki fazladan boşluklar yalnızca iki satırı hizalamak içindir.
+7. `length(egitim)` ve `length(test)`: İki parçanın gözlem sayılarını verir.
+
+`print(ap_pencere)` 1955–1957 için ay sütunlu bir tablo verir. Uzunluklar: 3 × 12 = 36, 6 × 12 = 72, 10 × 12 = 120 ve 2 × 12 = 24; 120 + 24 = 144, yani iki parça seriyi örtüşmeden ve boşluk bırakmadan kapsar.
+
+![window() ile seriden pencere kesme](../images/ch05_window.svg)
+
+*Şekil 5.2 — `window()` uzun bir seriden `start` ve `end` ile belirlenen dönemi keser; sonuç, kendi başlangıç, bitiş ve frekans bilgisini taşıyan yeni bir `ts` nesnesidir.*
+
+**Not —** Zaman serisinde eğitim ve test kümeleri rastgele değil, **zaman sırasına göre** ayrılır: model geçmişle eğitilir, gelecekle test edilir. `window()` bu ayrımı doğal olarak yapar. Ayrıntısı Bölüm 8'de, zaman serisinde çapraz doğrulama ise Bölüm 16'da ele alınacaktır.
+
+> **Hemen deneyin 5.2.4 · Başka bir seride eğitim/test ayrımı** (R ve Python, ~5 dk)
+>
+> `USAccDeaths`, ABD'deki aylık kaza sonucu ölüm sayılarıdır (1973–1978, R ile birlikte gelir). Son yılı test için ayıralım (ayrıntılı gerekçe Bölüm 8.1.1).
+>
+> ```r
+> egitim <- window(USAccDeaths, end = c(1977, 12))     # 1973-1977
+> test   <- window(USAccDeaths, start = c(1978, 1))    # 1978
+> length(egitim); length(test)
+> window(USAccDeaths, start = c(1978, 6), end = c(1978, 8))   # 1978 yazı
+> ```
+>
+> pandas'ta aynı ayrım tarih dilimiyle yapılır; bölümdeki `AirPassengers` ayrımını tekrarlayalım:
+>
+> ```python
+> import pandas as pd
+> ap = pd.read_csv("data/AirPassengers.csv", parse_dates=["Month"], index_col="Month")
+> yolcu = ap["Passengers"]
+> egitim = yolcu.loc[:"1958"]     # başlangıçtan 1958 sonuna kadar
+> test   = yolcu.loc["1959":]     # 1959'dan sona kadar
+> print(len(egitim), len(test))
+> ```
+>
+> **Ne göreceksiniz:** R'da `[1] 60` ve `[1] 12` (5 yıl × 12 ay ve 1 yıl × 12 ay), ardından `Jun 9434`, `Jul 10484`, `Aug 9827` değerlerini içeren tek satırlık bir tablo. Python `120 24` yazar; bölümdeki R ayrımıyla aynı sayılardır.
+>
+> **Şimdi siz:** Yıllık bir seride `start` ve `end` tek sayıdır. `window(Nile, start = 1910, end = 1915)` ile Nil nehrinin 1910–1915 yıllık akımlarını alın. En düşük değer hangi yıla aittir?
+>
+> <details><summary>Cevap</summary>
+>
+> `Start = 1910`, `End = 1915`, `Frequency = 1` başlıklarının altında `969 831 726 456 824 702`. En düşük değer `456`, 1913 yılına aittir; bu aynı zamanda serinin tamamının (1871–1970) en düşük değeridir.
+>
+> </details>
+
 ### 5.3. `ts` Nesnesinin Ötesi: `xts` ile Gerçek Dünya Verileri
 
 `ts` nesnesi, ders kitaplarındaki gibi **eşit aralıklı ve boşluksuz** veriler (aylık, çeyreklik, yıllık) için uygundur. Gerçek dünya verileri ise nadiren bu kadar düzenlidir: hafta sonları ve tatillerde işlem görmeyen borsa verileri, zaman zaman kesintiye uğrayan sensör kayıtları, saniyelik işlem kayıtları... `ts`'nin "başlangıç + sabit adım" yapısı bu durumlarda yetersiz kalır, çünkü bir gözlemin zamanını yalnızca sırasından hesaplar; arada bir boşluk olduğunu bilemez. Örneğin cuma gününden sonra pazartesi gelen bir borsa serisini günlük `ts` olarak tanımlarsanız, R pazartesi değerini cumartesiye yazar.
 
-**Tanım (`xts`):** `xts` (eXtensible Time Series, genişletilebilir zaman serisi), `zoo` paketi üzerine kurulmuş bir zaman serisi sınıfıdır. İki parçadan oluşur: bir **veri matrisi** (`coredata`, "çekirdek veri") ve her satıra karşılık gelen, sıralı bir **zaman indeksi** (`index`; `Date`, `POSIXct` gibi Bölüm 4'teki sınıflardan biri). İndeks, bir kitabın sayfa numaraları gibidir: her satırın "adresi" o satırın tarihidir. Böylece her gözlem kendi zaman damgasıyla eşleşir ve düzensiz ya da yüksek frekanslı verilerle çalışmak kolaylaşır.
+**Tanım (`xts`):** `xts` (eXtensible Time Series, genişletilebilir zaman serisi), `zoo` paketi üzerine kurulmuş bir zaman serisi sınıfıdır. İki parçadan oluşur: bir **veri matrisi** (`coredata`, "çekirdek veri") ve her satıra karşılık gelen, sıralı bir **zaman indeksi** (`index`; `Date`, `POSIXct` gibi Bölüm 4'teki sınıflardan biri). İndeks, bir kitabın sayfa numaraları gibidir: her satırın "adresi" o satırın tarihidir; üstelik numaralar ardışık olmak zorunda değildir: 25, 26, 29 diye giden sayfalar gibi, hafta sonu "sayfaları" yoktur ve hiçbir şey kaymaz. Böylece her gözlem kendi zaman damgasıyla eşleşir ve düzensiz ya da yüksek frekanslı verilerle çalışmak kolaylaşır.
 
 | Özellik | `ts` | `xts` |
 | --- | --- | --- |
@@ -317,9 +400,11 @@ Bu kod, ders boyunca kullanacağımız `AirPassengers` serisinin zaten bir `ts` 
 | Dönem dönüştürme | `aggregate()` | `to.period()`, `apply.monthly()` ... |
 | Tipik kullanım | Klasik modeller: `decompose`, `arima`, `HoltWinters` | Finans, sensör, log verisi; ön işleme |
 
+Tablodaki `HoltWinters` (Holt-Winters), geçmiş değerlerin, yakın geçmişe daha çok ağırlık veren ağırlıklı ortalamasıyla düzey, trend ve mevsimselliği güncelleyen üstel düzeltme yöntemidir.
+
 ![ts ve xts karşılaştırması](../images/ch05_ts_vs_xts.svg)
 
-*Şekil 5.2 — `ts` gözlemleri eşit adımlarla dizer ve zamanı konumdan hesaplar; `xts` ise her gözlemi kendi tarihiyle saklar. Alttaki iş günü serisinde 27–28 Ocak hafta sonunda gözlem yoktur; bu yüzden 26 Ocak (Cuma) ile 29 Ocak (Pazartesi) gözlemleri arasında 3 gün vardır ve `xts` bunu sorunsuz temsil eder.*
+*Şekil 5.3 — `ts` gözlemleri eşit adımlarla dizer ve zamanı konumdan hesaplar; `xts` ise her gözlemi kendi tarihiyle saklar. Alttaki iş günü serisinde 27–28 Ocak hafta sonunda gözlem yoktur; bu yüzden 26 Ocak (Cuma) ile 29 Ocak (Pazartesi) gözlemleri arasında 3 gün vardır ve `xts` bunu sorunsuz temsil eder.*
 
 ```r
 # install.packages("xts") # Yüklü değilse
@@ -353,7 +438,7 @@ Bu kod, hafta sonu boşluğu olan küçük bir iş günü serisini `xts` nesnesi
 1. `# install.packages("xts") # Yüklü değilse`: Çalışmayan bir yorum satırıdır; paket kurulu değilse `#` silinip bir kez çalıştırılır (3.2).
 2. `library(xts)`: `xts` paketini yükler. `xts`, `zoo` paketi üzerine kurulu olduğu için R `zoo`'yu da kendiliğinden yükler. Ekranda `Loading required package: zoo` ve `The following objects are masked from 'package:base': as.Date, as.Date.numeric` gibi mesajlar görülebilir. İkincisi, `zoo`'nun bu fonksiyonların kendi sürümünü devreye aldığını söyler; ikisi de bilgi mesajıdır, hata değildir.
 3. `degerler <- c(101, 103, 102, 105, 104, 107, 106)`: Yedi gözlemi bir sayı vektöründe toplar ve `degerler` adıyla saklar.
-4. `tarihler <- as.Date(c("2024-01-25", ...))`: İçten dışa okuyalım. `c()` tırnak içindeki yedi tarih metnini bir metin vektöründe toplar; `as.Date()` bu metinleri `Date` nesnelerine çevirir (Bölüm 4). Komut iki satıra bölünmüştür; R parantez kapanana kadar okumaya devam eder. Tarihler 25 Ocak 2024 Perşembe'den başlar; 27–28 Ocak hafta sonu olduğu için listede yoktur. İki vektörün aynı uzunlukta (7) olması gerekir, çünkü i'inci değer i'inci tarihle eşleşir.
+4. `tarihler <- as.Date(c("2024-01-25", ...))`: İçten dışa okuyalım. `c()` tırnak içindeki yedi tarih metnini bir metin vektöründe toplar; `as.Date()` bu metinleri `Date` nesnelerine çevirir (Bölüm 4). Komut iki satıra bölünmüştür (5.2.3). Tarihler 25 Ocak 2024 Perşembe'den başlar; 27–28 Ocak hafta sonu olduğu için listede yoktur. İki vektörün aynı uzunlukta (7) olması gerekir, çünkü i'inci değer i'inci tarihle eşleşir.
 5. `veri_xts <- xts(x = degerler, order.by = tarihler)`: `xts()` bu ikisini birleştirir: `x` verinin kendisi, `order.by` ("şuna göre sırala") zaman indeksidir. Tarihler karışık sırada verilse bile `xts` satırları tarihe göre sıralar. Sonuç 7 satır ve 1 sütunluk bir `xts` nesnesidir ve `veri_xts` adıyla saklanır (`class(veri_xts)` hem `"xts"` hem `"zoo"` verir, çünkü `xts` bir tür `zoo` nesnesidir).
 6. `print(veri_xts)`: Nesneyi tablo olarak yazar.
 7. `diff(index(veri_xts))`: İçten dışa okuyalım. `index()` nesnenin zaman indeksini, yani yedi tarihlik `Date` vektörünü çıkarır. `diff()` (3.2) ardışık elemanların farkını alır. İki tarihin farkı bir süredir; sonuç bu yüzden süre tutan bir `difftime` nesnesidir.
@@ -393,6 +478,23 @@ Bu kod, hafta sonu boşluğu olan küçük bir iş günü serisini `xts` nesnesi
 >
 > </details>
 
+Bir `ts` nesnesini `xts`'e dönüştürmek için `as.xts()` kullanılır:
+
+```r
+head(as.xts(AirPassengers), 3)
+#>          [,1]
+#> Jan 1949  112
+#> Feb 1949  118
+#> Mar 1949  132
+```
+
+Bu tek satır, bir `ts` serisini `xts`'e çevirmenin ne kadar kolay olduğunu ve aylık bir seride indeksin nasıl göründüğünü gösterir. İç içe yazıldığı için içten dışa okuyalım:
+
+1. `as.xts(AirPassengers)`: `as.xts()` (`xts` paketinden) bir `ts` nesnesini `xts` nesnesine dönüştürür. `ts`'nin hesapladığı zamanlar artık her satırın yanında duran indekse dönüşür.
+2. `head(..., 3)`: Bir nesnenin ilk satırlarını gösterir; ikinci argüman kaç satır gösterileceğidir (yazılmazsa 6). 144 satırın hepsini basmak yerine yalnızca başına bakmak için kullanılır.
+
+Çıktıda sol sütun indekstir: `Jan 1949`, `Feb 1949`, `Mar 1949`. Bu indeks `yearmon` (*year-month*, yıl-ay) sınıfındadır; `yearmon`, `zoo` paketinin yalnızca yıl ve aydan oluşan zaman sınıfıdır. Aylık veride gün bilgisi anlamsız olduğu için `ts`'den dönüştürülen aylık seriler bu sınıfı kullanır. `[,1]` başlığı yine adı olmayan tek sütunu gösterir; 112, 118 ve 132 ilk üç ayın yolcu sayılarıdır (bin kişi).
+
 #### 5.3.1. Tarih Bazlı Filtreleme
 
 `xts`'in en büyük avantajlarından biri, tarih bazlı alt küme almanın çok kolay olmasıdır. R'da köşeli parantez `[ ]` bir nesnenin bir kısmını seçer: `degerler[2]` vektörün 2. elemanını (`103`) verir; matrislerde `[satır, sütun]` yazılır ve boş bırakılan taraf "hepsi" demektir (`[,1]`: bütün satırlar, 1. sütun). `xts`, köşeli parantez içine sıra numarası yerine ISO 8601 biçiminde (`YYYY-MM-DD`, bkz. 4.1) tarih metni yazılmasına da izin verir; `/` işareti bir aralık belirtir.
@@ -426,11 +528,13 @@ Bu kod, aynı `xts` nesnesinden üç farklı tarih seçimiyle alt küme alır. S
 
 Bu satırlar bir isme atanmadığı için sonuçlar doğrudan ekrana yazılır. Her sonuç yine bir `xts` nesnesidir; bu yüzden çıktılar `veri_xts`'in kendisiyle aynı biçimdedir: solda indeks (tarihler), üstte `[,1]` sütun başlığı, sağda değerler. Yalnızca seçilen tarihlerin satırları gelir: ilk çıktıda 3, ikinci ve üçüncü çıktıda 2'şer satır.
 
+`ts` nesnelerinde `window()` (5.2.4) ile yaptığımız kesimi `xts` nesnelerinde bu köşeli parantez sözdizimi yapar; istenirse `window(veri_xts, start = as.Date("2024-01-26"), end = as.Date("2024-01-30"))` ile tarih vererek de yapılabilir.
+
 > **Hemen deneyin 5.3.1 · `AirPassengers`'tan tarihle dilim almak** (R ve Python, ~4 dk)
 >
 > ```r
 > library(xts)
-> ap <- as.xts(AirPassengers)   # ts → xts (5.3.2'nin sonunda ayrıntılı)
+> ap <- as.xts(AirPassengers)   # ts → xts (5.3)
 > ap["1955-06/1955-08"]         # 1955 yazı
 > max(ap["1955"])               # 1955'in en kalabalık ayı
 > ```
@@ -485,6 +589,8 @@ Bu kod, günlük `xts` verisini daha kaba dönemlere özetler: önce haftalara, 
 
 `apply.monthly()` çıktısında da her ay, verideki son tarihiyle etiketlenir: Ocak `2024-01-31`, Şubat `2024-02-02`. Ocak ayının ortalaması $(101 + 103 + 102 + 105 + 104) / 5 = 515 / 5 = 103$, Şubat'ınki $(107 + 106) / 2 = 106{,}5$'tir. R aynı sütundaki sayıları aynı ondalık basamak sayısıyla yazdığı için 103 de `103.0` olarak görünür. `FUN = mean` da aynı sonucu verir, ancak güncel `xts` sürümleri çok sütunlu verilerde karışıklığı önlemek için `colMeans` kullanılmasını öneren bir bilgi notu (*NOTE*) yazdırır.
 
+**Günlük hayattan bir örnek:** Harçlığınızdan her gün biraz ayırıp kumbaraya attığınızı ve deftere yazdığınızı düşünün. Ay sonunda o ayın bütün satırlarını toplayıp tek satıra yazmak `apply.monthly(..., FUN = colSums)`'tır; ortalamayı yazmak `colMeans`'tir. `to.period()` ise her ay için dört değeri not eder: ayın ilk kaydı (Open), ay içindeki en büyük ve en küçük kayıt (High, Low) ve son kayıt (Close). Deftere günlük miktar yerine kumbaradaki toplam parayı yazsaydınız, bunlar ayın açılış, en yüksek, en düşük ve kapanış bakiyesi olurdu.
+
 > **Hemen deneyin 5.3.2 · Günlükten aylığa: elle hesaplayıp kontrol edin** (R ve Python, ~5 dk)
 >
 > Değerleri 1, 2, 3, ... diye artan 91 günlük (1 Ocak – 31 Mart 2024) bir seri kuralım; böylece aylık toplamları elle de hesaplayabiliriz.
@@ -514,105 +620,7 @@ Bu kod, günlük `xts` verisini daha kaba dönemlere özetler: önce haftalara, 
 >
 > </details>
 
-Bir `ts` nesnesini `xts`'e dönüştürmek için `as.xts()` kullanılır:
-
-```r
-head(as.xts(AirPassengers), 3)
-#>          [,1]
-#> Jan 1949  112
-#> Feb 1949  118
-#> Mar 1949  132
-```
-
-Bu tek satır, bir `ts` serisini `xts`'e çevirmenin ne kadar kolay olduğunu ve aylık bir seride indeksin nasıl göründüğünü gösterir. İç içe yazıldığı için içten dışa okuyalım:
-
-1. `as.xts(AirPassengers)`: `as.xts()` (`xts` paketinden) bir `ts` nesnesini `xts` nesnesine dönüştürür. `ts`'nin `start` ve `frequency` bilgisinden hesapladığı her zaman, artık her satırın yanında açıkça duran bir zaman damgasına, yani indekse dönüşür.
-2. `head(..., 3)`: Bir nesnenin ilk satırlarını gösterir; ikinci argüman kaç satır gösterileceğidir (yazılmazsa 6). 144 satırın hepsini basmak yerine yalnızca başına bakmak için kullanılır.
-
-Çıktıda sol sütun indekstir: `Jan 1949`, `Feb 1949`, `Mar 1949`. Bu indeks `yearmon` (*year-month*, yıl-ay) sınıfındadır; `yearmon`, `zoo` paketinin yalnızca yıl ve aydan oluşan zaman sınıfıdır. Aylık veride gün bilgisi anlamsız olduğu için `ts`'den dönüştürülen aylık seriler bu sınıfı kullanır. `[,1]` başlığı yine adı olmayan tek sütunu gösterir; 112, 118 ve 132 ilk üç ayın yolcu sayılarıdır (bin kişi).
-
-Özetle: elinizdeki veri düzenli aralıklı ve boşluksuz klasik bir zaman serisiyse `ts` nesnesi işinizi görür ve klasik modellerle doğrudan uyumludur. Düzensiz, yüksek frekanslı ya da üzerinde karmaşık tarih/saat işlemleri yapmanız gereken bir veriyle çalışıyorsanız `xts` daha doğru ve güçlü bir araçtır. Pratikte sık izlenen yol, ön işlemeyi `xts` ile yapıp modelleme öncesinde düzenli hâle getirilmiş seriyi `ts`'ye çevirmektir.
-
-### 5.4. Veri Alt Kümesi Alma: `window()`
-
-Bir `ts` serisinin belirli bir dönemini seçmek için `window()` fonksiyonu kullanılır. Bu, en sık kullanacağınız fonksiyonlardan biridir: belirli bir dönemi incelemek, bir kırılma öncesini ve sonrasını karşılaştırmak ve özellikle **eğitim/test ayrımı** yapmak (Bölüm 8) için kullanılır.
-
-`start` ve `end` argümanları 5.1'deki `c(yıl, dönem)` biçimini izler; ikisinden biri verilmezse serinin başı ya da sonu kabul edilir. Sonuç yine bir `ts` nesnesidir, yani frekans ve zaman bilgisi korunur.
-
-```r
-# AirPassengers'tan 1955-1957 dönemini seçelim
-ap_pencere <- window(AirPassengers, start = c(1955, 1), end = c(1957, 12))
-print(ap_pencere)
-#>      Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec
-#> 1955 242 233 267 269 270 315 364 347 312 274 237 278
-#> 1956 284 277 317 313 318 374 413 405 355 306 271 306
-#> 1957 315 301 356 348 355 422 465 467 404 347 305 336
-length(ap_pencere)
-#> [1] 36
-
-# USgas'tan 2010-2015 yılları arasındaki veri
-subset_gas <- window(USgas, start = c(2010, 1), end = c(2015, 12))
-length(subset_gas)   # 6 yıl × 12 ay
-#> [1] 72
-
-# Eğitim/test ayrımı: son iki yılı test için ayıralım
-egitim <- window(AirPassengers, end = c(1958, 12))     # 1949-1958
-test   <- window(AirPassengers, start = c(1959, 1))    # 1959-1960
-length(egitim)
-#> [1] 120
-length(test)
-#> [1] 24
-```
-
-Bu kod `window()` ile üç kesim yapar: `AirPassengers`'tan üç yıllık bir dönem, `USgas`'tan altı yıllık bir dönem ve modelleme için eğitim/test ayrımı. Kodu satır satır okuyalım:
-
-1. `ap_pencere <- window(AirPassengers, start = c(1955, 1), end = c(1957, 12))`: İlk argüman (konumsal) kesilecek seridir. `start = c(1955, 1)` Ocak 1955'ten, `end = c(1957, 12)` Aralık 1957'ye kadar kesileceğini söyler; iki uç da dahildir. Sonuç `ap_pencere` adlı yeni bir `ts` nesnesidir; `AirPassengers`'ın kendisi değişmez.
-2. `print(ap_pencere)` ve `length(ap_pencere)`: Kesilen seriyi tablo olarak yazar ve gözlem sayısını verir (5.2.1, 5.2.3).
-3. `subset_gas <- window(USgas, start = c(2010, 1), end = c(2015, 12))`: `USgas`'tan Ocak 2010 – Aralık 2015 dönemini keser. Bu satır `USgas`'ı kullandığı için 5.2.2'deki `library(TSstudio)` ve `data(USgas)` satırlarının önceden çalıştırılmış olması gerekir.
-4. `length(subset_gas)`: Kesilen dönemin gözlem sayısıdır; satır sonundaki yorum hesabı hatırlatır.
-5. `egitim <- window(AirPassengers, end = c(1958, 12))`: Yalnızca `end` verilmiştir; `start` yazılmadığı için serinin başı (Ocak 1949) kabul edilir. Satır sonundaki `# 1949-1958` bir yorumdur.
-6. `test   <- window(AirPassengers, start = c(1959, 1))`: Yalnızca `start` verilmiştir; `end` yazılmadığı için serinin sonuna (Aralık 1960) kadar gider. `test` ile `<-` arasındaki fazladan boşluklar yalnızca iki satırı hizalamak içindir.
-7. `length(egitim)` ve `length(test)`: İki parçanın gözlem sayılarını verir.
-
-`print(ap_pencere)` çıktısı 1955, 1956 ve 1957 satırlarından ve Jan–Dec sütunlarından oluşan bir tablodur; sonuç da frekansı 12 olan bir `ts` olduğu için ay adlarıyla basılır. `[1] 36` bu dönemin gözlem sayısıdır: 3 yıl × 12 ay = 36. `USgas` için `[1] 72`: 2010–2015 arası 6 yıl × 12 ay = 72 gözlem. `[1] 120`: Ocak 1949 – Aralık 1958 arası 10 yıl × 12 ay = 120 gözlem. `[1] 24`: Ocak 1959 – Aralık 1960 arası 2 yıl × 12 ay = 24 gözlem. 120 + 24 = 144, yani iki parça seriyi örtüşmeden ve boşluk bırakmadan tamamen kapsar.
-
-![window() ile seriden pencere kesme](../images/ch05_window.svg)
-
-*Şekil 5.3 — `window()` uzun bir seriden `start` ve `end` ile belirlenen dönemi keser; sonuç, kendi başlangıç, bitiş ve frekans bilgisini taşıyan yeni bir `ts` nesnesidir.*
-
-**Not —** Zaman serisinde eğitim ve test kümeleri rastgele değil, **zaman sırasına göre** ayrılır: model geçmişle eğitilir, gelecekle test edilir. `window()` bu ayrımı doğal olarak yapar. Ayrıntısı Bölüm 8'de, zaman serisinde çapraz doğrulama ise Bölüm 16'da ele alınacaktır. `xts` nesnelerinde aynı işlem 5.3.1'deki köşeli parantez sözdizimiyle (`veri_xts["2024-01-26/2024-01-30"]`) ya da `window(veri_xts, start = as.Date("2024-01-26"), end = as.Date("2024-01-30"))` ile tarih vererek yapılır.
-
-> **Hemen deneyin 5.4 · Başka bir seride eğitim/test ayrımı** (R ve Python, ~5 dk)
->
-> `USAccDeaths`, ABD'deki aylık kaza sonucu ölüm sayılarıdır (1973–1978, R ile birlikte gelir). Son yılı test için ayıralım.
->
-> ```r
-> egitim <- window(USAccDeaths, end = c(1977, 12))     # 1973-1977
-> test   <- window(USAccDeaths, start = c(1978, 1))    # 1978
-> length(egitim); length(test)
-> window(USAccDeaths, start = c(1978, 6), end = c(1978, 8))   # 1978 yazı
-> ```
->
-> pandas'ta aynı ayrım tarih dilimiyle yapılır; bölümdeki `AirPassengers` ayrımını tekrarlayalım:
->
-> ```python
-> import pandas as pd
-> ap = pd.read_csv("data/AirPassengers.csv", parse_dates=["Month"], index_col="Month")
-> yolcu = ap["Passengers"]
-> egitim = yolcu.loc[:"1958"]     # başlangıçtan 1958 sonuna kadar
-> test   = yolcu.loc["1959":]     # 1959'dan sona kadar
-> print(len(egitim), len(test))
-> ```
->
-> **Ne göreceksiniz:** R'da `[1] 60` ve `[1] 12` (5 yıl × 12 ay ve 1 yıl × 12 ay), ardından `Jun 9434`, `Jul 10484`, `Aug 9827` değerlerini içeren tek satırlık bir tablo. Python `120 24` yazar; bölümdeki R ayrımıyla aynı sayılardır.
->
-> **Şimdi siz:** Yıllık bir seride `start` ve `end` tek sayıdır. `window(Nile, start = 1910, end = 1915)` ile Nil nehrinin 1910–1915 yıllık akımlarını alın. En düşük değer hangi yıla aittir?
->
-> <details><summary>Cevap</summary>
->
-> `Start = 1910`, `End = 1915`, `Frequency = 1` başlıklarının altında `969 831 726 456 824 702`. En düşük değer `456`, 1913 yılına aittir; bu aynı zamanda serinin tamamının (1871–1970) en düşük değeridir.
->
-> </details>
+Özetle: düzenli ve boşluksuz seriler için `ts` (klasik modellerle doğrudan uyumlu), düzensiz ya da gün içi veriler için `xts`. Sık izlenen yol: ön işleme `xts` ile yapılır, modellemeden önce seri `ts`'ye çevrilir.
 
 <details>
 <summary><b>Kendinizi test edin (cevaplar için tıklayın)</b></summary>
@@ -624,7 +632,7 @@ Bu kod `window()` ile üç kesim yapar: `AirPassengers`'tan üç yıllık bir d�
    → Günlük döngü için 24 (bir günde 24 gözlem), haftalık döngü için $`24 \times 7 = 168`$.
 
 3. **Bir hisse senedinin yalnızca iş günlerinde kaydedilen kapanış fiyatlarını `ts(fiyat, frequency = 7)` ile tanımlamak neden hatalıdır?**
-   → `ts` her gözlemin zamanını sırasından hesaplar ve haftada 7 gözlem varsayar; oysa haftada 5 gözlem vardır. Pazartesi değerleri cumartesiye kayar ve "haftanın günü" deseni bozulur. Ya `xts` kullanılmalı ya da iş günü serisi için `frequency = 5` seçilmelidir.
+   → `ts` her gözlemin zamanını sırasından hesaplar ve haftada 7 gözlem varsayar; oysa haftada 5 gözlem vardır. Pazartesi değerleri cumartesiye kayar ve "haftanın günü" deseni bozulur. Ya `xts` kullanılmalı ya da iş günü serisi için `frequency = 5` seçilmelidir (resmî tatiller bu düzeni yine bozar; bu yüzden `xts` daha güvenlidir).
 
 </details>
 

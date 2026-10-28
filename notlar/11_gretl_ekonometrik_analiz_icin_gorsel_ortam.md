@@ -129,7 +129,7 @@ Bu aşamadan sonra grafiklerde tarih ekseni doğru görünür, mevsimsel fark gi
 *   **View → Summary statistics** ile ortalama, standart sapma, minimum, maksimum gibi özet istatistikler görülür. `Passengers` için ortalama yaklaşık 280, en küçük değer 104, en büyük değer 622'dir (bin yolcu).
 *   **Add** menüsünden yeni değişkenler türetilir: **Add → Logs of selected variables** (log dönüşümü), **Add → First differences of selected variables** (birinci fark), **Add → Seasonal differences of selected variables** (mevsimsel fark: bu ayın değeri eksi bir yıl önceki aynı ayın değeri). Gretl bunları `l_Passengers`, `d_Passengers`, `sd_Passengers` gibi adlarla listeye ekler.
 
-`Passengers` değişkeninin grafiğinde AirPassengers'ın bilinen yapısı görülür: artan trend, her yıl tekrarlayan mevsimsellik ve zamanla büyüyen dalgalanmalar (Bölüm 2.6).
+`Passengers` değişkeninin grafiğinde AirPassengers'ın bilinen yapısı görülür: artan trend, her yıl tekrarlayan mevsimsellik ve zamanla büyüyen dalgalanmalar (Bölüm 2.5).
 
 > **Hemen deneyin 11.3.1 · Log, fark ve mevsimsel fark: kaç gözlem kaybolur?** (Gretl menüleri, ~4 dk)
 >
@@ -152,7 +152,7 @@ Gretl'in güçlü yanlarından biri, regresyonun birkaç tıklamayla kurulabilme
 1.  **Model → Ordinary Least Squares…** (sıradan en küçük kareler, OLS) seçilir.
 2.  **Dependent variable** (bağımlı değişken, yani açıklanmak istenen) olarak ör. `Passengers` seçilir.
 3.  **Regressors** (açıklayıcı değişkenler) olarak zaman trendi, mevsimsel kuklalar ya da gecikmeler eklenir. Bunlar önceden **Add → Time trend**, **Add → Periodic dummies** ve **Add → Lags of selected variables** ile oluşturulabilir. Mevsimsel **kukla** (*dummy*) değişken, ilgili ayda 1, diğer aylarda 0 değerini alan bir değişkendir (ör. her Temmuz'da 1).
-4.  **OK** dendiğinde katsayı tahminleri, t-istatistikleri (katsayının standart hatasına oranı; mutlak değeri yaklaşık 2'den büyükse katsayı genellikle anlamlıdır), R-kare (modelin açıkladığı değişim oranı, 0 ile 1 arası) ve bilgi kriterleri ayrı bir model penceresinde gösterilir.
+4.  **OK** dendiğinde katsayı tahminleri, t-istatistikleri (katsayının standart hatasına oranı; mutlak değeri yaklaşık 2'den büyükse katsayı genellikle anlamlıdır), R-kare (açıklanan varyans oranı, Bölüm 10.3.3) ve bilgi kriterleri ayrı bir model penceresinde gösterilir.
 
 Model penceresinde **Graphs → Residual plot → Against time** ile artıkların zaman grafiği, **Tests → Autocorrelation** ile artıklarda otokorelasyon olup olmadığı incelenir. Zaman serisi regresyonlarında artıklar genellikle güçlü otokorelasyon gösterir; bu, ARIMA gibi dinamik modellere geçme gereğine işaret eder.
 
@@ -163,17 +163,19 @@ Model penceresinde **Graphs → Residual plot → Against time** ile artıkları
 > 1.  **Model → Ordinary Least Squares…** açın; **Dependent variable** olarak `g`, **Regressors** olarak yalnızca `time` seçin (`const` zaten listededir) ve **OK** deyin. `R-squared` satırını not edin.
 > 2.  Aynı modeli yeniden açıp regresörlere `dm2` … `dm12`'yi de ekleyin. `dm1`'i eklemeyin: 12 kuklanın toplamı her ay 1 ettiği için `const` ile birlikte tam doğrusal bağımlılık oluşur (Gretl eklerseniz birini kendisi atar).
 >
-> **Ne göreceksiniz:** Yalnızca trendle **R-squared = 0.853638** ve `Durbin-Watson = 0.537194`; trend + 11 kuklayla **R-squared ≈ 0.9559**. Kuklalar, trendin açıklayamadığı değişimin büyük kısmını (mevsim etkisini) açıklar.
+> **Ne göreceksiniz:** Yalnızca trendle **R-squared = 0.853638** ve `Durbin-Watson = 0.537194` (Durbin-Watson artıklarda birinci derece otokorelasyonu ölçer; 2'ye yakınsa otokorelasyon yok, 0'a yakınsa güçlü pozitif otokorelasyon var, bkz. Bölüm 10.9); trend + 11 kuklayla **R-squared ≈ 0.9559**. Kuklalar, trendin açıklayamadığı değişimin büyük kısmını (mevsim etkisini) açıklar.
 >
 > **Şimdi siz:** Aynı iki modeli bağımlı değişken `l_g` ile kurun (`l_g` yoksa önce **Add → Logs of selected variables**). R-kare ne olur? Kuklalı log modelinin penceresinde **Tests → Autocorrelation** (gecikme 12) çalıştırın: Ljung-Box p-değeri kaçtır?
 >
 > <details><summary>Cevap</summary>
 >
-> `l_g ~ time`: R-kare 0.9015; `l_g ~ time + dm2…dm12`: **R-kare 0.983468**. Log ölçeğinde mevsim etkisi her yıl aynı oranda olduğu için sabit kuklalar daha iyi uyar (Bölüm 2.6'daki çarpımsal yapı). Örneğin `dm7` katsayısı 0.300619'dur: Temmuz, Ocak'a göre yaklaşık $e^{0.30} \approx 1.35$ kat, yani yaklaşık %35 daha kalabalıktır. Ancak `Durbin-Watson` 0.425184'tür ve otokorelasyon testinde `Ljung-Box Q' = 393.56`, p-değeri `8.74e-77`'dir: R-kare çok yüksek olsa da artıklar güçlü otokorelasyonludur. Bu, yukarıdaki paragrafta söylendiği gibi dinamik (ARIMA) bir modele geçme gereğini gösterir.
+> `l_g ~ time`: R-kare 0.9015; `l_g ~ time + dm2…dm12`: **R-kare 0.983468**. Log ölçeğinde mevsim etkisi her yıl aynı oranda olduğu için sabit kuklalar daha iyi uyar (Bölüm 2.5'daki çarpımsal yapı). Örneğin `dm7` katsayısı 0.300619'dur: Temmuz, Ocak'a göre yaklaşık $e^{0.30} \approx 1.35$ kat, yani yaklaşık %35 daha kalabalıktır. Ancak `Durbin-Watson` 0.425184'tür ve otokorelasyon testinde `Ljung-Box Q' = 393.56`, p-değeri `8.74e-77`'dir: R-kare çok yüksek olsa da artıklar güçlü otokorelasyonludur. Bu, yukarıdaki paragrafta söylendiği gibi dinamik (ARIMA) bir modele geçme gereğini gösterir.
 >
 > </details>
 
 #### 11.3.3. ARIMA Modelleri
+
+Model kurmadan önce serinin durağanlığını sınamak gerekir (Box-Jenkins adım 0, Bölüm 7.4); Gretl'de bunun nasıl yapıldığını 11.4'te göreceğiz. Burada log ve farkı alınmış serinin durağan olduğunu biliyoruz (Bölüm 7.6).
 
 ARIMA ve SARIMA'nın teorisi Bölüm 7'de anlatılmıştır; burada yalnızca Gretl'deki kurulumu ele alıyoruz:
 
@@ -190,13 +192,13 @@ ARIMA ve SARIMA'nın teorisi Bölüm 7'de anlatılmıştır; burada yalnızca Gr
 >
 > `bjg` açık ve `l_g` listede olsun (yoksa **Add → Logs of selected variables**). **Model → Univariate time series → ARIMA…** açın; **Dependent variable** olarak `l_g` seçin; **AR order** 0, **Difference** 1, **MA order** 1; **Seasonal AR** 0, **Seasonal difference** 1, **Seasonal MA** 1 girin. **Include a constant** kutusunu bu kez **işaretli bırakın** ve **OK** deyin. Sonra aynı pencereyi açıp kutunun işaretini kaldırarak modeli yeniden kurun.
 >
-> **Ne göreceksiniz:** Sabitli modelde `const = −0.000162569`, p-değeri **0.8675**'tir (anlamsız) ve `Akaike criterion` **−481.4207**'dir. Sabitsiz modelde AIC **−483.3930**, `theta_1 = −0.401823`, `Theta_1 = −0.556937`'dir (11.5'teki airline model). Log-olabilirlikler neredeyse aynıdır (244.7104 ve 244.6965); AIC her ek parametre için 2 birim ceza eklediğinden işe yaramayan sabit, AIC'yi yaklaşık 2 birim kötüleştirir.
+> **Ne göreceksiniz:** Sabitli modelde `const = −0.000162569`, p-değeri **0.8675**'tir (anlamsız) ve `Akaike criterion` **−481.4207**'dir. Sabitsiz modelde AIC **−483.3930**, `theta_1 = −0.401823`, `Theta_1 = −0.556937`'dir (11.5'teki airline model). Log-olabilirlikler neredeyse aynıdır (244.7104 ve 244.6965); AIC her ek parametre için 2 birim ceza eklediğinden (Bölüm 7.4) işe yaramayan sabit, AIC'yi yaklaşık 2 birim kötüleştirir.
 >
 > **Şimdi siz:** Sabitsiz modelde normal kısmı **AR order** 1, **MA order** 0 yaparak ARIMA(1,1,0)(0,1,1) kurun. AIC'si airline modelden daha mı iyi (daha küçük mü) olur? Önce tahmin edin.
 >
 > <details><summary>Cevap</summary>
 >
-> AIC **−481.48** çıkar (11.5'teki karşılaştırma tablosundaki değerle aynı). Bu, airline modelin −483.39'undan büyüktür; yani airline model daha iyidir. İki model aynı fark serisini ($d = 1$, $D = 1$) modellediği için AIC'leri karşılaştırılabilir.
+> AIC **−481.48** çıkar (11.5'teki betik çıktısındaki değerle aynı). Bu, airline modelin −483.39'undan büyüktür; yani airline model daha iyidir. İki model aynı fark serisini ($d = 1$, $D = 1$) modellediği için AIC'leri karşılaştırılabilir.
 >
 > </details>
 
@@ -216,9 +218,7 @@ Serinin durağan olup olmadığı ve artıkların otokorelasyon içerip içermed
 
 Komutlardaki sayılar ve seçenekler şöyle okunur: `corrgm x 36` `x` değişkeninin ilk 36 gecikmedeki ACF ve PACF değerlerini tablo olarak yazar (ve grafiğini çizer). `adf 12 x --c --ct` ADF testini 12 gecikmeli farkla yapar; `--c` yalnızca sabitli, `--ct` sabit ve trendli sürümü ister, ikisi birlikte yazılınca iki sonuç da raporlanır. `kpss 12 x` KPSS testini 12 gecikmelik bant genişliğiyle yapar. `modtest` her zaman **en son tahmin edilen modele** uygulanır; bu yüzden bir modeli kurduktan hemen sonra yazılır.
 
-ADF testinde $H_0$ "birim kök vardır (seri durağan değildir)", KPSS testinde ise $H_0$ "seri durağandır" şeklindedir; iki testi birlikte kullanmak daha güvenilir bir karar verir. Ljung-Box testinde $H_0$ "artıklarda otokorelasyon yoktur" hipotezidir ve iyi bir modelde reddedilmemesi (p > 0,05) istenir. Normallik testinde de $H_0$ "artıklar normal dağılır" şeklindedir.
-
-> **Simge notu:** $`H_0`$ *(H sıfır)*: sıfır (boş) hipotez; testin aksi kanıtlanana kadar doğru saydığı iddia (p-değeri için bkz. Bölüm 3.2)
+ADF testinde $H_0$ "birim kök vardır (seri durağan değildir)", KPSS testinde ise $H_0$ "seri durağandır" şeklindedir; iki testi birlikte kullanmak daha güvenilir bir karar verir. Ljung-Box testinde $H_0$ "artıklarda otokorelasyon yoktur" hipotezidir ve iyi bir modelde reddedilmemesi (p > 0,05) istenir. Normallik testinde de $H_0$ "artıklar normal dağılır" şeklindedir (H₀/H₁ ve p-değeri: bkz. Bölüm 3.2).
 
 Bu testler, ARIMA kurarken ya da daha sonra LSTM/GRU gibi modellere (Bölüm 15) geçmeden önce serinin yapısını anlamak için de yararlıdır.
 
@@ -284,28 +284,18 @@ arima 0 1 1 ; 0 1 1 ; lnpass --nc --quiet        # 8) tüm veriyle 1961 tahmini
 dataset addobs 12
 fcast 1961:01 1961:12 --dynamic                  #    tabloyu yazdır
 fcast 1961:01 1961:12 lnpass_f --dynamic         #    seriye kaydet
+series pass_f = exp(lnpass_f)                    #    log ölçeğinden yolcu sayısına dön
 ```
 
 Komutların ne yaptığı:
 
 *   `open "dosya"` veri dosyasını açar. `setobs 12 1949:01 --time-series` veriyi zaman serisi olarak tanımlar: `12` frekanstır (yılda 12 gözlem, yani aylık), `1949:01` ilk gözlemin tarihidir. Menüdeki **Data → Dataset structure** adımının (11.2.2) komut karşılığıdır. `rename eski yeni` değişkenin adını değiştirir.
-*   `series yeni = ifade` yeni bir seri (sütun) oluşturur. `log()` doğal logaritma, `diff(x)` birinci fark ($x_t - x_{t-1}$), `sdiff(x)` mevsimsel fark ($x_t - x_{t-12}$) alır; `diff(sdiff(lnpass))` ikisini art arda uygular.
+*   `series yeni = ifade` yeni bir seri (sütun) oluşturur. `log()` doğal logaritma, `exp()` onun tersi (log ölçeğinden geri dönüş), `diff(x)` birinci fark ($x_t - x_{t-1}$), `sdiff(x)` mevsimsel fark ($x_t - x_{t-12}$) alır; `diff(sdiff(lnpass))` ikisini art arda uygular.
 *   `arima p d q ; P D Q ; seri` modeli kurar: noktalı virgüller normal kısmı, mevsimsel kısmı ve bağımlı değişkeni ayırır. `--nc` (*no constant*) sabit terim eklememesini söyler (11.3.3'teki not). `--quiet` ayrıntılı çıktıyı bastırır.
 *   `$aic`, `$uhat` gibi `$` ile başlayan adlar **erişimcilerdir** (*accessor*): son kurulan modelden bir sonuç çeker (`$aic` AIC değeri, `$uhat` artıklar). `scalar ad = ...` tek bir sayıyı bir ada kaydeder.
 *   `smpl başlangıç bitiş` analizi verinin bir bölümüyle sınırlar; `smpl full` tüm veriye geri döner. Modeli 1959 sonuna kadarki veriyle kurup 1960'ı tahmin etmek, Bölüm 8'deki eğitim-test ayrımının Gretl'deki karşılığıdır.
 *   `fcast başlangıç bitiş ad --dynamic` tahmin üretir. `--dynamic` her ay için bir önceki ayın gerçek değerini değil **tahminini** kullanır; yani 1960 değerleri modele hiç gösterilmez ve sonuç gerçek bir 12 aylık ileri tahmindir. Sona bir seri adı yazılırsa tahminler sessizce o seriye kaydedilir; ad yazılmazsa tahmin, standart hata ve %95 aralık tablo olarak ekrana basılır.
 *   `dataset addobs 12` veri setinin sonuna 12 boş ay ekler; gelecek tahminlerinin yazılacağı yer böylece açılır.
-
-Betik sırasıyla şunları yapar:
-
-1.  **Veri:** `data/AirPassengers.csv` açılır, aylık zaman serisi yapısı (`setobs 12 1949:01`) tanımlanır, değişken `passengers` olarak yeniden adlandırılır.
-2.  **Grafik ve log dönüşümü:** Seri çizilir, özet istatistikler alınır; büyüyen dalgalanmalar nedeniyle `lnpass = log(passengers)` oluşturulur.
-3.  **Durağanlık:** `lnpass` ve birinci + mevsimsel farkı alınmış `ddlnpass` için ADF, ayrıca KPSS testi uygulanır.
-4.  **Korelogram:** 36 gecikmelik ACF/PACF ile mevsimsel örüntü (12, 24, 36) incelenir.
-5.  **Aday modeller:** Beş ARIMA/SARIMA modeli `--quiet` ile tahmin edilir, AIC değerleri `$aic` ile saklanıp `printf` (biçimlendirilmiş yazdırma) ile tablo hâlinde yazdırılır.
-6.  **Seçilen model:** Airline model ARIMA(0,1,1)(0,1,1)[12] ayrıntılı çıktıyla tahmin edilir; artıklar çizilir, korelogramı, Ljung-Box ve normallik testleri yapılır.
-7.  **Eğitim-test:** Model 1949–1959 ile tahmin edilir, 1960 için dinamik tahmin üretilir, `exp()` ile orijinal ölçeğe dönülür ve RMSE, MAE, MAPE hesaplanır (Bölüm 8).
-8.  **Gelecek tahmini:** Model tüm veriyle yeniden tahmin edilir, veri seti 12 ay uzatılır, 1961 tahmini tablo olarak yazdırılır ve gerçek seriyle birlikte çizilir.
 
 > **Uygulama dosyası:** [`Codes/gretl/ch11_arima_airpassengers.inp`](../Codes/gretl/ch11_arima_airpassengers.inp)
 >
@@ -313,15 +303,15 @@ Betik sırasıyla şunları yapar:
 
 **Betiğin çıktıları nasıl okunur?**
 
-*   **Adım 3:** `lnpass` için ADF p-değeri yüksektir (sabitli 0.31, sabit+trendli 0.82: durağan değil), `ddlnpass` için düşüktür (yaklaşık 0.0002: durağan). KPSS'de ise tersi beklenir: `ddlnpass` için test istatistiği 0.103, %5 kritik değerin (0.462) altında kalır ve p > 0.10 olur; "seri durağandır" hipotezi reddedilmez. Bu, Bölüm 7'deki $d = 1$, $D = 1$ seçimini destekler.
-*   **Adım 5:** `printf` çıktısında en küçük AIC değerine sahip model seçilir. AIC'ler ancak aynı seri üzerinde kurulan modeller arasında karşılaştırılabilir: $d = 1$, $D = 1$ olan dört mevsimsel model aynı fark serisini modellediği için karşılaştırılabilir. Bunlar arasında airline model en iyisidir (AIC −483.39; diğerleri −481.89, −481.48, −477.40). ARIMA(1,1,1) mevsimsel fark içermez; AIC'si (−242.63) farklı bir seri üzerinden hesaplandığı için diğerleriyle doğrudan karşılaştırılamaz. Bu model ancak mevsimsel yapıyı hiç modellemediği için kötü bir seçimdir ve artıklarında 12. gecikmede güçlü korelasyon kalır.
-*   **Adım 6:** Airline modelin katsayıları $\theta_1 \approx -0.40$ ve $\Theta_1 \approx -0.56$'dır (Gretl çıktısında `theta_1` ve `Theta_1`); ikisi de çok anlamlıdır (p < 0.001). `modtest --autocorr` Ljung-Box p-değeri 0.57'dir (0,05'ten büyük) ve artık korelogramında anlamlı çubuk neredeyse kalmaz: model serideki yapıyı yakalamıştır. Normallik testi p-değeri 0.17'dir; artıkların normal olduğu hipotezi reddedilmez.
-*   **Adım 7:** RMSE = 18.59, MAE = 13.26 (yolcu sayısı biriminde, bin kişi) ve MAPE = %2.90 çıkar. Bunlar, aynı modelin aynı eğitim-test ayrımıyla R'da elde edilen sonuçlarla (Bölüm 8.3) birebir aynıdır. `--nc` seçeneği kullanılmazsa Gretl'in eklediği sabit terim yüzünden değerler biraz farklı çıkar (18.68, 13.37, %2.93).
-*   **Adım 8:** `fcast` tablosu her ay için log ölçeğinde tahmin, standart hata ve %95 aralığı verir. `pass_f` değerleri 1961 Ocak için yaklaşık 450, Temmuz için 670 bin yolcudur; grafik trendin ve mevsimsel örüntünün 1961'e taşındığını göstermelidir.
+*   **Adım 2–4:** Betik seriyi çizip özet istatistiklerini aldıktan sonra, büyüyen dalgalanmalar nedeniyle log alır (`lnpass`); 4. adımdaki 36 gecikmelik korelogramda mevsimsel örüntü (12, 24, 36. gecikmeler) incelenir. Adım 3'te `lnpass` için ADF p-değeri yüksektir (sabitli 0.31, sabit+trendli 0.82: durağan değil), `ddlnpass` için düşüktür (yaklaşık 0.0002: durağan). KPSS'de ise tersi beklenir: `ddlnpass` için test istatistiği 0.103, %5 kritik değerin (0.462) altında kalır ve p > 0.10 olur; "seri durağandır" hipotezi reddedilmez. Bu, Bölüm 7'deki $d = 1$, $D = 1$ seçimini destekler.
+*   **Adım 5:** Betik beş aday modeli `--quiet` ile kurar, AIC'lerini `$aic` ile saklar ve `printf` (biçimlendirilmiş yazdırma) ile tablo hâlinde yazdırır; en küçük AIC değerine sahip model seçilir. AIC'ler ancak aynı seri üzerinde kurulan modeller arasında karşılaştırılabilir: $d = 1$, $D = 1$ olan dört mevsimsel model aynı fark serisini modellediği için karşılaştırılabilir. Bunlar arasında airline model en iyisidir (AIC −483.39; diğerleri −481.89, −481.48, −477.40). ARIMA(1,1,1) mevsimsel fark içermez; AIC'si (−242.63) farklı bir seri üzerinden hesaplandığı için diğerleriyle doğrudan karşılaştırılamaz. Bu model ancak mevsimsel yapıyı hiç modellemediği için kötü bir seçimdir ve artıklarında 12. gecikmede güçlü korelasyon kalır.
+*   **Adım 6:** Airline modelin katsayıları $\theta_1 \approx -0.40$ ve $\Theta_1 \approx -0.56$'dır (Gretl çıktısında `theta_1` ve `Theta_1`); ikisi de çok anlamlıdır (p < 0.001). Betik artıkları çizer, korelogramlarını alır ve Ljung-Box ile normallik testlerini yapar: `modtest --autocorr` Ljung-Box p-değeri 0.57'dir (0,05'ten büyük) ve artık korelogramında anlamlı çubuk neredeyse kalmaz: model serideki yapıyı yakalamıştır. Normallik testi p-değeri 0.17'dir; artıkların normal olduğu hipotezi reddedilmez.
+*   **Adım 7:** 1960 tahminleri `exp()` ile yolcu sayısına çevrildikten sonra RMSE = 18.59, MAE = 13.26 (yolcu sayısı biriminde, bin kişi) ve MAPE = %2.90 çıkar. Bunlar, aynı modelin aynı eğitim-test ayrımıyla R'da elde edilen sonuçlarla (Bölüm 8.3) birebir aynıdır. `--nc` seçeneği kullanılmazsa Gretl'in eklediği sabit terim yüzünden değerler biraz farklı çıkar (18.68, 13.37, %2.93).
+*   **Adım 8:** `fcast` tablosu her ay için log ölçeğinde tahmin, standart hata ve %95 aralığı verir. `exp(lnpass_f)` ile yolcu sayısına çevrilen `pass_f` değerleri 1961 Ocak için yaklaşık 450, Temmuz için 670 bin yolcudur; betik bunları gerçek seriyle birlikte çizer ve grafik trendin ve mevsimsel örüntünün 1961'e taşındığını göstermelidir.
 
 > **Simge notu:** $`\theta_1`$ *(teta 1)*: normal MA(1) katsayısı · $`\Theta_1`$ *(büyük teta 1)*: mevsimsel MA(1) katsayısı (Bölüm 7.3)
 
-**Not —** Log ölçeğindeki tahmine `exp()` uygulamak, orijinal ölçekte ortalamayı değil yaklaşık olarak medyanı verir; ders düzeyinde bu fark genellikle ihmal edilir.
+**Not —** `exp()` ile geri dönüşün ortalamayı değil medyanı verdiğine ilişkin not için bkz. 7.6.7.
 
 > **Hemen deneyin 11.5 · Kısa bir betikle 24 aylık test: ufuk uzayınca hata** (Gretl betiği, ~5 dk)
 >
@@ -373,62 +363,86 @@ VAR modelinin teorisi (tanım, gecikme seçimi, stabilite, Granger nedenselliği
 
 **Granger nedenselliği nerede?** Gretl VAR çıktısında her denklemin altında yer alan **"F-tests of zero restrictions"** bölümündeki "All lags of interest" satırı, enflasyon denkleminde faizin tüm gecikme katsayılarının sıfır olduğu hipotezini sınar. Bu, Bölüm 10.6'daki Granger nedensellik testinin ta kendisidir: p-değeri 0,05'ten küçükse faiz, enflasyonun Granger nedenidir. Bu veride satır `F(2, 111) = 0.17759 [0.8375]` şeklindedir: köşeli parantezdeki 0.8375 p-değeridir ve faiz enflasyonun Granger nedeni değildir. Aynı denklemdeki "All lags of exchange" satırı ise `F(2, 111) = 33.412 [0.0000]` verir.
 
-> **Hemen deneyin 11.6.1 · En büyük gecikmeyi değiştirince önerilen gecikme değişir mi?** (Gretl menüleri, ~4 dk)
+> **Hemen deneyin 11.6.1a · Gretl'de hazır bir veriyle VAR ve ters kökler** (Gretl menüleri, ~5 dk)
 >
-> `data/macro.csv` dosyasını **File → Open data → User file…** ile açın (aylık, 2015:01–2024:12 olarak tanınır). **Model → Multivariate time series → VAR lag selection…** seçin; değişken olarak `inflation`, `interest`, `exchange`'i ekleyin, en büyük gecikmeyi **4** yapın ve **OK** deyin. Yıldızların hangi satırlarda olduğuna bakın.
+> Yukarıdaki menü adımlarını önce Gretl'in hazır örnek verisiyle kısa bir denemede uygulayalım.
 >
-> **Ne göreceksiniz:** En büyük gecikme 4 iken AIC'nin yıldızı **4**'te, BIC'nin yıldızı **2**'de, HQC'nin yıldızı **3**'tedir. Notta en büyük gecikme 8 iken AIC 7, BIC 2, HQC 3 öneriyordu.
+> 1. **File → Open data → Sample file…** seçin; açılan pencerenin **Gretl** sekmesinde `denmark` dosyasına çift tıklayın (Danimarka, 1974–1987, üç aylık: `LRM` log reel para, `LRY` log reel gelir, `IBO` tahvil faizi, `IDE` mevduat faizi).
+> 2. **Model → Multivariate time series → VAR lag selection…** seçin; dört değişkeni de listeye ekleyin, en büyük gecikmeyi **4** yapıp **OK**'a basın.
+> 3. **Model → Multivariate time series → Vector Autoregression…** ile aynı dört değişkenle **Lag order** = 2 olan modeli kurun. Sonuç penceresinde **Graphs → VAR inverse roots** seçin.
 >
-> **Şimdi siz:** Aynı pencerede en büyük gecikmeyi **12** yapın. AIC, BIC ve HQC hangi gecikmeleri önerir? Önce tahmin edin.
+> Aynı işin betik karşılığı (**File → Script files → New script** ile açılan pencereye yazıp çalıştırabilirsiniz):
+>
+> ```gretl
+> open denmark
+> var 4 LRM LRY IBO IDE --lagselect
+> var 2 LRM LRY IBO IDE --quiet
+> eval abs(eigen($compan))     # eşlik matrisinin öz değerlerinin modülleri
+> ```
+>
+> `$compan` son kurulan VAR'ın eşlik matrisidir (10.5), `eigen()` öz değerlerini, `abs()` modüllerini verir.
+>
+> **Ne göreceksiniz:** Gecikme tablosunda yıldızlar AIC ve HQC için 2. satırda, BIC için 1. satırdadır:
+>
+> ```text
+> lags        loglik    p(LR)       AIC          BIC          HQC
+>
+>    1     609.15315           -23.104045   -22.346466*  -22.814552 
+>    2     631.70153  0.00013  -23.360844*  -21.997203   -22.839757*
+>    3     642.38574  0.16478  -23.152382   -21.182677   -22.399699 
+>    4     653.22564  0.15383  -22.950025   -20.374257   -21.965748 
+> ```
+>
+> Ters kök grafiğinde 8 nokta birim çemberin içindedir; betiğin son satırı modülleri 0.398, 0.175, 0.602, 0.602, 0.509, 0.810, 0.810, 0.966 olarak yazar. En büyüğü 0.966'dır: Model stabildir ama `macro.csv` (Bölüm 10.9) ve `Canada` (Hemen deneyin 10.9b) modellerindeki gibi sınıra yakındır.
+>
+> **Şimdi siz:** VAR(2) çıktısında `IBO` (tahvil faizi) denkleminin altındaki **F-tests of zero restrictions** bölümüne bakın. Hangi değişkenlerin gecikmeleri tahvil faizini öngörmeye yardım ediyor (p < 0.05)?
 >
 > <details><summary>Cevap</summary>
 >
-> En büyük gecikme 12 iken AIC **12** (9.596395), BIC **2** (10.944913), HQC **2** (10.634847) önerir: Hemen deneyin 10.4'teki Python sonuçlarının aynısı, dolayısıyla oradaki yorum burada da geçerlidir. Tablolardaki sayıların değişmesi (ör. 2 gecikmenin AIC'si 10.193 yerine 10.423) normaldir: Gretl her tabloda bütün modelleri aynı örneklemle (en büyük gecikmeden sonraki aylarla) kurar.
+> Yalnızca kendi gecikmeleri: `All lags of IBO  F(2, 44) = 55.884 [0.0000]`. `LRM` (p = 0.9978), `LRY` (p = 0.0653) ve `IDE` (p = 0.7731) satırları 0.05'in üstündedir; bu değişkenler tahvil faizinin Granger nedeni değildir (`LRY` sınıra yakındır). Ters yönde ise `LRM` denkleminde `All lags of IBO` satırı p = 0.0006 verir: Tahvil faizi, para talebini öngörmeye yardım eder.
+>
+> </details>
+
+> **Hemen deneyin 11.6.1b · Değişken sırası değişince IRF ve FEVD değişir mi?** (Gretl menüleri ya da konsol, ~5 dk)
+>
+> Cholesky sıralamasının etkisini (Bölüm 10.7) görelim. `data/macro.csv` dosyasını **File → Open data → User file…** ile açın. **Model → Multivariate time series → Vector Autoregression…** seçin; **Endogenous variables** listesine değişkenleri bu kez `exchange`, `interest`, `inflation` sırasıyla ekleyin, **Lag order** kutusuna 2 yazıp **OK** deyin. Sonuç penceresinde **Analysis → Impulse responses** ve **Analysis → Forecast variance decomposition** tablolarını açın. Konsolda aynı iş:
+>
+> ```gretl
+> set horizon 12
+> var 2 exchange interest inflation --impulse-responses --variance-decomp
+> ```
+>
+> **Ne göreceksiniz:** Katsayılar, Granger testleri ve FEVD tablosundaki `std. error` sütunu değişmez; değişen yalnızca aynı aydaki şokların değişkenlere nasıl paylaştırıldığıdır. Kur şokuna enflasyonun 1. dönemdeki tepkisi artık 0 değil 0.127'dir; faiz şokuna tepkisi de −0.109'dur. Kur şokuna enflasyonun en yüksek tepkisi yine 5. dönemdedir (4.42 yerine 4.55). Enflasyonun 12. dönem FEVD'si %44.0 kendi, %0.8 faiz, %55.2 kur yerine %38.5 kendi, %4.4 faiz, %57.1 kur olur.
+>
+> **Şimdi siz:** Faizin 12. dönem FEVD'sinde kur şokunun payı iki sıralamada kaçtır? Neden değişti?
+>
+> <details><summary>Cevap</summary>
+>
+> `inflation interest exchange` sırasında %10.5, `exchange interest inflation` sırasında %19.7. Kur listenin başına alınınca, faiz ve kur şoklarının aynı aydaki ortak kısmı (artık korelasyonu 0.18, Bölüm 10.9.1) tümüyle kura yazılır. Veri hangi şokun önce geldiğini söyleyemez; sıralama bir varsayımdır ve raporlanmalıdır.
 >
 > </details>
 
 #### 11.6.2. Betik ile VAR
 
 ```gretl
-# ---------------------------------------------
-# Gretl ile VAR örneği (komut dili)
-# ---------------------------------------------
+# Gretl ile VAR örneği (tam betik ve ayrıntılı yorumlar: Codes/gretl/ch11_var.inp)
 
-# 1) Veri dosyasını açalım (depo kök dizininden; .gdt dosyaları da aynı komutla açılır)
+# 1) Veri (depo kök dizininden) ve zaman serisi yapısı
 open "data/macro.csv"
-
-# İlk sütunun başlığı "date" ve tarihler 2015-01-01 biçiminde olduğu için Gretl
-# veriyi genellikle kendiliğinden aylık seri olarak tanır. Yine de zaman serisi
-# yapısını açıkça tanımlıyoruz (2015:01'den başlayan aylık veri):
 setobs 12 2015:01 --time-series
 
-# 2) Gecikme seçimi: 1'den 8'e kadar AIC, BIC, HQC tablosu
-#    --lagselect: model kurulmaz, yalnızca tablo yazdırılır.
-#    Bu veride AIC 7, BIC 2, HQC 3 gecikme önerir (Python ile aynı).
+# 2) Gecikme seçimi
 var 8 inflation interest exchange --lagselect
 
-# 3) VAR(2) modelinin tahmini
-#    Sözdizimi: var gecikme_sayısı değişken_listesi
-#    IRF ve FEVD ufkunu 12 dönem olarak ayarlıyoruz.
+# 3) VAR(2), IRF ve FEVD (değişken sırası = Cholesky sırası)
 set horizon 12
 var 2 inflation interest exchange --impulse-responses --variance-decomp
 
-# Çıktıda her denklem için:
-#   - katsayılar ve standart hatalar
-#   - "F-tests of zero restrictions": Granger nedensellik testleri
-#     (ör. inflation denklemindeki "All lags of interest" satırı)
-# --impulse-responses ve --variance-decomp seçenekleri IRF ve FEVD
-# tablolarını da yazdırır (değişken sırası = Cholesky sırası).
+# 4) Artık tanı testleri
+modtest --autocorr
+modtest --normality
 
-# 4) Artık tanı testleri (son kurulan VAR modeline uygulanır)
-modtest --autocorr               # çok değişkenli otokorelasyon testi (Rao F), H0: otokorelasyon yok
-modtest --normality              # Doornik-Hansen normallik testi, H0: artıklar normal
-# Bu veride iki test de H0'ı reddeder (p < 0.01): düzey serilerle kurulan VAR(2)'nin
-# artıkları tam "beyaz gürültü" değildir (bkz. Bölüm 10.9).
-
-# 5) 12 dönemlik tahmin: veri setini 12 ay uzatıp fcast çalıştırıyoruz.
-#    --out-of-sample: yalnızca verinin bittiği yerden sonrası (2025:01-2025:12)
-#    tahmin edilir; her değişken için tahmin, standart hata ve %95 aralık yazdırılır.
+# 5) 12 aylık örnek dışı tahmin
 dataset addobs 12
 fcast --out-of-sample
 ```
@@ -440,8 +454,8 @@ Betikteki komutlar şöyle çalışır: `var 8 inflation interest exchange --lag
 Bu betik çalıştırıldığında Gretl önce gecikme seçim tablosunu, ardından VAR sonuç tablosunu (Granger testleri dahil), IRF ve FEVD tablolarını, artık testlerini ve tahminleri sırasıyla yazdırır. Sonuçlar Bölüm 10.9'daki Python sonuçlarıyla karşılaştırılabilir:
 
 *   **Gecikme seçimi:** AIC 7, BIC 2, HQC 3 (aynı). Gretl'in kriter değerleri statsmodels'tan farklı bir sabit içerdiği için sayılar farklıdır (ör. BIC 10.82'ye karşı 2.30), ama seçilen gecikmeler aynıdır.
-*   **Katsayılar:** Birebir aynıdır (ör. enflasyon denkleminde `exchange_1` = 3.667, `exchange_2` = −3.718). Gretl gecikmeleri `inflation_1`, `inflation_2` biçiminde, statsmodels `L1.inflation`, `L2.inflation` biçiminde adlandırır.
-*   **Granger (F-tests of zero restrictions):** faiz → enflasyon p = 0.84, döviz kuru → enflasyon p < 0.001, enflasyon → faiz p = 0.022, döviz kuru → faiz p = 0.0002. Durbin-Watson değerleri de aynıdır (2.04, 2.23, 1.83).
+*   **Katsayılar:** Birebir aynıdır (ör. enflasyon denkleminde `exchange_1` = 3.667, `exchange_2` = −3.718). Gretl gecikmeleri `inflation_1`, `inflation_2` biçiminde, statsmodels `L1.inflation`, `L2.inflation` biçiminde adlandırır. Her denklemin altındaki Durbin-Watson değerleri de aynıdır (2.04, 2.23, 1.83).
+*   **Granger (F-tests of zero restrictions):** faiz → enflasyon p = 0.84, döviz kuru → enflasyon p < 0.001, enflasyon → faiz p = 0.022, döviz kuru → faiz p = 0.0002.
 *   **IRF:** Gretl'in tabloları "one-standard error shock", yani Cholesky şoklarına göredir ve 1. dönem şokun geldiği andır (Python'da $h = 0$). Enflasyon listede ilk sırada olduğu için faiz ve kur şoklarına enflasyonun 1. dönemdeki tepkisi 0'dır (Bölüm 10.7). Kur şokuna enflasyonun tepkisi 5. dönemde en yüksek değerine (4.42) ulaşır. Python'un `orth=True` tepkileri yaklaşık %3 büyük çıkar, çünkü statsmodels şok büyüklüğünü serbestlik derecesine göre düzeltilmiş varyansla, Gretl ise düzeltmesiz varyansla hesaplar.
 *   **FEVD (12. dönem, enflasyon):** %44.0 kendi, %0.8 faiz, %55.2 döviz kuru şoku (aynı).
 *   **Artık testleri:** Rao F otokorelasyon testi tüm gecikmelerde p < 0.01 verir; Doornik-Hansen normallik testi de reddeder. Python'daki portmanteau testiyle aynı sonuç: düzey serilerle kurulan model artıklarda yapı bırakmaktadır.

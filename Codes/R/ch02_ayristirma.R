@@ -1,13 +1,13 @@
 # =============================================================================
 # Bölüm 2 — Zaman Serisinin Temel Kavramları ve Bileşenleri
-# Ders notu: Course_notes.md, Bölüm 2 (2.6 Mini Uygulama: AirPassengers ayrıştırma)
+# Ders notu: Course_notes.md, Bölüm 2 (2.5 Mini Uygulama: AirPassengers ayrıştırma)
 #
 # Çalıştırma: depo kök dizininden  Rscript Codes/R/ch02_ayristirma.R
 #             ya da RStudio'da dosyayı açıp satır satır (Ctrl+Enter) çalıştırın.
 # Gerekli paketler: yok (yalnızca base R ve stats)
 # =============================================================================
 
-# ---- 2.6 Mini Uygulama: AirPassengers Serisini Ayrıştırmak ----
+# ---- 2.5 Mini Uygulama: AirPassengers Serisini Ayrıştırmak ----
 data("AirPassengers")
 
 # 1) Çarpımsal ayrıştırma: xt = Tt x St x It

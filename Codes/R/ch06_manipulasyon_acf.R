@@ -109,7 +109,7 @@ print(acf(c(10, 12, 15, 11, 17), plot = FALSE)$acf[2])
 # Aynı dört çiftin sıradan Pearson korelasyonu (farklı ortalama ve payda kullanır): -0.448
 print(cor(c(12, 15, 11, 17), c(10, 12, 15, 11)))
 
-# ---- 6.3.3 Güven bandı: rastgele serilerde lag-1 otokorelasyonu ----
+# ---- Güven bandı (6.3.4'ün ardından): rastgele serilerde lag-1 otokorelasyonu ----
 set.seed(1)
 r1 <- replicate(5000, acf(rnorm(238), lag.max = 1, plot = FALSE)$acf[2])
 cat("Standart sapma:", round(sd(r1), 3), " 1/sqrt(T):", round(1 / sqrt(238), 3), "\n")

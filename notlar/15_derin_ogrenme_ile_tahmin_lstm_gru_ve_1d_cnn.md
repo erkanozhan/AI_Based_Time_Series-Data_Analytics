@@ -12,50 +12,7 @@ Bölüm 12'de yapay zekanın zaman serisine nasıl uygulandığını kavramsal o
 
 Üç modelin adil karşılaştırılabilmesi için hepsi **aynı veri hazırlığını** (15.1) ve Bölüm 7'deki ARIMA uygulamasıyla **aynı test dönemini** (son 60 ay) kullanacak. Bölümün sonunda (15.5) ARIMA, XGBoost, LSTM, GRU ve 1D-CNN'i aynı ölçütle, RMSE ile karşılaştıracağız.
 
-Başlamadan önce bir sinir ağının ne hesapladığını kısaca hatırlayalım. Bu bölümdeki bütün modeller aynı küçük yapı taşından, **nörondan** kurulur. Bir nöron üç şey yapar: (1) Gelen her sayıyı kendine ait bir **ağırlıkla** (katsayıyla) çarpar, (2) bu çarpımları toplayıp üzerine **yanlılık (bias)** adı verilen sabit bir sayı ekler, (3) sonucu bir **aktivasyon fonksiyonundan** geçirir. Örneğin girdiler 0.2 ve 0.5, ağırlıklar 0.4 ve −0.1, yanlılık 0.05 ise toplam $0.2 \cdot 0.4 + 0.5 \cdot (-0.1) + 0.05 = 0.08 - 0.05 + 0.05 = 0.08$ olur. Aktivasyon fonksiyonu bu ara sonucu belirli bir biçime sokar. Bu bölümde üç tanesini kullanacağız:
-
-| Aktivasyon | İşlevi | Örnek değerler |
-| --- | --- | --- |
-| **ReLU** | Negatifi 0 yapar, pozitifi olduğu gibi bırakır: $`\max(0, u)`$ | ReLU(0.08) = 0.08, ReLU(−3) = 0 |
-| **Sigmoid** | Her sayıyı 0 ile 1 arasına sıkıştırır | sigmoid(−3) ≈ 0.05, sigmoid(0) = 0.5, sigmoid(3) ≈ 0.95 |
-| **tanh** *(tanjant hiperbolik)* | Her sayıyı −1 ile 1 arasına sıkıştırır | tanh(−3) ≈ −0.995, tanh(0) = 0, tanh(0.5) ≈ 0.46 |
-
-Yan yana duran nöronların oluşturduğu gruba **katman (layer)** denir. Keras'taki `Dense` katmanı, her nöronun önceki katmanın bütün çıktılarına bağlı olduğu en basit katmandır. Ağırlıklar ve yanlılıklar başta rastgele küçük sayılardır. **Eğitim**, bu sayıları modelin tahmin hatası küçülecek biçimde adım adım düzeltme işidir. Hatayı ölçen formüle **kayıp fonksiyonu (loss)**, düzeltmeyi yapan yönteme **optimizasyon algoritması (optimizer)** denir. Bu ikisini 15.2'de kodla birlikte ayrıntılı göreceğiz.
-
-> **Hemen deneyin 15 · Tek bir nöronu elle hesaplayın** (Python, ~3 dk)
->
-> Yukarıdaki nöron örneğini (girdiler 0.2 ve 0.5, ağırlıklar 0.4 ve −0.1, yanlılık 0.05) NumPy ile hesaplayın ve sonucu üç aktivasyondan geçirin. VS Code, Jupyter ya da Colab'da yeni bir hücreye yazın:
->
-> ```python
-> import numpy as np
-> x = np.array([0.2, 0.5])              # iki girdi
-> w = np.array([0.4, -0.1])             # her girdinin ağırlığı
-> b = 0.05                              # yanlılık
-> u = np.sum(x * w) + b                 # çarp, topla, yanlılığı ekle
-> print("u       =", round(u, 4))
-> print("ReLU    =", round(max(0, u), 4))
-> print("sigmoid =", round(1 / (1 + np.exp(-u)), 4))
-> print("tanh    =", round(np.tanh(u), 4))
-> ```
->
-> **Ne göreceksiniz:**
->
-> ```text
-> u       = 0.08
-> ReLU    = 0.08
-> sigmoid = 0.52
-> tanh    = 0.0798
-> ```
->
-> `x * w` iki listenin aynı sıradaki elemanlarını çarpar (`[0.08, -0.05]`), `np.sum` bunları toplar. Ara sonuç metindeki gibi 0.08'dir. ReLU pozitif sayıyı olduğu gibi bırakır; sigmoid 0'a yakın bir girdiyi 0.5'in biraz üstüne, tanh ise yaklaşık kendisine götürür.
->
-> **Şimdi siz:** Yanlılığı `b = -0.2` yapın. Önce `u`'yu elle hesaplayın ve ReLU'nun ne vereceğini tahmin edin, sonra çalıştırın.
->
-> <details><summary>Cevap</summary>
->
-> $u = 0.08 - 0.05 - 0.2 = -0.17$. Çıktı: `u = -0.17`, `ReLU = 0`, `sigmoid = 0.4576`, `tanh = -0.1684`. ReLU negatif ara sonucu 0'a çevirdi; sigmoid 0.5'in altına, tanh ise eksi tarafa geçti.
->
-> </details>
+Nöron, ağırlık, yanlılık, aktivasyon (ReLU, sigmoid, tanh), katman ve gradyan inişi kavramları 12.2'nin başında anlatıldı; bu bölüm onları doğrudan kullanır.
 
 ### 15.1. Ortak Veri Hazırlığı
 
@@ -70,21 +27,7 @@ Bu alt bölümdeki kod, 15.2–15.5'teki bütün modellerin başlangıç noktas�
 
 #### 15.1.1. Veri, Eğitim-Test Ayrımı ve Ölçekleme
 
-Sinir ağları, girdiler küçük ve benzer aralıklarda olduğunda daha kararlı öğrenir. Bölüm 12.1.4'te gördüğümüz gibi, yolcu sayıları (104–622) gibi büyük değerler sigmoid ve `tanh`'i **doygun** bölgelerine iter: sigmoid(300) ile sigmoid(600) bilgisayarda ikisi de 1.0000 çıkar, yani nöron 300 yolcu ile 600 yolcuyu ayıramaz. Eğri o bölgede düzleştiği için gradyan da sıfıra yaklaşır ve öğrenme durur. Bu yüzden veriyi 12.1.4'teki `MinMaxScaler` dönüşümüyle 0–1 aralığına çekiyoruz:
-
-$$
-x'_t = \frac{x_t - x_{\min}}{x_{\max} - x_{\min}}
-$$
-
-> **Simge notu:** Simgeler 12.1.4'tekiyle aynıdır: $`x_t`$ $`t`$. aydaki yolcu sayısı, $`x'_t`$ *(x tırnak t)* ölçeklenmiş değer (tırnak türev değildir), $`x_{\min}`$, $`x_{\max}`$ *(x min, x maks)* eğitim dönemindeki en küçük ve en büyük değer.
-
-Formül, her değerden en küçük değeri çıkarıp sonucu aralığın genişliğine böler. Böylece en küçük değer 0'a, en büyük değer 1'e gider. Eğitim dönemimizde (1949–1955, ilk 84 ay) en küçük değer 104, en büyük değer 364'tür; aralığın genişliği $364 - 104 = 260$ olur. Buna göre:
-
-- Ocak 1949 (112 yolcu): $(112 - 104) / 260 = 8 / 260 \approx 0.03$
-- 234 yolcu: $(234 - 104) / 260 = 130 / 260 = 0.5$, yani aralığın tam ortası
-- Temmuz 1960 (622 yolcu, test döneminde): $(622 - 104) / 260 = 518 / 260 \approx 1.99$
-
-Burada $x_{\min}$ ve $x_{\max}$ **yalnızca eğitim döneminden** hesaplanır. Ölçekleyiciyi tüm seriyle fit etmek, 12.1.4'teki notta gördüğümüz sızıntıdır: Bu bölümün ayrımında 1960'taki 622 tam 1'e, eğitim dönemindeki 364 ise yaklaşık 0.50'ye denk gelir ve model "serinin ileride neredeyse iki katına çıkacağını" girdilerin ölçeğinden sezebilir. Konunun çapraz doğrulamadaki karşılığı Bölüm 16.4'tedir.
+Ölçeklemenin nedeni ve `MinMaxScaler` formülü 12.1.4'te anlatıldı. Bu bölümün ayrımında eğitim dönemi 1949–1955'tir (ilk 84 ay): en küçük değer 104, en büyük 364, aralık 260. Ocak 1949 (112) ≈ 0.03'e, test dönemindeki Temmuz 1960 (622) ise $(622 - 104) / 260 \approx 1.99$ değerine gider. Ölçekleyici yalnızca bu 84 ayla fit edilir. Tüm seriyle fit edilseydi 622 tam 1'e, eğitimin tepesi 364 ise ≈ 0.50'ye düşer ve model serinin ileride büyüyeceğini ölçekten sezerdi (12.1.4, 16.4).
 
 ```python
 import numpy as np
@@ -138,10 +81,10 @@ Kodu satır satır okuyalım:
 3. `load_airpassengers(as_series=True)` 144 aylık yolcu sayısını bir pandas serisi olarak getirir. `pd.date_range(start='1949-01-01', periods=144, freq='MS')` ise grafiklerin yatay ekseni için 144 tarih üretir (`'MS'`: her ayın ilk günü, *month start*).
 4. `data.values.astype('float32').reshape(-1, 1)` üç iş yapar: değerleri NumPy dizisine çevirir, sinir ağlarının kullandığı 32 bitlik ondalık sayı türüne dönüştürür ve diziyi tek sütunlu bir tabloya çevirir. Örneğin `[112, 118, 132]` listesi `reshape(-1, 1)` ile `[[112], [118], [132]]` hâline gelir; şekli `(3, 1)`, yani 3 satır ve 1 sütundur. `-1` "satır sayısını sen hesapla" demektir. `MinMaxScaler` girdiyi bu tablo biçiminde ister.
 5. `train_size = 144 - 60 = 84`. `dataset[:train_size]` köşeli parantez içindeki **dilimleme** ile ilk 84 satırı (Python'da 0'dan 83'e kadar olan sıra numaraları) seçer.
-6. `scaler.fit(...)` yalnızca eğitim dönemine bakarak $x_{\min} = 104$ ve $x_{\max} = 364$ değerlerini **öğrenir**. `scaler.transform(dataset)` ise öğrenilen bu iki sayıyla formülü serinin tamamına **uygular**. Öğrenme ile uygulamanın iki ayrı adım olması, sızıntıyı önlemenin anahtarıdır.
+6. `scaler.fit(...)` yalnızca eğitim dönemine bakarak en küçük (104) ve en büyük (364) değeri **öğrenir**; `scaler.transform(dataset)` formülü serinin tamamına **uygular** (fit ile transform ayrımı: 12.1.4'teki not).
 7. Son üç `print` satırı birer f-string'dir: `f"...{değişken:.2f}..."` küme parantezindeki değeri metnin içine, virgülden sonra 2 basamakla yazar.
 
-**Çıktının yorumu:** Eğitim döneminin ölçeklenmiş değerleri tam olarak 0–1 aralığındadır. Test döneminin üst değeri ise 1'in belirgin biçimde üzerindedir (1.99, yukarıda elle hesapladığımız değer). Bu bir hata değildir: model, eğitimde hiç görmediği büyüklükte değerleri tahmin etmek zorundadır. Gerçek hayattaki tahmin problemi de tam olarak budur.
+**Çıktının yorumu:** Eğitim döneminin ölçeklenmiş değerleri tam olarak 0–1 aralığındadır; test döneminin üst değeri ise yukarıda hesapladığımız 1.99'dur. 12.1.4'te gördüğümüz gibi bu bir hata değildir: Model, eğitimde hiç görmediği büyüklükte değerleri tahmin etmek zorundadır.
 
 > **Not —** Güçlü trend içeren serilerde sinir ağları eğitim aralığının dışına **ekstrapolasyon** (bilinen aralığın dışına taşma) yapmakta zorlanır ve tahminler sistematik olarak düşük kalabilir. Bunu hafifletmek için seriye önce log dönüşümü ve/veya fark alma (Bölüm 2.4 ve 7.6.3) uygulanıp model farklar üzerinde eğitilebilir; aynı fikrin XGBoost'taki uygulaması Bölüm 13.4.2'dedir. Bu bölümde kodu sade tutmak için ham seriyle çalışıyoruz.
 
@@ -196,7 +139,7 @@ trainX: (72, 12, 1)  testX: (60, 12, 1)
 
 Ardından örnekler eğitim ve test olarak ayrılır. `i`. örneğin hedefi serinin `i + 12` numaralı gözlemidir. Eğitim dönemi 0–83 numaralı gözlemlerdir; hedefi bu aralıkta kalan örnekler `i + 12 ≤ 83`, yani `i ≤ 71` olanlardır. Bu da $0$'dan $71$'e kadar $72$ örnek eder: `split = 84 - 12 = 72`. Kalan $132 - 72 = 60$ örneğin hedefleri tam olarak test dönemindeki 60 aydır. `X_all[:split]` ilk 72 satırı, `X_all[split:]` 72. satırdan sonuna kadar olanları seçer.
 
-`trainX.reshape(trainX.shape[0], look_back, 1)` satırı tabloyu Keras'ın istediği üç boyutlu şekle getirir (15.1.3). `trainX.shape[0]` şeklin ilk sayısıdır, yani 72. Son iki satırda test hedefleri orijinal ölçeğe geri çevrilir: `inverse_transform`, ölçekleme formülünü tersine işletir: $x_t = x'_ t \cdot (x_{\max} - x_{\min}) + x_{\min}$. Örneğin $0.5 \cdot 260 + 104 = 234$ yolcu. `.ravel()` `(60, 1)` şeklindeki tek sütunlu tabloyu düz bir 60 sayılık diziye çevirir. `dates[train_size:]` ise 84. sıradan başlayan 60 tarihi, yani Ocak 1956–Aralık 1960'ı verir.
+`trainX.reshape(trainX.shape[0], look_back, 1)` satırı tabloyu Keras'ın istediği üç boyutlu şekle getirir (15.1.3). `trainX.shape[0]` şeklin ilk sayısıdır, yani 72. Son iki satırda test hedefleri `inverse_transform` ile (ters dönüşüm, 12.1.4) orijinal ölçeğe geri çevrilir. `.ravel()` `(60, 1)` şeklindeki tek sütunlu tabloyu düz bir 60 sayılık diziye çevirir. `dates[train_size:]` ise 84. sıradan başlayan 60 tarihi, yani Ocak 1956–Aralık 1960'ı verir.
 
 **Açıklama:** İlk test örneğinin girdisi, eğitim döneminin son 12 ayıdır (1955). Bu bir sızıntı değildir; çünkü 1956 Ocak'ı tahmin ederken 1955'in değerlerini bilmek gerçekçidir. Her test tahmininde model, bir önceki ayların **gerçek** değerlerini görür. Buna **tek adımlı (one-step-ahead) tahmin** denir (Bölüm 12.1.3). 15.5'teki karşılaştırmada bu ayrıntı önemli olacak.
 
@@ -311,33 +254,7 @@ Sayılar ve sıraları değişmez; değişen yalnızca kabın düzenidir. Sağda
 
 LSTM'in iç yapısını Bölüm 12.2.2'de kavramsal olarak gördük: Hücre, uzun süreli bilgiyi taşıyan bir **hücre durumu** $C_t$ (defter) ve her adımda dışarıya verilen bir **gizli durum** $h_t$ tutar; 0 ile 1 arasında değer alan üç **kapı** (vana) bu iki durum arasındaki bilgi akışını denetler.
 
-Her kapı aynı tarifle hesaplanır: Bu ayın girdisi $x_t$ ve bir önceki adımın çıktısı $h_{t-1}$ birer ağırlıkla çarpılıp toplanır, yanlılık eklenir ve sonuç sigmoid ile 0–1 arasına sıkıştırılır. Kapılar arasındaki tek fark, her birinin kendi ağırlıklarına sahip olmasıdır. Bir zaman adımındaki hesaplamanın tamamı şöyledir:
-
-```math
-\begin{aligned}
-f_t &= \sigma\left(W_f x_t + U_f h_{t-1} + b_f\right) &&\text{(unutma kapısı)}\\
-i_t &= \sigma\left(W_i x_t + U_i h_{t-1} + b_i\right) &&\text{(giriş kapısı)}\\
-o_t &= \sigma\left(W_o x_t + U_o h_{t-1} + b_o\right) &&\text{(çıkış kapısı)}\\
-\tilde{C}_t &= \tanh\left(W_c x_t + U_c h_{t-1} + b_c\right) &&\text{(aday hafıza)}\\
-C_t &= f_t \odot C_{t-1} + i_t \odot \tilde{C}_t &&\text{(hafıza güncellemesi)}\\
-h_t &= o_t \odot \tanh\left(C_t\right) &&\text{(çıktı)}
-\end{aligned}
-```
-
-> **Simge notu:** Alt indis zamanı gösterir: $`t`$ "bu adım" (bu ay), $`t-1`$ "bir önceki adım" (geçen ay) · $`x_t`$: bu adımın girdisi (pencere içindeki o ayın ölçeklenmiş yolcu sayısı) · $`h_t`$, $`h_{t-1}`$ *(h t, h t eksi bir)*: bu adımın ve önceki adımın gizli durumu (çıktısı) · $`C_t`$, $`C_{t-1}`$ *(C t)*: bu adımın ve önceki adımın hücre durumu (uzun süreli hafıza) · $`f_t, i_t, o_t`$ *(ef, i, o)*: unutma (*forget*), giriş (*input*) ve çıkış (*output*) kapılarının değerleri · $`\sigma`$ *(sigma)*: sigmoid fonksiyonu; kapının "ne kadar açık" olduğunu 0–1 arası bir sayıyla verir (standart sapma değildir, bkz. 12.2.2) · $`\tanh`$ *(tanjant hiperbolik)*: çıktısı −1 ile 1 arasında olan aktivasyon · $`W, U`$ *(dabılyu, u)*: öğrenilen ağırlıklar; $`W`$ girdiyle, $`U`$ önceki gizli durumla çarpılır. Alt indisleri ($`W_f`$, $`W_i`$, …) hangi kapıya ait olduklarını gösterir · $`b`$: öğrenilen yanlılık · $`\tilde{C}_t`$ *(C tilda t)*: hafızaya eklenmeye aday yeni bilgi · $`\odot`$ *(eleman eleman çarpım, "Hadamard çarpımı")*: iki sayı listesinin aynı sıradaki elemanlarını çarpar: $`[1, 2] \odot [3, 4] = [3, 8]`$
-
-Tek birimli bir hücrede bütün bu harfler sıradan sayılardır. 50 birimli bir katmanda ise her harf 50 sayılık bir listeyi, $W$ ve $U$ de ağırlık tablolarını temsil eder; hesap her birim için aynı biçimde tekrarlanır.
-
-**Sayısal örnek (tek birim):** Bir önceki adımda hafıza $C_{t-1} = 2.0$ olsun. Unutma kapısının girdisi $W_f = 1.5$, $x_t = 0.4$, $U_f = 2$, $h_{t-1} = 0.5$, $b_f = 0.6$ ise:
-
-```math
-\begin{aligned}
-W_f x_t + U_f h_{t-1} + b_f &= 1.5 \cdot 0.4 + 2 \cdot 0.5 + 0.6 = 0.6 + 1.0 + 0.6 = 2.2\\
-f_t &= \text{sigmoid}(2.2) \approx 0.90
-\end{aligned}
-```
-
-Diğer kapılar için 12.2.2'deki değerleri ($i_t = 0.2$, $\tilde{C}_ t = 0.5$, $o_t = 0.5$) kullanırsak $C_t = 0.9 \cdot 2.0 + 0.2 \cdot 0.5 = 1.9$ ve $h_t = 0.5 \cdot \tanh(1.9) \approx 0.48$ bulunur: Eski hafızanın yüzde 90'ı korunmuş, üzerine yeni bilgiden küçük bir pay eklenmiştir. Hafızanın **toplama** ile güncellenmesinin kaybolan gradyan sorununu (12.2.1) nasıl hafiflettiğini 12.2.2'deki denklem yorumunda gördük.
+LSTM hücresinin denklemleri ve sayısal örneği 12.2.2'dedir. Keras aynı denklemleri 12.2.2'de gösterdiğimiz ayrık yazımla uygular: Her kapıda girdiyi çarpan bir $W$, önceki gizli durumu çarpan bir $U$ ve bir yanlılık $b$ vardır; örneğin unutma kapısı $f_t = \sigma(W_f x_t + U_f h_{t-1} + b_f)$ biçiminde yazılır. Bu yazım, aşağıdaki parametre sayımını (dört ağırlık seti, her birinde $W$, $U$ ve $b$) ve 15.3'teki GRU denklemlerini okumayı kolaylaştırır. 50 birimli bir katmanda her harf 50 sayılık bir listeyi, $W$ ve $U$ de ağırlık tablolarını temsil eder.
 
 Modelimiz tek bir LSTM katmanı (50 birim) ve tek nöronlu bir çıktı katmanından (`Dense(1)`) oluşuyor. Keras'ta bir model dört adımda hazırlanır: (1) katmanlar sırayla dizilir, (2) `compile` ile hatanın nasıl ölçüleceği ve ağırlıkların nasıl düzeltileceği seçilir, (3) `fit` ile model eğitilir, (4) `predict` ile tahmin üretilir.
 
@@ -388,11 +305,16 @@ Kodun önemli satırları şunlardır:
 
 1. **`Sequential()`** boş bir model açar; `add(...)` ile eklenen katmanlar verinin içinden sırayla geçeceği bir hat oluşturur: girdi → LSTM → Dense → tahmin.
 2. **`Input(shape=(look_back, 1))`** modele her örneğin şeklini bildirir: 12 zaman adımı, her adımda 1 özellik. Örnek sayısı (72) yazılmaz, çünkü model aynı şekildeki istediği sayıda örneği işleyebilir. (Eski Keras sürümlerinde bu bilgi `LSTM(50, input_shape=(12, 1))` biçiminde katmanın içine yazılırdı. Keras 3 bu yazımda uyarı verir ve ayrı bir `Input` satırını önerir.)
-3. **`LSTM(50)`** 50 birimli bir LSTM katmanıdır. Katman, penceredeki 12 değeri Ocak'tan Aralık'a sırayla okur ve her adımda yukarıdaki denklemleri işletir. Okuma bitince son adımın gizli durumunu, yani 50 sayılık bir özeti verir. 50, bu özetin ne kadar "geniş" olduğunu belirleyen bir tasarım seçimidir; daha büyük sayı daha fazla öğrenme kapasitesi, ama aynı zamanda daha fazla ezberleme riski demektir.
+3. **`LSTM(50)`** 50 birimli bir LSTM katmanıdır. Katman, penceredeki 12 değeri Ocak'tan Aralık'a sırayla okur ve her adımda 12.2.2'deki denklemleri işletir. Okuma bitince son adımın gizli durumunu, yani 50 sayılık bir özeti verir. 50, bu özetin ne kadar "geniş" olduğunu belirleyen bir tasarım seçimidir; daha büyük sayı daha fazla öğrenme kapasitesi, ama aynı zamanda daha fazla ezberleme riski demektir.
 4. **`Dense(1)`** 50 sayılık özeti tek bir sayıya, bir sonraki ayın ölçeklenmiş tahminine çevirir. Aktivasyon verilmediği için çıktı herhangi bir değeri alabilir; regresyon problemleri (sayı tahmini) için doğru seçim budur.
-5. **`compile(loss='mean_squared_error', optimizer='adam')`** eğitimin kurallarını belirler. **Kayıp fonksiyonu** olarak ortalama kare hata (MSE) kullanılır: Gerçek değerler 0.2 ve 0.4, tahminler 0.1 ve 0.5 ise hatalar 0.1 ve −0.1, kareleri 0.01 ve 0.01, ortalamaları 0.01 olur. **Optimizasyon algoritması** Adam ise her güncellemede her ağırlığı, kaybı azaltan yöne doğru küçük bir adım kaydırır. Adımın büyüklüğünü **öğrenme oranı** (Adam'da varsayılan 0.001) belirler. Adam, her ağırlık için adımı geçmiş güncellemelere bakarak kendisi ayarladığı için çoğu problemde iyi bir varsayılan seçimdir.
+5. **`compile(loss='mean_squared_error', optimizer='adam')`** eğitimin kurallarını belirler. **Kayıp fonksiyonu** olarak ortalama kare hata (MSE) kullanılır: Gerçek değerler 0.2 ve 0.4, tahminler 0.1 ve 0.5 ise hatalar 0.1 ve −0.1, kareleri 0.01 ve 0.01, ortalamaları 0.01 olur. **Optimizasyon algoritması** Adam ise her güncellemede her ağırlığı, kaybı azaltan yöne doğru küçük bir adım kaydırır (gradyan inişi, 12.2'nin başı). Adımın büyüklüğünü **öğrenme oranı** (Adam'da varsayılan 0.001) belirler. Adam, her ağırlık için adımı geçmiş güncellemelere bakarak kendisi ayarladığı için çoğu problemde iyi bir varsayılan seçimdir.
 6. **`summary()`** katmanları, çıktı şekillerini ve öğrenilecek **parametre** (ağırlık ve yanlılık) sayısını tablo olarak yazdırır.
 7. **`fit(trainX, trainY, epochs=100, batch_size=1, verbose=2)`** eğitimi başlatır. **Batch** (yığın), ağırlıklar bir kez güncellenmeden önce birlikte işlenen örnek sayısıdır. **Epoch** ise eğitim verisinin tamamının modelden bir kez geçmesidir. `batch_size=1` ile 72 örneğin her birinden sonra güncelleme yapılır: bir epoch'ta 72 güncelleme, 100 epoch'ta $72 \cdot 100 = 7200$ güncelleme. `batch_size=16` seçilseydi bir epoch $72 / 16 = 4.5$, yani 5 yığın (dört tane 16'lık, bir tane 8'lik) ve 5 güncelleme olurdu. Küçük yığın daha çok ve daha "gürültülü" adım, büyük yığın daha az ve daha düzgün adım demektir. `verbose=2` her epoch için kaybı tek satırda yazdırır; bu satırlarda kaybın giderek küçüldüğünü görmeniz beklenir.
+
+   **Günlük hayattan bir örnek:** Bir ders kitabını baştan sona bir kez okumak bir epoch'tur. Her sayfadan sonra özet notlarınızı düzeltirseniz `batch_size=1` gibi çalışırsınız: çok sayıda ama telaşlı düzeltme. Her 16 sayfada bir düzeltirseniz `batch_size=16` olur: daha az ama daha olgun düzeltme.
+
+   **Not —** `fit` eğitim pencerelerinin sırasını her epoch'ta varsayılan olarak karıştırır (`shuffle=True`). Bu bir sızıntı değildir: Her pencere kendi geçmişini içinde taşır ve test dönemi zaten ayrı tutulmuştur. 17.2'deki "asla karıştırmayın" kuralı eğitim-test ayrımıyla ilgilidir.
+
 8. **`predict(trainX, verbose=0)`** her örnek için bir tahmin üretir; sonuç `(72, 1)` şeklinde, 0–1 ölçeğinde bir tablodur. `inverse_transform` tahminleri yolcu sayısına geri çevirir. `test_predict[:, 0]` "bütün satırlar, 0. sütun" demektir ve tabloyu düz bir diziye indirir.
 9. **RMSE** (kök ortalama kare hata, Bölüm 8.2.2): `mean_squared_error` hataların karelerinin ortalamasını, `np.sqrt` bunun karekökünü alır. Böylece hata yeniden yolcu biriminde okunur.
 10. Grafikte eğitim tahminleri `dates[look_back:train_size]`, yani 12. ile 83. sıradaki 72 tarihe çizilir: İlk 12 ay hiçbir örneğin hedefi olmadığı için bu ayların tahmini yoktur. `plt.axvline` test döneminin başladığı yere dikey bir çizgi koyar.
@@ -449,9 +371,11 @@ h_t &= \left(1 - z_t\right) \odot h_{t-1} + z_t \odot \tilde{h}_t &&\text{(yeni 
 \end{aligned}
 ```
 
-> **Simge notu:** $`z_t`$ *(z t)*: güncelleme kapısının çıktısı (0–1 arası) · $`r_t`$ *(r t)*: sıfırlama kapısının çıktısı (0–1 arası) · $`\tilde{h}_t`$ *(h tilda t)*: aday gizli durum, yani bu ayın girdisinden ve sıfırlama kapısından geçen geçmişten hesaplanan "yeni durum önerisi" · $`1 - z_t`$: kapının "kapalı" kalan payı; $`z_t = 0.3`$ ise $`1 - z_t = 0.7`$ · Diğer harfler ($`\sigma`$, $`\tanh`$, $`W`$, $`U`$, $`b`$, $`\odot`$) LSTM'dekiyle aynı anlamdadır.
+> **Simge notu:** $`z_t`$ *(z t)*: güncelleme kapısının çıktısı (0–1 arası) · $`r_t`$ *(r t)*: sıfırlama kapısının çıktısı (0–1 arası) · $`\tilde{h}_t`$ *(h tilda t)*: aday gizli durum, yani bu ayın girdisinden ve sıfırlama kapısından geçen geçmişten hesaplanan "yeni durum önerisi" · $`1 - z_t`$: kapının "kapalı" kalan payı; $`z_t = 0.3`$ ise $`1 - z_t = 0.7`$ · Diğer harfler ($`\sigma`$, $`\tanh`$, $`W`$, $`U`$, $`b`$, $`\odot`$) 12.2.2 ve 15.2'dekiyle aynı anlamdadır.
 
 **Açıklama:** Son denklem bir **ağırlıklı ortalamadır**: Eski durumdan $1 - z_t$ kadar, yeni adaydan $z_t$ kadar alınır ve iki pay her zaman 1'e tamamlanır. $z_t$ sıfıra yakınsa model eski durumu olduğu gibi korur, yani "bu ay önemli bir şey olmadı" der. Bire yakınsa durumu büyük ölçüde yeni adayla değiştirir. $r_t$ sıfıra yakınsa aday durum geçmişi neredeyse yok sayar ve yalnızca yeni girdiye bakar. Bu, serideki ani bir kırılmadan sonra "baştan başlamak" için kullanışlıdır.
+
+**Günlük hayattan bir örnek:** LSTM'in unutma ve giriş kapıları iki ayrı musluk gibiyse (12.2.2'deki vana benzetmesi), GRU'nun güncelleme kapısı tek kollu bir mutfak bataryasıdır. Kolu bir yöne çevirdikçe yeni adaydan gelen pay artarken eski durumdan gelen pay aynı oranda azalır; iki payın toplamı hep 1'dir. Sıfırlama kapısı ise yeni karışımı hazırlarken eski suyu hesaba katıp katmayacağınızı belirler. Benzetmenin sınırı: Bu "kol" her birim için ayrıdır ve her adımda girdiye bakılarak yeniden hesaplanır.
 
 **Sayısal örnek (tek birim):** Eski durum $h_{t-1} = 0.8$, aday durum $\tilde{h}_ t = 0.2$ olsun.
 
@@ -468,11 +392,7 @@ Böylece GRU, LSTM'e göre:
 - daha hızlı eğitilir,
 - küçük veri kümelerinde ezberlemeye biraz daha az eğilim gösterebilir.
 
-Zaman serisi söz konusu olduğunda GRU da tıpkı LSTM gibi belirli sayıda önceki adımı (son 12 ay) girdi olarak alır ve bir sonraki adımı tahmin etmeye çalışır. Aşağıdaki kodda LSTM'le **birebir aynı** veri hazırlığını, aynı `look_back = 12` değerini ve aynı eğitim ayarlarını kullanıyoruz. Böylece iki model arasındaki fark, rastgele başlangıç ağırlıkları dışında, yalnızca hücre yapısından kaynaklanır:
-
-1. 15.1'de 0–1 aralığına ölçeklenmiş ve pencerelenmiş veriyi alıyoruz.
-2. Son 12 gözleme bakarak bir sonraki ayı tahmin eden GRU modelini kurup eğitiyoruz.
-3. Test verisi üzerinde RMSE hesaplıyoruz.
+Zaman serisi söz konusu olduğunda GRU da tıpkı LSTM gibi belirli sayıda önceki adımı (son 12 ay) girdi olarak alır ve bir sonraki adımı tahmin etmeye çalışır. Aşağıdaki kodda LSTM'le **birebir aynı** veri hazırlığını, aynı `look_back = 12` değerini ve aynı eğitim ayarlarını kullanıyoruz. Böylece iki model arasındaki fark, rastgele başlangıç ağırlıkları dışında, yalnızca hücre yapısından kaynaklanır.
 
 ```python
 # 15.1'de hazırlanan trainX, trainY, testX, testY, scaler, dates, test_dates,
@@ -532,7 +452,7 @@ Bizim bilgisayarımızda `SEED = 42` ile GRU'nun test RMSE'si **183.64** çıkt�
 
 *Şekil 15.3 — Aynı GRU mimarisi, aynı veri ve aynı eğitim ayarlarıyla, yalnızca tohum değiştirilerek eğitildi. `SEED = 1` ile tahminler (mavi, kesikli) gerçek seriyi izler; `SEED = 42` ile tahminler (kırmızı) girdiler eğitim döneminin en büyük değerini (gri kesikli çizgi) aşmaya başladıktan sonra dağılır ve 1959–1960'ta sıfıra kadar düşer.*
 
-Tablo ve Şekil 15.3 bu bölümün belki de en önemli dersini veriyor: Küçük bir veri setinde, eğitim aralığının dışına çıkmak zorunda kalan bir sinir ağının sonucu **başlangıç ağırlıklarına çok duyarlıdır**. 15.1.1'de gördüğümüz gibi test girdileri ölçeklenmiş değerde 1.99'a kadar çıkar; modelin bu bölgede nasıl davranacağını eğitim verisi hiç belirlememiştir. Bir tohumda ağırlıklar bu bölgede "makul" bir davranış üretir, diğerinde üretmez. LSTM de bu sorundan muaf değildir (`SEED = 7` ile 93.19). Bu yüzden iki modeli tek bir çalıştırmayla karşılaştırıp "LSTM GRU'dan iyidir" ya da tersini söylemek yanlış olur. Doğru yaklaşım, her modeli birkaç tohumla ve birkaç zaman dilimiyle (Bölüm 16'daki zaman serisi çapraz doğrulaması) değerlendirip ortalamaya bakmaktır. Sorunun kendisini hafifletmenin yolu ise seriyi farklar üzerinden modellemektir (15.1.1'deki not): Farklar eğitim aralığının dışına çok daha az taşar.
+Tablo ve Şekil 15.3 bu bölümün belki de en önemli dersini veriyor: Küçük bir veri setinde, eğitim aralığının dışına çıkmak zorunda kalan bir sinir ağının sonucu **başlangıç ağırlıklarına çok duyarlıdır**. Test girdileri ölçeklenmiş değerde 1.99'a kadar çıkar (15.1.1) ve modelin bu bölgedeki davranışını eğitim verisi hiç belirlememiştir. Bir tohumda ağırlıklar bu bölgede "makul" bir davranış üretir, diğerinde üretmez. LSTM de bu sorundan muaf değildir (`SEED = 7` ile 93.19). Bu yüzden iki modeli tek bir çalıştırmayla karşılaştırıp "LSTM GRU'dan iyidir" ya da tersini söylemek yanlış olur. Doğru yaklaşım, her modeli birkaç tohumla ve birkaç zaman dilimiyle (Bölüm 16'daki zaman serisi çapraz doğrulaması) değerlendirip ortalamaya bakmaktır. Sorunun kendisini hafifletmenin yolu ise seriyi farklar üzerinden modellemektir (15.1.1'deki not): Farklar eğitim aralığının dışına çok daha az taşar.
 
 > **Hemen deneyin 15.3 · Küçük bir GRU, üç tohum** (Python, ~4 dk; eğitim yaklaşık 15 sn)
 >
@@ -559,13 +479,13 @@ Tablo ve Şekil 15.3 bu bölümün belki de en önemli dersini veriyor: Küçük
 >
 > <details><summary>Cevap</summary>
 >
-> Bizde `115.70`, `72.19`, `112.79` çıktı: hem hata büyüdü hem de tohumlar arasındaki fark 40 birimi aştı. 4 birimlik bir GRU deseni öğrenmeye yetecek kapasiteye sahip değil (yetersiz öğrenme); nereye varacağı da büyük ölçüde başlangıç ağırlıklarına bağlı. Sayılarınız farklı olabilir, ama "küçük model, geniş yayılım" deseni genelde görülür. Ders: Bir modeli tek tohumla değerlendirmeyin; birim sayısı gibi ayarları değiştirirken de her ayarı birkaç tohumla deneyin.
+> Bizde `115.70`, `72.19`, `112.79` çıktı: hem hata büyüdü hem de tohumlar arasındaki fark 40 birimi aştı. 4 birimlik bir GRU deseni öğrenmeye yetecek kapasiteye sahip değil (yetersiz öğrenme, Bölüm 8.4.3); nereye varacağı da büyük ölçüde başlangıç ağırlıklarına bağlı. Sayılarınız farklı olabilir, ama "küçük model, geniş yayılım" deseni genelde görülür. Ders: Bir modeli tek tohumla değerlendirmeyin; birim sayısı gibi ayarları değiştirirken de her ayarı birkaç tohumla deneyin.
 >
 > </details>
 
 ### 15.4. 1D-CNN: Desen Tabanlı Yaklaşım
 
-Şimdiye kadar zaman serilerine iki temel felsefeyle yaklaştık: geçmişi hatırlamak (LSTM, GRU) ve kurallar oluşturmak (XGBoost, Prophet). Yapay zeka literatüründe, genellikle görüntü işlemeyle özdeşleşmiş olsa da zaman serilerinde de başarılı sonuçlar veren bir yöntem daha vardır: **1D-CNN (bir boyutlu evrişimli sinir ağı)**.
+Şimdiye kadar zaman serilerine iki temel felsefeyle yaklaştık: geçmişi hatırlamak (LSTM, GRU) ve kurallar oluşturmak (XGBoost); Prophet ise seriyi bileşenlere ayırıp eğri uydurur. Yapay zeka literatüründe, genellikle görüntü işlemeyle özdeşleşmiş olsa da zaman serilerinde de başarılı sonuçlar veren bir yöntem daha vardır: **1D-CNN (bir boyutlu evrişimli sinir ağı)**.
 
 CNN'leri çoğunlukla "bu resimde kedi var mı?" sorusuyla duyarız. Orada ağ, resmin üzerinde küçük pencereler gezdirerek kenarları ve köşeleri öğrenir. Zaman serisinde mantık aynıdır; yalnızca pencere iki boyutlu bir resim yerine tek boyutlu bir dizi üzerinde kayar. Filtreler, verinin içindeki yükseliş eğilimini, ani düşüşü veya tepe noktasını birer **desen** olarak tanımayı öğrenir.
 
@@ -575,13 +495,15 @@ LSTM veriyi bir hikâye gibi baştan sona okuyup aklında tutmaya çalışır; C
 
 Evrişimin fikri basittir: Birkaç sayıdan oluşan küçük bir **filtre** (ağırlık listesi) serinin üzerine konur, altında kalan değerlerle eleman eleman çarpılır, çarpımlar toplanır ve tek bir sayı elde edilir. Sonra filtre bir adım sağa kaydırılır ve aynı işlem tekrarlanır. Sonuçta seri boyunca "bu konumda filtrenin aradığı desen ne kadar güçlü?" sorusunun cevaplarından oluşan yeni bir dizi çıkar. Bu diziye **özellik haritası (feature map)** denir.
 
+**Günlük hayattan bir örnek:** Bir filtre, üzerine küçük bir şekil çizilmiş şeffaf bir şablona benzer (ör. üç kare boyunca "yukarı çıkan çizgi"). Şablonu grafik kâğıdının üzerinde soldan sağa kaydırırsınız; her konumda alttaki eğri şablona ne kadar benziyorsa o kadar yüksek bir puan yazarsınız. Puanların dizisi özellik haritasıdır. Benzetmenin sınırı: Gerçek ağda şablonlar elle çizilmez, eğitimle öğrenilir.
+
 **Tanım (1D evrişim):** Uzunluğu $K$ olan bir filtrenin ağırlıkları $w_0, \dots, w_{K-1}$ ve yanlılığı $b$ olsun. Filtrenin $t$ konumundaki çıktısı:
 
 $$
 y_t = g\left(\sum_{k=0}^{K-1} w_k x_{t+k} + b\right)
 $$
 
-> **Simge notu:** $`\sum`$ *(büyük sigma, "toplam")*: altındaki $`k=0`$ ile üstündeki $`K-1`$ arasındaki her $`k`$ için yanındaki terimi yazıp hepsini toplamak demektir. $`K = 3`$ için $`\sum_{k=0}^{2} w_k x_{t+k} = w_0 x_t + w_1 x_{t+1} + w_2 x_{t+2}`$ olur. LSTM'deki küçük $`\sigma`$ (sigmoid) ile karıştırmayın · $`K`$: filtre uzunluğu (Keras'ta `kernel_size`) · $`k`$: filtre içindeki sıra numarası (0, 1, …, K−1) · $`w_k`$ *(dabılyu k)*: filtrenin $`k`$. ağırlığı, eğitimle öğrenilir · $`x_{t+k}`$: serinin $`t+k`$. değeri; $`t`$ filtrenin o anda başladığı konumdur · $`b`$: yanlılık · $`y_t`$: filtrenin $`t`$ konumundaki çıktısı · $`g`$: aktivasyon fonksiyonu (burada ReLU, $`g(u) = \max(0, u)`$, yani negatifse 0, değilse kendisi)
+> **Simge notu:** $`\sum`$ *(büyük sigma, "toplam")*: altındaki $`k=0`$ ile üstündeki $`K-1`$ arasındaki her $`k`$ için yanındaki terimi yazıp hepsini toplamak demektir. $`K = 3`$ için $`\sum_{k=0}^{2} w_k x_{t+k} = w_0 x_t + w_1 x_{t+1} + w_2 x_{t+2}`$ olur. LSTM'deki küçük $`\sigma`$ (sigmoid) ile karıştırmayın · $`K`$: filtre uzunluğu (Keras'ta `kernel_size`) · $`k`$: filtre içindeki sıra numarası (0, 1, …, K−1) · $`w_k`$ *(dabılyu k)*: filtrenin $`k`$. ağırlığı, eğitimle öğrenilir · $`x_{t+k}`$: serinin $`t+k`$. değeri; $`t`$ filtrenin o anda başladığı konumdur · $`b`$: yanlılık · $`y_t`$: filtrenin $`t`$ konumundaki çıktısı · $`g`$: aktivasyon fonksiyonu (burada ReLU; tanımı 12.2'nin başındaki tabloda)
 
 **Sayısal örnek:** Şekil 15.4'teki elle seçilmiş filtrenin ağırlıkları $w_0 = -1$, $w_1 = 0$, $w_2 = +1$, yanlılığı $b = 0$ olsun. Seri 1949'un ilk ayları: 112, 118, 132, 129, 121, 135, … Filtre ilk üç aya oturduğunda:
 
@@ -596,6 +518,8 @@ y_3 &= (-1) \cdot 132 + 0 \cdot 129 + (+1) \cdot 121 = -132 + 0 + 121 = -11 &&\R
 Bu filtre aslında $y_t = x_{t+2} - x_t$ farkını, yani "iki ay sonraki değer bugünküne göre ne kadar yüksek?" sorusunu hesaplar. Pozitif sonuç üç aylık bir yükselişi, negatif sonuç düşüşü gösterir; ReLU düşüşleri 0'a çevirir ve yalnızca yükselişleri bırakır. 12 aylık seride filtre 10 farklı konuma oturabilir ($12 - 3 + 1 = 10$), bu yüzden 10 çıktı oluşur: 20, 11, 0, 6, 27, 13, 0, 0, 0, 0.
 
 **Havuzlama (pooling):** `MaxPooling1D(pool_size=2)` bu diziyi ikişerli gruplara ayırır ve her gruptan yalnızca en büyüğünü tutar: (20, 11) → 20, (0, 6) → 6, (27, 13) → 27, (0, 0) → 0, (0, 0) → 0. 10 değer 5'e iner. Havuzlama hem hesabı küçültür hem de desenin bir ay erken ya da geç görülmesini önemsiz kılar: Yükseliş grubun birinci ya da ikinci ayında olsun, sonuç aynıdır.
+
+**Günlük hayattan bir örnek:** Havuzlama, her iki günlük dilimden yalnızca en yüksek sıcaklığı deftere yazmaya benzer. Defter yarı yarıya incelir ve sıcak dalganın pazartesi mi salı mı başladığı önemsizleşir, ama "bu iki günde sıcak bir gün vardı" bilgisi korunur. Benzetmenin sınırı: Hangi günün sıcak olduğu bilgisi kaybolur.
 
 **Açıklama:** Filtre, serinin üzerinde birer adım kayarak (`strides=1`) her konumda ardışık $K$ değerin ağırlıklı toplamını hesaplar. Aynı ağırlıklar serinin her yerinde kullanılır (**ağırlık paylaşımı**). Bu yüzden "Şubat–Mart yükselişi" deseni hangi yılda görülürse görülsün aynı filtre tarafından yakalanır. Yukarıdaki $[-1, 0, +1]$ filtresini biz seçtik; gerçek modelde 64 filtrenin her birinin ağırlıkları eğitim sırasında öğrenilir ve her filtre kendine farklı bir desen (yükseliş, düşüş, tepe, çukur …) bulur.
 
@@ -649,15 +573,15 @@ Bu filtre aslında $y_t = x_{t+2} - x_t$ farkını, yani "iki ay sonraki değer 
 
 Keras'taki `Conv1D` ve ilgili katmanların parametreleri:
 
-| Parametre / katman | Anlamı | Bizim modelde |
-| --- | --- | --- |
-| `filters` | Kaç farklı desen aranacağı; her filtre ayrı bir özellik haritası üretir | 64, sonra 128 |
-| `kernel_size` | Filtrenin aynı anda kaç zaman adımına baktığı | 3 (üç ay) |
-| `padding` | `'valid'`: kenar eklenmez, çıktı $`n-K+1`$ uzunluğundadır; `'same'`: kenarlara sıfır eklenir, çıktı uzunluğu girdiyle aynı kalır | `'same'` |
-| `MaxPooling1D(pool_size=2)` | Ardışık iki değerin en büyüğünü alır: uzunluk yarıya iner, küçük kaymalara karşı dayanıklılık artar | 12 → 6 → 3 |
-| `Flatten` + `Dense` | Özellik haritalarını tek bir sayı listesine açıp tahmine dönüştürür | 384 → 50 → 1 |
+| Parametre / katman | Anlamı |
+| --- | --- |
+| `filters` | Kaç farklı desen aranacağı; her filtre ayrı bir özellik haritası üretir |
+| `kernel_size` | Filtrenin aynı anda kaç zaman adımına baktığı |
+| `padding` | `'valid'`: kenar eklenmez, çıktı $`n-K+1`$ uzunluğundadır; `'same'`: kenarlara sıfır eklenir, çıktı uzunluğu girdiyle aynı kalır |
+| `MaxPooling1D(pool_size=2)` | Ardışık iki değerin en büyüğünü alır: uzunluk yarıya iner, küçük kaymalara karşı dayanıklılık artar |
+| `Flatten` + `Dense` | Özellik haritalarını tek bir sayı listesine açıp tahmine dönüştürür |
 
-Tablodaki sayıları birlikte izleyelim. Girdi 12 aylık penceredir. `padding='same'` serinin iki ucuna birer 0 ekler; 14 değerlik dizide 3'lük filtre $14 - 3 + 1 = 12$ konuma oturur ve uzunluk 12 olarak kalır (`'valid'` olsaydı yukarıdaki örnekteki gibi 10'a inerdi). İlk evrişim katmanındaki 64 filtrenin her biri ayrı bir 12 değerlik özellik haritası üretir; çıktının şekli `(12, 64)` olur. Havuzlama uzunluğu $12 / 2 = 6$'ya indirir. İkinci evrişim katmanı 128 filtreyle `(6, 128)`, ikinci havuzlama `(3, 128)` verir. `Flatten` bu $3 \times 128 = 384$ sayıyı tek bir uzun listeye dizer; `Dense(50)` bunları 50 sayıya, `Dense(1)` de tek tahmine indirir.
+Bizim modelimizdeki sayıları birlikte izleyelim. Girdi 12 aylık penceredir. `padding='same'` serinin iki ucuna birer 0 ekler; 14 değerlik dizide 3'lük filtre $14 - 3 + 1 = 12$ konuma oturur ve uzunluk 12 olarak kalır (`'valid'` olsaydı yukarıdaki örnekteki gibi 10'a inerdi). İlk evrişim katmanındaki 64 filtrenin her biri ayrı bir 12 değerlik özellik haritası üretir; çıktının şekli `(12, 64)` olur. Havuzlama uzunluğu $12 / 2 = 6$'ya indirir. İkinci evrişim katmanı 128 filtreyle `(6, 128)`, ikinci havuzlama `(3, 128)` verir. `Flatten` bu $3 \times 128 = 384$ sayıyı tek bir uzun listeye dizer; `Dense(50)` bunları 50 sayıya, `Dense(1)` de tek tahmine indirir.
 
 Birden fazla evrişim katmanı üst üste konduğunda ikinci katmandaki bir filtre, ilk katmanın desenlerinin birleşimine bakar. Havuzlamayla birlikte her katman serinin daha uzun bir bölümünü "görür". Buna filtrenin **alıcı alanı (receptive field)** denir. Örneğin ilk katmandaki bir filtre 3 ayı görür. Havuzlamadan sonra ikinci katmandaki 3'lük bir filtre, her biri iki ilk-katman çıktısını özetleyen 3 değere, yani 6 ilk-katman çıktısına bakar; bu 6 çıktının her biri 3 aylık, birbirine bir ay kaydırılmış dilimlerden geldiği için toplamda $6 + 2 = 8$ aylık bir dilimi kapsar.
 
@@ -688,7 +612,7 @@ Birden fazla evrişim katmanı üst üste konduğunda ikinci katmandaki bir filt
 > flatten          (None, 384)
 > ```
 >
-> Metindeki tablonun aynısı: 12 → 6 → 3 ve $3 \cdot 128 = 384$. `None` örnek sayısıdır; model her sayıda örneği kabul ettiği için boş bırakılır.
+> Metindeki hesabın aynısı: 12 → 6 → 3 ve $3 \cdot 128 = 384$. `None` örnek sayısıdır; model her sayıda örneği kabul ettiği için boş bırakılır.
 >
 > **Şimdi siz:** (1) `dolgu = "valid"` yapın. Her satırdaki uzunluğu önce $n - K + 1$ ve "ikiye böl, küsuratı at" kurallarıyla tahmin edin. (2) `"valid"` iken iki `kernel_size`'ı da 5 yapın. Ne olur?
 >
@@ -700,7 +624,7 @@ Birden fazla evrişim katmanı üst üste konduğunda ikinci katmandaki bir filt
 
 #### 15.4.2. 1D-CNN Uygulaması
 
-Aşağıdaki kod 15.1'deki ortak veriyi kullanır. Evrişimli model LSTM'den çok daha fazla parametre taşır (44.261; LSTM'de 10.451). Bu kadar parametre 60 örnekle eğitildiğinde model genel deseni öğrenmek yerine eğitim verisini ezberleyebilir. Bunu izlemek için eğitim kümesinin son 12 ayını **doğrulama (validation)** kümesi olarak ayırıyoruz: Model bu 12 ayla eğitilmez, yalnızca her epoch sonunda bu aylardaki hatasına bakılır. Eğitim hatası düşmeye devam ederken doğrulama hatası artmaya başlarsa model ezberliyordur. **Erken durdurma (early stopping)** tam bu anı yakalayıp eğitimi keser.
+Aşağıdaki kod 15.1'deki ortak veriyi kullanır. Evrişimli model LSTM'den çok daha fazla parametre taşır (44.261; LSTM'de 10.451) ve 60 örnekle eğitildiğinde genel deseni öğrenmek yerine eğitim verisini ezberleyebilir. Bunu izlemek için XGBoost'ta olduğu gibi eğitim kümesinin son 12 ayını **doğrulama** kümesi olarak ayırıyor ve **erken durdurma** kullanıyoruz (bkz. 13.4 ve 8.1.1): Doğrulama hatası iyileşmeyi bırakınca eğitim kesilir.
 
 Tam program (yaklaşık 260 satır) uygulama dosyasındadır; aşağıda kilit satırlar yer alıyor. Dosyada katmanlar tek tek, açıklamalı olarak alt alta yazılmıştır.
 
@@ -713,15 +637,13 @@ X_test, y_test = testX, testY
 
 def build_cnn_model(look_back, filters=64, kernel_size=3, dropout_rate=0.2):
     model = Sequential([
-        Input(shape=(look_back, 1)),                                              # (12, 1)
-        Conv1D(filters=filters, kernel_size=kernel_size, activation='relu',
-               padding='same'),                                                   # (12, 64)
-        MaxPooling1D(pool_size=2), Dropout(dropout_rate),                         # (6, 64)
-        Conv1D(filters=filters * 2, kernel_size=kernel_size, activation='relu',
-               padding='same'),                                                   # (6, 128)
-        MaxPooling1D(pool_size=2), Dropout(dropout_rate),                         # (3, 128)
-        Flatten(), Dense(50, activation='relu'), Dropout(dropout_rate),           # 384 -> 50
-        Dense(1)                                                                  # regresyon çıktısı
+        Input(shape=(look_back, 1)),
+        Conv1D(filters=filters, kernel_size=kernel_size, activation='relu', padding='same'),
+        MaxPooling1D(pool_size=2), Dropout(dropout_rate),
+        Conv1D(filters=filters * 2, kernel_size=kernel_size, activation='relu', padding='same'),
+        MaxPooling1D(pool_size=2), Dropout(dropout_rate),
+        Flatten(), Dense(50, activation='relu'), Dropout(dropout_rate),
+        Dense(1)                                    # regresyon çıktısı
     ])
     model.compile(optimizer=Adam(learning_rate=0.001), loss='mse', metrics=['mae'])
     return model
@@ -743,9 +665,12 @@ Kilit satırları sırayla açıklayalım:
 - **`Conv1D(filters, kernel_size, activation='relu', padding='same')`:** 15.4.1'de anlatılan evrişim katmanıdır: 64 farklı 3'lük filtre, ReLU aktivasyonu, uzunluğu koruyan kenar dolgusu.
 - **`MaxPooling1D(pool_size=2)`:** İkişerli gruplardan en büyüğünü tutar ve uzunluğu yarıya indirir (15.4.1'deki örnek).
 - **`Dropout(0.2)`:** Eğitimin her adımında katmandaki nöronların rastgele seçilmiş yüzde 20'sini geçici olarak kapatır (çıktılarını 0 yapar). Her gün rastgele birkaç üyesi izinli olan bir ekip düşünün: Ekip tek bir kişiye bağımlı kalamaz ve işi paylaşmayı öğrenir. Ağ da böylece tek tek nöronlara dayanmak yerine daha genel desenler öğrenir. Tahmin sırasında (`predict`) dropout kapanır ve bütün nöronlar çalışır.
-- **`Flatten()`** `(3, 128)` şeklindeki tabloyu 384 sayılık tek bir listeye dizer; **`Dense(50, activation='relu')`** ve **`Dense(1)`** bu listeyi önce 50 sayıya, sonra tek tahmine indirir.
+- **`Flatten()`, `Dense(50, activation='relu')` ve `Dense(1)`:** Özellik haritalarını tek bir listeye açıp önce 50 sayıya, sonra tek tahmine indirir (şekiller 15.4.1'deki hesapta).
 - **`compile(optimizer=Adam(learning_rate=0.001), loss='mse', metrics=['mae'])`:** Kayıp yine ortalama kare hatadır (`'mse'`, `'mean_squared_error'` yazımının kısaltması). Öğrenme oranı açıkça 0.001 olarak verilmiştir. `metrics=['mae']` ortalama mutlak hatayı da izler; MAE eğitimi etkilemez, yalnızca raporlanır.
 - **`EarlyStopping(monitor='val_loss', patience=20, restore_best_weights=True)`:** Her epoch sonunda doğrulama kaybını (`val_loss`) izler. **Sabır (patience)**, iyileşme olmadan kaç epoch bekleneceğidir. Örneğin doğrulama kaybı en düşük değerine 35. epoch'ta ulaşmış ve sonraki 20 epoch boyunca bu değerin altına hiç inememişse eğitim 55. epoch'un sonunda durur. `restore_best_weights=True` modelin ağırlıklarını 55. epoch'taki hâlinden 35. epoch'taki en iyi hâline geri çevirir.
+
+  **Günlük hayattan bir örnek:** Erken durdurma, fotoğraf makinesinde elle netlik ayarlamaya benzer. Halkayı çevirdikçe görüntü netleşir (doğrulama hatası düşer), bir noktadan sonra yeniden bulanıklaşır (hata yükselir). Sabır (`patience`), "belki yine netleşir" diye kaç tık daha çevireceğinizdir; bulanıklık sürerse en net olduğu konuma geri dönersiniz (`restore_best_weights=True`).
+
 - **`fit(..., epochs=300, batch_size=16, validation_data=(X_val, y_val), callbacks=[early_stop])`:** 300 yalnızca bir üst sınırdır; erken durdurma genellikle çok daha önce keser. 60 eğitim örneği 16'lık yığınlara bölündüğünde her epoch'ta 4 güncelleme yapılır (16 + 16 + 16 + 12). `validation_data` doğrulama kümesini, `callbacks` ise her epoch sonunda çağrılacak yardımcıları (burada erken durdurma) verir. `fit` eğitim boyunca kaydedilen kayıpları `history` nesnesinde döndürür; dosyadaki öğrenme eğrileri bu kayıtlardan çizilir.
 - **Son üç satır** test tahminlerini ve gerçek değerleri `inverse_transform` ile yolcu sayısına çevirir ve test RMSE'sini `rmse_cnn` adıyla saklar.
 
@@ -788,13 +713,7 @@ Kilit satırları sırayla açıklayalım:
 >
 > </details>
 
-Program sırasıyla şu adımları izler:
-
-1. **Ayrım, mimari ve eğitim:** Yukarıdaki kilit satırlarda anlatıldığı gibidir (72 eğitim penceresinin son 12'si doğrulama; iki evrişim bloğu; en fazla 300 epoch ve erken durdurma). Ek olarak kayıp ve MAE öğrenme eğrileri çizilir.
-2. **Değerlendirme:** Tahminler `inverse_transform` ile orijinal ölçeğe döndürülür; eğitim, doğrulama ve test için RMSE, MAE ve MAPE yazdırılır. Test RMSE'si `rmse_cnn` olarak saklanır.
-3. **Görselleştirme:** Gerçek seri üzerinde eğitim, doğrulama ve test tahminleri çizilir.
-4. **Hata analizi:** Test hatalarının histogramı, zaman içindeki seyri ve gerçek–tahmin saçılım grafiği çizilir; hataların ortalaması ve standart sapması yazdırılır.
-5. **Hiperparametre karşılaştırması (isteğe bağlı):** Üç farklı `filters` / `kernel_size` / `dropout_rate` yapılandırması denenir; en iyisi **doğrulama** RMSE'sine göre seçilir.
+Dosya bu satırlara ek olarak eğitim, doğrulama ve test için RMSE, MAE ve MAPE değerlerini (Bölüm 8.2), öğrenme eğrilerini, hata analizini ve hiperparametre karşılaştırmasını da içerir (çıktı yorumunda).
 
 Tam kod: [`Codes/python/ch15_derin_ogrenme.py`](../Codes/python/ch15_derin_ogrenme.py) · [Notebook](../Codes/notebooks/ch15_derin_ogrenme.ipynb)
 
@@ -829,7 +748,7 @@ Bu yapılandırmanın test RMSE değeri: 27.91
 - **Parametre sayısı:** 44.261 parametrenin hesabı: ilk evrişim katmanında her filtre 3 ağırlık ve 1 yanlılık taşır, $64 \times (3 + 1) = 256$. İkinci katmanda her filtre 3 zaman adımı × 64 özellik haritası = 192 ağırlık ve 1 yanlılık taşır, $128 \times (192 + 1) = 24.704$. `Dense(50)` için $384 \times 50 + 50 = 19.250$, çıktı katmanı için $50 + 1 = 51$. Toplam $256 + 24.704 + 19.250 + 51 = 44.261$.
 - **Öğrenme eğrileri (Şekil 15.5):** Durma ve geri yükleme noktaları (16. epoch'un ağırlıkları, 36. epoch'ta durma) şeklin alt yazısında açıklanmıştır. Doğrulama kaybı eğitim kaybından çok yüksekse model ezberliyordur; dropout oranını artırmak ya da filtre sayısını azaltmak denenebilir.
 - **Eğitim, doğrulama ve test RMSE:** Eğitimden teste doğru hatanın artması (13.65 → 24.66 → 32.43) normaldir: Model eğitim verisini zaten görmüştür, doğrulama yılı (1955) eğitime en yakın dönemdir, test dönemi ise hem daha uzun hem de eğitimde hiç görülmemiş yolcu düzeyleri içerir. Test RMSE'nin eğitimin birkaç katı olması hem aşırı öğrenmeye hem de 15.1.1'deki ekstrapolasyon sorununa işaret eder; burada oran $32.43 / 13.65 \approx 2.4$'tür.
-- **Hata analizi:** Hata burada "gerçek eksi tahmin" olarak hesaplanır. Ortalama hata 18.38, yani pozitiftir: Model test döneminde ortalama olarak yaklaşık 18 bin yolcu **düşük** tahmin yapıyor. Bu, sistematik bir sapmadır ve yine ekstrapolasyon sorununun işaretidir. Hataların zamanla büyümesi, trendin model tarafından tam yakalanamadığını gösterir.
+- **Hata analizi:** Hata burada "gerçek eksi tahmin" olarak hesaplanır. Ortalama hata 18.38, yani pozitiftir: Model test döneminde ortalama olarak yaklaşık 18 bin yolcu **düşük** tahmin yapıyor. Bu sistematik sapma da ekstrapolasyon sorununun işaretidir (15.1.1). Hataların zamanla büyümesi, trendin model tarafından tam yakalanamadığını gösterir.
 - **Hiperparametre karşılaştırması:** Doğrulama RMSE'si en küçük olan yapılandırma (2) seçildi. Bu yapılandırma ana modelle aynı ayarlara sahip olduğu hâlde doğrulama RMSE'si farklıdır (22.23 ve 24.66), çünkü döngüdeki modeller farklı rastgele başlangıç ağırlıklarıyla kurulur ve erken durdurma sabrı 15'tir. Üç yapılandırma arasındaki farklar (22–27) bu rastgelelikten kaynaklanan farkla aynı büyüklüktedir; yani bu küçük deneyle hangi ayarın gerçekten daha iyi olduğunu kesin olarak söyleyemeyiz.
 
 > **Not — Neden `BatchNormalization` kullanmıyoruz?** İnternetteki birçok 1D-CNN örneğinde her evrişim katmanından sonra bir `BatchNormalization` katmanı bulunur. Bu katman, bir önceki katmanın çıktılarını eğitim sırasında her yığının kendi ortalamasına göre, tahmin sırasında ise eğitim boyunca biriktirdiği ortalamalara göre yeniden ölçekler. Büyük veri setlerinde eğitimi hızlandırır ve kararlı kılar. Bizim denememizde aynı modelde her iki evrişim katmanının arkasına bu katmanı eklediğimizde sonuç çarpıcı biçimde kötüleşti: Eğitim RMSE'si 118.68, test RMSE'si 247.86 çıktı ve model test döneminde ortalama 234 bin yolcu düşük tahmin yaptı; yani model kendi eğitim verisini bile tahmin edemez hâle geldi. Olası neden, yalnızca 60 örnek ve 16'lık küçük yığınlarla hesaplanan yığın ortalamalarının hem birbirinden hem de tahmin sırasında kullanılan birikmiş ortalamalardan çok farklı olmasıdır; trendli bir seride her yığın farklı bir yolcu düzeyini temsil eder. Ders: Bir katmanın "genellikle işe yaradığı" söylense bile, eklediğiniz her bileşenin kendi verinizdeki etkisini ölçün.
@@ -887,15 +806,13 @@ Bu yapılandırmanın test RMSE değeri: 27.91
 - Sıralı yapıyı doğrudan modellemez; iki desenin hangi sırayla geldiği bilgisi havuzlamayla kısmen kaybolur.
 - Mevsimsellik için ek özellik mühendisliği gerekebilir.
 
-**İyileştirme önerileri:** Daha fazla Conv1D katmanı kullanmak, alıcı alanı genişletmek için **genişletilmiş evrişim (dilated convolution)** uygulamak, CNN + LSTM hibrit modeller kurmak ve mevsimsel farkı alınmış veriyle çalışmak.
+**İyileştirme önerileri:** Daha fazla Conv1D katmanı kullanmak, alıcı alanı genişletmek için **genişletilmiş evrişim (dilated convolution)**, yani filtrenin aradaki adımları atlayarak daha uzun bir geçmişi görmesini sağlamak, CNN + LSTM hibrit modeller kurmak ve mevsimsel farkı alınmış veriyle çalışmak.
 
 #### 15.4.3. 1D-CNN ile Tekrarlayan Ağların Karşılaştırması
 
-**Odak farkı:** LSTM ve GRU zaman içindeki bağımlılığı modeller; "Ocak ayındaki olay Kasım ayını nasıl etkiledi?" sorusuna cevap arar. 1D-CNN ise yerel yapıları modeller; "her krizden sonra bir U dönüşü oluyor" gibi şekilsel çıkarımlar yapar.
-
-**Hız:** AirPassengers küçük bir veri olduğu için farkı hissetmezsiniz. Ancak milyonlarca satırlık veride LSTM'in eğitimi günler sürebilirken CNN aynı işi saatler içinde tamamlayabilir. CNN'de her konumdaki evrişim birbirinden bağımsızdır ve paralel hesaplanır; LSTM ise $h_t$'yi hesaplamak için $h_{t-1}$'i beklemek, yani sıralı gitmek zorundadır.
-
 **Karma kullanım:** Modern araştırmalarda **CNN-LSTM hibrit** modelleri sıkça görülür. Önce CNN ile verideki önemli desenler çıkarılır, sonra bu özellikler LSTM'e verilerek zamansal ilişki kurulur.
+
+İki yaklaşımın odak farkı 15.4'ün girişinde, hız farkı yukarıdaki güçlü yanlar listesinde özetlendi; hız farkını aşağıdaki kutuda kendiniz ölçebilirsiniz.
 
 > **Hemen deneyin 15.4.3 · Sıralı hesap ve paralel hesap: süreyi ölçün** (Python, ~4 dk)
 >
@@ -1004,8 +921,8 @@ plt.show()
 
 Kod dört bölümden oluşur:
 
-1. **XGBoost için tablo:** `pd.Series(dataset[:, 0], index=dates)` yolcu sayılarını tarihlerle etiketlenmiş bir seriye çevirir. `s.shift(lag)` seriyi `lag` ay aşağı kaydırır: 112, 118, 132 serisinin `shift(1)` sonucu boş, 112, 118 olur; yani her satıra bir önceki ayın değeri yazılır. Döngü 1'den 12'ye kadar bütün gecikmeleri `lag_1`, …, `lag_12` sütunları olarak ekler; `feat.index.month` ise ay numarasını (1–12) ekler. İlk 12 satırda bazı gecikmeler boş kalacağı için `dropna()` bu satırları atar.
-2. **Ayrım ve eğitim:** `feat[feat.index < test_dates[0]]` yalnızca Ocak 1956'dan önceki satırları seçer (köşeli parantez içine bir koşul yazmak, koşulu sağlayan satırları süzer). `drop(columns='y')` hedef sütununu girdilerden çıkarır. XGBoost Bölüm 13'teki ayarlarla eğitilir ve 60 test ayını tahmin eder. Bu satırlar her test ayı için gerçek geçmiş değerleri kullandığından XGBoost da LSTM, GRU ve CNN gibi tek adımlı tahmin yapar.
+1. **XGBoost için tablo:** `pd.Series(dataset[:, 0], index=dates)` yolcu sayılarını tarihlerle etiketlenmiş bir seriye çevirir. `s.shift(lag)` 12.1.2'deki gibi her satıra `lag` ay önceki değeri yazar. Döngü 1'den 12'ye kadar bütün gecikmeleri `lag_1`, …, `lag_12` sütunları olarak ekler; `feat.index.month` ise ay numarasını (1–12) ekler. İlk 12 satırda bazı gecikmeler boş kalacağı için `dropna()` bu satırları atar.
+2. **Ayrım ve eğitim:** `feat[feat.index < test_dates[0]]` yalnızca Ocak 1956'dan önceki satırları seçer (köşeli parantez içine bir koşul yazmak, koşulu sağlayan satırları süzer). `drop(columns='y')` hedef sütununu girdilerden çıkarır. XGBoost Bölüm 13'teki ayarlarla (ağaç sayısı erken durdurma yerine 500'e sabitlenerek) eğitilir ve 60 test ayını tahmin eder. Bu satırlar her test ayı için gerçek geçmiş değerleri kullandığından XGBoost da LSTM, GRU ve CNN gibi tek adımlı tahmin yapar.
 3. **Naive referanslar:** `test_mask = s.index >= test_dates[0]` her ay için "bu ay test döneminde mi?" sorusunun cevabını (`True`/`False`) tutar; `s[test_mask]` yalnızca 60 test ayını seçer. `s.shift(1)` her aya bir önceki ayın değerini, `s.shift(12)` ise bir yıl önceki aynı ayın değerini yazar; bunların test aylarına düşen kısmı doğrudan tahmin olarak kullanılır. Burada hiçbir model eğitilmez.
 4. **Tablo ve grafik:** `pd.DataFrame({...})` model adları ile RMSE değerlerinden iki sütunlu bir tablo kurar, `sort_values('RMSE')` satırları küçükten büyüğe sıralar ve `to_string(index=False, float_format='%.2f')` tabloyu satır numarası olmadan, iki ondalıkla yazdırır. `plt.barh` yatay çubuk grafiği çizer; `invert_yaxis()` en küçük hatayı en üste getirir.
 
@@ -1029,11 +946,9 @@ ARIMA, XGBoost ve iki naive satırı her çalıştırmada aynıdır. LSTM, GRU v
 - **1D-CNN** bu çalıştırmada en düşük hatayı verdi (32.43) ve iki naive referansı da belirgin biçimde geçen tek model oldu. Kısa vadeli desenleri iyi yakalar ve her ay bir önceki 12 ayın gerçek değerlerini gördüğü için (tek adımlı tahmin) işi görece kolaydır. Yine de 15.3'teki tohum deneyi, bu sıralamanın tek bir çalıştırmaya dayandığını hatırlatır.
 - **Naive referanslar** tablonun ikinci ve üçüncü sırasındadır: Hiçbir şey öğrenmeden geçen yılın aynı ayını (42.54) ya da geçen ayı (45.57) yazmak, LSTM'den, XGBoost'tan ve GRU'dan daha düşük hata verir. Tek adımlı bir model bu çıtayı geçemiyorsa, eğitim için harcanan çaba pratikte bir şey kazandırmamıştır (Bölüm 17.3).
 - **LSTM** (46.19), her ay gerçek son 12 ayı görmesine rağmen bu çalıştırmada mevsimsel naive'in (42.54) gerisinde kaldı: Geçen yılın aynı ayını kopyalamaktan daha iyi bir tahmin üretemedi.
-- **ARIMA (SARIMA)** (47.87) tablodaki tek adımlı referanslarla doğrudan karşılaştırılmamalıdır, çünkü çok daha zor bir görevi çözer: 1955 sonunda durup 60 ay ileriyi tahmin eder (aşağıdaki nota bakın). Onun adil referansı, aynı koşulda 1955'i beş kez tekrarlayan çok adımlı mevsimsel naive'dir; bu referansın RMSE'si 126.01'dir (Bölüm 8.4.2'deki tablo), yani ARIMA onu çok büyük farkla yener. ARIMA trend ve 12 aylık mevsimselliği açıkça modellediği için eğitim aralığının dışına da doğal biçimde uzanır; üstelik sonucu tohuma bağlı değildir. ARIMA'ya da diğer modeller gibi her ay gerçek geçmişi verirsek ne olacağını aşağıdaki **Hemen deneyin 15.5** kutusunda göreceksiniz.
+- **ARIMA (SARIMA)** (47.87) tablodaki tek adımlı referanslarla doğrudan karşılaştırılmamalıdır, çünkü çok daha zor bir görevi çözer: 1955 sonunda durup 60 ay ileriyi tahmin eder (15.5'in başındaki tablonun son sütunu; çok adımlı tahmin için bkz. 12.1.3 ve 14.2.1). Örneğin Aralık 1960'ı tahmin ederken ARIMA'nın elinde yalnızca 1955 sonuna kadarki veri vardır; LSTM ise Aralık 1959–Kasım 1960 arasındaki 12 gerçek değeri görür. ARIMA'nın adil referansı, aynı koşulda 1955'i beş kez tekrarlayan çok adımlı mevsimsel naive'dir; bu referansın RMSE'si 126.01'dir (Bölüm 8.4.2'deki tablo), yani ARIMA onu çok büyük farkla yener. ARIMA trend ve 12 aylık mevsimselliği açıkça modellediği için eğitim aralığının dışına da doğal biçimde uzanır; üstelik sonucu tohuma bağlı değildir. Bu zor görevde bile LSTM'e yakın sonuç vermesi onun lehine güçlü bir kanıttır; 1D-CNN'in bu çalıştırmadaki üstünlüğü de daha kolay bir görevde elde edildiği bilinerek okunmalıdır. Tamamen eşit koşullar için ya ARIMA da her ay yeni gözlemle güncellenerek tek adımlı tahmin yapmalı ya da sinir ağları kendi tahminlerini girdi olarak kullanarak (özyinelemeli) çok adımlı tahmine zorlanmalıdır. İlk yolun sonucunu aşağıdaki **Hemen deneyin 15.5** kutusunda göreceksiniz.
 - **XGBoost** bu testte zorlandı (89.42): Karar ağaçları eğitimde gördükleri en büyük değerin üzerinde tahmin üretemez (ekstrapolasyon sorunu, bkz. Bölüm 13.3). Eğitim döneminin en büyük değeri 364 iken XGBoost'un 60 test ayındaki en büyük tahmini yaklaşık 361'dir; test dönemindeki 364'ün üzerindeki rekor yolcu sayılarına (en yüksek 622) hiç ulaşamaz.
 - **GRU** (183.64), 15.3'te gördüğümüz gibi bu tohumla test döneminde çöktü; başka tohumlarla LSTM'e yakın sonuçlar (yaklaşık 47–53) verdi. Derin öğrenme modelleri kısa vadeli desenleri iyi yakalar, ancak 72 eğitim örneği derin öğrenme için çok küçüktür ve 15.1.1'de gördüğümüz ekstrapolasyon sorunu tahminleri kararsız kılabilir.
-
-> **Not —** Bu karşılaştırma tamamen simetrik değildir (tablonun son sütunu). Örneğin Aralık 1960'ı tahmin ederken ARIMA'nın elinde yalnızca 1955 sonuna kadarki veri vardır; LSTM ise Aralık 1959–Kasım 1960 arasındaki 12 gerçek değeri görür. ARIMA buna rağmen LSTM'e yakın sonuç veriyorsa bu, onun lehine güçlü bir kanıttır; 1D-CNN'in bu çalıştırmadaki üstünlüğü de aynı gözle, yani daha kolay bir görevde elde edildiği bilinerek okunmalıdır (çok adımlı tahmin için bkz. Bölüm 12.1.3 ve 14.2.1). Tamamen eşit koşullar için ya ARIMA da her ay yeni gözlemle güncellenerek tek adımlı tahmin yaptırılmalı ya da sinir ağları kendi tahminlerini girdi olarak kullanarak (özyinelemeli) çok adımlı tahmine zorlanmalıdır.
 
 Genel ders şudur: Bu tür küçük, düzenli ve klasik zaman serilerinde iyi ayarlanmış bir ARIMA modeli oldukça başarılıdır. LSTM, GRU ve 1D-CNN gibi derin öğrenme modelleri ise çok daha fazla veriye sahip, çok değişkenli, karmaşık ve doğrusal olmayan desenler içeren problemlerde gerçekten öne çıkar. Veri bilimcinin ustalığı, verinin yapısına bakarak hangi aracın daha iyi çalışacağına karar verebilmesindedir. Her problemin kendine özgü dinamikleri vardır; en iyi modeli bulmak için denemeler yapmak ve sonuçları dikkatle analiz etmek gerekir.
 
@@ -1041,7 +956,7 @@ Son olarak, buradaki bütün sonuçlar **tek bir** eğitim-test ayrımına dayan
 
 > **Hemen deneyin 15.5 · ARIMA'ya da gerçek geçmişi verin: tek adımlı ARIMA** (Python, ~4 dk)
 >
-> Not kutusundaki öneriyi uygulayalım: ARIMA'yı yeniden eğitmeden, aynı katsayılarla her ay için yalnızca bir adım ileriyi tahmin ettirelim. Böylece ARIMA da LSTM, GRU ve 1D-CNN gibi her ay gerçek geçmişi görür.
+> ARIMA maddesindeki ilk öneriyi uygulayalım: ARIMA'yı yeniden eğitmeden, aynı katsayılarla her ay için yalnızca bir adım ileriyi tahmin ettirelim. Böylece ARIMA da LSTM, GRU ve 1D-CNN gibi her ay gerçek geçmişi görür.
 >
 > ```python
 > import numpy as np
@@ -1081,6 +996,20 @@ Son olarak, buradaki bütün sonuçlar **tek bir** eğitim-test ayrımına dayan
 > (1) Tek adımlı ARIMA 13.96, 1D-CNN 32.43, mevsimsel naive 42.54, naive 45.57, LSTM 46.19, XGBoost 89.42, GRU 183.64. (2) RMSE 13.26 çıkar, biraz daha iyi görünür. Ama bu sayı geçersizdir: Katsayılar (ör. mevsimsel MA katsayısı −0.300 yerine −0.142) test dönemi de görülerek tahmin edilmiştir; model sınava girmeden cevap anahtarını görmüştür (veri sızıntısı, Bölüm 12.1.5 ve 17.6). Doğru yöntem, katsayıları yalnızca eğitimden öğrenip test dönemine `apply` ile uygulamaktır.
 >
 > </details>
+
+#### Hangi bölüm hangi test dönemini kullandı?
+
+Notlar boyunca `AirPassengers` farklı test dönemleriyle değerlendirildi. Başlıca uygulamalar:
+
+| Test dönemi | Uzunluk | Kullanan bölümler |
+| --- | --- | --- |
+| 1960 | 12 ay | 8.3 (R), 9.3 (Prophet), 11 (Gretl), 12.1.5 ve 12.3, 13.4 (XGBoost, Python) |
+| 1956–1960 | 60 ay | 7.7 (ARIMA, Python), 8.4.2, 15 |
+| 1959–1960 | 24 ay | 16.5 (GRU ve XGBoost) |
+| Ağustos 1958 – Aralık 1960 | 29 ay | 13.5 (Weka Explorer, %80 sıralı ayrım) |
+| Kasım 1959 – Aralık 1960 | 14 ay | 14 (Weka Forecast, held out `0.1`) |
+
+Farklı test dönemlerindeki hata değerleri doğrudan karşılaştırılamaz: Test dönemi uzadıkça ve seri büyüdükçe aynı yöntemin hatası da büyür (bkz. 8.4.2).
 
 ---
 

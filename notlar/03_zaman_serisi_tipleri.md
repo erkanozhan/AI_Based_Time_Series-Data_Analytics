@@ -40,10 +40,10 @@ $x_t \in \mathbb{R}$ ifadesi yalnızca "her an elimizde tek bir gerçel sayı va
 - **Çok değişkenli (multivariate) seri:** Her $t$ anında $k$ değişkenden oluşan bir **gözlem vektörü** vardır.
 
 $$
-\mathbf{x}_t = (x_{1t}, x_{2t}, \dots, x_{kt})^\top \in \mathbb{R}^k
+\mathbf{x}_t = (x_{1,t}, x_{2,t}, \dots, x_{k,t})^\top \in \mathbb{R}^k
 $$
 
-> **Simge notu:** $`\mathbf{x}_t`$ *(kalın x t)*: t anındaki gözlem vektörü · $`x_{1t}`$ *(x bir t)*: 1. değişkenin t anındaki değeri; ilk alt indis değişkenin numarası, ikincisi zaman · $`^\top`$ *(transpoz)*: satır vektörünü sütun vektörüne çevirir · $`\mathbb{R}^k`$ *(R üzeri k)*: k bileşenli gerçel sayı vektörlerinin kümesi
+> **Simge notu:** $`\mathbf{x}_t`$ *(kalın x t)*: t anındaki gözlem vektörü · $`x_{1,t}`$ *(x bir t)*: 1. değişkenin t anındaki değeri; virgülden önceki alt indis değişkenin numarası, sonraki zaman · $`^\top`$ *(transpoz)*: satır vektörünü sütun vektörüne çevirir · $`\mathbb{R}^k`$ *(R üzeri k)*: k bileşenli gerçel sayı vektörlerinin kümesi
 
 **Vektör**, sırası belli bir sayı listesidir. Altın fiyatı, enflasyon ve faizi birlikte izlediğimizde ($k = 3$) bir ayın gözlemi, örneğin $\mathbf{x}_ t = (2400,\ 3.1,\ 5.25)^\top$ gibi üç sayılık bir listedir. Sıra önemlidir: Birinci sayı her zaman altın, ikincisi enflasyon, üçüncüsü faizdir. Kalın yazılmış $\mathbf{x}$ bunun tek bir sayı değil bir liste olduğunu hatırlatır. Transpoz işareti ise yalnızca bir yazım kolaylığıdır: Listeyi aslında alt alta (sütun olarak) düşünürüz ama yer kazanmak için yan yana yazarız.
 
@@ -121,6 +121,8 @@ $$
 
 Bu ayrım, klasik zaman serisi analizinin **en kritik** kavramıdır. Bu bölüm aynı zamanda dersin ilerleyen bölümlerinde sık sık başvuracağımız **birim kök** kavramının ve ADF testinin temelini de anlatır.
 
+#### 3.2.1. Tanım
+
 **Açıklama:** Sakin bir göl yüzeyini düşünün. Dalgacıklar vardır ama su seviyesi (ortalama) ve dalgaların büyüklüğü (varyans) hep aynıdır. Hangi saatte fotoğraf çekerseniz çekin, göl "aynı karakterde" görünür. Bu **durağan** bir seridir. Şimdi yağmur mevsiminde yükselen bir nehri düşünün: su seviyesi sürekli değişir. Bu da **durağan olmayan** bir seridir.
 
 Kısacası durağan bir seride, **serinin hangi zaman diliminden bir parça alırsanız alın, istatistiksel olarak benzer görünür.**
@@ -145,6 +147,8 @@ Tanımda üç istatistiksel kavram kullanılır. Üçünü de basit örneklerle 
 
 Üçüncü koşul şunu söyler: bugün ile yarın arasındaki ilişki, geçen yılın aynı iki ardışık günü arasındaki ilişkiyle aynıdır. İlişki "saatin" kaç olduğuna değil, yalnızca **aradaki mesafeye** bağlıdır. Bu kovaryansın korelasyona çevrilmiş hâli, Bölüm 6'da göreceğimiz ACF'dir.
 
+**Günlük hayattan bir örnek:** Bir ağrı kesiciyi sabah 8'de de akşam 8'de de alsanız, 4 saat sonra kanda kalan oran aynıdır. Önemli olan saat değil, aradan geçen süredir. Durağan seride iki gözlem arasındaki ilişki de böyledir: "Hangi gün?" sorusuna değil, yalnızca "Kaç gün arayla?" sorusuna bağlıdır. Benzetmenin sınırı: İlacın etkisi her seferinde aynıdır, kovaryans ise birçok gözlem çiftinin ortalama ilişkisidir.
+
 > **Tanım 2 (katı / strict durağanlık):** Daha güçlü bir koşuldur; $`(x_{t_1}, \dots, x_{t_n})`$ vektörünün **ortak olasılık dağılımının** tamamı zaman kaymasına karşı değişmezdir. **Olasılık dağılımı**, hangi değerlerin hangi olasılıkla gelebileceğinin tam listesidir (hilesiz zarda her yüz için 1/6). Katı durağanlık yalnızca ortalama ve varyansın değil, bu listenin tamamının zamanla değişmemesini ister. Uygulamada "durağan" dendiğinde neredeyse her zaman *zayıf durağanlık* kastedilir.
 
 ![Durağan ve durağan olmayan seriler](../images/ts_stationarity.svg)
@@ -161,6 +165,8 @@ Tanımda üç istatistiksel kavram kullanılır. Üçünü de basit örneklerle 
 | Birim kök (rastgele yürüyüş) | Varyans zamanla büyür | Fark alma |
 
 > **Simge notu:** $`\mu_t`$ *(mü t)*: zamana bağlı olarak değişen ortalama · $`\sigma_t^2`$ *(sigma t kare)*: zamana bağlı olarak değişen varyans · $`\nabla`$ *(nabla)*: birinci fark operatörü (Bölüm 2.1)
+
+#### 3.2.2. AR(1) ve Bir Şokun Yolculuğu
 
 Tablonun son satırındaki **birim kök**, ADF testinin sınadığı ve ders boyunca karşımıza çıkacak olan kavramdır. Adının nereden geldiğini, en basit zaman serisi modeli üzerinden adım adım kuralım.
 
@@ -197,11 +203,15 @@ Tüm denklem şu cümlenin kısaltmasıdır: **Bugünkü satış = (dünkü sat�
 - $\phi = 1$ iken şok hiç küçülmez, **kalıcıdır**. Her yeni şok öncekilerin üstüne eklenir ve seri başıboş dolaşır. Denklem $x_t = x_{t-1} + \varepsilon_t$ hâline gelir; bu modele **rastgele yürüyüş** (*random walk*) denir. Seri **durağan değildir**.
 - $\phi = 1.2$ iken şok her gün %20 büyür ve seri **patlar** (*explosive*). Gerçek ekonomik ve iş verilerinde nadir görülür.
 
+**Günlük hayattan bir örnek:** Bayramda alınan 2 kilo, düzenli spor yapan biri için birkaç haftada erir ($\phi < 1$, şok söner). Hiç dikkat etmeyen biri için ise her bayramın kilosu bir öncekinin üstüne eklenir ($\phi = 1$, şoklar birikir).
+
 ![AR(1) sürecinde bir şokun seyri](../images/ch03_ar1_sok_sonumu.svg)
 
 *Şekil 3.4 — Üstte, 100 birimlik tek bir şokun $`x_t = \phi x_{t-1} + \varepsilon_t`$ formülüyle hesaplanan seyri: (a) $`\phi = 0.5`$ iken söner, (b) $`\phi = 1`$ iken aynen kalır, (c) $`\phi = 1.2`$ iken büyür. Altta, aynı rastgele şoklar üç farklı $`\phi`$ ile işlendiğinde ortaya çıkan 60 dönemlik seriler: durağan seri sıfır çevresinde dalgalanır, rastgele yürüyüş geri dönmeden dolaşır, patlayıcı seri sınırsız büyür.*
 
 Rastgele yürüyüşün varyansının neden $t\sigma^2$ olduğu da artık kolayca görülür. $x_0 = 0$'dan başlarsak $x_1 = \varepsilon_1$, $x_2 = \varepsilon_1 + \varepsilon_2$, …, $x_t = \varepsilon_1 + \varepsilon_2 + \dots + \varepsilon_t$ olur: Seri, o güne kadarki bütün şokların toplamıdır. Bağımsız büyüklüklerin toplamının varyansı, varyanslarının toplamına eşittir. Bu yüzden $\mathrm{Var}(x_t) = \sigma^2 + \sigma^2 + \dots + \sigma^2 = t\sigma^2$ olur. Örneğin $\sigma^2 = 1$ ise 1. günde varyans 1, 100. günde 100'dür (standart sapma 10). Ortalama hep 0 kalsa da serinin sıfırdan ne kadar uzaklaşabileceği zamanla büyür; Şekil 3.3d'nin anlattığı budur.
+
+**Günlük hayattan bir örnek:** Her gün rastgele birkaç saniye ileri ya da geri kayan bir duvar saati düşünün. Ortalama kayma sıfırdır, ama hatalar birikir: Bir hafta sonra saat birkaç saniye, bir yıl sonra dakikalarca şaşmış olabilir. Ortalama aynı kalırken olası sapma aralığı zamanla genişler.
 
 > **Hemen deneyin 3.2a · Bir şokun yolculuğunu R'a hesaplatın** (R, ~3 dk)
 >
@@ -248,6 +258,8 @@ Rastgele yürüyüşün varyansının neden $t\sigma^2$ olduğu da artık kolayc
 >
 > </details>
 
+#### 3.2.3. Karakteristik Denklem ve Birim Kök
+
 **Denklemin kökü.** Matematikte bir denklemin **kökü**, içindeki bilinmeyenin yerine yazıldığında eşitliği doğru yapan, yani ifadeyi sıfıra eşitleyen değerdir. İki örnek:
 
 - $2x - 6 = 0$ denkleminde $x$ yerine 3 yazarsak $2 \cdot 3 - 6 = 0$ olur. Denklemin kökü $x = 3$'tür.
@@ -283,6 +295,8 @@ Bu birinci dereceden denklemi $2x - 6 = 0$ gibi çözeriz: $\phi z = 1$, buradan
 | 1 | 1 / 1 = 1 | Tam 1 | Birim kök, rastgele yürüyüş |
 | 1.25 | 1 / 1.25 = 0.8 | 1'den küçük | Patlayıcı |
 
+Kökün tersi ($1/z$), bir şokun her dönem çarpıldığı sayıdır: $z = 2$ ise şok her dönem yarıya iner, $z = 1$ ise hiç küçülmez.
+
 Adın kaynağı da buradadır: Matematikte 1 sayısına **birim** denir. $\phi = 1$ olduğunda karakteristik denklemin kökü tam 1 çıkar; yani modelin **kökü birimdir**. "Birim kök" (*unit root*) adı buradan gelir. Bir seride birim kök olması, şokların hiç sönmemesi, birikerek kalması ve serinin durağan olmaması demektir.
 
 **Kural: kök 1'den uzaksa durağan.** Kök ile katsayı birbirinin tersidir ($z = 1/\phi$). Bu yüzden katsayı 1'den küçükken kök 1'den büyüktür; katsayı 1'e yaklaştıkça kök de 1'e yaklaşır. Negatif katsayılar da olabileceği için büyüklüğü işaretten bağımsız ölçen **mutlak değer** kullanılır: $\lvert z \rvert$, sayının işaretini atıp sıfıra uzaklığına bakmaktır ($\lvert -2 \rvert = 2$, $\lvert 0.8 \rvert = 0.8$). Kural şöyledir:
@@ -291,13 +305,15 @@ Adın kaynağı da buradadır: Matematikte 1 sayısına **birim** denir. $\phi =
 - $\lvert z \rvert = 1 \iff \lvert \phi \rvert = 1$: **birim kök**, seri durağan değildir.
 - $\lvert z \rvert < 1 \iff \lvert \phi \rvert > 1$: seri **patlayıcıdır**.
 
+> **Simge notu:** $`z`$: karakteristik denklemde B (ya da L) operatörünün yerine konan bilinmeyen · $`\lvert z \rvert`$ *(z'nin mutlak değeri)*: z'nin sıfıra uzaklığı · $`\iff`$ *(ancak ve ancak)*: iki ifade birlikte doğru ya da birlikte yanlıştır
+
 ![Birim aralık ve birim çember](../images/ch03_birim_cember.svg)
 
 *Şekil 3.6 — Üst sayı doğrusu katsayıyı ($`\phi`$), alttaki kökü ($`z = 1/\phi`$) gösterir. Katsayı −1 ile 1 arasındaysa (yeşil bölge) kök bu aralığın dışına düşer ve seri durağandır. $`\phi = 1`$ iken kök tam sınırdadır (birim kök). Sağda, karmaşık sayılarda aynı sınırın bir çember olduğu gösterilir: birim çember.*
 
 Bu kural kaynaklarda çoğu zaman "**kökler birim çemberin dışında olmalıdır**" diye yazılır. Gerçel sayılarla çalışırken bu cümleyi Şekil 3.6'daki sayı doğrusuyla okuyabilirsiniz: Sıfıra uzaklığı tam 1 olan yalnızca iki nokta vardır, −1 ve +1. "Birim çemberin içi" −1 ile 1 arasındaki aralık, "dışı" bu aralığın ötesidir. *Yan not:* Daha uzun modellerde kökler karmaşık sayı çıkabilir (örneğin $1.2 + 0.9i$ gibi, gerçel ve sanal kısmı olan sayılar). Karmaşık sayılar bir doğruya değil bir düzleme yerleştirilir. O düzlemde sıfıra uzaklığı 1 olan noktalar bir çember oluşturur: **birim çember**. Kural aynıdır; örnekteki kökün sıfıra uzaklığı $\sqrt{1.2^2 + 0.9^2} = \sqrt{2.25} = 1.5 > 1$ olduğu için durağanlık koşulunu sağlar.
 
-Aynı koşul bazen tersinden, katsayılar üzerinden yazılır: "Katsayı (ya da VAR modelinde katsayı matrisinin **öz değerleri**) birim çemberin **içinde** olmalıdır", yani $\lvert \phi \rvert < 1$. Kök ile katsayı birbirinin tersi olduğu için iki cümle aynı şeyi söyler: **katsayı içerideyse kök dışarıdadır.** Bölüm 10.5'teki "öz değerler birim çemberin içinde" koşulu bu ikinci yazımdır. Okuduğunuz cümlede kökten mi, katsayıdan (öz değerden) mi söz edildiğine bakın: Kök için "dışarıda", katsayı için "içeride" durağanlık demektir.
+VAR bölümünde (10.5) aynı koşul katsayılar üzerinden yazılır: "öz değerler birim çemberin içinde". Kök katsayının tersi olduğu için bu, "kökler dışarıda" cümlesiyle aynı şeydir.
 
 **Daha uzun modellerde kökler.** AR(1)'de tek katsayı olduğu için kökü hesaplamadan doğrudan $\lvert \phi \rvert < 1$ koşuluna bakmak yeterlidir. Ama model birden fazla gecikme içerdiğinde (Bölüm 7.1.1'deki AR(p)) katsayılara tek tek bakmak yanıltır. Örneğin $x_t = 1.5\thinspace x_{t-1} - 0.5\thinspace x_{t-2} + \varepsilon_t$ modelinde ilk katsayı 1'den büyüktür ama seri patlamaz. Aynı adımlarla karakteristik denklem $1 - 1.5z + 0.5z^2 = 0$ olur. Bu ikinci dereceden polinom $(1 - z)(1 - 0.5z)$ biçiminde çarpanlarına ayrılır (çarpımı açarak kontrol edebilirsiniz: $1 - 0.5z - z + 0.5z^2 = 1 - 1.5z + 0.5z^2$). Kökleri $z = 1$ ve $z = 2$'dir. Köklerden biri tam 1 olduğu için bu seri de **birim köklüdür**: Bir kez farkı alındığında, kalan kısım $\phi = 0.5$ olan durağan bir AR(1) gibi davranır. Karakteristik denklemin bütün kökleri birim çemberin dışındaysa seri durağandır; bu genel kural her model uzunluğunda geçerlidir. R'da polinom köklerini `polyroot()` bulur:
 
@@ -313,12 +329,11 @@ Mod(polyroot(c(1, -1.5, 0.5)))    # 1 - 1.5z + 0.5z^2 = 0
 
 Bu kod, yukarıda elle bulduğumuz kökleri R'a hesaplatır ve kural için gereken sayıyı, yani her kökün sıfıra uzaklığını verir. Model uzadıkça kökleri elle bulmak zorlaştığı için pratikte bu iş R'a bırakılır. Kodu satır satır okuyalım:
 
-1. `# Katsayılar sabit terimden başlayarak verilir ...`: R'ın çalıştırmadığı bir yorum satırıdır (2.6) ve aşağıdaki satırları okumak için gereken kuralı hatırlatır.
-2. `Mod(polyroot(c(1, -0.5)))`: İç içe fonksiyonlar içten dışa okunur. Önce `c()` (*combine*, birleştir) fonksiyonu 1 ve −0.5 sayılarını iki elemanlı bir **vektörde**, yani sıralı bir sayı listesinde birleştirir. Sonra `polyroot()` bu vektörü sabit terimden başlayan bir polinomun katsayıları olarak okur: 1. eleman sabit terim, 2. eleman $z$'nin katsayısı, (varsa) 3. eleman $z^2$'nin katsayısıdır. Yani `c(1, -0.5)` vektörü $1 - 0.5z$ polinomu demektir ve `polyroot()` $1 - 0.5z = 0$ denkleminin kökünü bulur. Kökler genel olarak karmaşık sayı olabileceği için (3.2'deki yan not) `polyroot()` sonucu her zaman karmaşık sayı biçiminde verir: Tek başına çalıştırılsaydı `2+0i` yazardı, yani gerçel kısmı 2, sanal kısmı 0 olan sayı. En dıştaki `Mod()` her kökün sıfıra uzaklığını (karmaşık sayının mutlak değerini) hesaplar; `2+0i` için bu uzaklık 2'dir. Birim çember kuralı için tam ihtiyaç duyduğumuz sayı budur. Satır sonundaki `# AR(1), phi = 0.5` da bir yorumdur: `#` işaretinden sonra satırın geri kalanını R okumaz.
-3. `Mod(polyroot(c(1, -1)))`: Aynı işi $1 - z$ polinomu, yani $\phi = 1$ olan rastgele yürüyüş için yapar.
-4. `Mod(polyroot(c(1, -1.5, 0.5)))`: Vektörde üç katsayı olduğu için polinom ikinci derecedendir: $1 - 1.5z + 0.5z^2$. İkinci dereceden bir polinomun iki kökü olduğu için sonuç iki elemanlı bir vektördür. `polyroot()` sonucu tek başına yazdırılırsa `1+3.56945e-20i` ve `2-3.56945e-20i` gibi değerler görülebilir. Buradaki `e-20` "çarpı 10 üzeri −20" demektir; bu kadar küçük sanal kısımlar, bilgisayarın ondalıklı sayılarla hesap yaparken bıraktığı yuvarlama kırıntılarıdır ve aslında sıfırdır. `Mod()` bu kırıntıları da temizleyip düz uzaklıkları verir.
+1. `Mod(polyroot(c(1, -0.5)))`: `c(1, -0.5)`, $1 - 0.5z$ polinomunun sabit terimden başlayan katsayılarıdır. `polyroot()` kökleri karmaşık sayı olarak verir (`2+0i`). `Mod()` her kökün sıfıra uzaklığını hesaplar; birim çember kuralı için gereken sayı budur.
+2. `Mod(polyroot(c(1, -1)))`: Aynı işi $1 - z$ polinomu, yani $\phi = 1$ olan rastgele yürüyüş için yapar.
+3. `Mod(polyroot(c(1, -1.5, 0.5)))`: Vektörde üç katsayı olduğu için polinom ikinci derecedendir: $1 - 1.5z + 0.5z^2$. İkinci dereceden bir polinomun iki kökü olduğu için sonuç iki elemanlı bir vektördür. `polyroot()` sonucu tek başına yazdırılırsa `1+3.56945e-20i` ve `2-3.56945e-20i` gibi değerler görülebilir. Buradaki `e-20` "çarpı 10 üzeri −20" demektir; bu kadar küçük sanal kısımlar, bilgisayarın ondalıklı sayılarla hesap yaparken bıraktığı yuvarlama kırıntılarıdır ve aslında sıfırdır. `Mod()` bu kırıntıları da temizleyip düz uzaklıkları verir.
 
-Kodun altındaki `#>` satırları çıktılardır. `[1]`, satırın vektörün 1. elemanıyla başladığını gösteren sıra numarasıdır (2.6). İlk çıktı `[1] 2`: $1 - 0.5z = 0$ denkleminin kökü 2'dir, tablodaki $1 / 0.5 = 2$ ile aynıdır ve 1'den büyük olduğu için seri durağandır. İkinci çıktı `[1] 1`: Kök tam 1'dir, yani birim kök. Üçüncü çıktı `[1] 1 2` iki sayı içerir, çünkü iki kök vardır: 1 ve 2. Bu, yukarıda çarpanlara ayırarak bulduğumuz köklerle aynıdır. Köklerden biri tam 1 olduğu, yani birim çemberin dışında değil tam üzerinde olduğu için iki gecikmeli model de birim köklüdür.
+Çıktılar elle bulduğumuz köklerle aynıdır: 2 (durağan), 1 (birim kök), 1 ve 2 (bir kök tam 1, dolayısıyla birim köklü).
 
 > **Hemen deneyin 3.2c · Kökleri kendiniz bulun** (R, ~3 dk)
 >
@@ -332,7 +347,7 @@ Kodun altındaki `#>` satırları çıktılardır. `[1]`, satırın vektörün 1
 >
 > **Ne göreceksiniz:** `[1] 1.111111` (1'den büyük: durağan), `[1] 0.8333333` (1'den küçük: patlayıcı) ve `[1] 2` (durağan). Son satırda katsayı negatif olduğu halde kök yine 2'dir; kural kökün işaretine değil, sıfıra uzaklığına bakar.
 >
-> **Şimdi siz:** $`x_t = 1.25\,x_{t-1} - 0.25\,x_{t-2} + \varepsilon_t`$ modelinin karakteristik denklemi $`1 - 1.25z + 0.25z^2 = 0`$'dır. Kökleri `polyroot()` ile bulun. Seri durağan mı?
+> **Şimdi siz:** $`x_t = 1.25\thinspace x_{t-1} - 0.25\thinspace x_{t-2} + \varepsilon_t`$ modelinin karakteristik denklemi $`1 - 1.25z + 0.25z^2 = 0`$'dır. Kökleri `polyroot()` ile bulun. Seri durağan mı?
 >
 > <details><summary>Cevap</summary>
 >
@@ -340,10 +355,27 @@ Kodun altındaki `#>` satırları çıktılardır. `[1]`, satırın vektörün 1
 >
 > </details>
 
+#### 3.2.4. Trend-Durağan ve Fark-Durağan Seriler
+
+Durağan olmayan serilerin hepsi aynı türden değildir. İki tür özellikle önemlidir:
+
+- **Trend-durağan (trend-stationary):** $x_t = \beta_0 + \beta_1 t + \varepsilon_t$. Deterministik trend çıkarılınca seri durağan olur. Şoklar geçicidir, seri trende geri döner.
+- **Fark-durağan (difference-stationary, birim köklü):** $x_t = x_{t-1} + \varepsilon_t$ (rastgele yürüyüş). Burada $\mathrm{Var}(x_t) = t\sigma^2$ olur. Şoklar **kalıcıdır**, bu yüzden seriyi durağanlaştırmak için fark almak gerekir: $\nabla x_t = \varepsilon_t$.
+
+> **Simge notu:** $`\beta_0`$, $`\beta_1`$ *(beta sıfır, beta bir)*: doğrusal trendin sabit terimi (başlangıç düzeyi) ve eğimi (her dönemdeki artış)
+
+Örneğin $\beta_0 = 100$ ve $\beta_1 = 2$ ise trend çizgisi 100'den başlar ve her dönem 2 birim yükselir; seri bu çizginin çevresinde dalgalanır ve bir şoktan sonra yine çizgiye döner. Rastgele yürüyüşte ise dönülecek bir çizgi yoktur. Bu ayrım önemlidir çünkü yanlış dönüşüm (trend-durağan seriden fark almak ya da birim köklü seriden sadece trend çıkarmak) hatalı modellere yol açar. ARIMA'daki "I" (Integrated) harfi tam olarak bu fark alma işlemini temsil eder.
+
+**Günlük hayattan bir örnek:** Trend-durağan seri raydaki bir tren gibidir: Sarsıntıyla biraz yana yatsa da rayın üstüne döner; ray deterministik trendtir. Fark-durağan seri ise rüzgârla sürüklenen bir sandal gibidir: Her dalga onu biraz iter ve gittiği yerde kalır; dönülecek bir ray yoktur. Benzetmenin sınırı: Seride trende dönüş anlık değil, kademelidir.
+
+#### 3.2.5. ADF Testi
+
 **ADF testi: hipotezler ve p-değeri.** Gerçek veride $\phi$'yi bilmeyiz; elimizde yalnızca gözlenmiş seri vardır. Bu seriden tahmin edilen katsayı, şans eseri 1'den biraz küçük ya da büyük çıkabilir. "Bu fark gerçek mi, yoksa tesadüf mü?" sorusunu yanıtlayan araca **hipotez testi** denir. Birim kök için en yaygın test **ADF** (*Augmented Dickey-Fuller*, genişletilmiş Dickey-Fuller) testidir. ADF iki iddiayı karşı karşıya koyar:
 
 - **Sıfır hipotezi** $H_0$: "Seride birim kök vardır ($\phi = 1$); seri durağan değildir."
 - **Alternatif hipotez** $H_1$: "Birim kök yoktur ($\phi < 1$); seri durağandır." R çıktılarında gördüğünüz `alternative hypothesis: stationary` satırı tam olarak bunu söyler.
+
+> **Simge notu:** $`H_0`$ *(ha sıfır)*: sıfır hipotezi, testin aksi kanıtlanana kadar doğru kabul ettiği varsayım · $`H_1`$ *(ha bir)*: alternatif hipotez, $`H_0`$ reddedilirse kabul edilen iddia (bazı kaynaklarda $`H_a`$)
 
 Hipotez testini bir mahkemeye benzetebiliriz. Sanık, suçu kanıtlanana kadar **masum** kabul edilir. ADF'de "masumiyet" varsayımı $H_0$'dır: Seri, aksi kanıtlanana kadar birim köklü kabul edilir. Veri (delil) bu varsayımla çok zor bağdaşıyorsa $H_0$ **reddedilir** ve seri durağan kabul edilir.
 
@@ -364,16 +396,7 @@ x_t - x_{t-1} = (\phi - 1)\, x_{t-1} + \varepsilon_t, \qquad \text{yani} \qquad 
 
 elde edilir. $\phi = 1$ ise sağdaki katsayı $\phi - 1 = 0$ olur; $\phi = 0.5$ ise $-0.5$ olur. Böylece "$`\phi = 1`$ mi?" sorusu "farkı alınmış seriyi önceki seviyeye bağlayan katsayı sıfır mı?" sorusuna dönüşür. Bu katsayı veriden **regresyonla**, yani verideki ilişkiyi en iyi açıklayan katsayıyı bulan yöntemle tahmin edilir. ADF'deki "genişletilmiş" (*augmented*) kelimesi, denkleme gecikmeli fark terimleri de eklendiğini anlatır. Regresyonun tam biçimi (orada bu katsayı $\gamma$ ile gösterilir), KPSS testi ve iki testin birlikte yorumlanması Bölüm 7.5'tedir.
 
-> **Simge notu:** $`H_0`$ *(ha sıfır)*: sıfır hipotezi, testin aksi kanıtlanana kadar doğru kabul ettiği varsayım · $`H_1`$ *(ha bir)*: alternatif hipotez, $`H_0`$ reddedilirse kabul edilen iddia (bazı kaynaklarda $`H_a`$) · $`\lvert z \rvert`$ *(z'nin mutlak değeri)*: z'nin sıfıra uzaklığı · $`\iff`$ *(ancak ve ancak)*: iki ifade birlikte doğru ya da birlikte yanlıştır · $`z`$: karakteristik denklemde B (ya da L) operatörünün yerine konan bilinmeyen
-
-**Not — iki farklı "durağan olmayan" türü:**
-
-- **Trend-durağan (trend-stationary):** $x_t = \beta_0 + \beta_1 t + \varepsilon_t$. Deterministik trend çıkarılınca seri durağan olur. Şoklar geçicidir, seri trende geri döner.
-- **Fark-durağan (difference-stationary, birim köklü):** $x_t = x_{t-1} + \varepsilon_t$ (rastgele yürüyüş). Burada $\mathrm{Var}(x_t) = t\sigma^2$ olur. Şoklar **kalıcıdır**, bu yüzden seriyi durağanlaştırmak için fark almak gerekir: $\nabla x_t = \varepsilon_t$.
-
-> **Simge notu:** $`\beta_0`$, $`\beta_1`$ *(beta sıfır, beta bir)*: doğrusal trendin sabit terimi (başlangıç düzeyi) ve eğimi (her dönemdeki artış) · $`\varepsilon_t`$ *(epsilon t)*: t anındaki rastgele şok (hata terimi), ortalaması sıfır
-
-Örneğin $\beta_0 = 100$ ve $\beta_1 = 2$ ise trend çizgisi 100'den başlar ve her dönem 2 birim yükselir; seri bu çizginin çevresinde dalgalanır ve bir şoktan sonra yine çizgiye döner. Rastgele yürüyüşte ise dönülecek bir çizgi yoktur. Bu ayrım önemlidir çünkü yanlış dönüşüm (trend-durağan seriden fark almak ya da birim köklü seriden sadece trend çıkarmak) hatalı modellere yol açar. ARIMA'daki "I" (Integrated) harfi tam olarak bu fark alma işlemini temsil eder.
+**Günlük hayattan bir örnek:** Gerilmiş bir lastik ne kadar çekilirse o kadar güçlü geri döner: Seviye ortalamadan uzaklaştıkça bir sonraki değişim onu geri çeker ($\phi - 1 < 0$). Birim kökte lastik kopmuştur: Seri itildiği yerde kalır ($\phi - 1 = 0$). ADF, "Lastik kopmuş mu?" sorusunu sorar. Benzetmenin sınırı: Seriye her dönem yeni şoklar da gelir; lastik geri çekerken onu yeniden iten küçük darbeler hiç bitmez.
 
 **Durağanlığı nasıl anlarız?**
 
@@ -417,28 +440,24 @@ Bu kodda durağan seriyi ve birim köklü seriyi bilerek biz üretiyoruz. Doğru
 1. `set.seed(42)`: Bilgisayarın ürettiği "rastgele" sayılar aslında bir formülle, bir başlangıç noktasından yola çıkarak üretilir. `set.seed()` bu başlangıç noktasını (*tohum*, seed) sabitler. Böylece kodu her çalıştıran aynı "rastgele" sayıları alır ve aşağıdaki çıktıları aynen görür. 42 sayısının özel bir anlamı yoktur; başka bir sayı farklı ama yine tekrarlanabilir sonuçlar verir.
 2. `beyaz_gurultu <- rnorm(200)`: `rnorm()`, **normal dağılımdan** (çan eğrisi biçimli dağılım) rastgele sayılar üretir. Tek argümanı olan 200, kaç sayı üretileceğidir. Fonksiyonun `mean` (ortalama) ve `sd` (standart sapma) argümanları yazılmadığı için varsayılan değerleri, yani ortalama 0 ve standart sapma 1 kullanılır. Sonuç 200 sayılık bir vektördür ve `<-` ile `beyaz_gurultu` adıyla saklanır. Bu sayılar birbirinden bağımsız $\varepsilon_t$ şoklarıdır, yani beyaz gürültüdür. Satır sonundaki `# durağan` bir yorumdur.
 3. `rastgele_yuruyus <- cumsum(rnorm(200))`: İçten dışa okuyalım. Önce `rnorm(200)` 200 yeni sayı üretir; üreteç kaldığı yerden devam ettiği için bunlar 2. satırdaki sayılardan farklıdır. Sonra `cumsum()` bu sayıların **birikimli toplamını** alır: `cumsum(c(1, -2, 3))` sonucu `1, -1, 2` olur. Her eleman, kendisine kadarki tüm sayıların toplamıdır. Bu, $x_t = x_{t-1} + \varepsilon_t$ (başlangıç $x_0 = 0$) formülünün aynısıdır; yani `cumsum(rnorm(200))` bir rastgele yürüyüş üretir ($\phi = 1$). Sonuç yine 200 sayılık bir vektördür.
-4. `par(mfrow = c(1, 2))`: `par()` grafik ayarlarını değiştirir. `mfrow` ayarı grafik alanını satır ve sütunlara böler; `c(1, 2)` "1 satır, 2 sütun" demektir. Böylece sonraki iki grafik yan yana çizilir.
-5. `plot.ts(beyaz_gurultu, main = "Beyaz Gürültü (durağan)")` ve bir sonraki satır: `plot.ts()` bir vektörü zaman serisi grafiği olarak, yani değerleri sırayla çizgiyle birleştirerek çizer. Bu vektörlerin tarih bilgisi olmadığı için yatay eksen gözlem sıra numarasıdır (1'den 200'e, eksen adı `Time`). `main` argümanı grafiğin başlığıdır ve tırnak içinde metin olarak verilir.
-6. `par(mfrow = c(1, 1))`: Grafik alanını yeniden tek parçaya döndürür; aksi hâlde sonraki grafikler de yan yana çizilmeye devam ederdi.
-7. `# install.packages("tseries")`: Başındaki `#` yüzünden çalışmayan bir satırdır. `tseries` paketi bilgisayarınızda kurulu değilse `#` işaretini silip bu satırı **bir kez** çalıştırırsınız; `install.packages()` paketi internetten (CRAN'dan) indirip kurar. Paket adı tırnak içinde yazılır.
-8. `library(tseries)`: `adf.test()` fonksiyonunu içeren `tseries` paketini bu oturuma yükler. Kurulum bir kez yapılır, `library()` ise R'ı her açtığınızda yeniden çalıştırılır. Yükleme sırasında bazı kurulumlarda `Registered S3 method overwritten by 'quantmod'` gibi bir bilgi mesajı görülebilir; hata değildir.
-9. `adf.test(beyaz_gurultu)`: ADF testini uygular. Bu fonksiyon regresyona bir sabit ve doğrusal trend de ekler; bu yüzden $H_1$ burada "seri bir trend çevresinde durağandır" anlamına gelir (Bölüm 7.5). Yalnızca seri verilmiştir, diğer iki argüman varsayılan değerlerini alır. `alternative` argümanının varsayılanı `"stationary"`dir; $H_1$'in "durağan" olması buradan gelir. `k` argümanı, regresyona kaç gecikmeli fark terimi ekleneceğidir; varsayılanı $(n - 1)^{1/3}$ sayısının tam kısmıdır ($n$: gözlem sayısı). 200 gözlem için $199^{1/3} \approx 5.84$, tam kısmı 5'tir; çıktıdaki `Lag order = 5` budur. Sonuç bir test nesnesidir (`htest` sınıfı); bir isme atanmadığı için doğrudan ekrana yazılır.
-10. `adf.test(rastgele_yuruyus)`: Aynı testi rastgele yürüyüşe uygular.
-11. `adf.test(diff(rastgele_yuruyus))`: İçten dışa: Önce `diff()` birinci farkı alır, $\nabla x_t = x_t - x_{t-1}$. Her eleman bir öncekinden çıkarıldığı için sonuç 199 sayılık bir vektördür. Rastgele yürüyüşün farkı, onu oluşturan şokların kendisidir. Sonra bu farklar ADF testine verilir. Gecikme sayısı yine 5'tir ($198^{1/3} \approx 5.83$).
+4. `par(mfrow = c(1, 2))`, iki `plot.ts()` satırı ve `par(mfrow = c(1, 1))`: `par()` grafik ayarlarını değiştirir; `mfrow = c(1, 2)` grafik alanını "1 satır, 2 sütun" olarak böler, böylece iki grafik yan yana çizilir. `plot.ts()` bir vektörü zaman serisi grafiği olarak çizer; tarih bilgisi olmadığı için yatay eksen gözlem sıra numarasıdır (1–200), `main` ise grafiğin başlığıdır. Son satır grafik alanını yeniden tek parçaya döndürür.
+5. `# install.packages("tseries")`: Başındaki `#` yüzünden çalışmayan bir satırdır. `tseries` paketi bilgisayarınızda kurulu değilse `#` işaretini silip bu satırı **bir kez** çalıştırırsınız; `install.packages()` paketi internetten (CRAN'dan) indirip kurar. Paket adı tırnak içinde yazılır.
+6. `library(tseries)`: `adf.test()` fonksiyonunu içeren `tseries` paketini bu oturuma yükler. Kurulum bir kez yapılır, `library()` ise R'ı her açtığınızda yeniden çalıştırılır. Yükleme sırasında bazı kurulumlarda `Registered S3 method overwritten by 'quantmod'` gibi bir bilgi mesajı görülebilir; hata değildir.
+7. `adf.test(beyaz_gurultu)`: ADF testini uygular. Bu fonksiyon regresyona bir sabit ve doğrusal trend de ekler; bu yüzden $H_1$ burada "seri bir trend çevresinde durağandır", yani trend-durağandır anlamına gelir (3.2.4; ayrıntısı Bölüm 7.5). Yalnızca seri verilmiştir, diğer iki argüman varsayılan değerlerini alır. `alternative` argümanının varsayılanı `"stationary"`dir; $H_1$'in "durağan" olması buradan gelir. `k` argümanı, regresyona kaç gecikmeli fark terimi ekleneceğidir; varsayılanı $(n - 1)^{1/3}$ sayısının tam kısmıdır ($n$: gözlem sayısı). 200 gözlem için $199^{1/3} \approx 5.84$, tam kısmı 5'tir; çıktıdaki `Lag order = 5` budur. Sonuç bir test nesnesidir (`htest` sınıfı); bir isme atanmadığı için doğrudan ekrana yazılır.
+8. `adf.test(rastgele_yuruyus)`: Aynı testi rastgele yürüyüşe uygular.
+9. `adf.test(diff(rastgele_yuruyus))`: İçten dışa: Önce `diff()` birinci farkı alır, $\nabla x_t = x_t - x_{t-1}$. Her eleman bir öncekinden çıkarıldığı için sonuç 199 sayılık bir vektördür. Rastgele yürüyüşün farkı, onu oluşturan şokların kendisidir. Sonra bu farklar ADF testine verilir. Gecikme sayısı yine 5'tir ($198^{1/3} \approx 5.83$).
 
 İki grafik yan yana çıkar. Solda beyaz gürültü, yaklaşık −3 ile +2.7 arasında, hep sıfır çizgisinin çevresinde ve serinin başından sonuna aynı genişlikte dalgalanır. Sağda rastgele yürüyüş sabit bir düzeye bağlı değildir: uzun süre aşağı inip yaklaşık −8'e kadar düşer, sonra yeniden +2 dolayına çıkar. Durağan olmayan bir serinin "dönülecek bir çizgisi olmaması" bu görüntüdür.
 
 Her `adf.test()` çıktısı aynı satırlardan oluşur (notta yer kazanmak için ikinci ve üçüncü çıktıda ilk iki satır, yani test adı ve `data:` satırı gösterilmemiştir):
 
-- `Augmented Dickey-Fuller Test`: Uygulanan testin adı.
-- `data: beyaz_gurultu`: Testin hangi veriye uygulandığı.
 - `Dickey-Fuller = -5.6389`: Test regresyonundan hesaplanan istatistik. Ne kadar negatifse birim kök aleyhine delil o kadar güçlüdür ve p-değeri o kadar küçük çıkar.
-- `Lag order = 5`: Kullanılan gecikmeli fark terimi sayısı (9. madde).
+- `Lag order = 5`: Kullanılan gecikmeli fark terimi sayısı (7. madde).
 - `p-value = 0.01`: Karar için bakacağımız asıl sayı.
 - `alternative hypothesis: stationary`: Testin **sonucu değil**, sınanan alternatif hipotezdir ($H_1$: seri durağandır). Bu satır her çıktıda aynıdır; seri durağan olsa da olmasa da yazılır. Kararı p-değeri verir.
 - `Warning: p-value smaller than printed p-value`: R bu uyarıyı ekranda `Warning message: In adf.test(beyaz_gurultu) : p-value smaller than printed p-value` biçiminde yazar. `adf.test()` p-değerini hazır bir tablodan okuduğu için sonucu 0.01 ile 0.99 arasına sıkıştırır. Gerçek p-değeri 0.01'den küçük olduğunda 0.01 yazar ve bu uyarıyı verir. Bu bir hata değildir; "p-değeri en fazla 0.01" diye okunur.
 
-Beyaz gürültüde istatistik −5.64, p-değeri 0.01'dir: $H_0$ reddedilir, seri durağandır. Rastgele yürüyüşte istatistik yalnızca −1.92, p-değeri 0.61'dir: Bu sonuç $H_0$ altında hiç şaşırtıcı değildir, birim kök hipotezi reddedilemez. Farkı alınmış seride istatistik −6.09'a düşer ve p-değeri yeniden 0.01 olur. Bu, $\nabla x_t = \varepsilon_t$ ilişkisinin uygulamadaki karşılığıdır: Tek bir fark, birim kökü ortadan kaldırmıştır. Üç sonuç da bildiğimiz doğru cevapla örtüşür.
+Beyaz gürültüde (−5.64, p = 0.01) ve farkı alınmış seride (−6.09, p = 0.01) $H_0$ reddedilir; rastgele yürüyüşte (−1.92, p = 0.61) reddedilemez. Üç karar da bildiğimiz doğru cevapla örtüşür: Tek bir fark birim kökü ortadan kaldırmıştır, yani $\nabla x_t = \varepsilon_t$ ilişkisi uygulamada da görülür.
 
 > **Hemen deneyin 3.2d · ADF testi $`\phi = 0.95`$'i ayırt edebilir mi?** (R, ~5 dk)
 >
@@ -462,7 +481,7 @@ Beyaz gürültüde istatistik −5.64, p-değeri 0.01'dir: $H_0$ reddedilir, ser
 >
 > <details><summary>Cevap</summary>
 >
-> `Dickey-Fuller = -6.1435, Lag order = 12, p-value = 0.01` (ve küçük p-değeri uyarısı). 2000 gözlemle test $`H_0`$'ı reddeder ve seriyi doğru biçimde durağan bulur. Kısa serilerde ADF'nin gücü düşüktür; bu yüzden KPSS ve grafikle birlikte kullanılır. (`Lag order` da $`1999^{1/3} \approx 12.6`$ olduğu için 12'ye çıkmıştır.)
+> `Dickey-Fuller = -6.1435, Lag order = 12, p-value = 0.01` (ve küçük p-değeri uyarısı). 2000 gözlemle test $`H_0`$'ı reddeder ve seriyi doğru biçimde durağan bulur. (`Lag order` da $`1999^{1/3} \approx 12.6`$ olduğu için 12'ye çıkmıştır.)
 >
 > </details>
 
@@ -523,6 +542,8 @@ Bu dersteki ve gerçek dünyadaki analizlerin **büyük çoğunluğu kesikli zam
     - *Düzensiz (irregular):* Aralıklar eşit değildir (borsa yalnızca iş günleri açıktır, sensör ara sıra veri kaçırır). Bu tür veriler için `xts` gibi araçlar gerekir (ayrıntısı Bölüm 5'te).
 
 > **Not — örtüşme (aliasing):** Bir salınımın **frekansı** ($`f`$), birim zamanda kaç kez tekrarlandığıdır: 24 saatlik gece-gündüz döngüsünün frekansı günde 1, 30 dakikalık bir döngünün frekansı saatte 2'dir. (Bu, R'daki `frequency` argümanından farklı bir kavramdır; orada frekans bir mevsimlik döngüdeki gözlem sayısıdır.) Örnekleme teoremine (Nyquist-Shannon) göre, $`f`$ frekanslı bir salınımı yakalayabilmek için örnekleme frekansının $`2f`$'den büyük olması, kabaca **her döngüde ikiden fazla ölçüm** yapılması gerekir. Daha seyrek örneklenirse hızlı döngüler kaybolur ya da yanlışlıkla yavaş döngüler gibi görünür. Örneğin günde bir kez, hep öğlen ölçülen sıcaklık serisinde her gün aynı noktada ölçüm yapıldığı için gece-gündüz döngüsü tamamen kaybolur (Şekil 3.8a). Günlük döngünün frekansı günde 1 olduğundan, onu görmek için günde 2'den fazla ölçüm gerekir; 6 saatte bir ölçüm (günde 4) döngüyü yakalar (Şekil 3.8b).
+
+**Günlük hayattan bir örnek:** Filmlerde hızlanan bir arabanın tekerleği yavaşlıyor, hatta geri dönüyor gibi görünür: Kamera saniyede 24 kare çeker, tekerlek ise iki kare arasında neredeyse tam bir tur atar. Kamera dönüşü fazla seyrek örneklediği için hızlı dönüş, yavaş (ya da ters) bir dönüş gibi görünür; örtüşme budur.
 
 ![Örnekleme sıklığı ve örtüşme](../images/ch03_ortusme.svg)
 
@@ -667,7 +688,7 @@ Derste kullanacağımız serilerin sınıflandırması:
 | Seri | Değişken sayısı | Durağanlık | Ölçüm zamanı | Rastgelelik |
 | --- | --- | --- | --- | --- |
 | `AirPassengers` (aylık yolcu) | Tek | Durağan değil (trend + mevsimsellik + artan varyans) | Kesikli, düzenli (aylık) | Stokastik |
-| `USgas` (aylık gaz tüketimi) | Tek | Durağan değil (mevsimsellik) | Kesikli, düzenli (aylık) | Stokastik |
+| `USgas` (aylık gaz tüketimi; TSstudio paketi, Bölüm 5.2.2) | Tek | Durağan değil (trend + mevsimsellik) | Kesikli, düzenli (aylık) | Stokastik |
 | Günlük hisse kapanış fiyatları | Tek | Durağan değil (birim kök) | Kesikli, düzensiz (yalnızca iş günleri) | Stokastik |
 | Hisse fiyatının günlük getirisi | Tek | Genellikle yaklaşık durağan | Kesikli, düzensiz | Stokastik |
 | Altın + enflasyon + faiz | Çok (3) | Genellikle durağan değil | Kesikli, düzenli (aylık) | Stokastik |

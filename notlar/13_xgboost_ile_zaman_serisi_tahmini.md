@@ -163,7 +163,7 @@ Yönteme "gradient" (gradyan) denmesinin nedeni şudur. **Kayıp** (loss), bir t
 
 $$-\frac{\partial L}{\partial \hat{y}} = y - \hat{y}$$
 
-Sayılarla deneyelim: $y = 100$ ve $\hat{y} = 90$ iken kayıp $\frac{1}{2} \cdot 10^2 = 50$'dir. Tahmini 1 artırıp 91 yaparsak kayıp $\frac{1}{2} \cdot 9^2 = 40.5$ olur; yani tahmindeki 1 birimlik artış kaybı yaklaşık 10 birim azaltır. Eğim yaklaşık −10'dur, ters işaretlisi +10'dur ve bu da artığın kendisidir ($100 - 90 = 10$). Yani artıklara ağaç uydurmak, kaybı en hızlı azaltan yönde (gradyanın tersi yönünde) adım atmakla, yani **gradyan inişiyle** aynı şeydir. Başka kayıp fonksiyonları (ör. mutlak hata) kullanıldığında ağaçlar artık yerine bu negatif gradyana uydurulur.
+Sayılarla deneyelim: $y = 100$ ve $\hat{y} = 90$ iken kayıp $\frac{1}{2} \cdot 10^2 = 50$'dir. Tahmini 1 artırıp 91 yaparsak kayıp $\frac{1}{2} \cdot 9^2 = 40.5$ olur; yani tahmindeki 1 birimlik artış kaybı yaklaşık 10 birim azaltır. Eğim yaklaşık −10'dur, ters işaretlisi +10'dur ve bu da artığın kendisidir ($100 - 90 = 10$). Yani artıklara ağaç uydurmak, kaybı en hızlı azaltan yönde (gradyanın tersi yönünde) adım atmakla, yani **gradyan inişiyle** aynı şeydir (gradyan inişi: Bölüm 12.1.4 ve 12.2; sisli dağ örneği). Başka kayıp fonksiyonları (ör. mutlak hata) kullanıldığında ağaçlar artık yerine bu negatif gradyana uydurulur.
 
 > **Simge notu:** $`L`$: tek bir gözlemin kaybı · $`\partial`$ *(kısmi türev, "del")*: bir büyüklüğün diğerine göre değişim hızı; $`\partial L / \partial \hat{y}`$ "tahmin çok az değişince kayıp ne kadar değişir?" demektir
 
@@ -182,6 +182,8 @@ Burada ilk terim tahmin hatasını (ör. kare hata), ikinci terim ise her ağac�
 **Sayısal örnek:** $\gamma = 1$ ve $\lambda = 1$ olsun. Üç yapraklı, yaprak değerleri 2, −1 ve 3 olan bir ağacın cezası $\Omega = 1 \cdot 3 + \frac{1}{2} \cdot 1 \cdot (2^2 + (-1)^2 + 3^2) = 3 + \frac{1}{2} \cdot 14 = 3 + 7 = 10$'dur. İki yapraklı, yaprak değerleri 1 ve −1 olan daha sade bir ağacın cezası ise $2 + \frac{1}{2} \cdot (1 + 1) = 3$'tür. Karmaşık ağaç hatayı sade ağaca göre en az $10 - 3 = 7$ birim daha fazla azaltmıyorsa XGBoost sade ağacı tercih eder.
 
 **Yorum:** $\gamma$ büyüdükçe model yeni bir bölme yapmak için daha fazla hata azalması "talep eder": Bir bölme, hatayı en az $\gamma$ kadar azaltmıyorsa yapılmaz ve ağaçlar sade kalır. $\lambda$ büyüdükçe yaprak değerleri sıfıra doğru çekilir ve her ağacın tek başına yapabileceği aşırı düzeltmeler engellenir. Kare hata kaybında XGBoost'un bir yaprağa verdiği değer, *yapraktaki artıkların toplamı / (yapraktaki gözlem sayısı + λ)* formülüyle hesaplanır. Artıkları 10, 20 ve 30 olan bir yaprak için (toplam 60, gözlem sayısı 3): $\lambda = 0$ iken $60 / 3 = 20$ (düz ortalama), $\lambda = 1$ iken $60 / 4 = 15$, $\lambda = 3$ iken $60 / 6 = 10$ olur. İki cezanın ortak amacı, modelin eğitim verisini ezberlemesini (aşırı öğrenme) önlemektir.
+
+**Günlük hayattan bir örnek:** Her yeni yaprak açmak bir şube açmaya benzer. Şubenin sabit bir kirası ($\gamma$) vardır ve şube ancak getireceği ek kazanç (hatadaki azalma) kirayı aşıyorsa açılır. $\lambda$ ise her şubenin vaat ettiği kârı temkinle aşağı çeken bir denetçidir: Az müşterisi (az gözlemi) olan şubenin iddiasını daha çok kırpar. Yukarıdaki formülde de öyledir: 3 gözlemli yaprakta $\lambda = 1$ değeri 20'yi 15'e indirirken, aynı ortalamaya sahip 30 gözlemli bir yaprakta $600 / 31 \approx 19.4$ olur ve değer neredeyse hiç kırpılmaz.
 
 XGBoost bunlara ek olarak ikinci dereceden türev bilgisini (eğimin yanında eğimin ne kadar hızlı değiştiğini, yani kayıp eğrisinin bükülmesini) kullanan hızlı bir bölme arama algoritması, eksik değerleri kendiliğinden yönetme ve paralel hesaplama gibi mühendislik iyileştirmeleri de sunar. Tablo biçimindeki (yapılandırılmış) verilerde çoğu zaman en iyi sonuç veren yöntemlerden biri olmasının nedeni budur.
 
@@ -223,7 +225,7 @@ XGBoost bunlara ek olarak ikinci dereceden türev bilgisini (eğimin yanında e�
 
 | Hiperparametre | Formüldeki karşılığı | Ne işe yarar? | Tipik değer |
 | --- | --- | --- | --- |
-| `n_estimators` | ağaç sayısı $`M`$ | Kaç düzeltme adımı yapılacağı. Az olursa eksik öğrenme, çok olursa aşırı öğrenme riski; erken durdurma ile belirlenir. | 100–1000 |
+| `n_estimators` | ağaç sayısı $`M`$ | Kaç düzeltme adımı yapılacağı. Az olursa yetersiz öğrenme (Bölüm 8.4.3), çok olursa aşırı öğrenme riski; erken durdurma ile belirlenir. | 100–1000 |
 | `learning_rate` | $`\eta`$ | Her ağacın katkısı. Küçük değer daha yavaş ama daha kararlı öğrenme sağlar, daha çok ağaç gerektirir. | 0.01–0.1 |
 | `max_depth` | ağaç derinliği | Bir ağacın art arda kaç soru sorabileceği; derinlik 4 en fazla $`2^4 = 16`$ yaprak demektir. Derin ağaçlar karmaşık etkileşimleri yakalar ama ezberlemeye yatkındır. | 3–6 |
 | `subsample` | — | Her ağaçta kullanılan satır (gözlem) oranı; rastgelelik ekleyerek aşırı öğrenmeyi azaltır. | 0.7–1.0 |
@@ -269,7 +271,7 @@ XGBoost bunlara ek olarak ikinci dereceden türev bilgisini (eğimin yanında e�
 > n= 200 lr=0.05  derinlik=3  egitim MAE=  3.05  test MAE= 31.82
 > ```
 >
-> 10 ağaç yetersizdir (eksik öğrenme). Öğrenme hızını yarıya indirip ağaç sayısını iki katına çıkarınca (200 ağaç, 0.05) 100 ağaç / 0.1 ile neredeyse aynı uyum elde edilir.
+> 10 ağaç yetersizdir (yetersiz öğrenme, Bölüm 8.4.3). Öğrenme hızını yarıya indirip ağaç sayısını iki katına çıkarınca (200 ağaç, 0.05) 100 ağaç / 0.1 ile neredeyse aynı uyum elde edilir.
 >
 > **Şimdi siz:** (1) `dene(20, 0.05, 3)` satırını ekleyin; sonucu hangi satıra benzemesini beklersiniz? (2) `dene(1000, 0.1, 3)` deneyin. Eğitim hatası ve test hatası ne olur?
 >
@@ -281,16 +283,13 @@ XGBoost bunlara ek olarak ikinci dereceden türev bilgisini (eğimin yanında e�
 
 ### 13.2. Zaman Serisini XGBoost'a Hazırlamak
 
-XGBoost zamanın akışını kendiliğinden anlamaz; ona göre her satır birbirinden bağımsız bir örnektir. Bu yüzden zamansal bilgiyi **özellik mühendisliği** ile satırların içine yerleştirmemiz gerekir (dönüşümün genel mantığı için bkz. Bölüm 12). Kullanacağımız özellik grupları şunlardır:
+XGBoost zamanın akışını kendiliğinden anlamaz; ona göre her satır birbirinden bağımsız bir örnektir. Bu yüzden zamansal bilgiyi **özellik mühendisliği** ile satırların içine yerleştirmemiz gerekir (dönüşümün genel mantığı için bkz. Bölüm 12). Kullanacağımız özellik grupları 12.1.2'deki tablonun gruplarıdır: gecikmeler (`lag_1`, …, `lag_12`), hareketli istatistikler (`rolling_mean_12`, `rolling_std_3` gibi) ve takvim özellikleri (`month`, `quarter`). Bunlara bir grup ekliyoruz:
 
 | Özellik grubu | Örnek | Neyi yakalar? |
 | --- | --- | --- |
-| Gecikmeler (lags) | `lag_1`, …, `lag_12` | Kısa dönem bağımlılık ve (12. gecikme ile) mevsimsellik |
-| Hareketli istatistikler | `rolling_mean_12`, `rolling_std_3` | Yerel düzey (trend) ve oynaklık |
 | Yıllık değişim | `lag_1 − lag_13` | Büyüme hızı |
-| Takvim | `month`, `quarter` | Takvime bağlı mevsimsel etkiler |
 
-Hareketli standart sapma, son birkaç ayın ne kadar dalgalandığını ölçer. **Standart sapma**, değerlerin ortalamadan tipik olarak ne kadar uzaklaştığını gösteren yayılım ölçüsüdür: Şubat–Nisan 1949'un değerleri 118, 132 ve 129'dur; ortalamaları 126.33, standart sapmaları yaklaşık 7.4'tür. Üç ay da 126 olsaydı standart sapma 0 olurdu. Yıllık değişim ise örneğin Ocak 1960 satırında `lag_1 − lag_13` = Aralık 1959 − Aralık 1958 = $405 - 337 = 68$ olarak hesaplanır: Son bilinen ay, bir yıl öncesine göre 68 bin yolcu artmıştır.
+Hareketli standart sapma (standart sapma: Bölüm 2.2), son birkaç ayın ne kadar dalgalandığını ölçer: Şubat–Nisan 1949'un değerleri 118, 132 ve 129'dur; ortalamaları 126.33, standart sapmaları yaklaşık 7.4'tür. Üç ay da 126 olsaydı standart sapma 0 olurdu. Yıllık değişim ise örneğin Ocak 1960 satırında `lag_1 − lag_13` = Aralık 1959 − Aralık 1958 = $405 - 337 = 68$ olarak hesaplanır: Son bilinen ay, bir yıl öncesine göre 68 bin yolcu artmıştır.
 
 **Not —** Her özellik yalnızca tahmin anından **önce** bilinen bilgilerle hesaplanmalıdır. Örneğin $t$ anının özelliği olarak $y_t - y_{t-12}$ kullanmak, hedef değeri ($y_t$) özelliğin içine gizlemek anlamına gelir: Ocak 1960 satırında bu özellik $417 - 360 = 57$ olur ve içinde tahmin etmeye çalıştığımız 417 vardır. Model bu durumda eğitimde ve testte olağanüstü başarılı görünür, ama gerçek gelecekte bu bilgi elimizde olmayacağı için çalışmaz. Bu hataya **veri sızıntısı** (data leakage) denir (bkz. 12.1.5). Python kodunda bu yüzden hareketli istatistikler ve yıllık değişim, `shift(1)` ile bir adım kaydırılarak hesaplanmıştır.
 
@@ -340,11 +339,13 @@ Bunu Hemen deneyin 13.1.1'de doğrudan gördük: `lag_1` = 600 için bile tahmin
 
 **Bu neden zaman serilerinde sorun?** Trendli bir seride (AirPassengers gibi) gelecek değerler çoğu zaman geçmişte hiç görülmemiş düzeydedir. Model, girdi olarak "zaman" veya "yıl" bilgisi verilse bile, eğitim aralığının dışındaki bir yıl için en son öğrendiği yaprağı kullanır ve tahmin düz bir tavana takılır. Model trendi "devam ettiremez"; yalnızca eğitimde gördüğü en yüksek düzeyi tekrar eder.
 
+**Günlük hayattan bir örnek:** Ağaç modeli, yalnızca emsal satışlara bakarak fiyat biçen bir emlakçıya benzer: Size, evinize en çok benzeyen geçmiş satışların ortalamasını söyler. Mahallede o güne kadar satılan en pahalı ev 5 milyonsa, ne kadar lüks bir ev getirirseniz getirin en pahalı emsallerin ortalamasının üstüne çıkamaz. Fiyatlar her yıl artıyorsa hep geride kalır; doğrusal model ise "her yıl şu kadar artıyor" kuralını geleceğe uzatabilir.
+
 ![Ağaç modellerinde ekstrapolasyon sorunu](../images/ch13_ekstrapolasyon.svg)
 
 *Şekil 13.3 — Trendli bir seride ağaç tabanlı model (kırmızı) test döneminde eğitimdeki en yüksek düzeyin etrafında kalır ve trendi izleyemez. Trend önce çıkarılıp ağaç yalnızca trendden arındırılmış bileşene uygulandığında ve trend sonra geri eklendiğinde (yeşil kesikli) tahmin gerçek seriyi izler.*
 
-AirPassengers verisinde de bu durumu görürüz: eğitim dönemindeki en yüksek değer 559 iken 1960 yılının test döneminde değerler 622'ye kadar çıkar. Seviye üzerinden eğitilen bir XGBoost modeli yaz zirvesini sistematik olarak **düşük** tahmin eder: 13.4'teki koddaki "Ekstrapolasyon kontrolü" çıktısında modelin testteki en büyük tahmini 544'tür, yani eğitimdeki 559'un bile altında kalır.
+AirPassengers verisinde de bu durumu görürüz: eğitim dönemindeki en yüksek değer 559 iken 1960 yılının test döneminde değerler 622'ye kadar çıkar. Seviye üzerinden eğitilen bir XGBoost modeli yaz zirvesini sistematik olarak **düşük** tahmin eder; bunu 13.4.1'deki "Ekstrapolasyon kontrolü" çıktısında sayılarla göreceğiz.
 
 **Çözümler:** Temel fikir, modele eğitim ve test döneminde aynı aralıkta kalan bir hedef vermektir.
 
@@ -394,7 +395,7 @@ AirPassengers verisinde de bu durumu görürüz: eğitim dönemindeki en yüksek
 
 ### 13.4. Python ile XGBoost Uygulaması
 
-Aşağıdaki kod AirPassengers verisi üzerinde uçtan uca bir XGBoost uygulamasıdır: veri hazırlığı, özellik mühendisliği, eğitim/doğrulama/test ayrımı, erken durdurma ile model eğitimi, değerlendirme, özellik önemi, görselleştirme ve zaman serisi çapraz doğrulaması. Kodu çalıştırmak için `pip install xgboost` ile paketi kurmanız gerekir.
+Aşağıdaki kod AirPassengers verisi üzerinde uçtan uca bir XGBoost uygulamasıdır: veri hazırlığı, özellik mühendisliği, eğitim/doğrulama/test ayrımı, erken durdurma ile model eğitimi, değerlendirme, özellik önemi, görselleştirme ve zaman serisi çapraz doğrulaması (fold: Bölüm 16.1). Kodu çalıştırmak için `pip install xgboost` ile paketi kurmanız gerekir.
 
 Programın tamamı (yaklaşık 430 satır) uygulama dosyasındadır; aşağıda yalnızca kilit satırlarını görüyorsunuz.
 
@@ -436,20 +437,11 @@ Bu satırların her biri belirli bir iş görür:
 3. **`dropna()`:** En uzun kaydırma `shift(13)` olduğu için ilk 13 satır NaN içerir ve atılır; 144 aydan **131** satır (Şubat 1950 – Aralık 1960) kalır.
 4. **Bölme:** `split_point = len(X) - test_size` = $131 - 12 = 119$'dur. `X.iloc[:119]` ilk 119 satırı (Şubat 1950 – Aralık 1959) eğitime, `X.iloc[119:]` son 12 satırı (1960) teste ayırır. Eğitimin içinden `iloc[:-12]` ile ilk 107 satır (Şubat 1950 – Aralık 1958) asıl eğitime, `iloc[-12:]` ile 1959 yılı doğrulamaya ayrılır. Hiçbir aşamada satırlar karıştırılmaz.
 5. **`params` ve `**params`:** `dict(...)` hiperparametreleri bir sözlükte (anahtar–değer listesi) toplar. `XGBRegressor(..., **params)` yazımındaki iki yıldız sözlüğü "açar", yani `learning_rate=0.05, max_depth=4, ...` argümanlarını tek tek yazmışız gibi iletir. Böylece aynı ayarlar üç ayrı modelde tekrar yazılmadan kullanılır. Ayarların anlamı: `learning_rate=0.05` her ağacın katkısını %5'e indirir; `max_depth=4` her ağacın en fazla 4 soru sormasına izin verir; `subsample=0.8` her ağacın satırların rastgele %80'iyle, `colsample_bytree=0.8` ise 21 özelliğin rastgele %80'iyle (16 özellik) kurulmasını sağlar; `random_state=SEED` bu rastgeleliği sabitler, böylece kod her çalıştığında aynı sonucu verir.
-6. **Erken durdurma:** `XGBRegressor(n_estimators=1000, early_stopping_rounds=50, ...)` en fazla 1000 ağaç kurmaya hazırdır, ama doğrulama hatası art arda 50 ağaç boyunca iyileşmezse durur. `fit(X_tr_in, y_tr_in, eval_set=[(X_val, y_val)], verbose=False)` modeli asıl eğitim verisiyle kurar; `eval_set`, içinde `(girdi, hedef)` çiftleri bulunan bir listedir ve model her yeni ağaçtan sonra bu kümedeki hatayı (varsayılan olarak RMSE) ölçer. `verbose=False`, her turun hatasının ekrana yazdırılmasını engeller. (`early_stopping_rounds`'un neden kurucuya yazıldığı için bkz. 13.1.4'teki tablo.)
+6. **Erken durdurma:** `XGBRegressor(n_estimators=1000, early_stopping_rounds=50, ...)` en fazla 1000 ağaç kurmaya hazırdır, ama doğrulama hatası art arda 50 ağaç boyunca iyileşmezse durur. `fit(X_tr_in, y_tr_in, eval_set=[(X_val, y_val)], verbose=False)` modeli asıl eğitim verisiyle kurar; `eval_set`, içinde `(girdi, hedef)` çiftleri bulunan bir listedir ve model her yeni ağaçtan sonra bu kümedeki hatayı (varsayılan olarak RMSE) ölçer. `verbose=False`, her turun hatasının ekrana yazdırılmasını engeller. `eval_set` olarak test setini vermek sızıntıdır: Test bilgisi model seçimine karışır ve sonuçlar olduğundan iyi görünür; bu yüzden doğrulama yılı eğitimin içinden ayrılır. (`early_stopping_rounds`'un neden kurucuya yazıldığı için bkz. 13.1.4'teki tablo.)
 7. **`best_iteration`:** Doğrulama hatasının en düşük olduğu turun numarasıdır. Python'da sayma 0'dan başladığı için bu numaranın 1 fazlası ağaç sayısıdır: `best_n = best_iteration + 1`. Bizim çalıştırmamızda `best_iteration` = 172, yani `best_n` = 173'tür; eğitim, 173. ağaçtan sonra 50 tur daha denenip iyileşme görülmeyince 223. ağaçta durmuştur.
 8. **Yeniden eğitim ve tahmin:** `XGBRegressor(n_estimators=best_n, **params)` aynı ayarlarla, ama tam 173 ağaçlık yeni bir model kurar ve `fit(X_train, y_train)` ile doğrulama yılı dahil bütün eğitim verisinde eğitir. `model.predict(X_test)` 12 test ayı için 12 sayılık bir NumPy dizisi döndürür. `calculate_metrics` ise üç değer döndürür; `a, b, c = ...` yazımı bu üç değeri sırayla üç değişkene atar.
 
-Program sırasıyla şu adımları izler:
-
-1. **Tekrarlanabilirlik ve veri:** Tohum sabitlenir (`SEED = 42`), AirPassengers okunur ve `Month` sütunu tarih indeksi yapılır.
-2. **Özellik mühendisliği:** 12 gecikme (`lag_1`–`lag_12`), 3/6/12 aylık hareketli ortalamalar, 3 ve 12 aylık hareketli standart sapmalar, yıllık değişim (`seasonal_diff`), ay, çeyrek ve normalize yıl üretilir; toplam 21 özellik. Normalize yıl, yılı 0–1 aralığına taşır: (yıl − 1949) / (1960 − 1949); örneğin 1955 için $6 / 11 \approx 0.545$. Hepsi `shift` ile yalnızca geçmiş bilgiden hesaplanır (takvim bilgileri zaten önceden bilinir); NaN içeren ilk satırlar atılır.
-3. **Eğitim / doğrulama / test ayrımı:** Yukarıdaki 4. maddede anlatıldığı gibidir.
-4. **Model:** Erken durdurma ve yeniden eğitim, yukarıdaki 6.–8. maddelerdeki gibidir.
-5. **Değerlendirme:** `calculate_metrics` eğitim ve test için MAE, RMSE ve MAPE yazdırır; ardından eğitimdeki en büyük değer, testteki en büyük gerçek değer ve en büyük tahmin yan yana basılır (ekstrapolasyon kontrolü).
-6. **Özellik önemi:** `feature_importances_` yatay çubuk grafikle çizilir ve en önemli beş özellik listelenir.
-7. **Görselleştirme:** Tüm seri üzerinde eğitim/test tahminleri ve test döneminin, eğitimdeki tavanı gösteren yatay çizgiyle ayrıntılı görünümü çizilir.
-8. **Çapraz doğrulama:** Eğitim verisi üzerinde 5 fold'lu `TimeSeriesSplit` ile (sabit `best_n`) her fold'un RMSE, MAE, MAPE değeri ve "ortalama ± std" özeti hesaplanır (ayrıntısı Bölüm 16'da).
+Dosyadaki tam program bu satırlara ek olarak 3/6/12 aylık hareketli ortalamaları, 3 ve 12 aylık hareketli standart sapmaları, çeyreği ve normalize yılı, yani (yıl − 1949) / 11 değerini üretir (toplam 21 özellik). Ayrıca özellik önemi ve test grafiklerini çizer ve eğitim verisinde 5 fold'lu `TimeSeriesSplit` ile çapraz doğrulama yapar (Bölüm 16).
 
 Programın ekran çıktısının önemli kısımları (xgboost 3.4, Windows; aradaki satırlar `...` ile kısaltılmıştır):
 
@@ -482,11 +474,11 @@ Testteki en büyük tahmin  : 544
 
 En önemli 5 özellik:
         feature  importance
-         lag_11    0.057858
-          lag_1    0.098623
- rolling_mean_3    0.181947
-rolling_mean_12    0.219770
          lag_12    0.383104
+rolling_mean_12    0.219770
+ rolling_mean_3    0.181947
+          lag_1    0.098623
+         lag_11    0.057858
 ...
 Fold 1: RMSE=36.61, MAE=27.78, MAPE=11.83%
 Fold 2: RMSE=23.79, MAE=20.05, MAPE=9.00%
@@ -508,12 +500,10 @@ Ortalama Sonuçlar:
 
 #### 13.4.1. Kodun Önemli Noktaları ve Çıktının Yorumlanması
 
-- **Üç parçalı ayrım:** Son 12 ay test setidir ve yalnızca en sonda, performansı raporlamak için kullanılır. Erken durdurma için gereken doğrulama seti, eğitim verisinin son 12 ayından ayrılır. Test setini erken durdurmada (`eval_set`) kullanmak, test bilgisini model seçimine sızdırır ve sonuçları olduğundan iyi gösterir.
-- **İki aşamalı eğitim:** Ağaç sayısı doğrulama yılıyla seçildikten sonra model bütün eğitim verisinde yeniden eğitilir; böylece en yakın tarihli 12 ay (1959) da öğrenmeye katılır.
 - **Metrikler:** MAE, RMSE ve MAPE'nin tanımları ve yorumu için Bölüm 8'e bakınız. Testte MAE = 30.48, model 1960'ın her ayında ortalama yaklaşık 30 bin yolcu yanılıyor demektir; MAPE = %6.23 ise bu hatanın gerçek değerlerin ortalama %6'sı kadar olduğunu söyler. Eğitim hatasının test hatasından düşük çıkması beklenen bir durumdur; ancak burada fark çok büyüktür (eğitim MAE 1.54, test MAE 30.48). Model eğitim verisine neredeyse birebir uymuştur; bu, aşırı öğrenmenin ve aşağıdaki ekstrapolasyon sorununun birlikte görüldüğü bir durumdur.
 - **Ekstrapolasyon kontrolü:** Seviye modelinin en büyük tahmini (544), eğitimdeki en büyük değerin (559) bile altında, gerçek zirvenin (622) ise çok altındadır. Bu, 13.3'te anlatılan sınırlılığın ta kendisidir. Detaylı test grafiğine eklenen yatay kesikli çizgi de bu tavanı gösterir.
 - **Özellik önemi:** `feature_importances_`, her özelliğin ağaçlarda yaptığı bölmelerin hatayı ne kadar azalttığının (XGBoost'ta varsayılan ölçü *gain*) payıdır; tüm özelliklerin değerleri toplanınca 1 eder. AirPassengers'ta `lag_12` (geçen yılın aynı ayı) 0.38 ile açık ara en önemli özellik çıkar; onu 12 ve 3 aylık hareketli ortalamalar izler. Bu, serinin güçlü yıllık mevsimselliğini ve yerel düzeyini modelin kendiliğinden keşfettiğini gösterir. Önemi sıfıra yakın özellikler modelden çıkarılarak daha sade bir model denenebilir.
-- **Çapraz doğrulama:** `TimeSeriesSplit(n_splits=5)`, 119 aylık eğitim verisini her biri 19 aylık beş doğrulama dilimine böler; ilk katta model yalnızca 24 ayla, son katta 100 ayla eğitilir. Katlar arasındaki hata farkı (± işaretinden sonraki değer, yani beş katın standart sapması) modelin farklı dönemlerdeki tutarlılığını gösterir: RMSE ortalaması 39.16, katlar arası yayılım 11.52'dir. Çapraz doğrulama yalnızca eğitim verisi üzerinde yapılır; test seti yine dokunulmadan kalır.
+- **Çapraz doğrulama:** `TimeSeriesSplit(n_splits=5)`, 119 aylık eğitim verisini her biri 19 aylık beş doğrulama dilimine (fold; Bölüm 16.1) böler; ilk katta model yalnızca 24 ayla, son katta 100 ayla eğitilir. Katlar arasındaki hata farkı (± işaretinden sonraki değer, yani beş katın standart sapması) modelin farklı dönemlerdeki tutarlılığını gösterir: RMSE ortalaması 39.16, katlar arası yayılım 11.52'dir. Çapraz doğrulama yalnızca eğitim verisi üzerinde yapılır; test seti yine dokunulmadan kalır.
 
 **Not —** Kodun ürettiği sayılar XGBoost sürümüne ve işletim sistemine göre küçük farklılıklar gösterebilir; yorumlarken sayıların kendisinden çok göreli büyüklüklerine (eğitim ile test farkı, seviye modeli ile fark modeli farkı) odaklanın.
 
@@ -558,20 +548,12 @@ Ortalama Sonuçlar:
 
 #### 13.4.2. Ekstrapolasyon Sorununa Çözüm: Fark Üzerinden Tahmin
 
+**Günlük hayattan bir örnek:** Bir çocuğun 15 yaşındaki boyunu, yalnızca 10 yaşına kadarki boyları görmüş bir ağaçla tahmin edemezsiniz: Ağaç gördüğü en uzun boyun üstüne çıkamaz. Ama "bu yıl kaç santim uzar?" sorusunun cevabı her yıl benzer bir aralıktadır. Ağaç uzamayı rahatça öğrenir; tahmin edilen uzama geçen yılki boya eklenince yeni boy bulunur. Benzetmenin sınırı: Birkaç yıl ilerisi için tahmin edilen uzamalar art arda eklendiğinden, her yılın hatası sonrakilere taşınır ve birikir.
+
 13.3'teki ilk çözümü uygulayalım. Aşağıdaki kod, yukarıdaki kodun devamıdır (aynı `X_train`, `X_test`, `params`, `best_n` ve `calculate_metrics` nesnelerini kullanır). Hedef olarak seviye yerine bir önceki aya göre değişimi kullanır ve tahmini `lag_1` ile toplayarak seviyeye geri döner.
 
 ```python
-# =============================================================
-# 9) EKSTRAPOLASYON SORUNUNA ÇÖZÜM: FARK ÜZERİNDEN TAHMİN
-# =============================================================
-#
-# Seviyeyi (Passengers) değil, bir önceki aya göre DEĞİŞİMİ
-# tahmin edelim. Değişimin aralığı eğitim ve test döneminde
-# benzer olduğundan ağaçlar bu hedefte sınır sorunu yaşamaz.
-#
-#   hedef:          d(t) = y(t) - y(t-1)
-#   geri dönüşüm:   ŷ(t) = y(t-1) + d̂(t)      (y(t-1) = lag_1)
-
+# 9) Fark üzerinden tahmin (13.3, çözüm 1)
 d_train = y_train - X_train['lag_1']
 
 diff_model = xgb.XGBRegressor(n_estimators=best_n, **params)
@@ -667,11 +649,18 @@ Weka standart hâliyle zaman serisi araçları içermez; bunun için `timeseries
 
 1. AirPassengers veri setini `https://github.com/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/data/AirPassengers.csv` adresinden indirin: sayfadaki **Raw** düğmesine sağ tıklayıp "Bağlantıyı farklı kaydet" seçeneğiyle dosyayı bilgisayarınıza kaydedin.
 2. Weka GUI Chooser'da **Explorer** düğmesine tıklayın.
-3. `Preprocess` sekmesinde `Open file...` düğmesine tıklayın, dosya türü olarak CSV'yi seçip indirdiğiniz dosyayı açın.
 
-Alternatif olarak **Raw** düğmesine tıklayınca açılan sayfanın adresini kopyalayıp `Open URL...` ile dosyayı doğrudan yükleyebilirsiniz. Bu adres `raw.githubusercontent.com` ile başlamalıdır.
+Weka CSV dosyasındaki `1949-01` biçimli tarihleri varsayılan olarak **nominal** (metin kategorisi) olarak okur. `TSLagMaker` filtresinin trend ve takvim özelliklerini üretebilmesi için tarih sütununun gerçek `Date` tipinde olması **ve** adının `Month` olmaması gerekir: Filtre, ay bilgisini taşıyan kendi sütununa `Month` adını verir ve aynı adlı ikinci bir sütun eklenemez (Weka bu durumda "name 'Month' already in use" hatası verir). İki düzeltmeyi de dosyayı yüklerken yaparız (Invoke options yöntemi):
 
-**Not —** Weka CSV dosyasındaki `1949-01` biçimli tarihleri varsayılan olarak **nominal** (metin kategorisi) olarak okur. `TSLagMaker` filtresinin trend ve takvim özelliklerini üretebilmesi için tarih sütununun gerçek `Date` tipinde olması **ve** adının `Month` olmaması gerekir: Filtre, ay bilgisini taşıyan kendi sütununa `Month` adını verir ve aynı adlı ikinci bir sütun eklenemez (Weka bu durumda "name 'Month' already in use" hatası verir). Her iki düzeltmenin nasıl yapılacağı Bölüm 14.1'de anlatılmıştır; devam etmeden önce tarih sütununu `Date` tipine çevirip adını `Tarih` yapın.
+3. `Preprocess` sekmesinde **`Open file...`** düğmesine basın. Dosya türü olarak CSV'yi seçip indirdiğiniz dosyayı seçin, **ancak hemen `Open` demeyin.**
+4. Pencerenin altındaki **`Invoke options dialog`** kutucuğunu işaretleyin.
+5. Şimdi `Open` deyin. Karşınıza CSV yükleyicisinin ayar penceresi gelecektir. Bu pencerede şu iki satırı bulup değiştirin:
+   - **`dateAttributes`**: Tarih sütununun sıra numarası (AirPassengers için **`1`**).
+   - **`dateFormat`**: Dosyadaki tarih biçimi, harfiyen (AirPassengers için **`yyyy-MM`**; `yyyy` dört haneli yıl, büyük `MM` iki haneli ay demektir; küçük `mm` ise dakika anlamına gelir).
+6. `OK` dediğinizde veri seti, tarih sütunu `Date` tipine dönüşmüş olarak açılır. Sol alttaki `Attributes` listesinde sütuna tıkladığınızda sağ panelde `Type: Date` yazdığını görmelisiniz.
+7. **Çok önemli son adım:** Üstteki `Edit...` düğmesine basın. `Month` sütununun başlığına sağ tıklayıp `Rename attribute` seçeneğiyle adını **`Tarih`** olarak değiştirin ve `OK` ile kaydedin. Hem `TSLagMaker` hem de Bölüm 14'teki `Forecast` sekmesi aylık veride kendi `Month` sütununu ürettiği için bu değişikliği yapmazsak ad çakışması nedeniyle hata alırız.
+
+Alternatif olarak **Raw** düğmesine tıklayınca açılan sayfanın adresini kopyalayıp (`raw.githubusercontent.com` ile başlamalıdır) `Open URL...` ile dosyayı doğrudan yükleyebilirsiniz. Bu yolda seçenek penceresi açılmaz ve tarih sütunu nominal okunur; düzeltmek için Bölüm 14.1.2'deki ARFF yöntemini kullanabilirsiniz.
 
 #### 13.5.3. Özellik Mühendisliği (Dönüşüm)
 
@@ -724,10 +713,10 @@ Hazırlık tamamlandıktan sonra asıl dönüşüme geçin: `filters → supervi
 
 1. `Classify` sekmesine geçin. `Start` düğmesinin hemen üstündeki açılır listede hedef olarak `(Num) Passengers` sütununu seçin. `TSLagMaker` sütunların sırasını değiştirdiği için `Passengers` artık son sütun değildir; liste varsayılan olarak son sütunu (`Tarih-remapped*Lag_YolcuGiris-12`) gösterir ve bunu değiştirmezseniz Weka yanlış sütunu tahmin etmeye çalışır.
 2. `Classifier` bölümündeki `Choose` düğmesiyle bir algoritma seçin. Zaman serilerinde sık kullanılan seçenekler:
-   - **`trees → RandomForest`:** Birbirinden bağımsız çok sayıda ağacın ortalamasını alır, genellikle kararlı sonuçlar verir.
-   - **`trees → REPTree`:** Hızlı çalışan ve budama yaparak aşırı öğrenmeyi azaltan tek bir karar ağacıdır.
+   - **`trees → RandomForest`:** Birbirinden bağımsız çok sayıda ağacın ortalamasını alır (bagging: her ağaç verinin rastgele seçilmiş bir örneklemiyle kurulur), genellikle kararlı sonuçlar verir.
+   - **`trees → REPTree`:** Hızlı çalışan ve budama (pruning: hatayı belirgin biçimde azaltmayan dalları sonradan kesme) yaparak aşırı öğrenmeyi azaltan tek bir karar ağacıdır.
    - **`meta → AdditiveRegression`:** Weka'daki **gradient boosting** karşılığıdır; XGBoost'a en yakın seçenek budur. Ayarlarında `classifier` olarak `trees → REPTree` seçin; `numIterations` ağaç sayısını ($M$), `shrinkage` ise öğrenme hızını ($\eta$) belirler (ör. 200 iterasyon, 0.1 shrinkage).
-   - **`functions → SMOreg`:** Destek vektör makinelerinin regresyon sürümüdür. Varsayılan doğrusal çekirdekle ağaçlardan farklı olarak trendi eğitim aralığının dışına taşıyabilir; 13.3'teki sınırlılığı karşılaştırmak için iyi bir referanstır.
+   - **`functions → SMOreg`:** Destek vektör makinelerinin (SVM: küçük hataları görmezden gelip büyük hataları cezalandırarak bir fonksiyon uyduran yöntem) regresyon sürümüdür. Varsayılan doğrusal çekirdekle (çekirdek: girdiler arasındaki benzerliği ölçen fonksiyon; doğrusal çekirdek modeli bir doğrusal fonksiyon yapar) ağaçlardan farklı olarak trendi eğitim aralığının dışına taşıyabilir; 13.3'teki sınırlılığı karşılaştırmak için iyi bir referanstır.
 3. `Test options` bölümünde `Percentage split` seçeneğini işaretleyip oranı `80` yapın. Bu, verinin ilk %80'iyle modelin eğitileceği, kalan %20'siyle sınanacağı anlamına gelir.
 4. **Çok önemli:** Weka, `Percentage split` kullanıldığında varsayılan olarak veriyi bölmeden önce **karıştırır**. Zaman serisinde bu, geleceği görerek geçmişi tahmin etmek demektir. Bunu önlemek için `More options...` düğmesine tıklayın ve **`Preserve order for % Split`** kutucuğunu işaretleyin.
 5. `Start` düğmesine basın.
@@ -791,7 +780,7 @@ Bu değerleri Python ile elde ettiğiniz sonuçlarla (13.4) kıyaslayarak hangi 
 >
 > <details><summary>Cevap</summary>
 >
-> (a) Correlation 0.8836, MAE 69.17, RMSE 80.81, RAE %34.52: Her ağaç tam katkıyla eklenince model kaba sıçramalar yapar ve test hatası artar. (b) Correlation 0.9015, MAE 101.25, RMSE 116.00, RAE %50.53: Küçük öğrenme hızıyla 10 ağaç çok azdır (eksik öğrenme). 13.1.4'teki kural Weka'da da geçerlidir: Küçük `shrinkage` ($\eta$) daha çok ağaç (`numIterations`, $M$) ister.
+> (a) Correlation 0.8836, MAE 69.17, RMSE 80.81, RAE %34.52: Her ağaç tam katkıyla eklenince model kaba sıçramalar yapar ve test hatası artar. (b) Correlation 0.9015, MAE 101.25, RMSE 116.00, RAE %50.53: Küçük öğrenme hızıyla 10 ağaç çok azdır (yetersiz öğrenme, Bölüm 8.4.3). 13.1.4'teki kural Weka'da da geçerlidir: Küçük `shrinkage` ($\eta$) daha çok ağaç (`numIterations`, $M$) ister.
 >
 > </details>
 
@@ -857,12 +846,7 @@ Bu liste, modelin hangi aylarda başarılı, hangi aylarda (ör. yaz zirvelerind
 
 Burada önemli bir ayrıma dikkat edin. Yukarıdaki işlem, elimizde zaten var olan ama modelden sakladığımız veriler içindi. Peki veri setimiz Aralık 1960'ta bitiyorsa ve biz **Ocak 1961**'i tahmin etmek istiyorsak ne yapacağız?
 
-`TSLagMaker` ile özellikleri elle ürettiğimiz bu yöntem buna doğrudan izin vermez. Ocak 1961'i tahmin etmek için modele "bir önceki ayın (Aralık 1960) yolcu sayısını" girdi olarak vermemiz gerekir; bu değer elimizdedir. Ancak Şubat 1961'i tahmin etmek için henüz gerçekleşmemiş olan Ocak 1961 değerine ihtiyaç duyarız. Elimizdeki tek şey, modelin Ocak 1961 için ürettiği tahmindir. Bu tahmini girdi olarak kullanıp bir sonraki ayı, onu da kullanıp bir sonrakini tahmin etmeye **özyinelemeli tahmin** (recursive forecasting) denir (12.1.3). Ufuk uzadıkça girdilerin giderek daha büyük bir kısmı modelin kendi tahminlerinden oluşur ve hatalar birikir; mekanizmanın formülünü ve Weka'daki işleyişini Bölüm 14.2.1'de göreceğiz.
-
-Veri setinin bittiği tarihten ileri bir tarihi tahmin etmek için iki yolunuz vardır:
-
-1. **Elle yöntem (zahmetli):** Veri setinin altına yeni tarihleri ekleyip yolcu sayılarını boş (`?`) bırakırsınız. Weka'da tahmin alıp çıkan sonucu bir sonraki satırın gecikme sütunlarına elle kopyalayarak ilerlersiniz. Bu yöntem yavaş ve hataya açıktır.
-2. **Forecast sekmesi (önerilen yöntem):** `timeseriesForecasting` paketiyle gelen `Forecast` sekmesi bu işi otomatik yapar (Bölüm 14).
+`TSLagMaker` ile kurduğumuz model Ocak 1961'i tahmin edebilir, çünkü Aralık 1960 bilinmektedir. Şubat 1961 için ise henüz gerçekleşmemiş Ocak değerine ihtiyaç duyar. Çözüm, modelin kendi tahminini girdi olarak kullanmasıdır (özyinelemeli tahmin, 12.1.3). Weka'da bunu otomatik yapan `Forecast` sekmesi Bölüm 14'te anlatılıyor.
 
 Bu bölümde temel mantığı kavramak için `Explorer` ekranındaki `Classify` sekmesini kullandık. Geleceğe yönelik bir tahmin raporu hazırlayacaksanız, burada öğrendiğiniz veri hazırlığı mantığıyla `Forecast` sekmesini kullanmanız daha doğru olacaktır. Bir sonraki bölüm tamamen bu sekmeye ayrılmıştır.
 

@@ -15,7 +15,7 @@ Ardından bu araçları R (8.3) ve Python (8.4) ile `AirPassengers` üzerinde uy
 
 ### 8.1. Neden Değerlendirme? Eğitim-Test Mantığı
 
-**Açıklama:** Bir öğrencinin başarısını, sınavda daha önce çözdüğü soruları sorarak ölçemezsiniz; o soruları ezberlemiş olabilir. Gerçek başarı, hiç görmediği yeni soruları çözebilmesidir. Modeller için de aynısı geçerlidir. Bir model eğitildiği veriye çok iyi uyabilir ama geleceği kötü tahmin edebilir. Bu duruma **aşırı uyum** (overfitting) denir.
+**Açıklama:** Bir öğrencinin başarısını, sınavda daha önce çözdüğü soruları sorarak ölçemezsiniz; o soruları ezberlemiş olabilir. Gerçek başarı, hiç görmediği yeni soruları çözebilmesidir. Modeller için de aynısı geçerlidir. Bir model eğitildiği veriye çok iyi uyabilir ama geleceği kötü tahmin edebilir. Bu duruma **aşırı öğrenme** (aşırı uyum, overfitting) denir.
 
 Bu yüzden elimizdeki veriyi ikiye ayırırız:
 
@@ -34,20 +34,28 @@ Sıradan makine öğrenmesi problemlerinde satırlar rastgele karıştırılıp 
 
 Rastgele bölmede, örneğin Mart 1958 test setindeyse, Şubat 1958 ve Nisan 1958 eğitim setinde olabilir. Model Mart'ı tahmin ederken bir sonraki ayı zaten "bilmektedir". Aradaki değeri iki komşusundan tahmin etmek (interpolasyon), geleceği tahmin etmekten (ekstrapolasyon) çok daha kolaydır. Sonuçta hata olduğundan çok daha küçük ölçülür ve model gerçekte olduğundan iyi görünür.
 
+**Günlük hayattan bir örnek:** Bir futbol maçında 60. dakikadaki skoru, 55. ve 65. dakikanın skorunu bilerek tahmin etmek kolaydır. Asıl zor olan, 55. dakikada durup 65. dakikayı tahmin etmektir. Rastgele bölme modele hep bu kolay "ara dakika" sorularını sorar; gerçek hayatta ise model hep ikinci türden sorularla karşılaşır.
+
 Gelecekten geçmişe bilgi taşınmasına **veri sızıntısı** (data leakage) denir. Zaman serisinde sızıntının yaygın kaynakları şunlardır:
 
 - **Rastgele bölme:** Yukarıda anlattığımız durum.
-- **Tüm veriyle ön işleme:** Ölçekleme (ör. `MinMaxScaler`), normalleştirme ya da eksik değer doldurma için gereken istatistikleri (min, max, ortalama) tüm seriden hesaplamak. Bu istatistikler **yalnızca eğitim setinden** hesaplanmalı, sonra test setine aynen uygulanmalıdır.
+- **Tüm veriyle ön işleme:** Ölçekleme (ör. `MinMaxScaler`), normalleştirme ya da eksik değer doldurma için gereken istatistikleri (min, max, ortalama) tüm seriden hesaplamak. Bu istatistikler **yalnızca eğitim setinden** hesaplanmalı, sonra test setine aynen uygulanmalıdır (ölçeklemenin ayrıntısı 12.1.4'te).
 - **Geleceğe bakan özellikler:** Örneğin merkezî hareketli ortalama gibi, $t$ anının değerini hesaplarken $t+1$, $t+2$ gözlemlerini kullanan özellikler.
 - **Test setine bakarak model seçmek:** Test hatasına bakıp parametreleri tekrar tekrar ayarlamak, test setini gizlice eğitime katmak demektir. Model seçimi için eğitim setinin sonundan ayrı bir **doğrulama seti** (validation set) ayırmak daha doğrudur.
 
+**Günlük hayattan bir örnek:** Sınav soruları sızarsa yüksek notlar öğrenmeyi göstermez. Ama sızıntı her zaman soruların kendisi değildir: "En zor soru 20 puanlık, cevaplar 0–100 arasında" bilgisini önceden duymak bile işi kolaylaştırır. Tüm seriden min/max alarak ölçekleme bu ikinci türe benzer: Model, test dönemi dahil bütün serinin en büyük ve en küçük değerini dolaylı yoldan öğrenmiş olur. Benzetmenin sınırı: Veri sızıntısı çoğu zaman kasıtsızdır; kopya çeken öğrenci değil, dikkatsiz bir kod satırıdır.
+
 **Not —** Test setinin uzunluğu, gerçekte ihtiyaç duyacağınız **tahmin ufkuna** yakın seçilmelidir. Önümüzdeki 12 ayı tahmin edecekseniz, son 12 ayı test setine ayırmak mantıklıdır.
+
+**Günlük hayattan bir örnek:** Navigasyon uygulaması 5 dakika sonra nerede olacağınızı neredeyse tam bilir, ama 3 saatlik yolculuğun varış saatinde yanılma payı büyüktür. 12 aylık ve 60 aylık testlerin hatasını kıyaslamak da 5 dakikalık ve 3 saatlik tahmini kıyaslamaya benzer; bunu 8.4.2'de sayılarla göreceğiz.
 
 **Not —** Tek bir eğitim-test ayrımı, sonucun seçilen kesim noktasına bağlı olmasına yol açar. Daha sağlam bir değerlendirme için kesim noktası zaman içinde ileri kaydırılarak birden çok kez eğitim-test yapılır. Zaman serisine uygun bu çapraz doğrulama yöntemini (`TimeSeriesSplit`) Bölüm 16'da ayrıntılı olarak ele alacağız.
 
+**Günlük hayattan bir örnek:** Bir okçuyu tek bir atış serisine bakarak değerlendirmek yanıltır; o gün rüzgâr tesadüfen arkadan esmiş olabilir. Farklı günlerdeki serilerin ortalaması gerçek ustalığı gösterir. Kesim noktasını kaydırarak birden çok test yapmak da modeli "farklı günlerde" sınamaktır. Benzetmenin sınırı: Kaydırılan pencerelerin test dönemleri ardışıktır ve birbirinden bağımsız değildir.
+
 > **Hemen deneyin 8.1.1 · Rastgele bölme modeli olduğundan iyi gösterir** (R, ~3 dk)
 >
-> RStudio'yu açın ve aşağıdaki satırları konsola yapıştırın. Hiçbir şey öğrenmeyen bir "model" kuruyoruz: Rastgele seçilen bir ayı, **önceki ve sonraki ayın ortalaması** ile tahmin ediyor. Yani 8.1.1'deki hatayı bilerek yapıyor ve "geleceği" (sonraki ayı) görüyor.
+> RStudio'yu açın ve aşağıdaki satırları konsola yapıştırın. Hiçbir şey öğrenmeyen bir "model" kuruyoruz: Rastgele seçilen bir ayı, **önceki ve sonraki ayın ortalaması** ile tahmin ediyor. Yani 8.1.1'deki hatayı bilerek yapıyor ve "geleceği" (sonraki ayı) görüyor. Başarıyı MAE ile ölçüyoruz (MAE: hataların işaretsiz ortalaması; 8.2.1'de).
 >
 > ```r
 > y <- as.numeric(AirPassengers)          # 144 aylık yolcu sayısı, düz sayı vektörü
@@ -65,19 +73,19 @@ Gelecekten geçmişe bilgi taşınmasına **veri sızıntısı** (data leakage) 
 > [1] 13.21
 > ```
 >
-> İlk satır seçilen 12 ayın sıra numaralarıdır (ör. 69 = Eylül 1954). Hata yalnızca **13.21** bin yolcudur; 8.3'te 1960'ı kronolojik olarak tahmin eden SARIMA modelinin MAE'si de 13.26'dır. Yani hiçbir şey öğrenmeyen bu yöntem, rastgele bölme sayesinde SARIMA kadar iyi görünür. Aynı "tembellikteki" naive yöntem kronolojik testte (1960'ın her ayı = Aralık 1959) MAE = 76 verir (8.3). Aradaki farkın tamamı sızıntıdan, yani sonraki ayı görmekten gelir.
+> İlk satır seçilen 12 ayın sıra numaralarıdır (ör. 69 = Eylül 1954). Hata yalnızca **13.21** bin yolcudur; 8.3'te 1960'ı kronolojik olarak tahmin eden SARIMA modelinin MAE'si de 13.26'dır. Test ayları farklı olduğu için kıyas kabacadır, ama hiçbir şey öğrenmeyen bu yöntem rastgele bölme sayesinde SARIMA kadar iyi görünür. Aynı 12 ayı yalnızca önceki ayla tahmin etseydik MAE = 21 olurdu. Sonraki ayı da görmek hatayı 13.21'e indirir; bu düşüş tamamen sızıntıdır.
 >
 > **Şimdi siz:** `set.seed(1)` yerine `set.seed(2)`, `set.seed(3)` yazıp çalıştırın. MAE kaç kez 20'yi geçiyor?
 >
 > <details><summary>Cevap</summary>
 >
-> `set.seed(2)` → 16.96, `set.seed(3)` → 13.79 (4 ve 5 ile de 15.83 ve 17.71). Hiçbiri 20'ye yaklaşmaz. Hangi aylar seçilirse seçilsin, komşu ayları görmek hatayı küçük gösterir.
+> `set.seed(2)` → 16.96, `set.seed(3)` → 13.79 (4 ve 5 ile de 15.83 ve 17.71). Hiçbiri 20'yi geçmez. Hangi aylar seçilirse seçilsin, komşu ayları görmek hatayı küçük gösterir.
 >
 > </details>
 
 #### 8.1.2. Referans Model: Naive (Saf) Tahmin
 
-Bir modelin hatasının "iyi" olup olmadığına karar vermek için bir **kıyas noktasına** ihtiyacımız vardır. RMSE = 18 iyi mi, kötü mü? Bu soru ancak "neye göre?" sorusuyla birlikte anlamlıdır.
+Bir modelin hatasının "iyi" olup olmadığına karar vermek için bir **kıyas noktasına** ihtiyacımız vardır. Ortalama 18 bin yolculuk bir hata iyi mi, kötü mü? Bu soru ancak "neye göre?" sorusuyla birlikte anlamlıdır.
 
 **Açıklama:** En basit kıyas noktası, hiçbir şey öğrenmeyen "tembel" tahmin yöntemleridir. Karmaşık bir model bu basit yöntemleri yenemiyorsa, o modelin kurulmasına değmez.
 
@@ -100,43 +108,6 @@ $$
 Burada $s$ mevsim uzunluğudur (aylık veride 12). $y_{T+h-s}$, tahmin edilen aydan tam $s$ dönem, yani bir yıl önceki gözlemdir. Parantez içindeki $h \le s$ ("$`h`$, $s$'den küçük ya da ona eşit") koşulu, bu yazımın yalnızca ilk mevsim boyunca geçerli olduğunu söyler. Ufuk $s$'den uzunsa son bilinen mevsim tekrar tekrar kopyalanır. Aynı örnekte $T$ = Aralık 1959 ve $s = 12$ iken Temmuz 1960 için $h = 7$ olur ve tahmin $y_{T+7-12} = y_{T-5}$, yani Temmuz 1959'un değeri olan 548'dir. Ocak 1960'ın tahmini Ocak 1959'un değeri (360), Şubat 1960'ınki Şubat 1959'unki (342) olur ve bu böyle sürer.
 
 Mevsimsel verilerde asıl rakip mevsimsel naive yöntemdir. 8.3'te göreceğimiz gibi, `AirPassengers` için SARIMA modelinin bu referansı açık farkla yenmesi, modelin yalnızca "geçen yılı kopyalamaktan" daha fazlasını, örneğin yıldan yıla büyümeyi de öğrendiğini gösterir.
-
-> **Hemen deneyin 8.1.2 · Üç tembel yöntem, başka bir seride** (R, ~4 dk)
->
-> R'ın yerleşik `USAccDeaths` verisi ABD'de 1973–1978 arasındaki aylık kaza kaynaklı ölüm sayısıdır; yazın tepe yapan güçlü bir mevsimselliği vardır. Son yılı test seti olarak ayırıp üç referans yöntemi karşılaştıralım.
->
-> ```r
-> library(forecast)
-> egitim <- window(USAccDeaths, end = c(1977, 12))   # 1973-1977 (60 ay)
-> test   <- window(USAccDeaths, start = c(1978, 1))  # 1978 (12 ay)
-> a1 <- accuracy(meanf(egitim,  h = 12), test)       # meanf(): her ay = eğitim ortalaması
-> a2 <- accuracy(naive(egitim,  h = 12), test)       # her ay = son gözlem (Aralık 1977)
-> a3 <- accuracy(snaive(egitim, h = 12), test)       # her ay = 1977'nin aynı ayı
-> round(rbind(Ortalama = a1["Test set", c("MAE", "RMSE", "MAPE", "MASE")],
->             Naive    = a2["Test set", c("MAE", "RMSE", "MAPE", "MASE")],
->             Snaive   = a3["Test set", c("MAE", "RMSE", "MAPE", "MASE")]), 2)
-> ```
->
-> `forecast` paketindeki `accuracy(tahmin, test)` (8.3'te yeniden karşımıza çıkacak) 8.2'de tanımlayacağımız metrikleri (MAE, RMSE, MAPE, MASE ...) eğitim ve test seti için iki satırlık bir tablo olarak verir; `["Test set", c(...)]` bu tablodan test satırını ve istediğimiz dört sütunu seçer.
->
-> **Ne göreceksiniz:**
->
-> ```text
->             MAE   RMSE MAPE MASE
-> Ortalama 780.31 946.16 9.19 1.62
-> Naive    778.67 946.05 9.18 1.62
-> Snaive   259.50 341.16 2.85 0.54
-> ```
->
-> Mevsimsel naive, diğer ikisinin hatasını üçte birine indirir: Bu seride "geçen yılın aynı ayı" çok güçlü bir rakiptir. Karmaşık bir model kurarsanız onu **259.50**'lik MAE ile kıyaslamalısınız, 780 ile değil.
->
-> **Şimdi siz:** Aynı test yılında `auto.arima()` modelini deneyin: `fit <- auto.arima(egitim)` ve `round(accuracy(forecast(fit, h = 12), test)[, c("MAE", "RMSE", "MAPE", "MASE")], 2)`. SARIMA, mevsimsel naive'i ne kadar farkla yeniyor?
->
-> <details><summary>Cevap</summary>
->
-> `auto.arima()` yine havayolu modeli ARIMA(0,1,1)(0,1,1)[12]'yi seçer. Test satırı: MAE = 231.61, RMSE = 288.83, MAPE = 2.72, MASE = 0.48. Mevsimsel naive'e göre MAE yalnızca yaklaşık %11 düşer (259.50 → 231.61). `AirPassengers`'taki kadar büyük bir fark yoktur, çünkü bu seride belirgin bir büyüme trendi yoktur ve "geçen yılı kopyala" zaten iyi çalışır. 8.1.2'deki uyarıyı doğrular: Kıyas noktası olmadan 231'in iyi olup olmadığını bilemezdik.
->
-> </details>
 
 ---
 
@@ -174,7 +145,7 @@ $$
 
 Küçük bir örnek: Üç aylık hatalar $-10$, $+5$ ve $+30$ olsun. Mutlak değerler 10, 5 ve 30'dur; toplamları $10 + 5 + 30 = 45$, ortalamaları $45 / 3 = 15$'tir. Yani MAE = 15. İşaretli ortalama ise $(-10 + 5 + 30)/3 \approx 8.3$ olurdu ve hatanın gerçek büyüklüğünü olduğundan küçük gösterirdi.
 
-Mutlak değer, pozitif ve negatif hataların birbirini götürmesini engeller. MAE **verinin kendi biriminde** ifade edilir. Örneğin MAE = 20 ise model ortalama 20 yolcu eksik ya da fazla tahmin yapıyor demektir. Anlaşılması en kolay metrik budur ve her hataya **eşit ağırlık** verir: 30'luk bir hata, 10'luk bir hatanın tam üç katı kadar etkilidir, fazlası değil.
+MAE **verinin kendi biriminde** ifade edilir. Örneğin MAE = 20 ise model ortalama 20 yolcu eksik ya da fazla tahmin yapıyor demektir. Anlaşılması en kolay metrik budur ve her hataya **eşit ağırlık** verir: 30'luk bir hata, 10'luk bir hatanın tam üç katı kadar etkilidir, fazlası değil.
 
 #### 8.2.2. RMSE (Root Mean Squared Error — Kök Ortalama Kare Hata)
 
@@ -190,19 +161,18 @@ $$
 
 Kare alma işlemi 2 birimlik hatayı 4'e, 30 birimlik hatayı 900'e çevirir. Hata 15 kat büyürken karesi 225 kat büyür. Bu yüzden büyük hatalar toplamda baskın hâle gelir. Kareli birim ("yolcu kare") yorumlanamayacağı için en sonda karekök alınır ve RMSE de verinin kendi biriminde (yolcu) ifade edilir.
 
-Her zaman $\mathrm{RMSE} \ge \mathrm{MAE}$'dir ("büyük ya da eşittir"); eşitlik ancak tüm hataların büyüklüğü aynıysa sağlanır. Bunun nedenini iki hatalı küçük bir örnekle görelim:
-
-- Hatalar 10 ve 10: MAE $= (10 + 10)/2 = 10$; MSE $= (100 + 100)/2 = 100$; RMSE $= \sqrt{100} = 10$. İkisi eşit.
-- Hatalar 0 ve 20: MAE yine $(0 + 20)/2 = 10$; ama MSE $= (0 + 400)/2 = 200$ ve RMSE $= \sqrt{200} \approx 14.1$.
-
-İkinci durumda MSE (200), MAE'nin karesinden (100) 100 birim fazladır. Bu fazlalık tesadüf değildir: Hata büyüklüklerinin MAE etrafında ne kadar dağınık olduğunu ölçer. Hata büyüklükleri 0 ve 20, ortalamaları 10'dur; her biri ortalamadan 10 uzaktır ve $(10^2 + 10^2)/2 = 100$. Genel kural şudur: **MSE = MAE² + hata büyüklüklerinin dağınıklığı**. Dağınıklık hiçbir zaman eksi olamayacağı için MSE en az MAE² kadardır, karekökü alınınca da RMSE en az MAE kadar çıkar. Hatalar ne kadar düzensizse (birkaç büyük, çok sayıda küçük hata) RMSE, MAE'den o kadar uzaklaşır. Şekil 8.2b'de bunu görüyoruz:
+Her zaman $\mathrm{RMSE} \ge \mathrm{MAE}$'dir ("büyük ya da eşittir"); eşitlik ancak tüm hataların büyüklüğü aynıysa sağlanır. Nedenini Şekil 8.2b'deki iki modelle görelim:
 
 - **Model A**'nın sekiz hatası da 10'dur: MAE = 10, RMSE = 10.
 - **Model B**'nin yedi hatası 2, biri 66'dır: MAE $= (7 \cdot 2 + 66)/8 = 80/8 = 10$, yani yine 10; ama RMSE $= \sqrt{(7 \cdot 4 + 66^2)/8} = \sqrt{(28 + 4356)/8} = \sqrt{548} \approx 23.4$.
 
 > **Simge notu:** $`\approx`$ *(yaklaşık eşittir)*: iki değerin yaklaşık olarak eşit olduğunu belirtir · $`\ge`$: "büyük ya da eşittir"
 
+Model B'nin hata büyüklüklerinin ortalaması (MAE) 10'dur; yedisi ortalamadan 8 aşağıda, biri 56 yukarıdadır. Bu sapmaların karelerinin ortalaması, yani hata büyüklüklerinin **dağınıklığı**, $(7 \cdot 64 + 56^2)/8 = 448$'dir ve $\mathrm{MSE} = 10^2 + 448 = 548$ bulunur. Bu tesadüf değildir; genel kural şudur: **MSE = MAE² + hata büyüklüklerinin dağınıklığı**. Dağınıklık hiçbir zaman eksi olamayacağı için MSE en az MAE² kadardır, karekökü alınınca da RMSE en az MAE kadar çıkar. Model A'da bütün hatalar eşit olduğundan dağınıklık 0'dır ve RMSE = MAE olur. Hatalar ne kadar düzensizse (birkaç büyük, çok sayıda küçük hata) RMSE, MAE'den o kadar uzaklaşır.
+
 Yani **RMSE, MAE'den belirgin biçimde büyükse, model genel olarak iyi gitse de bazı noktalarda büyük sapmalar yapıyor demektir.**
+
+**Günlük hayattan bir örnek:** İki kargo firması düşünün. A firması on gönderinin hepsini 1 gün geç teslim ediyor; B firması dokuzunu zamanında, birini 10 gün geç. MAE ikisinde de 1 gündür. RMSE ise A için 1, B için $\sqrt{10} \approx 3.2$ gün çıkar: RMSE, tek bir büyük gecikmeyi ağır cezalandırır. Bozulabilir ürün gönderiyorsanız B'nin 10 günlük gecikmesi felakettir ve RMSE bu riski görünür kılar.
 
 > **Hemen deneyin 8.2.2 · Tek bir büyük hata RMSE'yi nasıl uçurur?** (Python, ~3 dk)
 >
@@ -247,15 +217,17 @@ $$
 \mathrm{MAPE} = \frac{100}{n} \sum_{t=1}^{n} \left\lvert \frac{y_t - \hat{y}_t}{y_t} \right\rvert
 $$
 
-Formülü içeriden dışarıya okuyalım: Her dönem için hata gerçek değere bölünür (hata, gerçeğin kaçta kaçı?), mutlak değeri alınır, bu oranların ortalaması bulunur ve 100 ile çarpılarak yüzdeye çevrilir. Örneğin gerçek değer 200, tahmin 190 ise oran $\lvert (200 - 190)/200 \rvert = 10/200 = 0.05$, yani %5'tir. Aynı 10 yolculuk hata, gerçek değer 20 olsaydı $10/20 = 0.50$, yani %50 olurdu: Bölümün başındaki "1000 yolcuda 10 kişi ile 20 yolcuda 10 kişi" farkı tam olarak budur.
+Formülü içeriden dışarıya okuyalım: Her dönem için hata gerçek değere bölünür (hata, gerçeğin kaçta kaçı?), mutlak değeri alınır, bu oranların ortalaması bulunur ve 100 ile çarpılarak yüzdeye çevrilir. Örneğin gerçek değer 200, tahmin 190 ise oran $\lvert (200 - 190)/200 \rvert = 10/200 = 0.05$, yani %5'tir.
 
 Sonuç yüzde cinsindendir ve **ölçekten bağımsızdır**. MAPE = %5 ise model ortalama %5'lik bir sapmayla çalışıyor demektir. Bu sayede farklı ölçekteki serileri (ör. bir ülkenin ve bir şehrin yolcu sayısını) karşılaştırmak ya da sonucu yöneticilere anlatmak kolaylaşır.
 
 **MAPE'nin zayıf noktaları:**
 
-- **Sıfıra yakın değerlerde patlar.** Paydada $y_t$ vardır ve bir sayıyı çok küçük bir sayıya bölmek sonucu çok büyütür. Hatayı hep 1 birim tutup yalnızca gerçek değeri küçültelim: $y_t = 100$ iken yüzde hata $1/100$ = %1, $y_t = 10$ iken $1/10$ = %10, $y_t = 1$ iken $1/1$ = %100, $y_t = 0.1$ iken $1/0.1$ = %1000 olur. Gerçek değer tam 0 ise sıfıra bölme yapılamaz ve MAPE tanımsızdır. Yani 0'a yakın tek bir gözlem, diğer bütün ayları ne kadar iyi tahmin etmiş olursanız olun ortalamayı uçurur. Örneğin $y_t = 0.5$, $\hat{y}_ t = 1.5$ ise hata yalnızca 1 birimdir, ama yüzde hata $1/0.5 = 2$, yani %200'dür. Bu yüzden satışı sıfır olabilen ürünler, sıcaklık (°C) ya da getiri gibi sıfırın çevresinde dolaşan ya da işaret değiştirebilen serilerde MAPE kullanılmamalıdır.
+- **Sıfıra yakın değerlerde patlar.** Paydada $y_t$ vardır ve bir sayıyı çok küçük bir sayıya bölmek sonucu çok büyütür. Hatayı hep 1 birim tutup yalnızca gerçek değeri küçültelim: $y_t = 100$ iken yüzde hata $1/100$ = %1, $y_t = 10$ iken $1/10$ = %10, $y_t = 1$ iken $1/1$ = %100, $y_t = 0.1$ iken $1/0.1$ = %1000 olur. Gerçek değer tam 0 ise sıfıra bölme yapılamaz ve MAPE tanımsızdır. Yani 0'a yakın tek bir gözlem, diğer bütün ayları ne kadar iyi tahmin etmiş olursanız olun ortalamayı uçurur. Bu yüzden satışı sıfır olabilen ürünler, sıcaklık (°C) ya da getiri gibi sıfırın çevresinde dolaşan ya da işaret değiştirebilen serilerde MAPE kullanılmamalıdır.
 - **Asimetriktir.** Fazla tahminin cezası sınırsız, eksik tahminin cezası sınırlıdır. Gerçek değer 100 olsun: Model 0 tahmin ederse (olabilecek en kötü eksik tahmin) yüzde hata $100/100$ = %100'dür ve daha fazla olamaz. Model 300 tahmin ederse yüzde hata $200/100$ = %200 olur ve tahmin büyüdükçe sınırsızca artar. Bu yüzden MAPE'yi en aza indirmeye çalışan bir model sistematik olarak **düşük tahmin** yapma eğilimindedir.
 - **Anlamlı bir sıfır noktası gerektirir.** Oran ancak ölçeğin doğal bir sıfırı varsa (yolcu sayısı, ciro) yorumlanabilir. 0 °C "sıcaklık yok" demek olmadığından 20 °C, 10 °C'nin "iki katı" değildir; bu yüzden °C cinsinden bir yüzde hata da anlamlı değildir.
+
+**Günlük hayattan bir örnek:** İlk maddedeki patlamayı bir kantarla düşünün. 1 kg şaşan bir kantar kamyon tartarken önemsizdir, ama 500 gramlık bir paketi tartarken %200 yanılmış olur. Kantarın hatası aynıdır; değişen, tartılan şeyin büyüklüğüdür. Kefe neredeyse boşsa yüzde hata uçar, tamamen boşsa tanımsızdır.
 
 > **Hemen deneyin 8.2.3 · MAPE'nin patladığını görün** (Python, ~3 dk)
 >
@@ -352,12 +324,12 @@ $$
 \mathrm{sMAPE} = \frac{100}{n} \sum_{t=1}^{n} \frac{2 \lvert y_t - \hat{y}_t \rvert}{\lvert y_t \rvert + \lvert \hat{y}_t \rvert}
 $$
 
-Yukarıdaki örnekte ilk ayın terimi $2 \cdot 10 / (100 + 110) = 20/210 \approx 0.0952$'dir. Diğer aylar $10/235 \approx 0.0426$, $0$ ve $60/270 \approx 0.2222$ verir. Toplam $\approx 0.3600$, ortalaması $0.3600/4 = 0.0900$, yani sMAPE ≈ %9.00'dur. Gerçek değer 0 olsa bile payda tahmin sayesinde sıfır olmaz (ikisi birden 0 değilse) ve tek bir terim en fazla 2'ye (%200) çıkabilir; bu yüzden sıfıra yakın değerlerde MAPE kadar patlamaz. Ancak adına rağmen tam simetrik değildir: Gerçek değer 100 iken 110 tahmin etmek $20/210 \approx$ %9.5, 90 tahmin etmek $20/190 \approx$ %10.5 hata sayılır; aynı 10 birimlik sapma, eksik tahminde biraz daha ağır cezalandırılır.
+Yukarıdaki örnekte ilk ayın terimi $2 \cdot 10 / (100 + 110) = 20/210 \approx 0.0952$'dir. Diğer aylar $10/235 \approx 0.0426$, $0$ ve $60/270 \approx 0.2222$ verir. Toplam $\approx 0.3600$, ortalaması $0.3600/4 = 0.0900$, yani sMAPE ≈ %9.00'dur. Gerçek değer 0 olsa bile payda tahmin sayesinde sıfır olmaz (ikisi birden 0 değilse) ve tek bir terim en fazla 2'ye (%200) çıkabilir; bu yüzden sıfıra yakın değerlerde MAPE kadar patlamaz. Ancak adına rağmen tam simetrik değildir: Gerçek değer 100 iken 110 tahmin etmek $20/210 \approx$ %9.5, 90 tahmin etmek $20/190 \approx$ %10.5 hata sayılır; aynı 10 birimlik sapma, eksik tahminde biraz daha ağır cezalandırılır. Nedeni paydadır: Gerçek değer 100 iken payda, 110 tahmin edilince 210, 90 tahmin edilince 190 olur; düşük tahmin paydayı küçülttüğü için aynı sapma daha büyük bir yüzde verir.
 
-**Tanım 2 (MASE — ölçeklenmiş mutlak hata):** Fikir şudur: Modelin hatasını, "geçen yılın aynı ayını kopyala" diyen tembel yöntemin geçmişte yaptığı tipik hatayla kıyaslamak. Bunun için modelin MAE'si, **eğitim setindeki** mevsimsel naive yöntemin MAE'sine bölünür:
+**Tanım 2 (MASE — ölçeklenmiş mutlak hata):** Fikir şudur: Modelin hatasını, "geçen yılın aynı ayını kopyala" diyen tembel yöntemin geçmişte yaptığı tipik hatayla kıyaslamak. Bunun için modelin test setindeki MAE'si, **eğitim setindeki** mevsimsel naive yöntemin MAE'sine bölünür:
 
 $$
-\mathrm{MASE} = \frac{\mathrm{MAE}}{\frac{1}{T-s} \sum_{t=s+1}^{T} \lvert y_t - y_{t-s} \rvert}
+\mathrm{MASE} = \frac{\mathrm{MAE}_{\text{test}}}{\frac{1}{T-s} \sum_{t=s+1}^{T} \lvert y_t - y_{t-s} \rvert}
 $$
 
 > **Simge notu:** $`T`$: eğitim setindeki gözlem sayısı · $`s`$: mevsim uzunluğu (aylık veride 12) · $`y_{t-s}`$: $`t`$ anından $`s`$ dönem önceki değer, yani geçen yılın aynı ayı · $`\lvert y_t - y_{t-s} \rvert`$: "bu ayı geçen yılın aynı ayıyla tahmin etseydik" yapacağımız hatanın büyüklüğü
@@ -366,7 +338,9 @@ Paydayı adım adım okuyalım. Toplam $t = s+1$'den başlar, çünkü eğitim s
 
 Küçük bir örnek (mevsimsellik olmadığını varsayıp $s = 1$ alalım; bu durumda naive yöntem "bir önceki dönemi kopyala" olur): Eğitim seti 10, 12, 11, 15 olsun ($T = 4$). Ardışık farkların büyüklükleri $\lvert 12 - 10 \rvert = 2$, $\lvert 11 - 12 \rvert = 1$, $\lvert 15 - 11 \rvert = 4$'tür. Toplam $2 + 1 + 4 = 7$, terim sayısı $T - s = 3$, payda $7/3 \approx 2.33$ olur. Modelimizin test setindeki MAE'si 1.5 ise $\mathrm{MASE} = 1.5 / 2.33 \approx 0.64$'tür: Model, naive yöntemin tipik hatasının yaklaşık üçte ikisi kadar yanılmaktadır. `AirPassengers` üzerindeki gerçek hesabı 8.3'te yapacağız.
 
-MASE birimsizdir (pay da payda da yolcu cinsinden olduğundan birimler sadeleşir) ve sıfıra bölme sorunu yoktur (seri tamamen sabit değilse). Yorumu çok pratiktir: **MASE < 1 ise model, eğitim verisindeki mevsimsel naive tahminden daha iyidir; MASE > 1 ise daha kötüdür.** Mevsimsel olmayan veride $s = 1$ alınır. R'daki `forecast::accuracy()` fonksiyonu MASE'yi otomatik olarak hesaplar.
+MASE birimsizdir (pay da payda da yolcu cinsinden olduğundan birimler sadeleşir) ve sıfıra bölme sorunu yoktur (eğitimde her değer bir yıl öncekine eşit değilse). Yorumunda dikkatli olmak gerekir: **MASE < 1, modelin test hatasının, mevsimsel naive yöntemin eğitim dönemindeki tipik hatasından küçük olduğunu gösterir; MASE > 1 ise büyük olduğunu.** Bu, modelin test döneminde naive'i yendiği anlamına gelmez, çünkü pay ve payda farklı dönemlerden gelir. Modelin test döneminde naive'i yendiğini görmek için naive'in test MAE'siyle doğrudan kıyaslayın (8.3). Mevsimsel olmayan veride $s = 1$ alınır. R'daki `forecast::accuracy()` fonksiyonu MASE'yi otomatik olarak hesaplar.
+
+**Günlük hayattan bir örnek:** Bir öğrencinin 100 üzerinden 70 alması tek başına bir şey söylemez; notu bir referansla kıyaslarız. MASE'nin referansı "tembel yöntemin eğitim dönemindeki tipik hatası"dır, tıpkı geçen dönemin sınıf ortalaması gibi. Bu dönemin sınavı zorlaştıysa (seri büyüdüyse) ortalama bir öğrenci bile geçen dönemin ortalamasına ulaşamayabilir; 8.3'te mevsimsel naive yöntemin kendi ölçütüyle 1.57 alması budur. Benzetmenin sınırı: Notta yüksek değer iyidir, MASE'de düşük değer iyidir.
 
 > **Hemen deneyin 8.2.5 · sMAPE ve MASE'yi R'da doğrulayın** (R, ~3 dk)
 >
@@ -417,9 +391,46 @@ Hangi metriği ne zaman kullanacağınızı bilmek, onu hesaplamak kadar önemli
 | Aykırı değerler var ve bunların sonucu domine etmesi istenmiyorsa | **MAE** | Her hataya eşit ağırlık verir |
 | Farklı ölçekteki serileri karşılaştırırken | **MAPE**, **sMAPE** ya da **MASE** | Ölçekten bağımsızdır |
 | Seride sıfır ya da sıfıra yakın değerler varsa | **MASE** (ya da MAE) | MAPE tanımsızlaşır ya da patlar |
-| "Model basit yöntemden iyi mi?" sorusu | **MASE** ya da naive modelle kıyas | Referansa göre ölçer |
+| "Model basit yöntemden iyi mi?" sorusu | Aynı test döneminde **naive modelle doğrudan kıyas**; ek olarak **MASE** | Referansa göre ölçer; MASE'nin referansı eğitim dönemidir (8.2.5) |
 
 Genel bir değerlendirmede tek bir metriğe bağlı kalmayın. MAE, RMSE ve MAPE'yi birlikte raporlayın ve mutlaka bir **naive referans** ile karşılaştırın.
+
+> **Hemen deneyin 8.2.6 · Üç tembel yöntem, başka bir seride** (R, ~4 dk)
+>
+> R'ın yerleşik `USAccDeaths` verisi ABD'de 1973–1978 arasındaki aylık kaza kaynaklı ölüm sayısıdır; yazın tepe yapan güçlü bir mevsimselliği vardır. Son yılı test seti olarak ayırıp üç referans yöntemi karşılaştıralım.
+>
+> ```r
+> library(forecast)
+> egitim <- window(USAccDeaths, end = c(1977, 12))   # 1973-1977 (60 ay)
+> test   <- window(USAccDeaths, start = c(1978, 1))  # 1978 (12 ay)
+> a1 <- accuracy(meanf(egitim,  h = 12), test)       # meanf(): her ay = eğitim ortalaması
+> a2 <- accuracy(naive(egitim,  h = 12), test)       # her ay = son gözlem (Aralık 1977)
+> a3 <- accuracy(snaive(egitim, h = 12), test)       # her ay = 1977'nin aynı ayı
+> round(rbind(Ortalama = a1["Test set", c("MAE", "RMSE", "MAPE", "MASE")],
+>             Naive    = a2["Test set", c("MAE", "RMSE", "MAPE", "MASE")],
+>             Snaive   = a3["Test set", c("MAE", "RMSE", "MAPE", "MASE")]), 2)
+> ```
+>
+> `forecast` paketindeki `accuracy(tahmin, test)` (8.3'te yeniden karşımıza çıkacak) 8.2'de tanımladığımız metrikleri (MAE, RMSE, MAPE, MASE ...) eğitim ve test seti için iki satırlık bir tablo olarak verir; `["Test set", c(...)]` bu tablodan test satırını ve istediğimiz dört sütunu seçer.
+>
+> **Ne göreceksiniz:**
+>
+> ```text
+>             MAE   RMSE MAPE MASE
+> Ortalama 780.31 946.16 9.19 1.62
+> Naive    778.67 946.05 9.18 1.62
+> Snaive   259.50 341.16 2.85 0.54
+> ```
+>
+> Mevsimsel naive, diğer ikisinin hatasını üçte birine indirir: Bu seride "geçen yılın aynı ayı" çok güçlü bir rakiptir. Karmaşık bir model kurarsanız onu **259.50**'lik MAE ile kıyaslamalısınız, 780 ile değil.
+>
+> **Şimdi siz:** Aynı test yılında `auto.arima()` modelini deneyin: `fit <- auto.arima(egitim)` ve `round(accuracy(forecast(fit, h = 12), test)[, c("MAE", "RMSE", "MAPE", "MASE")], 2)`. SARIMA, mevsimsel naive'i ne kadar farkla yeniyor?
+>
+> <details><summary>Cevap</summary>
+>
+> `auto.arima()` yine havayolu modeli ARIMA(0,1,1)(0,1,1)[12]'yi seçer. Test satırı: MAE = 231.61, RMSE = 288.83, MAPE = 2.72, MASE = 0.48. Mevsimsel naive'e göre MAE yalnızca yaklaşık %11 düşer (259.50 → 231.61). `AirPassengers`'taki kadar büyük bir fark yoktur, çünkü bu seride belirgin bir büyüme trendi yoktur ve "geçen yılı kopyala" zaten iyi çalışır. 8.1.2'deki uyarıyı doğrular: Kıyas noktası olmadan 231'in iyi olup olmadığını bilemezdik.
+>
+> </details>
 
 ---
 
@@ -490,7 +501,7 @@ cat(sprintf("MAE = %.2f   RMSE = %.2f   MAPE = %%%.2f\n", mae, rmse, mape))
 Bu blok 8.1'deki eğitim-test mantığını uygular: Veriyi tarihe göre ikiye böler, modeli yalnızca eğitim kısmıyla kurar, test yılını tahmin eder, tahminleri gerçek değerlerle yan yana koyar ve 8.2'deki üç metriği hesaplar. Kodu adım adım okuyalım:
 
 1. `# install.packages(c("forecast", "ggplot2"))`: Yorum satırıdır; paketler bilgisayarda kurulu değilse başındaki `#` silinip bir kez çalıştırılır (7.6.1). `library(forecast)` modelleme ve tahmin fonksiyonlarını (`auto.arima()`, `forecast()`, `naive()`, `snaive()`), `library(ggplot2)` ise bölümün sonundaki grafiği çizecek paketi bu oturuma yükler.
-2. `train <- window(log(AirPassengers), end = c(1959, 12))`: İçten dışa okunur. `log(AirPassengers)` serinin her değerinin doğal logaritmasını alır. `window()` (Bölüm 5.4) bir `ts` nesnesinden zaman aralığı keser: `end = c(1959, 12)` "1959'un 12. ayında bitir" demektir; `start` verilmediği için kesim serinin başından (Ocak 1949) başlar. `c(1959, 12)` (yıl, ay) çiftidir. Sonuç 132 aylık bir `ts` nesnesidir ve `train` adıyla saklanır. Satır sonundaki `#` sonrası, hangi ayların seçildiğini not eden yorumdur.
+2. `train <- window(log(AirPassengers), end = c(1959, 12))`: İçten dışa okunur. `log(AirPassengers)` serinin her değerinin doğal logaritmasını alır. `window()` (Bölüm 5.2.4) bir `ts` nesnesinden zaman aralığı keser: `end = c(1959, 12)` "1959'un 12. ayında bitir" demektir; `start` verilmediği için kesim serinin başından (Ocak 1949) başlar. `c(1959, 12)` (yıl, ay) çiftidir. Sonuç 132 aylık bir `ts` nesnesidir ve `train` adıyla saklanır. Satır sonundaki `#` sonrası, hangi ayların seçildiğini not eden yorumdur.
 3. `test <- window(log(AirPassengers), start = c(1960, 1))`: Bu kez `start = c(1960, 1)` "1960'ın 1. ayından başla" der; `end` verilmediği için serinin sonuna (Aralık 1960) kadar gider. Sonuç 12 aylık `test` serisidir. Kesim **tarihe göre** yapıldığı için eğitim seti kesin olarak test setinden önce biter; 8.1.1'deki kronolojik ayrım budur. (`test  <-` içindeki fazladan boşluk yalnızca iki satırı alt alta hizalamak içindir; R boşlukları önemsemez.)
 4. `fit_train <- auto.arima(train, seasonal = TRUE)`: Yalnızca eğitim setine bakarak fark sayılarını ve (p, q)(P, Q) derecelerini seçer ve katsayıları kestirir (7.6.5). Sonuç `fit_train` adlı model nesnesidir. `print(fit_train)` bu modelin özetini ekrana yazar.
 5. `fc_test <- forecast(fit_train, h = length(test))`: Kurulan modelle `h` adım ileriye tahmin üretir (7.6.7). `length()` bir vektörün ya da serinin eleman sayısını verir; `length(test)` 12 olduğu için ufuk test dönemiyle birebir örtüşür. Sayıyı elle 12 yazmak yerine `length(test)` yazmak, test seti değişirse kodun kendiliğinden uyum sağlamasını sağlar. Sonuç, 7.6.7'deki gibi `$mean` (nokta tahminleri), `$lower` ve `$upper` (tahmin aralıkları) parçalarını taşıyan bir `forecast` nesnesidir.
@@ -544,18 +555,14 @@ round(tablo[, "MAE"] / payda, 2)
 
 Bu blok, SARIMA'nın sonuçlarını 8.1.2'deki iki tembel yöntemle aynı test yılı üzerinde karşılaştırır ve 8.2.5'teki MASE'yi hesaplar. Aynı üç formülü her model için yeniden yazmamak için önce küçük bir fonksiyon tanımlanır. Kodu satır satır okuyalım:
 
-1. `metrikler <- function(a, p) c(MAE = ..., RMSE = ..., MAPE = ...)`: Kendi fonksiyonumuzu tanımlıyoruz.
-   - `function(a, p)` "iki girdi alan bir fonksiyon" demektir. `a` (*actual*, gerçek) ve `p` (*predicted*, tahmin), girdilerin fonksiyon içindeki geçici adlarıdır (**parametre**). Bu adlar yalnızca fonksiyonun içinde geçerlidir; dışarıdaki `actual` ve `predicted` ile karışmaz.
-   - Parantezden sonra gelen ifade fonksiyonun **gövdesidir**. Fonksiyon her çağrıldığında gövde, `a` ve `p` yerine o çağrıda verilen değerler konarak hesaplanır ve sonuç geri **döndürülür**. Gövde tek bir ifade olduğu için süslü paranteze `{ }` gerek yoktur; ifade parantez kapanana kadar üç satıra yayılır.
-   - Gövdedeki `c(MAE = ..., RMSE = ..., MAPE = ...)`, üç sayıyı **isimli** bir vektörde toplar: Her eleman eşittirin solundaki adı taşır, böylece sonuçta hangi sayının hangi metrik olduğu görünür. İçteki üç formül bir önceki bloktaki `mean()`, `abs()`, `sqrt()` ve `^2` hesaplarıyla aynıdır; yalnızca `actual` yerine `a`, `predicted` yerine `p` yazılmıştır.
-   - `<-` ile fonksiyonun kendisi `metrikler` adıyla saklanır. Bu satır hiçbir hesap yapmaz, yalnızca tarifi kaydeder. Örneğin `metrikler(actual, predicted)` yazıldığında `a` yerine `actual`, `p` yerine `predicted` konur ve sonuç `MAE = 13.26`, `RMSE = 18.59`, `MAPE = 2.90` olan üç elemanlı bir vektördür.
+1. `metrikler <- function(a, p) c(MAE = ..., RMSE = ..., MAPE = ...)`: Kendi fonksiyonumuzu tanımlıyoruz. `a` (*actual*, gerçek) ve `p` (*predicted*, tahmin) yalnızca fonksiyonun içinde geçerli girdi adlarıdır (**parametre**); fonksiyon her çağrıldığında **gövdesi**, yani tek ifadeden oluştuğu için süslü paranteze gerek duymayan `c(...)` kısmı, bu adların yerine o çağrıda verilen değerler konarak hesaplanır ve bir önceki bloktaki üç metriği **isimli** bir vektör olarak döndürür. Bu satır hesap yapmaz, yalnızca tarifi `metrikler` adıyla kaydeder: Örneğin `metrikler(actual, predicted)` çağrısı `MAE = 13.26`, `RMSE = 18.59`, `MAPE = 2.90` değerlerini taşıyan üç elemanlı bir vektör döndürür.
 2. `naive_fc <- as.numeric(exp(naive(train, h = 12)$mean))`: İçten dışa okunur. `naive(train, h = 12)`, `forecast` paketindeki hazır naive yöntemdir (8.1.2): Eğitim setinin son değerini 12 ay boyunca tekrarlar. Sonuç bir `forecast` nesnesidir; `$mean` ile nokta tahminleri alınır. `train` log ölçekte olduğu için `exp()` ile yolcu sayısına çevrilir, `as.numeric()` ile düz vektöre indirilir. Sonuç, 12 kez tekrarlanan 405'tir (Aralık 1959).
-3. `snaive_fc <- as.numeric(exp(snaive(train, h = 12)$mean))`: `snaive()` mevsimsel naive yöntemdir: Her ayı eğitim setinin son yılındaki aynı ayla tahmin eder (Ocak 360, Şubat 342, ...). Geri kalanı bir önceki satırla aynıdır. İki satırdaki fazladan boşluklar yalnızca hizalama içindir.
+3. `snaive_fc <- as.numeric(exp(snaive(train, h = 12)$mean))`: `snaive()` mevsimsel naive yöntemdir: Her ayı eğitim setinin son yılındaki aynı ayla tahmin eder (Ocak 360, Şubat 342, ...). Geri kalanı bir önceki satırla aynıdır.
 4. `` tablo <- rbind(SARIMA = ..., Naive = ..., `Mevsimsel Naive` = ...) ``: `metrikler()` üç kez, her seferinde aynı gerçek değerlerle ama farklı tahminlerle çağrılır; her çağrı üç elemanlı isimli bir vektör döndürür. `rbind()` (*row bind*, satır olarak bağla) bu vektörleri satır satır üst üste dizerek bir **matris**, yani yalnızca sayılardan oluşan satır-sütun tablosu yapar. `SARIMA = ` gibi kısımlar satırların adı olur; sütun adları ise vektörlerin eleman adlarından (`MAE`, `RMSE`, `MAPE`) gelir. `Mevsimsel Naive` adı boşluk içerdiği için ters tırnak (`` ` ``) arasına yazılmıştır; ters tırnak R'a "bu, normalde izin verilmeyen karakterler içeren bir addır" der. Sonuç 3 satır ve 3 sütunluk `tablo` matrisidir.
 5. `round(tablo, 2)`: Matristeki bütün değerleri iki ondalığa yuvarlayıp ekrana yazar. `tablo`'nun kendisi değişmez; yuvarlanmış hâl yalnızca gösterilir.
 6. `payda <- mean(abs(diff(exp(train), lag = 12)))`: MASE'nin paydası. İçten dışa: `exp(train)` eğitim setini yolcu sayısına çevirir; `diff(..., lag = 12)` her ayın değerinden 12 ay önceki değeri çıkarır (7.6.3), yani 8.2.5'teki $y_t - y_{t-s}$ farklarını ($s = 12$) hesaplar. 132 aylık eğitim setinden $132 - 12 = 120$ fark çıkar. `abs()` ve `mean()` bunların ortalama büyüklüğünü verir. Üstteki iki `#` satırı bu hesabı tarif eden yorumlardır.
 7. `round(payda, 2)`: Paydayı iki ondalıkla ekrana yazar.
-8. `round(tablo[, "MAE"] / payda, 2)`: `tablo[satır, sütun]` biçimindeki köşeli parantez bir matristen parça seçer. Virgülün solu boş olduğu için "bütün satırlar", sağındaki `"MAE"` ise "adı MAE olan sütun" demektir. Sonuç, satır adlarını taşıyan üç elemanlı bir vektördür. `/ payda` her elemanı aynı sayıya böler (vektör ile tek bir sayı arasındaki işlem her elemana ayrı ayrı uygulanır) ve `round(..., 2)` iki ondalığa yuvarlar. Böylece üç modelin MASE değerleri elde edilir.
+8. `round(tablo[, "MAE"] / payda, 2)`: `tablo[satır, sütun]` biçimindeki köşeli parantez bir matristen parça seçer. Virgülün solu boş olduğu için "bütün satırlar", sağındaki `"MAE"` ise "adı MAE olan sütun" demektir. Sonuç, satır adlarını taşıyan üç elemanlı bir vektördür. `/ payda` her elemanı aynı sayıya böler ve `round(..., 2)` iki ondalığa yuvarlar. Böylece üç modelin MASE değerleri elde edilir.
 
 Çıktıyı okuyalım:
 
@@ -563,9 +570,11 @@ Bu blok, SARIMA'nın sonuçlarını 8.1.2'deki iki tembel yöntemle aynı test y
 - `[1] 30.45`: Paydadır. Eğitim döneminde "geçen yılın aynı ayını kopyalamak" ortalama **30.45** bin yolcu yanıltmıştır.
 - Son çıktıda her sayının üstünde ait olduğu modelin adı yazar; isimli vektörler ekrana böyle yazdırılır. SARIMA için $13.26 / 30.45 \approx 0.44$ çıkar.
 
-SARIMA'nın hatası, mevsimsel naive yönteminkinin yaklaşık dörtte biri ile üçte biri arasındadır (MAE'de $13.26/47.83 \approx 0.28$, RMSE'de $18.59/50.71 \approx 0.37$). Mevsimsel naive yıllık deseni yakalar ama büyümeyi (trendi) yakalayamaz; SARIMA ikisini de modellediği için açık farkla kazanır. Düz naive yöntem ise mevsimselliği de göremediği için en kötü sonucu verir. MASE sütunu aynı hikâyeyi tek sayıyla anlatır: SARIMA 0.44 ile 1'in çok altındadır. Mevsimsel naive'in MASE'sinin 1.57 çıkması ilk bakışta şaşırtıcı gelebilir, çünkü aynı yöntemi kendisiyle kıyaslıyoruz. Fark dönemden gelir: Payda eğitim dönemindeki tipik hatadır, pay ise 1960'taki hata. Seri büyüdükçe yıllık artış da mutlak olarak büyüdüğü için, geçen yılı kopyalamanın 1960'taki hatası, 1950'lerdeki ortalama hatasından daha büyüktür.
+SARIMA'nın hatası, mevsimsel naive yönteminkinin yaklaşık dörtte biri ile %40'ı arasındadır (MAE'de $13.26/47.83 \approx 0.28$, RMSE'de $18.59/50.71 \approx 0.37$). Mevsimsel naive yıllık deseni yakalar ama büyümeyi (trendi) yakalayamaz; SARIMA ikisini de modellediği için açık farkla kazanır. Düz naive yöntem ise mevsimselliği de göremediği için en kötü sonucu verir. MASE sütunu aynı hikâyeyi tek sayıyla anlatır: SARIMA 0.44 ile 1'in çok altındadır. Mevsimsel naive'in MASE'sinin 1.57 çıkması ilk bakışta şaşırtıcı gelebilir, çünkü aynı yöntemi kendisiyle kıyaslıyoruz. Fark dönemden gelir: Payda eğitim dönemindeki tipik hatadır, pay ise 1960'taki hata. Seri büyüdükçe yıllık artış da mutlak olarak büyüdüğü için, geçen yılı kopyalamanın 1960'taki hatası, 1950'lerdeki ortalama hatasından daha büyüktür.
 
 **Not —** `forecast` paketindeki `accuracy(fc_test, test)` fonksiyonu tüm bu metrikleri (ME, RMSE, MAE, MPE, MAPE, MASE, ACF1) hem eğitim hem test seti için tek seferde verir. Ancak burada modeli log ölçekte kurduğumuz için `accuracy()` sonuçları da **log ölçekte** olur (örneğin test seti MASE'si 0.23 çıkar, yukarıdaki 0.44 değil); orijinal yolcu birimindeki hatayı görmek için yukarıdaki gibi `exp()` ile geri dönüp elle hesaplamak daha anlaşılırdır.
+
+**Not —** Bu metriklerin hepsi nokta tahminini ölçer. Tahmin aralıklarının güvenilirliği, gerçek değerlerin aralığa düşme oranıyla ayrıca kontrol edilir (Bölüm 17.8).
 
 **Görselleştirme.** Son olarak eğitim dönemini, test yılının gerçek değerlerini ve tahminleri orijinal ölçekte aynı grafikte gösterelim:
 
@@ -643,7 +652,7 @@ Grafikte mavi tahmin çizgisinin kırmızı gerçek çizgiyi yakından izlediği
 >
 > <details><summary>Cevap</summary>
 >
-> `auto.arima()` bu kez ARIMA(1,1,0)(0,1,0)[12] seçer. Test satırı: RMSE = 23.93, MAE = 18.53, MAPE = 4.18, MASE = 0.61. Log dönüşümü olmadan hata yaklaşık %40 artar: Seviyeyle büyüyen mevsimsel dalgaları modellemek için log dönüşümü (7.6) gerçekten işe yarıyor.
+> `auto.arima()` bu kez ARIMA(1,1,0)(0,1,0)[12] seçer. Test satırı: RMSE = 23.93, MAE = 18.53, MAPE = 4.18, MASE = 0.61. Log dönüşümü olmadan MAE yaklaşık %40 artar (RMSE yaklaşık %29): Seviyeyle büyüyen mevsimsel dalgaları modellemek için log dönüşümü (7.6) gerçekten işe yarıyor.
 >
 > </details>
 
@@ -757,9 +766,7 @@ snaive_metrics = evaluate_model(test_data, snaive_pred, "Mevsimsel Naive")
 
 # 3) Sonraki bölümlerde aynı fonksiyonu diğer modeller için de kullanacağız.
 #    (Bu satırlar, ilgili bölümlerdeki değişkenler tanımlandıktan sonra çalışır.)
-#    Dikkat: Prophet ve XGBoost bölümlerinde test seti yalnızca 1960 yılıdır (12 ay);
-#    onları 8.3'teki 12 aylık sonuçlarla kıyaslayın. LSTM ise buradaki 60 aylık
-#    test dönemini (1956-1960) kullanır.
+#    Dikkat: Test seti Prophet ve XGBoost'ta 12 ay (8.3 ile kıyaslayın), LSTM'de 60 aydır.
 # prophet_metrics = evaluate_model(test['y'], tahmin, "Prophet")          # Bölüm 9.3 (12 ay)
 # xgb_metrics     = evaluate_model(y_test, y_test_pred, "XGBoost")        # Bölüm 13.4 (12 ay)
 # lstm_metrics    = evaluate_model(testY_inv, test_predict[:, 0], "LSTM") # Bölüm 15 (60 ay)
@@ -789,7 +796,7 @@ SARIMA            35.55   47.87   7.95
 Mevsimsel Naive  112.43  126.01  27.05
 ```
 
-**Çıktının yorumu:** SARIMA, 60 aylık uzun ufukta bile mevsimsel naive yöntemin MAE ve MAPE'sini üçte birin altına ($35.55 / 112.43 \approx 0.32$), RMSE'sini ise yaklaşık %38'ine indirmiştir. Mevsimsel naive yöntem her yıl 1955'in desenini kopyaladığı için büyümeyi hiç yakalayamaz ve hatası yıldan yıla artar: Yıllık MAE'si 1956'da yaklaşık 44, 1960'ta ise yaklaşık 192 bin yolcudur. Yine de SARIMA'nın buradaki MAPE'si (yaklaşık %8), R uygulamasındaki %2.9'dan çok yüksektir. Bunun iki nedeni vardır. Birincisi, test ufku 12 yerine 60 aydır; geleceğe ne kadar uzak bakılırsa hata o kadar birikir. İkincisi, 7.7.5'te gördüğümüz gibi Python'un seçtiği model yıllık büyümeyi olduğundan düşük öğrenmiştir; hatalar bu yüzden hep aynı yöndedir ve yıldan yıla büyür (log seride kurulan model de bu bölmede RMSE ≈ 49.0 verir).
+**Çıktının yorumu:** SARIMA, 60 aylık uzun ufukta bile mevsimsel naive yöntemin MAE ve MAPE'sini üçte birin altına ($35.55 / 112.43 \approx 0.32$), RMSE'sini ise yaklaşık %38'ine indirmiştir. Mevsimsel naive yöntem her yıl 1955'in desenini kopyaladığı için büyümeyi hiç yakalayamaz ve hatası yıldan yıla artar: Yıllık MAE'si 1956'da yaklaşık 44, 1960'ta ise yaklaşık 192 bin yolcudur. Yine de SARIMA'nın buradaki MAPE'si (yaklaşık %8), R uygulamasındaki %2.9'dan çok yüksektir. Bunun iki nedeni vardır. Birincisi, test ufku 12 yerine 60 aydır; geleceğe ne kadar uzak bakılırsa hata o kadar birikir. İkincisi, 7.7.5'te gördüğümüz gibi Python'un seçtiği model eğitimdeki yıllık artışı (≈26 bin) doğru öğrenmiştir; sorun, test döneminde artışın ortalama 38.4 bine çıkmasıdır. Model sabit bir yıllık artış varsaydığı için hatalar hep aynı yöndedir ve yıldan yıla büyür (log seride kurulan model de bu bölmede RMSE ≈ 49.0 verir).
 
 **Not —** Bölüm 9, 13 ve 15'teki modelleri karşılaştırırken **aynı test dönemini** kullandığınızdan emin olun; farklı uzunlukta test setleri üzerinde hesaplanmış metrikler karşılaştırılamaz (hangi modelin hangi tabloyla kıyaslanacağı koddaki 3. adımın yorumlarında yazılıdır).
 
@@ -856,9 +863,7 @@ Bu eşikler evrensel değildir. Günlük hisse senedi getirisinde %20 mükemmel 
 
 **5. Hatalarda sistematik bir yön var mı?** Hataların çoğu aynı işaretteyse (8.3'teki gibi) model sistematik olarak fazla ya da eksik tahmin yapıyordur. Bu, trendin değiştiğine işaret edebilir.
 
-Son olarak, hangi modeli seçeceğiniz probleme bağlıdır. Stok yönetimi gibi ortalama doğruluğun yeterli olduğu durumlarda MAE'si düşük olanı; büyük hataların kabul edilemediği durumlarda RMSE'si düşük olanı tercih edin. Metriklerin yanında modelin yorumlanabilirliği, eğitim süresi ve bakım kolaylığı da seçimde rol oynar.
-
-Bu bölümde öğrendiğimiz araçlarla artık farklı modelleri adil biçimde karşılaştırabiliriz. Bir sonraki bölümde, trend ve mevsimselliği farklı bir yaklaşımla modelleyen **Facebook Prophet**'ı inceleyecek ve sonuçlarını buradaki SARIMA değerleriyle kıyaslayacağız.
+Hangi metriğe öncelik vereceğiniz probleme bağlıdır (8.2.6'daki tablo). Metriklerin yanında modelin yorumlanabilirliği, eğitim süresi ve bakım kolaylığı da seçimde rol oynar.
 
 > **Hemen deneyin 8.4.3 · Eğitim hatası düşerken test hatası patlayabilir** (R, ~4 dk)
 >
@@ -894,6 +899,8 @@ Bu bölümde öğrendiğimiz araçlarla artık farklı modelleri adil biçimde k
 > Tahminler `445 456 547 552 581 699 828 886 837 796 764 957`'dir; Aralık 1960 için 957, yani gerçeğin iki katından fazla. Eğitim setine en iyi uyan model, geleceği en iyi tahmin eden model değildir.
 >
 > </details>
+
+Bu bölümde öğrendiğimiz araçlarla artık farklı modelleri adil biçimde karşılaştırabiliriz. Bir sonraki bölümde, trend ve mevsimselliği farklı bir yaklaşımla modelleyen **Facebook Prophet**'ı inceleyecek ve sonuçlarını buradaki SARIMA değerleriyle kıyaslayacağız.
 
 ---
 

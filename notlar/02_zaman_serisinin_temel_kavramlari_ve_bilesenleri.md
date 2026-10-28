@@ -54,6 +54,8 @@ Küçük bir örnekle görelim. Üç gözlemlik bir seri olsun: $x_1 = 5$, $x_2 
 
 Ayrıca $B^2 x_3 = x_1 = 5$'tir: 3. dönemden iki adım geri gidince 1. döneme varırız. Birinci fark serisi $3, -2$ değerlerinden oluşur. Fark almak serinin başından bir gözlem (mevsimsel farkta $s$ gözlem) kaybettirir, çünkü ilk gözlemin "dünü" yoktur. Mevsimsel farka gerçek bir örnek: `AirPassengers` serisinde Ocak 1950 değeri 115, Ocak 1949 değeri 112'dir. $s = 12$ ile $\nabla_{12} x_t = 115 - 112 = 3$ olur: yolcu sayısı bir yılda, aynı ay için 3 bin kişi artmıştır.
 
+**Günlük hayattan bir örnek:** Bir kırtasiyeci eylül satışını ağustosla kıyaslarsa her yıl "büyük artış" görür, çünkü okullar eylülde açılır. Doğru soru "Geçen eylüle göre ne kadar arttık?" sorusudur. Mevsimsel fark tam olarak bunu yapar: Mevsim etkisini dışarıda bırakıp yıllık değişimi gösterir.
+
 Operatörlerin işe yarayan özelliği, komutları sayılar gibi parantez içinde toplayıp çıkarabilmemizdir. $(1 - B)x_t$ ifadesinde parantezi dağıtırız: "$`x_t`$'nin kendisi" eksi "$`x_t`$'ye $B$ komutunun uygulanmış hâli", yani $1 \cdot x_t - B x_t = x_t - x_{t-1}$. Bu tam olarak birinci farktır. Yukarıdaki seride $t = 3$ için $(1 - B)x_3 = 6 - 8 = -2$ bulunur. Aynı şekilde $\nabla_s x_t = (1 - B^s) x_t$ yazılır. Bölüm 3.2'de bu yazım bir adım daha ileri götürülecek: $B$ komutunun yerine geçici olarak sıradan bir bilinmeyen koyacak ve **birim kök** kavramına buradan ulaşacağız.
 
 > **Simge notu:** $`B`$ *(be)*: gecikme (backshift) operatörü, seriyi bir adım geriye kaydırır · $`L`$ *(le, lag)*: aynı operatörün birçok kaynaktaki adı · $`B^h`$ *(be üzeri h)*: B'nin h kez uygulanması, yani h adım geri kaydırma · $`\nabla`$ *(nabla, ters üçgen)*: birinci fark operatörü. Büyük delta $`\Delta`$ ile karıştırmayın; $`\Delta t`$ yukarıda iki gözlem arasındaki süreyi gösteriyor · $`\nabla_s`$ *(nabla s)*: s adımlık mevsimsel fark operatörü
@@ -134,11 +136,15 @@ $$
 
 Toplam sembolü $\sum$ (büyük sigma) "topla" komutudur. Altındaki $j = 1$ "saymaya 1'den başla", üstündeki $s$ "$`s`$'de dur" demektir; aradaki her $j$ için $S_j$ terimleri toplanır. Çeyreklik bir seride ($s = 4$) mevsim etkileri $+10$, $-5$, $+15$, $-20$ ise $\sum_{j=1}^{4} S_j = 10 + (-5) + 15 + (-20) = 0$ olur. Yani bazı çeyrekler ortalamanın üstünde, bazıları altındadır ama yıl boyunca birbirlerini dengelerler. Mevsimsellik yıllık toplamı değil, toplamın çeyreklere nasıl dağıldığını değiştirir.
 
-$I_t \sim \text{iid}(0, \sigma^2)$ ifadesi şöyle okunur: "$`I_t`$ değerleri birbirinden bağımsızdır, hepsi aynı olasılık dağılımından gelir; bu dağılımın ortalaması 0, varyansı $\sigma^2$'dir." **Varyans**, değerlerin ortalama etrafında ne kadar yayıldığının ölçüsüdür. Hesabı şöyledir: Her değerin ortalamadan farkı alınır, bu farkların karesi alınır ve karelerin ortalaması bulunur. Örneğin 2, 4 ve 6 değerlerinin ortalaması 4'tür. Ortalamadan farklar −2, 0 ve 2, kareleri 4, 0 ve 4'tür. Karelerin ortalaması $8/3 \approx 2.67$ olur. Kare almamızın nedeni, eksi ve artı farkların birbirini götürmesini engellemektir (farkların düz toplamı her zaman sıfırdır). Varyansın karekökü **standart sapma**dır ($\sigma$, burada $\sqrt{2.67} \approx 1.63$) ve aynı yayılımı verinin kendi biriminde ifade eder. (R'daki `var()` fonksiyonu, örneklemden hesap yaptığı için $n$ yerine $n - 1$'e böler: $8/2 = 4$. Mantık aynıdır.) Bu tür bir gürültüye "beyaz" denmesinin nedeni, beyaz ışığın tüm renkleri eşit ölçüde içermesi gibi hiçbir düzen ya da ritim içermemesidir.
+$I_t \sim \text{iid}(0, \sigma^2)$ ifadesi şöyle okunur: "$`I_t`$ değerleri birbirinden bağımsızdır, hepsi aynı olasılık dağılımından gelir; bu dağılımın ortalaması 0, varyansı $\sigma^2$'dir." **Varyans**, değerlerin ortalama etrafında ne kadar yayıldığının ölçüsüdür. Hesabı şöyledir: Her değerin ortalamadan farkı alınır, bu farkların karesi alınır ve karelerin ortalaması bulunur. Örneğin 2, 4 ve 6 değerlerinin ortalaması 4'tür. Ortalamadan farklar −2, 0 ve 2, kareleri 4, 0 ve 4'tür. Karelerin ortalaması $8/3 \approx 2.67$ olur. Kare almamızın nedeni, eksi ve artı farkların birbirini götürmesini engellemektir (farkların düz toplamı her zaman sıfırdır). Varyansın karekökü **standart sapma**dır ($\sigma$, burada $\sqrt{2.67} \approx 1.63$) ve aynı yayılımı verinin kendi biriminde ifade eder.
+
+**Günlük hayattan bir örnek:** İki fırının ekmekleri ortalama 250 gram gelsin. Birinde ekmekler 245–255 gram arasında, diğerinde 200–300 gram arasında. Ortalama aynı, ama ikinci fırının varyansı çok daha büyüktür. Standart sapma, "Bir ekmek ortalamadan tipik olarak kaç gram şaşar?" sorusunun cevabıdır. Dikkat: Standart sapma en büyük sapma değil, tipik sapmadır; ikinci fırında bazı ekmekler 50 gram şaşar, ama standart sapma bundan küçüktür.
+
+Düzensiz bileşen gibi bir gürültüye "beyaz" denmesinin nedeni, beyaz ışığın tüm renkleri eşit ölçüde içermesi gibi hiçbir düzen ya da ritim içermemesidir.
 
 > **Simge notu:** $`\approx`$ *(yaklaşık eşittir)*: iki değer birbirine yakındır · $`\sum_{j=1}^{s}`$ *(büyük sigma, j eşittir 1'den s'ye)*: j = 1, …, s için terimlerin toplamı · $`\sim`$ *(tilda)*: "… dağılımına sahiptir" · $`\text{iid}`$ *(ay-ay-di)*: bağımsız ve özdeş dağılımlı (independent and identically distributed) · $`\sigma`$ *(küçük sigma)*: standart sapma · $`\sigma^2`$ *(sigma kare)*: varyans. Toplam sembolü büyük sigma ($`\Sigma`$) ile standart sapma sembolü küçük sigma ($`\sigma`$) aynı harfin iki biçimidir ama anlamları tamamen farklıdır
 
-> **Uygulamada trend ve döngü genellikle birleştirilir.** Döngünün periyodu değişken olduğu için onu trendden güvenilir biçimde ayırmak zordur. Bu yüzden R'daki `decompose()` ve `stl()` gibi yöntemler seriyi **üç** bileşene ayırır: *trend-döngü* ($`T_t`$, döngüyü de içerir), *mevsimsellik* ($`S_t`$) ve *kalan* ($`R_t`$ ya da $`I_t`$). Bölüm 2.6'daki ve Bölüm 6.2.3'teki `decompose()` çıktılarında bu yüzden gözlenen serinin altında yalnızca üç bileşen görürüz.
+> **Uygulamada trend ve döngü genellikle birleştirilir.** Döngünün periyodu değişken olduğu için onu trendden güvenilir biçimde ayırmak zordur. Bu yüzden R'daki `decompose()` ve `stl()` gibi yöntemler seriyi **üç** bileşene ayırır: *trend-döngü* ($`T_t`$, döngüyü de içerir), *mevsimsellik* ($`S_t`$) ve *kalan* ($`R_t`$ ya da $`I_t`$). Bölüm 2.5'teki ve Bölüm 6.2.3'teki `decompose()` çıktılarında bu yüzden gözlenen serinin altında yalnızca üç bileşen görürüz.
 
 > **Hemen deneyin 2.2a · Kendi serinizi bileşenlerden üretin** (R, ~5 dk)
 >
@@ -274,7 +280,7 @@ Farkı sayılarla görelim. Trend bir yıl 1000, birkaç yıl sonra 3000 birim o
 | Mevsimsel dalgaların yüksekliği zaman içinde yaklaşık sabit | Toplamsal |
 | Dalgalar seviye yükseldikçe büyüyor ("huni" şekli) | Çarpımsal |
 
-**Log dönüşümü ile köprü kurmak:** **Logaritma**, çarpmayı toplamaya çeviren bir işlemdir. En kolay 10 tabanında görülür: $\log_{10} 100 = 2$'dir, çünkü $10^2 = 100$; $\log_{10} 1000 = 3$'tür, çünkü $10^3 = 1000$. Yani logaritma "tabanı kaçıncı kuvvetine yükseltirsem bu sayıyı elde ederim?" sorusunun cevabıdır. Şimdi iki sayının çarpımına bakalım: $100 \times 1000 = 100\thinspace 000 = 10^5$, dolayısıyla $\log_{10} 100\thinspace 000 = 5 = 2 + 3$. Çarpımın logaritması, logaritmaların toplamıdır: $\log(a \times b) = \log a + \log b$. R'daki `log()` fonksiyonu aynı kuralı 10 yerine $e \approx 2.718$ tabanıyla uygular (**doğal logaritma**). Örneğin trend 100, Temmuz katsayısı 1.20 ise $\log(100 \times 1.20) = \log 100 + \log 1.20 = 4.605 + 0.182 = 4.787$ olur. Bu da $\log 120$'nin değeridir.
+**Log dönüşümü ile köprü kurmak:** **Logaritma**, çarpmayı toplamaya çeviren bir işlemdir. En kolay 10 tabanında görülür: $\log_{10} 100 = 2$'dir, çünkü $10^2 = 100$; $\log_{10} 1000 = 3$'tür, çünkü $10^3 = 1000$. Yani logaritma "tabanı kaçıncı kuvvetine yükseltirsem bu sayıyı elde ederim?" sorusunun cevabıdır. Şimdi iki sayının çarpımına bakalım: $100 \times 1000 = 100\thinspace 000 = 10^5$, dolayısıyla $\log_{10} 100\thinspace 000 = 5 = 2 + 3$. Çarpımın logaritması, logaritmaların toplamıdır: $\log(a \times b) = \log a + \log b$. R'daki `log()` fonksiyonu aynı kuralı 10 yerine $e \approx 2.718$ tabanıyla uygular (**doğal logaritma**).
 
 Bu kural sayesinde çarpımsal bir modelin logaritması alınınca model toplamsal hâle gelir:
 
@@ -285,6 +291,8 @@ $$
 > **Simge notu:** $`\log`$ *(logaritma)*: bu derste doğal logaritma (R'daki `log()` gibi e tabanında); çarpımı toplama çevirir: log(a × b) = log a + log b · $`\log_{10}`$ *(on tabanında logaritma)* · $`e`$ *(e sayısı)*: ≈ 2.718 sabiti
 
 Bunun pratik sonucu şudur: Eşit **oranlar**, logaritmada eşit **farklara** dönüşür. 100'den 120'ye de 500'den 600'e de çıkış %20'lik bir artıştır. Mutlak farklar 20 ve 100 iken logaritmik farklar ikisinde de aynıdır: $\log 120 - \log 100 = \log 600 - \log 500 = \log 1.2 \approx 0.182$. Bu yüzden seviye yükseldikçe büyüyen dalgalar, log ölçeğinde eşit boylu hâle gelir.
+
+**Günlük hayattan bir örnek:** 10.000 TL maaşa 1.000 TL zam ile 50.000 TL maaşa 5.000 TL zam aynı oranda, yüzde 10'dur. Lira olarak ikinci zam beş kat büyüktür, ama log ölçeğinde iki zam eşit boyda görünür.
 
 Bu nedenle çarpımsal yapıdaki serilerde (örneğin `AirPassengers`) önce `log()` dönüşümü uygulanır, ardından toplamsal yöntemler kullanılır. Bölüm 7'deki SARIMA uygulamasında `log(AirPassengers)` kullanmamızın nedeni budur.
 
@@ -314,45 +322,7 @@ Bu nedenle çarpımsal yapıdaki serilerde (örneğin `AirPassengers`) önce `lo
 
 ---
 
-### 2.5. Durağanlık: Kısa Bir Ön Bakış
-
-Bileşenler kavramı bizi doğrudan dersin en kritik kavramına götürür: **durağanlık** (stationarity).
-
-**Açıklama:** Durağan bir seride trend ve mevsimsellik yoktur. Serinin hangi zaman diliminden bir parça alırsanız alın, ortalama ve dalgalanma düzeyi aynıdır. Yani kabaca, **durağan bir seri, yalnızca düzensiz bileşenden oluşan bir seriye benzer.**
-
-Bu yüzden ayrıştırma ile durağanlık birbirine sıkı sıkıya bağlıdır: Klasik modellerin (ARIMA vb.) çoğu durağan seri ister. Seriyi durağanlaştırmak için yaptığımız işlemler de aslında bileşenleri temizlemektir:
-
-- Fark alma ($\nabla x_t$) **trendi**,
-- Mevsimsel fark alma ($\nabla_s x_t$) **mevsimselliği**,
-- Log dönüşümü ise **çarpımsal yapıyı ve artan varyansı** ortadan kaldırır.
-
-Durağanlığın matematiksel tanımı ve testleri Bölüm 3.2'de ayrıntılı olarak ele alınmaktadır.
-
-> **Hemen deneyin 2.5 · Fark alınca ortalama sabitlenir mi?** (R, ~4 dk)
->
-> Durağan seride "hangi parçayı alırsanız alın, ortalama aynıdır". Bunu serinin ilk ve son yarısının ortalamasıyla kaba biçimde sınayalım:
->
-> ```r
-> mean(AirPassengers[1:72])        # ilk 6 yılın ortalaması
-> mean(AirPassengers[73:144])      # son 6 yılın ortalaması
-> d <- diff(log(AirPassengers))    # log alıp birinci fark: trend temizlenir
-> mean(d[1:71]); mean(d[72:143])   # d 143 gözlemlik; iki yarısının ortalaması
-> plot(d)
-> ```
->
-> **Ne göreceksiniz:** Ham seride ilk yarının ortalaması `182.9028`, son yarınınki `377.6944`'tür: Ortalama iki katına çıkmıştır, seri durağan değildir. Log-fark serisinde `0.01007357` ve `0.008815328`, yani iki yarı neredeyse aynıdır. Grafik artık yükselmez, sıfır çevresinde salınır. Ama her yıl aynı yerde tekrarlayan aşağı-yukarı bir desen hâlâ vardır: Mevsimsellik temizlenmemiştir.
->
-> **Şimdi siz:** Mevsimselliği de temizlemek için `d`'ye mevsimsel fark uygulayın: `dd <- diff(d, lag = 12)`. `dd` kaç gözlemlik olur? `plot(dd)` ile çizin; yıllık desen kayboldu mu?
->
-> <details><summary>Cevap</summary>
->
-> `length(dd)` → `[1] 131` (144 − 1 − 12). Grafikte yıllık tekrar eden desen kaybolur, seri sıfır çevresinde düzensiz dalgalanır; iki yarının ortalamaları 0.0023 ve −0.0017'dir. Bu, Bölüm 7'deki SARIMA modelinin kullandığı "log + birinci fark + mevsimsel fark" dönüşümüdür. Serinin başındaki dalgalanmanın sonundakinden biraz büyük olduğunu da fark edebilirsiniz; tam durağanlık kararını Bölüm 3.2'deki testlere bırakırız.
->
-> </details>
-
----
-
-### 2.6. Mini Uygulama: `AirPassengers` Serisini Ayrıştırmak
+### 2.5. Mini Uygulama: `AirPassengers` Serisini Ayrıştırmak
 
 > **Uygulama dosyası:** [`Codes/R/ch02_ayristirma.R`](../Codes/R/ch02_ayristirma.R)
 >
@@ -383,26 +353,24 @@ plot(ayr_stl)
 
 Kod, `AirPassengers` serisini aynı amaçla üç farklı yoldan bileşenlerine ayırır: doğrudan çarpımsal ayrıştırma, log dönüşümünden sonra toplamsal ayrıştırma ve STL. Bu seride mevsimsel dalgalar yıllar içinde büyüdüğü için çarpımsal model uygundur (2.4); üç yolun aynı mevsimsel deseni bulduğunu görmek, sonucun seçilen yönteme bağlı olmadığını gösterir. Koddaki `#` ile başlayan satırlar **yorumdur**; R onları çalıştırmaz, okuyucuya açıklama içindir. `#>` ile başlayan satır da kodun parçası değildir: R'ın o satırda ekrana yazdığı çıktıyı gösterir ve notta okunabilsin diye kodun altına eklenmiştir. Kodu satır satır okuyalım:
 
-1. `data("AirPassengers")`: R ile birlikte gelen `AirPassengers` veri setini çalışma alanına yükler; bundan sonra `AirPassengers` yazdığımızda bu seri kullanılır. Seri, 1949–1960 arasındaki aylık uluslararası havayolu yolcu sayılarını (bin kişi) tutar ve aylık frekansta (`frequency = 12`) bir `ts` (zaman serisi) nesnesidir; `ts` nesnelerini Bölüm 5'te ayrıntılı göreceğiz. Veri setinin adı burada tırnak içinde, yani bir metin olarak verilmiştir; `data(AirPassengers)` diye tırnaksız yazmak da aynı işi yapar (5.2.3). Bu seri, R açılırken kendiliğinden yüklenen `datasets` paketinde bulunduğu için bu satır olmadan da kullanılabilir; satır, verinin nereden geldiğini açıkça göstermek için yazılmıştır.
+1. `data("AirPassengers")`: R ile gelen `AirPassengers` serisini yükler (aylık `ts`, Bölüm 5). Seri `datasets` paketinde olduğu için bu satır zorunlu değildir; verinin kaynağını göstermek için yazılmıştır.
 2. `ayr_carp <- decompose(AirPassengers, type = "multiplicative")`: Buradaki `<-` **atama** işaretidir: sağdaki hesabın sonucunu soldaki isimle (`ayr_carp`, "çarpımsal ayrıştırma"nın kısaltması) saklar. `decompose()` bir **fonksiyondur**: adının ardındaki parantezin içine verilen değerlerle bir iş yapar ve bir sonuç döndürür. Parantez içindeki değerlere **argüman** denir ve virgülle ayrılır. İlk argüman ayrıştırılacak seridir; adı yazılmadan, yalnızca sırasıyla verilmiştir (*konumsal argüman*: fonksiyonun ilk argümanının yerine geçer). İkincisi `type = "multiplicative"` biçiminde adıyla verilmiştir (*adlandırılmış argüman*) ve modelin çarpımsal olacağını söyler. `"multiplicative"` tırnak içinde olduğu için bir nesne adı değil, düz bir metin değeridir. Bu argüman hiç yazılmasaydı varsayılan değer olan `"additive"`, yani toplamsal model kullanılırdı. Sonuç, `decomposed.ts` sınıfında, birkaç parçayı bir arada tutan bir nesnedir (parçalarına 4. maddede bakacağız).
 
    `decompose()` üç basit adımda çalışır. Önce **trendi** 12 aylık merkezlenmiş hareketli ortalamayla bulur: Her ay için çevresindeki bir yıllık değerlerin ortalaması alınır; bir yıllık pencerede yaz tepeleriyle kış dipleri birbirini götürdüğü için geriye trend kalır. Pencere ayın iki yanına altışar ay uzandığı için serinin ilk ve son 6 ayında trend hesaplanamaz (`NA`, yani "değer yok"). Sonra her gözlem kendi trendine bölünür. Örneğin Temmuz 1949'da gözlem 148, trend 126.79'dur ve oran $148 / 126.79 \approx 1.167$ çıkar. Tüm yılların Temmuz oranlarının ortalaması alınıp katsayılar ortalamaları 1 olacak şekilde ölçeklenince Temmuz'un **mevsimsel katsayısı** bulunur. Son olarak kalan bileşen $x_t / (T_t \times S_t)$ olarak hesaplanır.
 3. `plot(ayr_carp)`: `plot()` R'ın genel çizim fonksiyonudur ve kendisine verilen nesnenin türüne uygun grafiği kendisi seçer. `decompose()` sonucu için "Decomposition of multiplicative time series" başlıklı, alt alta dört panelden oluşan bir grafik çizer: `observed` (gözlenen seri), `trend`, `seasonal` (mevsimsel bileşen) ve `random` (düzensiz bileşen). Grafiğin nasıl okunacağı aşağıdadır.
-4. `round(ayr_carp$figure, 3)`: İç içe yazılmış ifadeler içten dışa okunur: önce `ayr_carp$figure` alınır, sonra `round()` ile yuvarlanır. `$` işareti, bir nesnenin içindeki parçayı adıyla çağırır. `decompose()` sonucunda `x` (orijinal seri), `seasonal`, `trend`, `random`, `figure` ve `type` adlı parçalar vardır; `figure`, 12 ayın mevsimsel katsayısını tutan 12 sayılık bir vektördür. `round(..., 3)` sayıları ikinci argümanda verilen kadar, yani üç ondalık basamağa yuvarlar. Bu satırda `<-` olmadığı için sonuç bir isimle saklanmaz, doğrudan ekrana yazılır.
+4. `round(ayr_carp$figure, 3)`: İç içe yazılmış ifadeler içten dışa okunur: önce `ayr_carp$figure` alınır, sonra `round()` ile yuvarlanır. `$` işareti, bir nesnenin içindeki parçayı adıyla çağırır. `decompose()` sonucunda `x` (orijinal seri), `seasonal`, `trend`, `random`, `figure` ve `type` adlı parçalar vardır; `figure`, 12 ayın mevsimsel katsayısını tutan 12 sayılık bir vektördür. `round(..., 3)` sayıları ikinci argümanda verilen kadar, yani üç ondalık basamağa yuvarlar. Bu satırda `<-` olmadığı için sonuç bir isimle saklanmaz, doğrudan ekrana yazılır. Çıktıdaki 12 sayı Ocak–Aralık katsayılarıdır ve ortalamaları 1'dir. Temmuz 1.227 (trendin yaklaşık %23 üstü), Kasım 0.801'dir (yaklaşık %20 altı).
 5. `ayr_log <- decompose(log(AirPassengers), type = "additive")`: Yine içten dışa okuyalım. Önce `log()` serinin her değerinin logaritmasını alır (R'da `log()` varsayılan olarak tabanı $e \approx 2.718$ olan doğal logaritmayı hesaplar); sonuç yine aylık bir `ts`'dir. Sonra bu log serisi `type = "additive"` ile toplamsal olarak ayrıştırılır ve sonuç `ayr_log` adıyla saklanır. Log alınmasının nedeni, logaritmanın çarpmayı toplamaya çevirmesidir: Kodun yorum satırındaki $`\log(x_t) = \log(T_t) + \log(S_t) + \log(I_t)`$ formülü, çarpımsal modelin log alınınca toplamsal modele dönüştüğünü söyler (2.4). Bu ayrıştırmada Temmuz'un mevsimsel bileşeni 0.211 çıkar. Bu sayı log ölçeğindedir; `exp()` ile, yani logaritmanın tersiyle geri çevrilince $e^{0.211} \approx 1.235$ elde edilir. Bu, birinci yoldaki 1.227'ye çok yakındır: İki yol aynı yapıyı bulur.
 6. `plot(ayr_log)`: Aynı dört paneli bu kez log ölçeğinde ve "Decomposition of additive time series" başlığıyla çizer. Gözlenen panelde değerler yaklaşık 4.6 ile 6.4 arasındadır; bunlar en küçük (104) ve en büyük (622) yolcu sayılarının logaritmalarıdır. Log ölçeğinde mevsimsel dalgaların yüksekliği yıllar içinde belirgin biçimde büyümez; toplamsal modelin varsaydığı da budur.
-7. `ayr_stl <- stl(log(AirPassengers), s.window = "periodic")`: `stl()`, **STL** (*Seasonal-Trend decomposition using Loess*) yöntemini uygular. Loess, her noktanın çevresindeki komşu gözlemlere küçük bir eğri uydurarak çalışan bir **yerel düzeltme** yöntemidir. STL yalnızca toplamsal ayrıştırma yaptığı için seriye önce `log()` uygulanır. `s.window` (*seasonal window*, mevsimsel pencere) argümanının varsayılan değeri yoktur; yazılmazsa R `argument "s.window" is missing, with no default` hatası verir. Buradaki `"periodic"` değeri, mevsimsel desenin her yıl aynı kaldığını varsayar. Bunun yerine `s.window = 13` gibi tek bir sayı verilirse desenin yıllar içinde yavaşça değişmesine izin verilir. STL, `decompose()`'dan farklı olarak serinin başında ve sonunda da trend üretir (`NA` kalmaz). `robust = TRUE` argümanıyla aykırı değerlere karşı daha dayanıklı hâle getirilebilir (varsayılan `FALSE`). Sonuç `stl` sınıfında bir nesnedir ve `ayr_stl` adıyla saklanır; bileşenler bu nesnenin `time.series` parçasında `seasonal`, `trend` ve `remainder` (kalan) adlı üç sütun olarak durur. Bu seride STL'nin Temmuz bileşeni 0.216'dır ($e^{0.216} \approx 1.24$), yani üç yol da aynı sonuca varır.
+7. `ayr_stl <- stl(log(AirPassengers), s.window = "periodic")`: `stl()` **STL** (*Seasonal-Trend decomposition using Loess*) yöntemini uygular. Loess, her noktanın çevresine küçük bir eğri uyduran yerel bir düzeltmedir. STL yalnızca toplamsal çalıştığı için önce `log()` alınır. `s.window` zorunludur: `"periodic"` mevsimsel desenin her yıl aynı kaldığını, `13` gibi bir sayı ise yavaşça değişebildiğini söyler. `decompose()`'dan farklı olarak uçlarda `NA` bırakmaz. `robust = TRUE` ile aykırı değerlere karşı daha dayanıklı hâle getirilebilir. Temmuz bileşeni 0.216'dır ($e^{0.216} \approx 1.24$); üç yol aynı sonuca varır.
 8. `plot(ayr_stl)`: `stl()` sonucu için de alt alta dört panel çizer: `data` (log alınmış seri), `seasonal`, `trend` ve `remainder`. Her panelin sağında açık gri bir çubuk bulunur. Bu çubukların hepsi veri biriminde aynı uzunluğu temsil eder; bu yüzden çubuğu kendi paneline göre uzun görünen bileşen, aslında küçük bir değişim aralığına sahiptir. Çubuklar, panellerin dikey ölçeklerinin farklı olduğunu unutmamak için konmuştur.
-
-Kodun ekrana yazdığı tek sayısal çıktı `round()` satırınındır. Çıktının başındaki `[1]`, o satırın vektörün 1. elemanıyla başladığını gösteren sıra numarasıdır; değerin bir parçası değildir. Ardından gelen 12 sayı, Ocak'tan Aralık'a sıralı mevsimsel katsayılardır. Temmuz katsayısı 1.227'dir: Temmuz ayları trend seviyesinin yaklaşık %23 üstündedir. Kasım katsayısı 0.801'dir: Kasım ayları trendin yaklaşık %20 altındadır. 12 katsayının toplamı 12, ortalaması tam 1'dir.
 
 **Grafikleri yorumlarken:**
 
 - **trend** panelinde yolcu sayısının 1949–1960 arasında istikrarlı biçimde arttığını,
-- **seasonal** panelinde her yıl Temmuz–Ağustos'ta zirve, Kasım'da dip olduğunu (katsayılar 1.227, 1.220 ve 0.801),
+- **seasonal** panelinde her yıl Temmuz–Ağustos'ta zirve, Kasım'da dip olduğunu,
 - **random** panelinde belirgin bir desen kalmadığını, yani ayrıştırmanın yapıyı büyük ölçüde yakaladığını görürüz. `decompose()` grafiğinde trend ve random panellerinin ilk ve son altı ayı, hareketli ortalama nedeniyle boştur.
 
-> **Hemen deneyin 2.6a · Başka bir seriyi ayrıştırın: ABD'de kaza ölümleri** (R, ~4 dk)
+> **Hemen deneyin 2.5a · Başka bir seriyi ayrıştırın: ABD'de kaza ölümleri** (R, ~4 dk)
 >
 > Aynı yöntemi, dalga boyu yıllar içinde büyümeyen bir seriye uygulayalım. RStudio'da **Console** paneline yazın:
 >
@@ -423,7 +391,7 @@ Kodun ekrana yazdığı tek sayısal çıktı `round()` satırınındır. Çıkt
 >
 > </details>
 
-> **Hemen deneyin 2.6b · Aynı ayrıştırma Python'da** (Python, ~5 dk)
+> **Hemen deneyin 2.5b · Aynı ayrıştırma Python'da** (Python, ~5 dk)
 >
 > Python'da `statsmodels` paketindeki `seasonal_decompose()` aynı klasik yöntemi uygular. Depo kök dizininde bir Python dosyası ya da Jupyter hücresi açıp çalıştırın (Colab'da dosya yolu yerine `https://raw.githubusercontent.com/erkanozhan/AI_Based_Time_Series-Data_Analytics/main/data/AirPassengers.csv` yazın):
 >
@@ -450,14 +418,52 @@ Kodun ekrana yazdığı tek sayısal çıktı `round()` satırınındır. Çıkt
 >
 > </details>
 
+---
+
+### 2.6. Durağanlık: Kısa Bir Ön Bakış
+
+Bileşenler kavramı bizi doğrudan dersin en kritik kavramına götürür: **durağanlık** (stationarity).
+
+**Açıklama:** Kabaca, durağan bir seride trend ve sabit mevsimsel desen yoktur; seri sabit bir düzey çevresinde, hep aynı genişlikte dalgalanır. Serinin hangi zaman diliminden bir parça alırsanız alın, ortalama ve dalgalanma düzeyi aynıdır. Bu, serinin tamamen rastgele olduğu anlamına gelmez: Bugünkü değer dünküne benzeyebilir (Bölüm 3.2.2'deki AR(1)). Önemli olan, bu benzerliğin zamanla değişmemesidir.
+
+Bu yüzden ayrıştırma ile durağanlık birbirine sıkı sıkıya bağlıdır: Klasik modellerin (ARIMA vb.) çoğu durağan seri ister. Seriyi durağanlaştırmak için yaptığımız işlemler de aslında bileşenleri temizlemektir:
+
+- Fark alma ($\nabla x_t$) **trendi**,
+- Mevsimsel fark alma ($\nabla_s x_t$) **mevsimselliği**,
+- Log dönüşümü ise **çarpımsal yapıyı ve artan varyansı** ortadan kaldırır.
+
+Durağanlığın matematiksel tanımı ve testleri Bölüm 3.2'de ayrıntılı olarak ele alınmaktadır.
+
+> **Hemen deneyin 2.6 · Fark alınca ortalama sabitlenir mi?** (R, ~4 dk)
+>
+> Durağan seride "hangi parçayı alırsanız alın, ortalama aynıdır". Bunu serinin ilk ve son yarısının ortalamasıyla kaba biçimde sınayalım:
+>
+> ```r
+> mean(AirPassengers[1:72])        # ilk 6 yılın ortalaması
+> mean(AirPassengers[73:144])      # son 6 yılın ortalaması
+> d <- diff(log(AirPassengers))    # log alıp birinci fark: trend temizlenir
+> mean(d[1:71]); mean(d[72:143])   # d 143 gözlemlik; iki yarısının ortalaması
+> plot(d)
+> ```
+>
+> **Ne göreceksiniz:** Ham seride ilk yarının ortalaması `182.9028`, son yarınınki `377.6944`'tür: Ortalama iki katına çıkmıştır, seri durağan değildir. Log-fark serisinde `0.01007357` ve `0.008815328`, yani iki yarı neredeyse aynıdır. Grafik artık yükselmez, sıfır çevresinde salınır. Ama her yıl aynı yerde tekrarlayan aşağı-yukarı bir desen hâlâ vardır: Mevsimsellik temizlenmemiştir.
+>
+> **Şimdi siz:** Mevsimselliği de temizlemek için `d`'ye mevsimsel fark uygulayın: `dd <- diff(d, lag = 12)`. `dd` kaç gözlemlik olur? `plot(dd)` ile çizin; yıllık desen kayboldu mu?
+>
+> <details><summary>Cevap</summary>
+>
+> `length(dd)` → `[1] 131` (144 − 1 − 12). Grafikte yıllık tekrar eden desen kaybolur, seri sıfır çevresinde düzensiz dalgalanır; iki yarının ortalamaları 0.0023 ve −0.0017'dir. Bu, Bölüm 7'deki SARIMA modelinin kullandığı "log + birinci fark + mevsimsel fark" dönüşümüdür. Serinin başındaki dalgalanmanın sonundakinden biraz büyük olduğunu da fark edebilirsiniz; tam durağanlık kararını Bölüm 3.2'deki testlere bırakırız.
+>
+> </details>
+
 <details>
 <summary><b>Kendinizi test edin (cevaplar için tıklayın)</b></summary>
 
 1. **Bir alışveriş merkezinin günlük ziyaretçi sayısında hafta sonları sürekli artış görülüyor. Bu hangi bileşendir? Periyodu nedir?**
    → Mevsimsellik. Periyot 7 gündür (günlük veride $s = 7$).
 
-2. **Bir ülkenin GSYH serisinde 1990–2020 arasında 3, 7 ve 5 yıl arayla gerçekleşen üç durgunluk dönemi var. Bu hangi bileşendir?**
-   → Döngü. Periyot sabit değildir ve takvimden önceden tahmin edilemez.
+2. **Bir ülkenin GSYH serisinde 1990–2020 arasında 3, 7 ve 5 yıl arayla gerçekleşen dört durgunluk dönemi var. Bu hangi bileşendir?**
+   → Döngü. Durgunluklar arasındaki süre (3, 7, 5 yıl) sabit değildir ve takvimden önceden tahmin edilemez.
 
 3. **Bir seride mevsimsel dalgaların yüksekliği 10 yılda iki katına çıkmış. Hangi model uygundur, ne yapılmalıdır?**
    → Çarpımsal model. Ya doğrudan `type = "multiplicative"` kullanılır ya da seriye `log()` uygulanıp toplamsal yöntemlerle devam edilir.
