@@ -6,7 +6,7 @@
 # veya VS Code'da hücre hücre (# %%) ya da Colab'da notebook sürümü.
 #
 # Gerekli paketler: numpy, pandas, matplotlib, scikit-learn, tensorflow, xgboost (Colab'da hepsi kurulu).
-# Not: 16.4'te 5 fold x 100 epoch GRU eğitimi yapılır; CPU'da birkaç dakika sürebilir.
+# Not: 16.4 ve 16.5'te her biri 5 fold'luk GRU eğitimleri yapılır; CPU'da birkaç dakika sürebilir.
 
 # %%
 # Veri yükleme yardımcısı (tüm bölüm dosyalarında aynı)
@@ -108,7 +108,8 @@ for k, (train_idx, val_idx) in enumerate(tscv.split(values), 1):
 print(f"\nGRU çapraz doğrulama RMSE: {np.mean(fold_rmse):.2f} ± {np.std(fold_rmse):.2f}")
 
 # %% [markdown]
-# ## 16.5 Uygulama: GRU ve XGBoost ile Kapsamlı Bir Örnek
+# ## 16.5 Uygulama: GRU ve XGBoost'u Aynı Fold'larda Karşılaştırmak
+# İki model ve bir referans (mevsimsel naive) 16.4'teki beş fold'da (1956-1960'ın her yılı) değerlendirilir.
 
 # %%
 import numpy as np
@@ -178,58 +179,46 @@ plt.tight_layout()
 plt.show()
 
 # %% [markdown]
-# ### 3) GRU için veri hazırlama
-# Ölçekleyici yalnızca eğitim dönemiyle fit edilir; son 24 ay test, eğitimin son 12 ayı doğrulama.
+# ### 3) Ortak fold'lar
+# Fold'lar ayların sıra numaraları üzerinden BİR KEZ belirlenir; üç yöntem de aynı listeyi kullanır.
 
 # %%
 # =============================================================
-# 3) GRU İÇİN VERİ HAZIRLAMA
+# 3) ORTAK FOLD'LAR (16.4 ile aynı)
 # =============================================================
-test_size = 24     # son 2 yıl (24 ay) test için
-look_back = 12     # bir tam mevsimsel döngü
+tscv = TimeSeriesSplit(n_splits=5, test_size=12)
+folds = list(tscv.split(values))          # [(train_idx, val_idx), ...] ay numaraları
+for k, (train_idx, val_idx) in enumerate(folds, 1):
+    print(f"Fold {k}: eğitim {df.index[train_idx[0]]:%Y-%m} - {df.index[train_idx[-1]]:%Y-%m}, "
+          f"doğrulama {df.index[val_idx[0]]:%Y-%m} - {df.index[val_idx[-1]]:%Y-%m}")
 
-# Ölçekleyici YALNIZCA eğitim dönemiyle fit edilir (16.4); test dönemine sadece
-# dönüşüm uygulanır. Tahminler daha sonra inverse_transform ile geri çevrilir.
-scaler = MinMaxScaler(feature_range=(0, 1))
-scaler.fit(values[:-test_size])
-values_scaled = scaler.transform(values)
+def calculate_metrics(y_true, y_pred):
+    """RMSE, MAE ve MAPE (tanımlar için Bölüm 8)."""
+    y_true, y_pred = np.ravel(y_true), np.ravel(y_pred)
+    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+    mae = mean_absolute_error(y_true, y_pred)
+    mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+    return rmse, mae, mape
+
+# %% [markdown]
+# ### 4) GRU: her fold'da en iyi epoch'u bul, sonra yeniden eğit
+# Erken durdurma, fold'un EĞİTİM kısmının son 12 ayıyla yapılır; fold'un doğrulama yılı hiç kullanılmaz (16.4, Not).
+
+# %%
+# =============================================================
+# 4) GRU İLE ÇAPRAZ DOĞRULAMA
+# =============================================================
+look_back = 12     # bir tam mevsimsel döngü
+inner_val = 12     # erken durdurma için fold eğitiminin son 12 ayı
 
 def create_dataset(sequence, look_back=1):
-    """
-    Kayan pencere (Bölüm 15.1):
-        X: (n_örnek, look_back) girdi matrisi
-        y: (n_örnek,) hedef vektörü; i. örneğin hedefi (i + look_back). gözlem
-    """
+    """Kayan pencere (Bölüm 15.1): look_back geçmiş değer girdi, sonraki değer hedef."""
     X, y = [], []
     for i in range(len(sequence) - look_back):
         X.append(sequence[i:(i + look_back), 0])
         y.append(sequence[i + look_back, 0])
     return np.array(X), np.array(y)
 
-X_all, y_all = create_dataset(values_scaled, look_back)   # (132, 12), (132,)
-
-# Keras tekrarlayan katmanları [örnek, zaman adımı, özellik] şeklinde girdi bekler
-X_all = X_all.reshape(X_all.shape[0], X_all.shape[1], 1)
-
-# Kronolojik eğitim / test ayrımı: son 24 örneğin hedefleri son 24 aydır
-train_size = X_all.shape[0] - test_size
-X_train, X_test = X_all[:train_size], X_all[train_size:]
-y_train, y_test = y_all[:train_size], y_all[train_size:]
-
-# Eğitimin son 12 ayı erken durdurma için doğrulama kümesi
-val_size = 12
-X_train_final, X_val = X_train[:-val_size], X_train[-val_size:]
-y_train_final, y_val = y_train[:-val_size], y_train[-val_size:]
-
-print(f"Eğitim (final): {len(X_train_final)}, Doğrulama: {len(X_val)}, Test: {len(X_test)}")
-
-# %% [markdown]
-# ### 4) GRU modelinin kurulması
-
-# %%
-# =============================================================
-# 4) GRU MODELİNİN KURULMASI
-# =============================================================
 # GRU: 2 kapı (güncelleme z, sıfırlama r) + gizli durum; LSTM'den daha az parametre.
 def build_gru_model(look_back, units=50, dropout_rate=0.2):
     model = Sequential([
@@ -238,108 +227,49 @@ def build_gru_model(look_back, units=50, dropout_rate=0.2):
         Dropout(dropout_rate),                     # aşırı öğrenmeye karşı
         Dense(1)                                   # tek değerli tahmin
     ])
-    model.compile(loss='mean_squared_error', optimizer='adam', metrics=['mae'])
+    model.compile(loss='mean_squared_error', optimizer='adam')
     return model
 
-model_gru = build_gru_model(look_back, units=50, dropout_rate=0.2)
-model_gru.summary()
-# Parametre sayısı (Keras varsayılanı reset_after=True, iki yanlılık vektörü):
-#   GRU  : 3 * [units * (input_dim + units) + 2 * units] = 3 * [50 * 51 + 100] = 7950
-#   Dense: 50 * 1 + 1 = 51
-#   Toplam: 8001
+target_idx = np.arange(look_back, len(values))     # her pencerenin hedef ayı
+gru_pred, best_epochs = {}, []
+
+for k, (train_idx, val_idx) in enumerate(folds, 1):
+    # a) Ölçekleyici YALNIZCA bu fold'un eğitim aylarıyla fit edilir (16.4)
+    scaler = MinMaxScaler(feature_range=(0, 1))
+    scaler.fit(values[train_idx])
+    X_all, y_all = create_dataset(scaler.transform(values), look_back)
+    X_all = X_all.reshape(-1, look_back, 1)        # [örnek, zaman adımı, özellik]
+    tr_mask = target_idx <= train_idx[-1]
+    va_mask = np.isin(target_idx, val_idx)
+    X_tr, y_tr = X_all[tr_mask], y_all[tr_mask]
+    X_va = X_all[va_mask]
+
+    # b) Kaç epoch? Eğitimin son 12 penceresi iç doğrulama
+    tf.keras.utils.set_random_seed(SEED)
+    model = build_gru_model(look_back)
+    early_stop = EarlyStopping(monitor='val_loss', patience=15, restore_best_weights=True)
+    history = model.fit(X_tr[:-inner_val], y_tr[:-inner_val], epochs=200, batch_size=8,
+                        validation_data=(X_tr[-inner_val:], y_tr[-inner_val:]),
+                        callbacks=[early_stop], verbose=0)
+    best_epoch = int(np.argmin(history.history['val_loss'])) + 1
+    best_epochs.append(best_epoch)
+
+    # c) Aynı mimari SIFIRDAN, fold'un bütün eğitim verisiyle best_epoch kadar eğitilir
+    tf.keras.utils.set_random_seed(SEED)
+    model = build_gru_model(look_back)
+    model.fit(X_tr, y_tr, epochs=best_epoch, batch_size=8, verbose=0)
+
+    # d) Doğrulama yılının tahmini, yolcu sayısı ölçeğinde
+    gru_pred[k] = scaler.inverse_transform(model.predict(X_va, verbose=0)).ravel()
+    print(f"Fold {k}: {len(X_tr)} eğitim penceresi, "
+          f"{len(history.history['loss'])} epoch sürdü, en iyi epoch {best_epoch}")
 
 # %% [markdown]
-# ### 5) GRU modelinin eğitilmesi (erken durdurma)
+# ### 5) XGBoost için özellik mühendisliği (Bölüm 13)
 
 # %%
 # =============================================================
-# 5) GRU MODELİNİN EĞİTİLMESİ
-# =============================================================
-# batch_size=8: küçük veri için hız-kararlılık dengesi
-# EarlyStopping: doğrulama kaybı 15 epoch iyileşmezse durur, en iyi ağırlıkları geri yükler
-early_stop = EarlyStopping(monitor='val_loss', patience=15,
-                           restore_best_weights=True, verbose=1)
-
-history = model_gru.fit(
-    X_train_final, y_train_final,
-    epochs=200,
-    batch_size=8,
-    validation_data=(X_val, y_val),
-    callbacks=[early_stop],
-    verbose=1
-)
-
-# Öğrenme eğrileri: iki kayıp birlikte düşüyorsa iyi; eğitim düşerken
-# doğrulama artıyorsa aşırı öğrenme vardır.
-plt.figure(figsize=(12, 4))
-plt.subplot(1, 2, 1)
-plt.plot(history.history['loss'], label='Eğitim Kaybı')
-plt.plot(history.history['val_loss'], label='Doğrulama Kaybı')
-plt.xlabel('Epoch'); plt.ylabel('MSE'); plt.title('Eğitim Süreci - Kayıp')
-plt.legend(); plt.grid(True, alpha=0.3)
-plt.subplot(1, 2, 2)
-plt.plot(history.history['mae'], label='Eğitim MAE')
-plt.plot(history.history['val_mae'], label='Doğrulama MAE')
-plt.xlabel('Epoch'); plt.ylabel('MAE'); plt.title('Eğitim Süreci - MAE')
-plt.legend(); plt.grid(True, alpha=0.3)
-plt.tight_layout()
-plt.show()
-
-# Doğrulama kaybının en düşük olduğu epoch (erken durdurma bundan 'patience' kadar sonra durur)
-best_epoch = int(np.argmin(history.history['val_loss'])) + 1
-print(f"\nEğitim {len(history.history['loss'])} epoch sürdü; en iyi epoch: {best_epoch}")
-
-# %% [markdown]
-# ### 6) GRU ile tahmin ve performans değerlendirmesi
-# Son model, doğrulama dahil tüm eğitim verisiyle en iyi epoch sayısı kadar eğitilir.
-
-# %%
-# =============================================================
-# 6) GRU İLE TAHMİN VE PERFORMANS DEĞERLENDİRMESİ
-# =============================================================
-# Son model: doğrulama dahil tüm eğitim verisiyle, en iyi epoch sayısı kadar eğitilir.
-tf.keras.utils.set_random_seed(SEED)
-model_gru_final = build_gru_model(look_back, units=50, dropout_rate=0.2)
-model_gru_final.fit(X_train, y_train, epochs=best_epoch, batch_size=8, verbose=0)
-
-train_pred_inv = scaler.inverse_transform(model_gru_final.predict(X_train, verbose=0))
-test_pred_inv = scaler.inverse_transform(model_gru_final.predict(X_test, verbose=0))
-y_train_inv = scaler.inverse_transform(y_train.reshape(-1, 1))
-y_test_inv = scaler.inverse_transform(y_test.reshape(-1, 1))
-
-def calculate_metrics(y_true, y_pred, set_name=""):
-    """RMSE, MAE ve MAPE (tanımlar için Bölüm 8)."""
-    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
-    mae = mean_absolute_error(y_true, y_pred)
-    mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
-    print(f"{set_name:<15} RMSE: {rmse:7.2f}   MAE: {mae:7.2f}   MAPE: {mape:5.2f}%")
-    return rmse, mae, mape
-
-rmse_train, mae_train, mape_train = calculate_metrics(
-    y_train_inv.flatten(), train_pred_inv.flatten(), "GRU Eğitim")
-rmse_test, mae_test, mape_test = calculate_metrics(
-    y_test_inv.flatten(), test_pred_inv.flatten(), "GRU Test")
-
-# create_dataset ilk look_back gözlemi "harcar"; tarihler buna göre kaydırılır
-train_dates = df.index[look_back:look_back + len(y_train_inv)]
-test_dates = df.index[look_back + len(y_train_inv):]
-
-plt.figure(figsize=(14, 5))
-plt.plot(df.index, df['Passengers'], 'b-', label='Gerçek Değerler', alpha=0.7)
-plt.plot(train_dates, train_pred_inv, 'g--', label='Eğitim Tahminleri', alpha=0.7)
-plt.plot(test_dates, test_pred_inv, 'r--', label='Test Tahminleri', linewidth=2)
-plt.axvline(x=test_dates[0], color='gray', linestyle=':', label='Test Başlangıcı')
-plt.xlabel('Tarih'); plt.ylabel('Yolcu Sayısı (bin)'); plt.title('GRU Model Tahminleri')
-plt.legend(); plt.grid(True, alpha=0.3)
-plt.tight_layout()
-plt.show()
-
-# %% [markdown]
-# ### 7) XGBoost için özellik mühendisliği (Bölüm 13)
-
-# %%
-# =============================================================
-# 7) XGBOOST İÇİN ÖZELLİK MÜHENDİSLİĞİ (Bölüm 13)
+# 5) XGBOOST İÇİN ÖZELLİK MÜHENDİSLİĞİ (Bölüm 13)
 # =============================================================
 # Ağaç modelleri seriyi doğrudan işleyemez; geçmişi özelliklere çeviririz.
 # KURAL: t anındaki satırın özellikleri yalnızca t-1 ve öncesinden gelmelidir.
@@ -378,30 +308,21 @@ X = df_features[feature_cols]
 y = df_features['Passengers']
 
 # %% [markdown]
-# ### 8) TimeSeriesSplit ile çapraz doğrulama (XGBoost, 5 fold)
+# ### 6) XGBoost ve mevsimsel naive: aynı fold'lar
+# Satırlar tarihle seçilir; böylece XGBoost'un doğrulama ayları GRU'nunkilerle birebir aynıdır.
 
 # %%
 # =============================================================
-# 8) TIMESERIESSPLIT İLE ÇAPRAZ DOĞRULAMA
+# 6) XGBOOST VE MEVSİMSEL NAIVE İLE ÇAPRAZ DOĞRULAMA
 # =============================================================
-# Genişleyen pencere (16.2): her fold'da eğitim büyür, doğrulama hep gelecekte kalır.
-#   Fold 1: Eğitim [----]       Doğrulama [--]
-#   Fold 2: Eğitim [------]     Doğrulama [--]
-#   Fold 3: Eğitim [--------]   Doğrulama [--]
 # Ağaç modelleri ölçekleme gerektirmez; bu yüzden fold içinde fit edilecek
-# bir ön işleme adımı yoktur. Erken durdurma da kullanmıyoruz: doğrulama fold'u
-# üzerinde durdurmak o fold'un hatasını iyimser gösterirdi (16.4).
-tscv = TimeSeriesSplit(n_splits=5)
+# bir ön işleme adımı yoktur. Erken durdurma da kullanmıyoruz.
+xgb_pred, naive_pred = {}, {}
 
-rmse_list, mae_list, mape_list = [], [], []
-print("\nXGBOOST - TIMESERIESSPLIT ÇAPRAZ DOĞRULAMA")
-
-for fold, (train_index, val_index) in enumerate(tscv.split(X), 1):
-    X_tr, X_va = X.iloc[train_index], X.iloc[val_index]
-    y_tr, y_va = y.iloc[train_index], y.iloc[val_index]
-
-    print(f"Fold {fold}: eğitim {len(X_tr)} gözlem ({y_tr.index.min():%Y-%m} - {y_tr.index.max():%Y-%m}), "
-          f"doğrulama {len(X_va)} gözlem ({y_va.index.min():%Y-%m} - {y_va.index.max():%Y-%m})")
+for k, (train_idx, val_idx) in enumerate(folds, 1):
+    train_end = df.index[train_idx[-1]]                  # eğitimin son ayı
+    val_dates = df.index[val_idx]                        # doğrulama yılının ayları
+    X_tr, y_tr = X.loc[:train_end], y.loc[:train_end]
 
     # Her fold'da sıfırdan yeni model
     model_xgb = xgb.XGBRegressor(
@@ -413,76 +334,90 @@ for fold, (train_index, val_index) in enumerate(tscv.split(X), 1):
         random_state=SEED
     )
     model_xgb.fit(X_tr, y_tr)
-    y_va_pred = model_xgb.predict(X_va)
+    xgb_pred[k] = model_xgb.predict(X.loc[val_dates])
 
-    rmse = np.sqrt(mean_squared_error(y_va, y_va_pred))
-    mae = mean_absolute_error(y_va, y_va_pred)
-    mape = np.mean(np.abs((y_va - y_va_pred) / y_va)) * 100
-    rmse_list.append(rmse); mae_list.append(mae); mape_list.append(mape)
-    print(f"         RMSE: {rmse:.2f}, MAE: {mae:.2f}, MAPE: {mape:.2f}%")
-
-print("\nÇAPRAZ DOĞRULAMA SONUÇLARI (Ortalama ± Std)")
-print(f"RMSE: {np.mean(rmse_list):.2f} ± {np.std(rmse_list):.2f}")
-print(f"MAE:  {np.mean(mae_list):.2f} ± {np.std(mae_list):.2f}")
-print(f"MAPE: {np.mean(mape_list):.2f}% ± {np.std(mape_list):.2f}%")
+    # Mevsimsel naive: "bu ay = geçen yılın aynı ayı" (model gerekmez)
+    naive_pred[k] = values[val_idx - 12].ravel()
+    print(f"Fold {k}: XGBoost eğitimi {len(X_tr)} gözlem "
+          f"({X_tr.index[0]:%Y-%m} - {X_tr.index[-1]:%Y-%m})")
 
 # %% [markdown]
-# ### 9) Son XGBoost modeli ve özellik önemi
+# ### 7) Fold fold sonuçlar ve ortalama ± standart sapma
 
 # %%
 # =============================================================
-# 9) SON XGBOOST MODELİ VE ÖZELLİK ÖNEMİ
+# 7) SONUÇ TABLOSU
 # =============================================================
-# Çapraz doğrulama performans tahminini verdi. Şimdi GRU ile aynı son 24 ayı
-# test için ayırıp son modeli eğitiyoruz.
-train_end = len(X) - 24
-X_train_xgb, X_test_xgb = X.iloc[:train_end], X.iloc[train_end:]
-y_train_xgb, y_test_xgb = y.iloc[:train_end], y.iloc[train_end:]
+models = {'GRU': gru_pred, 'XGBoost': xgb_pred, 'Mevsimsel naive': naive_pred}
+rows = []
+for k, (train_idx, val_idx) in enumerate(folds, 1):
+    y_true = values[val_idx].ravel()
+    for name, pred in models.items():
+        rmse, mae, mape = calculate_metrics(y_true, pred[k])
+        rows.append({'fold': k, 'yıl': df.index[val_idx[0]].year, 'model': name,
+                     'RMSE': rmse, 'MAE': mae, 'MAPE': mape})
+results = pd.DataFrame(rows)
 
-final_xgb = xgb.XGBRegressor(n_estimators=500, learning_rate=0.05, max_depth=4,
-                             subsample=0.8, colsample_bytree=0.8, random_state=SEED)
-final_xgb.fit(X_train_xgb, y_train_xgb)
-y_test_pred_xgb = final_xgb.predict(X_test_xgb)
+rmse_table = results.pivot(index='yıl', columns='model', values='RMSE')[list(models)]
+rmse_table['GRU - XGBoost'] = rmse_table['GRU'] - rmse_table['XGBoost']
+print("\nFOLD BAŞINA RMSE")
+print(rmse_table.round(2).to_string())
 
-print("\nXGBOOST TEST PERFORMANSI")
-xgb_rmse, xgb_mae, xgb_mape = calculate_metrics(y_test_xgb.values, y_test_pred_xgb, "XGBoost Test")
+print(f"\n{'Model':<16} {'RMSE':>15} {'MAE':>15} {'MAPE':>16}")
+for name in models:
+    r = results[results['model'] == name]
+    print(f"{name:<16} " + " ".join(
+        f"{r[m].mean():>7.2f} ± {r[m].std(ddof=0):<5.2f}" for m in ['RMSE', 'MAE']) +
+        f"  {r['MAPE'].mean():>5.2f}% ± {r['MAPE'].std(ddof=0):.2f}%")
 
-# Özellik önemi: hangi özellikler tahmine en çok katkı sağlıyor?
+diff = rmse_table['GRU - XGBoost']
+print(f"\nGRU, XGBoost'tan {int((diff < 0).sum())} fold'da daha iyi, "
+      f"{int((diff > 0).sum())} fold'da daha kötü; fark ortalaması {diff.mean():.2f}")
+print(f"GRU fold'larındaki en iyi epoch'lar: {best_epochs}")
+
+# %% [markdown]
+# ### 8) Grafikler: fold başına RMSE ve doğrulama yıllarının tahminleri
+
+# %%
+# =============================================================
+# 8) GRAFİKLER
+# =============================================================
+# Doğrulama yılları ardışık olduğu için beş fold'un tahminleri
+# 1956-1960 boyunca kesintisiz bir "fold dışı tahmin" çizgisi oluşturur.
+val_all = np.concatenate([val_idx for _, val_idx in folds])
+
+fig, axes = plt.subplots(1, 2, figsize=(15, 5))
+rmse_table[list(models)].plot.bar(ax=axes[0], rot=0)
+axes[0].set_title('Fold başına RMSE (doğrulama yılı)')
+axes[0].set_ylabel('RMSE')
+axes[1].plot(df.index[val_all], values[val_all], 'k-', label='Gerçek', linewidth=2)
+for name, pred in models.items():
+    axes[1].plot(df.index[val_all], np.concatenate([pred[k] for k in pred]), '--', label=name)
+axes[1].set_title('Fold dışı tahminler (1956-1960)')
+axes[1].set_ylabel('Yolcu Sayısı')
+for ax in axes:
+    ax.legend(); ax.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()
+
+# %% [markdown]
+# ### 9) Özellik önemi (son fold'un XGBoost modeli)
+
+# %%
+# =============================================================
+# 9) ÖZELLİK ÖNEMİ
+# =============================================================
+# model_xgb, döngünün son turunda (eğitim 1950-02 - 1959-12) eğitilen modeldir.
 feature_importance = pd.DataFrame({
     'feature': feature_cols,
-    'importance': final_xgb.feature_importances_
+    'importance': model_xgb.feature_importances_
 }).sort_values('importance', ascending=True)
 
 plt.figure(figsize=(10, 8))
 plt.barh(feature_importance['feature'], feature_importance['importance'])
-plt.xlabel('Önem Skoru'); plt.title('XGBoost Özellik Önemi')
+plt.xlabel('Önem Skoru'); plt.title('XGBoost Özellik Önemi (Fold 5)')
 plt.tight_layout()
 plt.show()
 
 print("\nEn önemli 5 özellik:")
-print(feature_importance.tail(5).to_string(index=False))
-
-# %% [markdown]
-# ### 10) Model karşılaştırması (aynı son 24 ay)
-
-# %%
-# =============================================================
-# 10) MODEL KARŞILAŞTIRMASI (aynı son 24 ay)
-# =============================================================
-print(f"\n{'Model':<15} {'RMSE':>10} {'MAE':>10} {'MAPE':>10}")
-print("-" * 48)
-print(f"{'GRU':<15} {rmse_test:>10.2f} {mae_test:>10.2f} {mape_test:>9.2f}%")
-print(f"{'XGBoost':<15} {xgb_rmse:>10.2f} {xgb_mae:>10.2f} {xgb_mape:>9.2f}%")
-
-fig, axes = plt.subplots(1, 2, figsize=(14, 5))
-axes[0].plot(test_dates, y_test_inv, 'b-', label='Gerçek', linewidth=2)
-axes[0].plot(test_dates, test_pred_inv, 'r--', label='GRU Tahmini', linewidth=2)
-axes[0].set_title(f'GRU Tahminleri (RMSE: {rmse_test:.2f})')
-axes[1].plot(y_test_xgb.index, y_test_xgb.values, 'b-', label='Gerçek', linewidth=2)
-axes[1].plot(y_test_xgb.index, y_test_pred_xgb, 'r--', label='XGBoost Tahmini', linewidth=2)
-axes[1].set_title(f'XGBoost Tahminleri (RMSE: {xgb_rmse:.2f})')
-for ax in axes:
-    ax.set_xlabel('Tarih'); ax.set_ylabel('Yolcu Sayısı')
-    ax.legend(); ax.grid(True, alpha=0.3)
-plt.tight_layout()
-plt.show()
+print(feature_importance.iloc[::-1].head(5).to_string(index=False))  # en önemliden başlayarak

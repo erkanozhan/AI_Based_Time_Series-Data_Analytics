@@ -414,7 +414,7 @@ Ortalama $(31.67 + 25.72 + 33.82 + 40.78 + 28.84) / 5 = 160.83 / 5 \approx 32.17
 
 **Günlük hayattan bir örnek:** Bir basketbolcuyu tek maçtaki sayısıyla değil, sezon ortalaması ve skorunun maçtan maça ne kadar dalgalandığıyla değerlendiririz. Ortalama 30 sayı atan oyuncu bir maçta 15, ötekinde 45 atıyorsa tek maça bakarak "en iyisi" demek yanıltır. Fold'ların RMSE'leri de o modelin maç maç skorlarıdır.
 
-> **Not —** Aynı ilke hiperparametre seçimi ve erken durdurma için de geçerlidir. Erken durdurmada izlenen doğrulama kümesi, hatası raporlanan fold'un kendisiyse sonuç yine iyimser olur: Model tam da o dönemde en iyi göründüğü noktada durdurulmuş olur. Doğrusu, erken durdurma için fold'un **eğitim** kısmının sonundan ayrı bir iç doğrulama dilimi ayırmaktır. Ağaç tabanlı modellerde ölçekleme gerekmez, ancak gecikme ve hareketli ortalama gibi özelliklerin yalnızca geçmiş değerlerden (`shift(1)` ile) üretildiğinden emin olmak gerekir. scikit-learn'de ön işlemeyi `Pipeline` içine koymak, `fit` işleminin her fold'da otomatik olarak yalnızca eğitim verisiyle yapılmasını garanti eder.
+> **Not —** Aynı ilke hiperparametre seçimi ve erken durdurma için de geçerlidir. Erken durdurmada izlenen doğrulama kümesi, hatası raporlanan fold'un kendisiyse sonuç yine iyimser olur: Model tam da o dönemde en iyi göründüğü noktada durdurulmuş olur. Doğrusu, erken durdurma için fold'un **eğitim** kısmının sonundan ayrı bir iç doğrulama dilimi ayırmaktır; 16.5'teki GRU bunu uygular. Ağaç tabanlı modellerde ölçekleme gerekmez, ancak gecikme ve hareketli ortalama gibi özelliklerin yalnızca geçmiş değerlerden (`shift(1)` ile) üretildiğinden emin olmak gerekir. scikit-learn'de ön işlemeyi `Pipeline` içine koymak, `fit` işleminin her fold'da otomatik olarak yalnızca eğitim verisiyle yapılmasını garanti eder.
 
 > **Hemen deneyin 16.4 · Ölçekleyici fold içinde mi, dışında mı?** (Python, ~4 dk)
 >
@@ -454,89 +454,102 @@ Ortalama $(31.67 + 25.72 + 33.82 + 40.78 + 28.84) / 5 = 160.83 / 5 \approx 32.17
 >
 > </details>
 
-### 16.5. Uygulama: GRU ve XGBoost ile Kapsamlı Bir Örnek
+### 16.5. Uygulama: GRU ve XGBoost'u Aynı Fold'larda Karşılaştırmak
 
-Aşağıdaki kod, bu bölümdeki fikirleri önceki bölümlerle birleştiren uçtan uca bir örnektir: Bölüm 15.3'teki GRU ile Bölüm 13'teki XGBoost aynı son 24 aylık test döneminde karşılaştırılır ve XGBoost `TimeSeriesSplit` ile çapraz doğrulanır.
+Bu bölümün mesajı, bir modeli tek bir dönemle değerlendirmenin yanıltabileceğidir. Aynı mesaj iki modeli **karşılaştırırken** de geçerlidir. Bu uygulamada Bölüm 15.3'teki GRU, Bölüm 13'teki XGBoost ve referans olarak mevsimsel naive (Bölüm 8), 16.4'teki beş fold'un **aynısında** değerlendirilir: 1956'dan 1960'a kadar her yıl ayrı bir doğrulama dilimidir. Fold'ların aynı olması şarttır, çünkü farklı yıllarda ölçülen hatalar birbiriyle karşılaştırılamaz (bkz. Bölüm 15'in sonundaki test dönemleri tablosu).
 
-Programın tamamı (yaklaşık 380 satır) uygulama dosyasındadır; aşağıda kilit satırlar yer alıyor (dosyada MAPE de hesaplanır ve her fold'un tarih aralığı yazdırılır).
+Programın tamamı (yaklaşık 310 satır) uygulama dosyasındadır; aşağıda kilit satırlar yer alıyor. Dosya ayrıca her fold'un MAE ve MAPE değerlerini hesaplar, fold başına RMSE'yi ve 1956–1960 tahminlerini çizer.
 
 ```python
-# GRU + XGBoost + TimeSeriesSplit — kilit satırlar (tam kod: Codes/python/ch16_timeseriessplit.py)
-# 3) Ölçekleyici YALNIZCA eğitim dönemiyle fit edilir; son 24 ay test
-scaler = MinMaxScaler(feature_range=(0, 1))
-scaler.fit(values[:-test_size])
-values_scaled = scaler.transform(values)
-X_all, y_all = create_dataset(values_scaled, look_back)       # (132, 12), (132,)
-X_all = X_all.reshape(X_all.shape[0], X_all.shape[1], 1)     # [örnek, zaman adımı, özellik]
+# GRU + XGBoost aynı fold'larda — kilit satırlar (tam kod: Codes/python/ch16_timeseriessplit.py)
+tscv = TimeSeriesSplit(n_splits=5, test_size=12)
+folds = list(tscv.split(values))       # fold'lar BİR KEZ belirlenir; üç yöntem de bu listeyi kullanır
 
-# 5)-6) GRU: erken durdurmayla en iyi epoch'u bul, sonra tüm eğitim verisiyle yeniden eğit
-history = model_gru.fit(X_train_final, y_train_final, epochs=200, batch_size=8,
-                        validation_data=(X_val, y_val), callbacks=[early_stop], verbose=1)
-best_epoch = int(np.argmin(history.history['val_loss'])) + 1
-model_gru_final = build_gru_model(look_back, units=50, dropout_rate=0.2)
-model_gru_final.fit(X_train, y_train, epochs=best_epoch, batch_size=8, verbose=0)
+for k, (train_idx, val_idx) in enumerate(folds, 1):
+    # GRU: ölçekleyici, pencereler ve maskeler 16.4'teki gibi kurulur (X_tr, y_tr, X_va)
+    # Kaç epoch? Fold eğitiminin son 12 penceresi iç doğrulama olur
+    model = build_gru_model(look_back)
+    history = model.fit(X_tr[:-inner_val], y_tr[:-inner_val], epochs=200, batch_size=8,
+                        validation_data=(X_tr[-inner_val:], y_tr[-inner_val:]),
+                        callbacks=[early_stop], verbose=0)
+    best_epoch = int(np.argmin(history.history['val_loss'])) + 1
+    # Aynı mimari SIFIRDAN, fold'un bütün eğitim verisiyle best_epoch kadar eğitilir
+    model = build_gru_model(look_back)
+    model.fit(X_tr, y_tr, epochs=best_epoch, batch_size=8, verbose=0)
+    gru_pred[k] = scaler.inverse_transform(model.predict(X_va, verbose=0)).ravel()
 
-# 8) XGBoost için TimeSeriesSplit: her fold'da sıfırdan model ve fold metrikleri
-tscv = TimeSeriesSplit(n_splits=5)
-for fold, (train_index, val_index) in enumerate(tscv.split(X), 1):
-    X_tr, X_va = X.iloc[train_index], X.iloc[val_index]
-    y_tr, y_va = y.iloc[train_index], y.iloc[val_index]
+for k, (train_idx, val_idx) in enumerate(folds, 1):
+    # XGBoost: satırlar TARİHLE seçilir; doğrulama ayları GRU'nunkilerle aynı olur
+    train_end = df.index[train_idx[-1]]
     model_xgb = xgb.XGBRegressor(n_estimators=500, learning_rate=0.05, max_depth=4,
                                  subsample=0.8, colsample_bytree=0.8, random_state=SEED)
-    model_xgb.fit(X_tr, y_tr)
-    y_va_pred = model_xgb.predict(X_va)
-    rmse_list.append(np.sqrt(mean_squared_error(y_va, y_va_pred)))
-    mae_list.append(mean_absolute_error(y_va, y_va_pred))
-print(f"RMSE: {np.mean(rmse_list):.2f} ± {np.std(rmse_list):.2f}")
+    model_xgb.fit(X.loc[:train_end], y.loc[:train_end])
+    xgb_pred[k] = model_xgb.predict(X.loc[df.index[val_idx]])
+    naive_pred[k] = values[val_idx - 12].ravel()     # mevsimsel naive: geçen yılın aynı ayı
 ```
 
-Kilit satırlarda iki yeni fikir vardır. Birincisi **en iyi epoch'u bulup yeniden eğitmektir**. Erken durdurma için eğitimin son 12 ayı doğrulamaya ayrıldığından ilk model bu 12 ayı hiç görmez. Oysa bu aylar test döneminden hemen önceki, en güncel bilgidir. Bu yüzden önce doğrulamalı eğitimle "kaç epoch iyi?" sorusu cevaplanır: `np.argmin(history.history['val_loss'])` doğrulama kaybı listesinde en küçük değerin sıra numarasını verir; Python 0'dan saydığı için `+ 1` ile epoch numarasına çevrilir (ör. liste [0.30, 0.20, 0.25] ise `argmin` 1 döndürür ve en iyi epoch 2'dir). Sonra aynı mimari sıfırdan kurulur ve doğrulama dahil bütün eğitim verisiyle (`X_train`, 108 örnek) tam o kadar epoch eğitilir. İkincisi, XGBoost döngüsünde `X.iloc[train_index]` kullanılır: `.iloc[...]` bir pandas tablosundan satırları **sıra numarasıyla** seçer; `split` sıra numarası verdiği için doğru seçim budur. Her fold'da `XGBRegressor` yeniden oluşturulur, `fit` ile eğitilir, `predict` ile doğrulama aylarını tahmin eder ve hatalar listelere eklenir. XGBoost'un parametreleri (`n_estimators`, `learning_rate`, `max_depth`, `subsample`, `colsample_bytree`) Bölüm 13.1.4'te açıklanmıştır.
+Kilit satırlarda üç fikir vardır:
+
+1. **Ortak fold listesi.** `tscv.split(values)` bir kez çalıştırılır ve `list(...)` ile saklanır. Üç yöntem de aynı `(train_idx, val_idx)` çiftlerini kullanır; `train_idx` ve `val_idx` ayların sıra numaralarıdır (0 = Ocak 1949).
+2. **En iyi epoch'u fold'un içinde bulmak.** Bu, 16.4'teki Not'un uygulamasıdır. Erken durdurma fold'un doğrulama yılını izleseydi, model tam da o yılda en iyi göründüğü noktada durdurulur ve hata iyimser çıkardı. Bu yüzden fold'un **eğitim** kısmının son 12 penceresi ayrı bir iç doğrulama dilimi olur: `X_tr[:-inner_val]` "son 12 hariç hepsi", `X_tr[-inner_val:]` "son 12" demektir. `np.argmin(history.history['val_loss'])` iç doğrulama kaybı listesinde en küçük değerin sıra numarasını verir; Python 0'dan saydığı için `+ 1` ile epoch numarasına çevrilir (ör. liste [0.30, 0.20, 0.25] ise `argmin` 1 döndürür ve en iyi epoch 2'dir). Sonra aynı mimari sıfırdan kurulur ve iç doğrulama dahil fold'un bütün eğitim verisiyle tam o kadar epoch eğitilir. Böylece doğrulama yılından hemen önceki en güncel 12 ay da öğrenmeye katılır.
+3. **XGBoost'ta tarihle seçim.** XGBoost'un özellik tablosu Şubat 1950'de başlar (gecikmeler ve `seasonal_diff` 13 aylık geçmiş ister, Bölüm 13.2), GRU'nun ilk penceresinin hedefi ise Ocak 1950'dir. İki tablonun aynı sıra numarası farklı aylara düştüğü için satırlar sıra numarasıyla değil tarihle seçilir: `.loc[...]` satırları **etiketle** (burada tarihle) seçer, `.iloc[...]` ise sıra numarasıyla. `X.loc[:train_end]` "baştan `train_end` dahil o tarihe kadar" demektir. Mevsimsel naive için model gerekmez: `val_idx - 12` doğrulama aylarının bir yıl önceki karşılıklarıdır. XGBoost'un parametreleri Bölüm 13.1.4'te açıklanmıştır.
 
 Tam kod: [`Codes/python/ch16_timeseriessplit.py`](../Codes/python/ch16_timeseriessplit.py) · [Notebook](../Codes/notebooks/ch16_timeseriessplit.ipynb)
 
-Programın bizim çalıştırmamızdaki çıktısının özeti aşağıdadır. XGBoost sonuçları her çalıştırmada aynı çıkar (tohum sabit, ağaçlar CPU'da belirlenimci biçimde kurulur). GRU satırları ise işletim sistemine ve TensorFlow sürümüne göre birkaç birim değişebilir.
+Programın bizim çalıştırmamızdaki çıktısının özeti aşağıdadır. XGBoost ve mevsimsel naive satırları her çalıştırmada aynı çıkar (tohum sabit, ağaçlar CPU'da belirlenimci biçimde kurulur). GRU satırları ise işletim sistemine ve TensorFlow sürümüne göre birkaç birim değişebilir.
 
 ```text
-Eğitim (final): 96, Doğrulama: 12, Test: 24
-Eğitim 200 epoch sürdü; en iyi epoch: 195
-GRU Eğitim      RMSE:   16.84   MAE:   13.30   MAPE:  5.38%
-GRU Test        RMSE:   43.51   MAE:   35.80   MAPE:  7.77%
+Fold 1: 72 eğitim penceresi, 74 epoch sürdü, en iyi epoch 59
+Fold 2: 84 eğitim penceresi, 86 epoch sürdü, en iyi epoch 71
+Fold 3: 96 eğitim penceresi, 200 epoch sürdü, en iyi epoch 193
+Fold 4: 108 eğitim penceresi, 200 epoch sürdü, en iyi epoch 195
+Fold 5: 120 eğitim penceresi, 114 epoch sürdü, en iyi epoch 99
 
-Özellik mühendisliği sonrası gözlem sayısı: 131
-Özellik sayısı: 22
-Fold 1: eğitim 26 gözlem (1950-02 - 1952-03), doğrulama 21 gözlem (1952-04 - 1953-12)
-         RMSE: 34.74, MAE: 27.26, MAPE: 11.69%
-Fold 2: eğitim 47 gözlem (1950-02 - 1953-12), doğrulama 21 gözlem (1954-01 - 1955-09)
-         RMSE: 39.19, MAE: 27.17, MAPE: 9.38%
-Fold 3: eğitim 68 gözlem (1950-02 - 1955-09), doğrulama 21 gözlem (1955-10 - 1957-06)
-         RMSE: 26.00, MAE: 17.91, MAPE: 5.18%
-Fold 4: eğitim 89 gözlem (1950-02 - 1957-06), doğrulama 21 gözlem (1957-07 - 1959-03)
-         RMSE: 42.10, MAE: 30.79, MAPE: 7.48%
-Fold 5: eğitim 110 gözlem (1950-02 - 1959-03), doğrulama 21 gözlem (1959-04 - 1960-12)
-         RMSE: 54.52, MAE: 42.39, MAPE: 8.66%
-RMSE: 39.31 ± 9.35
-MAE:  29.10 ± 7.90
-MAPE: 8.48% ± 2.15%
-XGBoost Test    RMSE:   58.04   MAE:   45.87   MAPE:  9.58%
+Fold 1: XGBoost eğitimi 71 gözlem (1950-02 - 1955-12)
+...
+Fold 5: XGBoost eğitimi 119 gözlem (1950-02 - 1959-12)
 
-Model                 RMSE        MAE       MAPE
-GRU                  43.51      35.80      7.77%
-XGBoost              58.04      45.87      9.58%
+FOLD BAŞINA RMSE
+model    GRU  XGBoost  Mevsimsel naive  GRU - XGBoost
+yıl
+1956   34.71    23.57            45.18          11.14
+1957   34.20    29.81            41.47           4.39
+1958   25.82    26.85            17.01          -1.03
+1959   35.73    46.97            49.25         -11.24
+1960   37.13    37.17            50.71          -0.05
+
+Model                       RMSE             MAE             MAPE
+GRU                33.52 ± 3.98    26.92 ± 2.77    6.71% ± 0.65%
+XGBoost            32.88 ± 8.36    26.71 ± 9.03    6.37% ± 1.79%
+Mevsimsel naive    40.73 ± 12.29   38.43 ± 13.21   9.68% ± 3.48%
+
+GRU, XGBoost'tan 3 fold'da daha iyi, 2 fold'da daha kötü; fark ortalaması 0.64
+
+En önemli 5 özellik:
+       feature  importance
+        lag_12    0.591006
+rolling_mean_6    0.132072
+rolling_mean_3    0.119410
+         lag_1    0.057974
+        lag_11    0.033651
 ```
 
 **Çıktının yorumu:**
 
-- **GRU bölümü:** 132 pencereden son 24'ü test, kalan 108'in son 12'si doğrulama olduğu için ilk eğitim 96 örnekle yapılır. Bu çalıştırmada doğrulama kaybı 200 epoch boyunca yavaş da olsa iyileşmeye devam etti; en düşük değer 195. epoch'ta görüldüğü için erken durdurma devreye girmedi ve eğitim üst sınırda (200) bitti. Son model bu yüzden 195 epoch eğitildi. Son model doğrulama dahil tüm eğitim verisiyle yeniden eğitildiği için tek bir test dönemi (son 24 ay) üzerinden değerlendirilir. Test hatasının eğitim hatasının yaklaşık 2.6 katı olması ($43.51 / 16.84 \approx 2.6$), modelin eğitimde görmediği 1959–1960 yolcu düzeylerinde zorlandığını gösterir.
-- **XGBoost özellikleri:** Gecikmeler, hareketli ortalamalar ve `seasonal_diff` için 13 aylık geçmiş gerektiğinden ilk 13 satır eksik değer içerir ve atılır; $144 - 13 = 131$ gözlem kalır ve ilk satır Şubat 1950'dir. 12 gecikme, 3 hareketli ortalama, 2 hareketli standart sapma, 1 mevsimsel fark ve 4 takvim sütunu toplam $12 + 3 + 2 + 1 + 4 = 22$ özellik eder.
-- **XGBoost çapraz doğrulaması:** `n_splits=5` ve `test_size` verilmediği için doğrulama uzunluğu `131 // 6 = 21` aydır; eğitim kümesi her fold'da 21 ay büyür (26, 47, 68, 89, 110). Her fold'un tarih aralığı yazdırılır; doğrulama dönemlerinin her zaman eğitimden sonra geldiğini buradan teyit edebilirsiniz. İlk fold'lar az veriyle eğitildiği için ve son fold'lar eğitim aralığının üzerindeki rekor değerlerle karşılaştığı için (ağaçların ekstrapolasyon sorunu, Bölüm 13.3) fold hataları farklılaşır: En iyi fold (3) ile en kötü fold (5) arasında iki kattan fazla fark vardır. Raporlanan "ortalama ± std" değeri (39.31 ± 9.35), tek bir test döneminden elde edilen sayıdan çok daha güvenilir bir performans tahminidir.
-- **Özellik önemi:** Bu çalıştırmada `lag_12` (bir yıl önceki aynı ay) toplam önemin yaklaşık yarısını (0.49) tek başına alır; onu 12, 3 ve 6 aylık hareketli ortalamalar (0.15, 0.12, 0.12) ve `lag_11` (0.05) izler. Önem skorlarının toplamı 1'dir. Bu tablo, serinin güçlü mevsimselliğini (`lag_12`) ve trendini (hareketli ortalamalar) yansıtır.
-- **Karşılaştırma:** Bu çalıştırmada aynı son 24 ayda GRU (RMSE 43.51) XGBoost'tan (58.04) daha iyi sonuç verdi. XGBoost'un zayıflığının kaynağı Bölüm 13.3'teki tavan sorunudur: Eğitim döneminin (1950–1958) en büyük değeri 505 iken XGBoost'un testteki en büyük tahmini yaklaşık 493'te kalır, oysa Temmuz 1960'ta gerçek değer 622'dir. XGBoost elle çıkarılan özelliklerle çalışır, daha kolay yorumlanır ve tohumdan etkilenmez; GRU ise ölçeklenmiş girdilerle eğitim aralığının biraz dışına çıkabilir, ama sonucu tohuma ve donanıma bağlı olarak değişir (15.3'te aynı GRU mimarisinin bir tohumda test döneminde çöktüğünü gördük). Seçim, verinin büyüklüğüne ve problemin yapısına göre yapılmalıdır. Buradaki karşılaştırma yine **tek** bir 24 aylık döneme dayanır. Bölümün mesajı gereği GRU'yu da 16.4'teki fold'larda değerlendirip iki modelin "ortalama ± std" değerlerini yan yana koymak daha doğru olurdu; burada eğitim süresi nedeniyle tek bölme kullandık.
+- **GRU'nun epoch sayıları:** Fold 1'in eğitimi 1949–1955'tir (84 ay). İlk 12 ay yalnızca ilk pencerenin girdisi olduğu için $84 - 12 = 72$ pencere oluşur; bunların son 12'si iç doğrulamaya ayrılır. Fold 1, 2 ve 5'te erken durdurma devreye girmiştir: Örneğin Fold 1'de en iyi epoch 59'dur ve eğitim 15 epoch'luk sabırdan sonra $59 + 15 = 74$. epoch'ta durmuştur. Fold 3 ve 4'te iç doğrulama kaybı 200 epoch boyunca yavaş da olsa iyileşmeye devam etmiş, eğitim üst sınırda bitmiştir. Her fold'un kendi epoch sayısını seçmesi doğaldır: Veri miktarı ve iç doğrulama ayları değiştikçe "kaç epoch yeter?" sorusunun cevabı da değişir. Bu GRU, 16.4'tekinden iki noktada ayrılır (`Dropout` katmanı ve fold içinde seçilen epoch sayısı); bu yüzden ortalama hatası 16.4'teki 32.17'den biraz farklıdır.
+- **XGBoost'un eğitim boyu:** Özellik tablosu bir ay geç başladığı için XGBoost her fold'da GRU'dan bir gözlem eksikle eğitilir (72'ye karşı 71, …). Doğrulama ayları ise birebir aynıdır.
+- **İki model berabere:** Ortalama RMSE'ler 33.52 ve 32.88'dir; aradaki 0.64'lük fark iki modelin standart sapmasından (3.98 ve 8.36) çok küçüktür. 16.4'teki ölçüte göre bu veriyle "biri diğerinden daha iyi" demek için kanıt yoktur. Fold fold farklara bakınca da tablo aynıdır: GRU 1958, 1959 ve 1960'ta önde (1960'taki 0.05'lik fark pratikte beraberliktir), XGBoost 1956 ve 1957'de önde. Beş farkın 3'e 2 bölünmesi açık bir üstünlük göstermez.
+- **Ama kararlılıkları farklı:** XGBoost'un fold hataları GRU'nunkilerin iki katından fazla dağılır (8.36'ya karşı 3.98). En kötü yılı 1959'dur (46.97). Bölüm 13.3'teki tavan sorunu burada açıkça görülür: Fold 4'ün eğitimindeki en büyük değer 505 (Ağustos 1958) iken XGBoost 1959 için en fazla yaklaşık 493 tahmin eder, oysa 1959 yazında gerçek değer 559'a çıkar. Ağaçlar eğitimde gördükleri değerlerin üstüne çıkamadığı için her fold'da tahmin tavanı eğitimdeki rekorun biraz altında kalır. GRU ise ölçeklenmiş girdilerle bu rekorun bir miktar üstüne çıkabilir.
+- **Tek yıl yanıltırdı:** Yalnızca 1959'u test etseydik GRU'yu 11 birim farkla açıkça daha iyi bulurduk; yalnızca 1956'yı test etseydik XGBoost'u aynı farkla daha iyi bulurduk. İkisi de beş yılın bütününün söylediğiyle çelişir.
+- **Referans:** İki model de ortalamada mevsimsel naive'i (40.73 ± 12.29) geçer. Ancak 1958'de naive (17.01) ikisini de yener. O yıl yolcu sayısı bir önceki yıla göre yalnızca %3.4 artmıştır (diğer doğrulama yıllarında %11–16; bkz. Hemen deneyin 8.4.2). "Geçen yılın aynı ayı" tahmini bu durgun yılda neredeyse isabetliyken trendi öğrenmiş modeller büyümeyi olduğundan fazla tahmin eder.
+- **Özellik önemi:** Son fold'un modelinde (eğitim 1950-02 – 1959-12) `lag_12` (bir yıl önceki aynı ay) toplam önemin yaklaşık %59'unu tek başına alır; onu 6 ve 3 aylık hareketli ortalamalar (0.13, 0.12), `lag_1` (0.06) ve `lag_11` (0.03) izler. Önem skorlarının toplamı 1'dir. Tablo, serinin güçlü mevsimselliğini (`lag_12`) ve trendini (hareketli ortalamalar) yansıtır.
+- **Hangisi seçilmeli?** Bu veriyle doğruluk tek başına bir seçim gerekçesi değildir. XGBoost daha hızlı eğitilir, daha kolay yorumlanır ve tohumdan etkilenmez. GRU bu deneyde yıldan yıla daha kararlıdır, ama sonucu tohuma ve donanıma bağlıdır (15.3'te aynı mimarinin bir tohumda test döneminde çöktüğünü gördük). Seçim, verinin büyüklüğüne, yorumlanabilirlik ihtiyacına ve problemin yapısına göre yapılmalıdır.
 
-> **Not —** Bu kodda ölçekleyici yalnızca eğitimle fit edilir ve `seasonal_diff` yalnızca geçmiş değerlerden üretilir (13.2); XGBoost'un çapraz doğrulama döngüsünde erken durdurma kullanılmaz (16.4, Not).
+> **Not —** Bu kodda ölçekleyici her fold'da yalnızca o fold'un eğitim aylarıyla fit edilir, GRU'nun erken durdurması fold'un eğitim kısmından ayrılan iç doğrulamayla yapılır ve `seasonal_diff` yalnızca geçmiş değerlerden üretilir (13.2). Doğrulama yılları hiçbir aşamada model kurmak ya da ayar seçmek için kullanılmaz. Beş fold'un GRU eğitimleri CPU'da birkaç dakika sürer.
 
 > **Hemen deneyin 16.5 · Fold fold XGBoost'a karşı mevsimsel naive** (Python, ~5 dk)
 >
-> Her fold'da XGBoost'u bir referansla (mevsimsel naive: "bu ay = geçen yılın aynı ayı") karşılaştırın. Doğrulama dilimleri tam birer yıldır (`test_size=12`).
+> 16.5'teki 22 özellik yerine yalnızca 12 gecikmeyle kurulan sade bir XGBoost'u her fold'da mevsimsel naive ile ("bu ay = geçen yılın aynı ayı") karşılaştırın. Doğrulama dilimleri tam birer yıldır (`test_size=12`).
 >
 > ```python
 > import numpy as np, pandas as pd, xgboost as xgb

@@ -1004,8 +1004,7 @@ Notlar boyunca `AirPassengers` farklı test dönemleriyle değerlendirildi. Baş
 | Test dönemi | Uzunluk | Kullanan bölümler |
 | --- | --- | --- |
 | 1960 | 12 ay | 8.3 (R), 9.3 (Prophet), 11 (Gretl), 12.1.5 ve 12.3, 13.4 (XGBoost, Python) |
-| 1956–1960 | 60 ay | 7.7 (ARIMA, Python), 8.4.2, 15 |
-| 1959–1960 | 24 ay | 16.5 (GRU ve XGBoost) |
+| 1956–1960 | 60 ay | 7.7 (ARIMA, Python), 8.4.2, 15; 16.4 ve 16.5'te aynı 60 ay beş ayrı 12 aylık fold olarak |
 | Ağustos 1958 – Aralık 1960 | 29 ay | 13.5 (Weka Explorer, %80 sıralı ayrım) |
 | Kasım 1959 – Aralık 1960 | 14 ay | 14 (Weka Forecast, held out `0.1`) |
 
