@@ -342,7 +342,11 @@ Held out oranı `0.1` iken `1-step-ahead` için **N = 14**, `12-steps-ahead` iç
 
 **Tanım:** Test için ayrılan gözlem sayısı $k$ ve tahmin ufku $h$ olmak üzere, $h$ adım ileri tahmin için hesaplamaya giren gözlem sayısı:
 
-$$N_h = k - h + 1$$
+```math
+\underbrace{N_h}_{\substack{\text{h adım ilerisi için}\\\text{kontrol edilebilen tahmin}}} = \underbrace{k}_{\text{test ayı sayısı}} - \underbrace{h}_{\text{ufuk}} + 1
+```
+
+**Nasıl okunur?** "N alt h eşittir k eksi h artı bir."
 
 > **Simge notu:** $`N_h`$ *(N h)*: h adım ileri tahminde hesaplamaya giren tahmin sayısı; alt indis hangi ufka ait olduğunu gösterir · $`k`$: saklanan test ayı sayısı · $`h`$: tahmin ufku
 

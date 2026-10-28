@@ -24,9 +24,11 @@ Bir dondurmacıyı düşünün: Bugünkü satışı tahmin etmek isteyen dükkâ
 
 **Tanım:** $x_t$ değerini tahmin etmek için, geçmiş değerlerden ve bilinen takvim bilgilerinden oluşan bir fonksiyon öğrenmeye çalışırız. Formül, sözle şunu söyler: *bugünkü değer = (geçmiş değerlerden ve takvimden hesaplanan bir sonuç) + (önceden bilinemeyen bir sürpriz)*.
 
-$$
-x_t = f\big(x_{t-1}, x_{t-2}, \dots, x_{t-p}, \text{ay}, \text{haftanın günü}, \text{tatil mi?}, \dots\big) + \varepsilon_t
-$$
+```math
+\underbrace{x_t}_{\substack{\text{bugünkü değer}\\\text{(hedef)}}} = \overbrace{f}^{\text{öğrenilecek kural}}\big(\underbrace{x_{t-1}, x_{t-2}, \dots, x_{t-p}}_{\text{son p gözlem}}, \underbrace{\text{ay}, \text{haftanın günü}, \text{tatil mi?}, \dots}_{\text{takvim bilgisi}}\big) + \underbrace{\varepsilon_t}_{\text{sürpriz (hata)}}
+```
+
+**Nasıl okunur?** "x alt t eşittir, f parantez içinde x alt t eksi bir, x alt t eksi iki, üç nokta, x alt t eksi p, ay, haftanın günü, tatil mi ve benzerleri; artı epsilon alt t."
 
 > **Simge notu:** $`x_t`$ *(x t)*: t anındaki (bugünkü) değer; alttaki küçük $`t`$ (alt indis) değerin hangi zamana ait olduğunu gösterir · $`x_{t-1}`$ *(x t eksi bir)*: bir önceki dönemin değeri; $`x_{t-p}`$: p dönem önceki değer · $`f(\dots)`$ *(f fonksiyonu)*: parantez içindeki girdileri alıp tek bir sayı üreten kural; veriden öğrenilecektir ve doğrusal olması gerekmez · $`\dots`$ *(üç nokta)*: aradaki terimler · $`p`$: kaç geçmiş gözleme bakıldığı (pencere boyutu) · $`\varepsilon_t`$ *(epsilon t)*: modelin açıklayamadığı hata (sürpriz). ε (epsilon) bir Yunan harfidir; "elemanıdır" anlamındaki ∈ işaretiyle karıştırmayın.
 
@@ -74,6 +76,12 @@ Bölüm 7'deki AR($p$) modeli de aslında aynı şeyi yapar, ancak $f$'yi **doğ
 #### 12.1.1. Kayan Pencere (Sliding Window)
 
 Dönüşümün en temel yolu **kayan penceredir**: $p$ uzunluğunda bir pencere serinin başından itibaren birer adım kaydırılır. Her konumda pencerenin içindeki $p$ değer bir satırın girdilerini (`X`), pencereden hemen sonraki değer ise o satırın hedefini (`y`) oluşturur.
+
+```math
+\underbrace{x_{t-p},\ \dots,\ x_{t-2},\ x_{t-1}}_{\substack{\text{girdiler (X):}\\\text{penceredeki p değer}}} \;\longrightarrow\; \underbrace{x_t}_{\substack{\text{hedef (y):}\\\text{pencereden sonraki değer}}}, \qquad \overbrace{t = p+1,\ p+2,\ \dots,\ n}^{(n-p)\ \text{satır}}
+```
+
+**Nasıl okunur?** "x alt t eksi p'den x alt t eksi bir'e kadar olan değerler, x alt t'yi verir; t, p artı birden n'ye kadar." Yani: t'nin her değeri tablonun bir satırıdır; Şekil 12.1'de $p = 3$ ve $n = 10$ için $t = 4, 5, \dots, 10$ olur, yani 7 satır.
 
 **Günlük hayattan bir örnek:** Bir spor yorumcusunun, bir takımın sonraki maçını yalnızca son üç maçının skoruna bakarak tahmin ettiğini düşünün. Her hafta yeni maç listeye eklenir, en eskisi listeden düşer; yorumcu hep "son üç maç"a bakar. Geçmiş haftaların her biri "üç maçlık geçmiş → sonraki maç" biçiminde bir örnek satır oluşturur. Benzetmenin sınırı: Yorumcu sakatlık haberlerini de duyar; kayan pencere ise dışsal değişken eklenmedikçe yalnızca serinin kendi geçmiş değerlerini görür (12.1.2).
 
@@ -350,9 +358,11 @@ Farklı algoritmaların verinin ölçeğine (sayıların büyüklüğüne) duyar
 
 Bölüm 15'te kullanacağımız `MinMaxScaler` ölçeklemeyi şu dönüşümle yapar:
 
-$$
-x'_t = \frac{x_t - x_{\min}}{x_{\max} - x_{\min}}
-$$
+```math
+\underbrace{x'_t}_{\text{ölçeklenmiş değer}} = \frac{\overbrace{x_t - x_{\min}}^{\text{en küçükten uzaklık}}}{\underbrace{x_{\max} - x_{\min}}_{\substack{\text{aralığın genişliği}\\\text{(eğitim setinde)}}}}
+```
+
+**Nasıl okunur?** "x kesme t eşittir, x alt t eksi x min, bölü x max eksi x min."
 
 > **Simge notu:** $`x'_t`$ *(x kesme t; "x üssü t" diye de okunur, ancak burada bir üs ya da türev yoktur)*: ölçeklenmiş değer · $`x_{\min}, x_{\max}`$: **eğitim setindeki** en küçük ve en büyük değer; buradaki "min" ve "max" bir zaman indisi değil, yalnızca bir etikettir
 
@@ -363,6 +373,12 @@ Sözle: Değerden en küçük değeri çıkarırız (en küçük değer 0'a geli
 - Test dönemindeki 622 (Temmuz 1960) → $(622 - 104) / 455 = 518 / 455 \approx 1.138$. Değer 1'i aşar; bu bir hata değildir, test döneminde eğitimde görülmemiş bir seviyeye çıkıldığını gösterir.
 
 Model 0–1 ölçeğinde tahmin üretir. Sonucu yolcu sayısı olarak okumak için formülü tersine çeviririz (**ters dönüşüm**, `inverse_transform`): $x_t = x'_ t \cdot (x_{\max} - x_{\min}) + x_{\min}$. Örneğin 0.5 tahmini $0.5 \cdot 455 + 104 = 331.5$ bin yolcuya karşılık gelir.
+
+```math
+\underbrace{x_t}_{\substack{\text{yolcu sayısı}\\\text{(özgün ölçek)}}} = \underbrace{x'_t}_{\substack{\text{modelin 0--1}\\\text{ölçeğindeki tahmini}}} \cdot \overbrace{(x_{\max} - x_{\min})}^{\text{aralığın genişliği}} + \overbrace{x_{\min}}^{\text{en küçük değer}}
+```
+
+**Nasıl okunur?** "x alt t eşittir, x kesme t çarpı x max eksi x min, artı x min." Yani: Ölçeklemenin iki adımı ters sırayla geri alınır: önce aralığın genişliğiyle çarpılır, sonra en küçük değer eklenir.
 
 **Not —** Ölçekleyici (`scaler`) **yalnızca eğitim verisiyle** uydurulmalı (`fit`: en küçük ve en büyük değeri hesaplama), test verisine ise aynı parametrelerle yalnızca dönüştürme (`transform`: formülü uygulama) yapılmalıdır. Tüm veriyle uydurmak, test dönemindeki en büyük ve en küçük değerin bilgisini eğitime sızdırır. Örneğin ölçekleyici tüm seriyle uydurulsaydı en büyük değer 622 olurdu ve eğitimdeki tepe 559, 1 yerine $455 / 518 \approx 0.878$'e dönüşürdü; model, eğitim sırasında "ileride daha yüksek bir değer gelecek" bilgisini dolaylı olarak almış olurdu.
 
@@ -469,9 +485,33 @@ Bu mimarilere geçmeden önce bir sinir ağının ne hesapladığını görelim.
 | **Sigmoid** | Her sayıyı 0 ile 1 arasına sıkıştırır | sigmoid(−3) ≈ 0.05, sigmoid(0) = 0.5, sigmoid(3) ≈ 0.95 |
 | **tanh** *(tanjant hiperbolik)* | Her sayıyı −1 ile 1 arasına sıkıştırır | tanh(−3) ≈ −0.995, tanh(0) = 0, tanh(0.5) ≈ 0.46 |
 
+```math
+\underbrace{a}_{\substack{\text{nöronun}\\\text{çıktısı}}} = \overbrace{g}^{\text{aktivasyon}}(u), \qquad u = \underbrace{w_1 x_1 + w_2 x_2 + \dots + w_n x_n}_{\substack{\text{her girdi kendi ağırlığıyla}\\\text{çarpılıp toplanır}}} + \underbrace{b}_{\text{yanlılık}}
+```
+
+**Nasıl okunur?** "a eşittir g parantez içinde u; u eşittir w bir x bir artı w iki x iki artı üç nokta artı w n x n, artı b." Yani: $g$ yerine tablodaki ReLU, sigmoid ya da tanh konur; yukarıdaki örnekte $n = 2$ ve $u = 0.08$ bulunmuştu.
+
+```math
+\mathrm{ReLU}(u) = \max(0, u), \qquad \underbrace{\sigma(u) = \frac{1}{1 + \overbrace{e^{-u}}^{e \,\approx\, 2.718}}}_{\text{sigmoid: 0 ile 1 arası}}, \qquad \underbrace{\tanh(u) = \frac{e^{u} - e^{-u}}{e^{u} + e^{-u}}}_{\text{tanh: }-1\text{ ile 1 arası}}
+```
+
+**Nasıl okunur?** "ReLU u eşittir sıfır ile u'nun büyüğü; sigma u eşittir bir bölü bir artı e üzeri eksi u; tanh u eşittir e üzeri u eksi e üzeri eksi u, bölü e üzeri u artı e üzeri eksi u." Yani: u büyüdükçe e üzeri eksi u sıfıra yaklaşır; sigmoid de tanh de 1'e dayanır. u çok küçüldükçe sigmoid 0'a, tanh −1'e dayanır. Şekil 12.3'teki düzleşme budur.
+
 Yan yana duran nöronların oluşturduğu gruba **katman (layer)** denir. Keras'taki `Dense` katmanı, her nöronun önceki katmanın bütün çıktılarına bağlı olduğu en basit katmandır. Ağırlıklar ve yanlılıklar başta rastgele küçük sayılardır. **Eğitim**, bu sayıları modelin tahmin hatası küçülecek biçimde adım adım düzeltme işidir. Hatayı ölçen formüle **kayıp fonksiyonu (loss)**, düzeltmeyi yapan yönteme **optimizasyon algoritması (optimizer)** denir. Bu ikisini 15.2'de kodla birlikte ayrıntılı göreceğiz.
 
+```math
+\underbrace{L(w)}_{\substack{\text{kayıp: ağırlıklara}\\\text{bağlı tek bir sayı}}} = \frac{1}{n}\sum_{i=1}^{n} \big(\overbrace{y_i - \hat{y}_i(w)}^{\text{i. örneğin hatası}}\big)^2
+```
+
+**Nasıl okunur?** "L w eşittir, bir bölü n çarpı, i eşittir 1'den n'ye kadar y alt i eksi y şapka alt i w'nin karelerinin toplamı." Yani: Bu, Bölüm 8.2.2'deki MSE'dir. Buradaki $w$ ağın bütün ağırlık ve yanlılıklarını birlikte temsil eder; tahminler ağırlıklara bağlı olduğu için kayıp da onlara bağlıdır ve eğitim, ağırlıkları değiştirerek bu sayıyı küçültmeye çalışır.
+
 Düzeltme **gradyan inişiyle** (gradient descent) yapılır: Ağ bir tahmin yapar, hatasını ölçer ve her ağırlığı hatayı biraz azaltan yönde küçük bir adımla düzeltir; bu tekrar tekrar yapılır. *Gradyan*, "bu ağırlığı çok az artırırsam hata ne kadar ve hangi yönde değişir?" sorusunun cevabı olan sayıdır (bir eğim). Adımın büyüklüğünü **öğrenme oranı** belirler.
+
+```math
+\underbrace{w_{\text{yeni}}}_{\text{düzeltilmiş ağırlık}} = w_{\text{eski}} - \underbrace{\eta}_{\text{öğrenme oranı}} \cdot \overbrace{\frac{\partial L}{\partial w}}^{\substack{\text{gradyan: kaybın}\\\text{bu ağırlığa göre eğimi}}}
+```
+
+**Nasıl okunur?** "w yeni eşittir w eski eksi eta çarpı del L bölü del w." Yani: Eğim pozitifse (ağırlığı artırmak kaybı artırıyorsa) ağırlık azaltılır, negatifse artırılır; eksi işareti her adımın yokuş aşağı atılmasını sağlar. Örneğin $\eta = 0.1$ ve eğim 2 ise ağırlık 0.2 azalır.
 
 **Günlük hayattan bir örnek:** Sisli bir dağda vadiye inmeye çalışan bir yürüyüşçü uzağı göremez. Yalnızca ayağının altındaki eğime bakıp en dik inen yöne küçük bir adım atar ve bunu tekrarlar. Gradyan bu eğimdir, öğrenme oranı adımın boyudur: Adım çok büyükse karşı yamaca sıçrar, çok küçükse iniş çok uzun sürer. Benzetmenin sınırı: Yürüyüşçü en derin vadiye değil, yakındaki bir çukura inebilir; gradyan inişi de en iyi ağırlıkları bulmayı garanti etmez.
 
@@ -516,9 +556,11 @@ Düzeltme **gradyan inişiyle** (gradient descent) yapılır: Ağ bir tahmin yap
 
 **Tanım:**
 
-$$
-h_t = \tanh\left(W_h h_{t-1} + W_x x_t + b\right), \qquad \hat{y}_t = W_y h_t + c
-$$
+```math
+\underbrace{h_t}_{\text{yeni hafıza}} = \overbrace{\tanh}^{\substack{-1\ \text{ile 1}\\\text{arasına sıkıştır}}}\big(\underbrace{W_h h_{t-1}}_{\text{eski özet}} + \underbrace{W_x x_t}_{\text{yeni gözlem}} + b\big), \qquad \underbrace{\hat{y}_t}_{\text{tahmin}} = W_y h_t + c
+```
+
+**Nasıl okunur?** "h alt t eşittir tanh parantez içinde W h çarpı h alt t eksi bir, artı W x çarpı x alt t, artı b; y şapka alt t eşittir W y çarpı h alt t, artı c."
 
 > **Simge notu:** $`h_t`$ *(h t)*: t anındaki gizli durum (ağın "hafızası"); $`h_{t-1}`$: bir önceki adımdaki gizli durum · $`x_t`$: t anındaki girdi (ör. bu ayın ölçeklenmiş yolcu sayısı) · $`W_h, W_x, W_y`$ *(W h, W x, W y)*: öğrenilen ağırlıklar; buradaki alt indis zaman değil, ağırlığın neyle çarpıldığını gösteren bir etikettir · $`b, c`$: sabit (bias) terimleri · $`\tanh`$ *(tanjant hiperbolik, "tanh" diye okunur)*: girdisini −1 ile 1 arasına sıkıştıran aktivasyon fonksiyonu (Şekil 12.3) · $`\hat{y}_t`$ *(y şapka t)*: t anındaki tahmin
 
@@ -642,14 +684,16 @@ Aşağıdaki şema, bir LSTM hücresinin içsel çalışma mekanizmasını kavra
 
 ```math
 \begin{aligned}
-f_t &= \sigma\left(W_f [h_{t-1}, x_t] + b_f\right) \\
-i_t &= \sigma\left(W_i [h_{t-1}, x_t] + b_i\right) \\
-\tilde{C}_t &= \tanh\left(W_C [h_{t-1}, x_t] + b_C\right) \\
-C_t &= f_t \odot C_{t-1} + i_t \odot \tilde{C}_t \\
-o_t &= \sigma\left(W_o [h_{t-1}, x_t] + b_o\right) \\
-h_t &= o_t \odot \tanh\left(C_t\right)
+\underbrace{f_t}_{\text{unutma kapısı}} &= \sigma\big(W_f \underbrace{[h_{t-1}, x_t]}_{\substack{\text{dünkü çıktı ve}\\\text{bugünkü girdi}}} + \underbrace{b_f}_{\text{sabit terim}}\big) \\
+\underbrace{i_t}_{\text{giriş kapısı}} &= \sigma\left(W_i [h_{t-1}, x_t] + b_i\right) \\
+\underbrace{\tilde{C}_t}_{\text{aday bilgi}} &= \tanh\left(W_C [h_{t-1}, x_t] + b_C\right) \\
+\underbrace{C_t}_{\text{yeni hafıza}} &= \underbrace{f_t \odot C_{t-1}}_{\substack{\text{eski hafızadan}\\\text{korunan kısım}}} + \underbrace{i_t \odot \tilde{C}_t}_{\substack{\text{yeni bilgiden}\\\text{eklenen kısım}}} \\
+\underbrace{o_t}_{\text{çıkış kapısı}} &= \sigma\left(W_o [h_{t-1}, x_t] + b_o\right) \\
+\underbrace{h_t}_{\text{bu adımın çıktısı}} &= \overbrace{o_t}^{\substack{\text{dışarı}\\\text{verilen pay}}} \odot \tanh\left(C_t\right)
 \end{aligned}
 ```
+
+**Nasıl okunur?** "f alt t eşittir sigma, parantez içinde W alt f çarpı h alt t eksi bir ile x alt t'nin birleşimi, artı b alt f." i alt t, C tilda alt t ve o alt t aynı biçimde, kendi W ve b'leriyle okunur; C tilda'da sigma yerine tanh vardır. "C alt t eşittir, f alt t eleman eleman çarpı C alt t eksi bir, artı i alt t eleman eleman çarpı C tilda alt t." "h alt t eşittir, o alt t eleman eleman çarpı tanh C alt t." Yani: Üç kapı ve aday bilgi aynı kalıpla hesaplanır, yalnızca ağırlıkları farklıdır; yeni hafıza, eskinin korunan kısmı ile yeninin eklenen kısmının toplamıdır.
 
 > **Simge notu:** $`\sigma`$ *(küçük sigma)*: burada sigmoid fonksiyonudur; çıktıyı 0 ile 1 arasına sıkıştırır ve kapının "ne kadar açık" olduğunu gösterir. İstatistikteki standart sapma σ'sı ve toplam sembolü Σ (büyük sigma) ile karıştırmayın · $`W_f, W_i, W_C, W_o`$ ve $`b_f, b_i, b_C, b_o`$: her kapının kendi ağırlıkları ve sabit terimleri; alt indisteki f, i, C, o hangi kapıya ait olduklarını gösterir · $`[h_{t-1}, x_t]`$: iki vektörün uç uca eklenmesi (birleştirme); ör. $`[0.2, -0.1]`$ ile $`[0.5]`$ birleşince $`[0.2, -0.1, 0.5]`$ olur · $`\tilde{C}_t`$ *(C tilda t)*: hafızaya eklenmeye aday yeni bilgi · $`\odot`$ *(Hadamard çarpımı)*: iki vektörün eleman eleman çarpımı; ör. $`[0.9, 0.1] \odot [10, 20] = [0.9 \cdot 10,\ 0.1 \cdot 20] = [9, 2]`$ (sonuçlar toplanmaz) · $`f_t, i_t, o_t`$: unutma, giriş ve çıkış kapılarının değerleri · $`C_t`$: hücre durumu (uzun süreli hafıza) · $`h_t`$: bu adımın çıktısı (kısa süreli hafıza)
 

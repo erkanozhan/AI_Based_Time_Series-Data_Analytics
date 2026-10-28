@@ -32,9 +32,11 @@ Zaman serisinde de benzer bir "geri adım" atarız: Bugünü anlamak için zaman
 
 **Tanım:** Bir AR(p) modeli, bugünkü değerin geçmişteki $p$ adet değerin ağırlıklı toplamı ile rastgele bir şokun toplamı olduğunu söyler:
 
-$$
-x_t = c + \phi_1 x_{t-1} + \phi_2 x_{t-2} + \dots + \phi_p x_{t-p} + \varepsilon_t
-$$
+```math
+\underbrace{x_t}_{\text{bugünkü değer}} = \underbrace{c}_{\text{sabit}} + \underbrace{\overbrace{\phi_1 x_{t-1}}^{\text{dünkü değerin payı}} + \phi_2 x_{t-2} + \dots + \phi_p x_{t-p}}_{\substack{\text{geçmiş p değerin}\\\text{ağırlıklı toplamı}}} + \underbrace{\varepsilon_t}_{\text{rastgele şok}}
+```
+
+**Nasıl okunur?** "x alt t eşittir, c artı fi bir çarpı x alt t eksi bir, artı fi iki çarpı x alt t eksi iki, artı üç nokta, artı fi p çarpı x alt t eksi p, artı epsilon alt t."
 
 > **Simge notu:** $`\phi_i`$ *(fi; π "pi" ile karıştırmayın)*: $`i`$ adım önceki değerin ağırlık katsayısı · $`\varepsilon_t`$ *(epsilon; kümelerdeki "elemanıdır" işareti ∈ değildir)*: $`t`$ anındaki rastgele şok (beyaz gürültü) · $`\dots`$ *(üç nokta)*: aynı kalıp $`p`$'ye kadar sürer
 
@@ -101,9 +103,11 @@ $p$ değeri modelin "hafızasının" ne kadar geriye gittiğini belirtir. Örne�
 
 **Tanım:** Bir MA(q) süreci, bugünkü değerin serinin ortalaması, bugünkü şok ve geçmişteki $q$ adet şokun ağırlıklı toplamından oluştuğunu söyler:
 
-$$
-x_t = \mu + \varepsilon_t + \theta_1 \varepsilon_{t-1} + \theta_2 \varepsilon_{t-2} + \dots + \theta_q \varepsilon_{t-q}
-$$
+```math
+\underbrace{x_t}_{\text{bugünkü değer}} = \underbrace{\mu}_{\text{ortalama}} + \underbrace{\varepsilon_t}_{\text{bugünkü şok}} + \underbrace{\overbrace{\theta_1 \varepsilon_{t-1}}^{\text{dünkü şokun yankısı}} + \theta_2 \varepsilon_{t-2} + \dots + \theta_q \varepsilon_{t-q}}_{\substack{\text{geçmiş q şokun}\\\text{ağırlıklı toplamı}}}
+```
+
+**Nasıl okunur?** "x alt t eşittir, mü artı epsilon alt t, artı teta bir çarpı epsilon alt t eksi bir, artı teta iki çarpı epsilon alt t eksi iki, artı üç nokta, artı teta q çarpı epsilon alt t eksi q." Yani: Bugünkü değer, ortalamanın üstüne bugünkü şokun ve son q şokun zayıflamış yankılarının eklenmesiyle oluşur.
 
 > **Simge notu:** $`\mu`$ *(mü)*: serinin ortalaması · $`\theta_j`$ *(teta)*: $`j`$ adım önceki şokun ağırlık katsayısı · $`\varepsilon_{t-1}`$: bir önceki dönemin şoku
 
@@ -157,9 +161,11 @@ $\theta$ katsayıları geçmiş şokların bugünkü değeri ne kadar etkilediğ
 
 **Tanım:**
 
-$$
-x_t = c + \phi_1 x_{t-1} + \dots + \phi_p x_{t-p} + \varepsilon_t + \theta_1 \varepsilon_{t-1} + \dots + \theta_q \varepsilon_{t-q}
-$$
+```math
+x_t = c + \underbrace{\phi_1 x_{t-1} + \dots + \phi_p x_{t-p}}_{\substack{\text{AR kısmı:}\\\text{geçmiş değerler}}} + \overbrace{\varepsilon_t}^{\text{bugünkü şok}} + \underbrace{\theta_1 \varepsilon_{t-1} + \dots + \theta_q \varepsilon_{t-q}}_{\substack{\text{MA kısmı:}\\\text{geçmiş şoklar}}}
+```
+
+**Nasıl okunur?** "x alt t eşittir, c artı fi bir çarpı x alt t eksi bir, artı üç nokta, artı fi p çarpı x alt t eksi p, artı epsilon alt t, artı teta bir çarpı epsilon alt t eksi bir, artı üç nokta, artı teta q çarpı epsilon alt t eksi q."
 
 Bu denklem, 7.1.1'deki AR(p) ile 7.1.2'deki MA(q) denklemlerinin sağ taraflarının yan yana yazılmasıdır: önce geçmiş **değerler** ($\phi$'li terimler), sonra bugünkü ve geçmiş **şoklar** ($\varepsilon$ ve $\theta$'lı terimler).
 
@@ -261,7 +267,7 @@ Mevsimsel seriler için ayrıca **mevsimsel fark** alınır: $\nabla_s x_t = x_t
 
 Örneğin ARIMA(1,1,0), "seriyi bir kez farkla, farkı alınmış seriye AR(1) uygula" demektir. ARIMA(0,0,0) ise saf beyaz gürültüdür; ARIMA(0,1,0) rastgele yürüyüştür.
 
-**Gecikme operatörüyle yazım.** ARIMA denklemleri açık hâliyle uzun ve okunaksızdır. Bölüm 2.1'de tanıttığımız gecikme (backshift) operatörü $B$ ile bu denklemleri çok kısa yazabiliriz. Hatırlatma: $B$ bir sayı değil, "önündeki seriyi bir dönem geri kaydır" komutudur; $B x_t = x_{t-1}$ ve genel olarak $B^k x_t = x_{t-k}$'dir (bazı kaynaklarda $L$).
+**Gecikme operatörüyle yazım.** ARIMA denklemleri açık hâliyle uzun ve okunaksızdır. Bölüm 2.1'de tanıttığımız gecikme (backshift) operatörü $B$ ile bu denklemleri çok kısa yazabiliriz. Hatırlatma: $B$ bir sayı değil, "önündeki seriyi bir dönem geri kaydır" komutudur; $B x_t = x_{t-1}$ ve genel olarak $B^k x_t = x_{t-k}$'dir (bazı kaynaklarda $L$; açıklamalı gösterimi ve okunuşu Bölüm 6.2.2'de).
 
 > **Simge notu:** $`B`$ *(be)*: gecikme operatörü, seriyi bir adım geriye kaydırır · $`B^k`$ *(be üzeri k)*: $`k`$ adım geri kaydırma
 
@@ -269,10 +275,12 @@ Mevsimsel seriler için ayrıca **mevsimsel fark** alınır: $\nabla_s x_t = x_t
 
 ```math
 \begin{aligned}
-\phi(B) &= 1 - \phi_1 B - \phi_2 B^2 - \dots - \phi_p B^p \\
-\theta(B) &= 1 + \theta_1 B + \theta_2 B^2 + \dots + \theta_q B^q
+\underbrace{\phi(B)}_{\text{AR polinomu}} &= 1 - \underbrace{\phi_1 B - \phi_2 B^2 - \dots - \phi_p B^p}_{\substack{\text{p geçmiş değerin}\\\text{katsayıları}}} \\
+\underbrace{\theta(B)}_{\text{MA polinomu}} &= 1 + \underbrace{\theta_1 B + \theta_2 B^2 + \dots + \theta_q B^q}_{\substack{\text{q geçmiş şokun}\\\text{katsayıları}}}
 \end{aligned}
 ```
+
+**Nasıl okunur?** "Fi B eşittir, bir eksi fi bir B, eksi fi iki B kare, eksi üç nokta, eksi fi p B üzeri p." ve "Teta B eşittir, bir artı teta bir B, artı teta iki B kare, artı üç nokta, artı teta q B üzeri q."
 
 $\phi(B)$ "fi B" diye okunur ve "$`\phi`$ katsayılarıyla kurulmuş, $B$ cinsinden polinom" demektir; $\phi$ ile $B$'nin çarpımı değil, bir addır. Bir gecikme polinomunu seriye uygulamak, parantezdeki her terimi seriye ayrı ayrı uygulayıp sonuçları toplamak demektir. 7.1.1'deki AR(2) örneğiyle ($\phi_1 = 0.6$, $\phi_2 = 0.16$):
 
@@ -287,9 +295,11 @@ Bunu $12 + \varepsilon_t$'ye eşitleyip geçmiş değerleri eşitliğin sağına
 \text{AR}(p):&\quad \phi(B)\, x_t = c + \varepsilon_t \\
 \text{MA}(q):&\quad x_t = \mu + \theta(B)\, \varepsilon_t \\
 \text{ARMA}(p,q):&\quad \phi(B)\, x_t = c + \theta(B)\, \varepsilon_t \\
-\text{ARIMA}(p,d,q):&\quad \phi(B)\, (1 - B)^d\, x_t = c + \theta(B)\, \varepsilon_t
+\text{ARIMA}(p,d,q):&\quad \underbrace{\phi(B)}_{\text{AR kısmı}}\, \underbrace{(1 - B)^d}_{\text{d kez fark al}}\, x_t = c + \underbrace{\theta(B)}_{\text{MA kısmı}}\, \varepsilon_t
 \end{aligned}
 ```
+
+**Nasıl okunur?** Son satır: "Fi B, parantez bir eksi B üzeri d, x alt t eşittir, c artı teta B, epsilon alt t."
 
 Son satırı okuyalım: $(1 - B)^d$ çarpanı seriye $d$ kez fark uygular (çünkü $(1 - B)x_t = x_t - x_{t-1} = \nabla x_t$). Ortaya çıkan durağan seri, $\phi(B)$ ile AR yapısına, $\theta(B)$ ile MA yapısına bağlanır. Yani ARIMA, "farkı alınmış serinin ARMA modeli"dir.
 
@@ -419,9 +429,11 @@ Koşul neden gerekli? $\theta = 0.5$ ve $\theta = 2$ olan iki MA(1)'in ACF'si ay
 
 **Tanım:** SARIMA(p,d,q)(P,D,Q)[s] modeli, gecikme operatörüyle şöyle yazılır:
 
-$$
-\Phi(B^s) \phi(B) (1 - B)^d (1 - B^s)^D x_t = \theta(B) \Theta(B^s) \varepsilon_t
-$$
+```math
+\underbrace{\Phi(B^s)}_{\substack{\text{mevsimsel}\\\text{AR}}}\, \underbrace{\phi(B)}_{\text{AR}}\, \overbrace{(1 - B)^d}^{\text{d normal fark}}\, \overbrace{(1 - B^s)^D}^{\text{D mevsimsel fark}}\, x_t = \underbrace{\theta(B)}_{\text{MA}}\, \underbrace{\Theta(B^s)}_{\substack{\text{mevsimsel}\\\text{MA}}}\, \varepsilon_t
+```
+
+**Nasıl okunur?** "Büyük fi B üzeri s, fi B, parantez bir eksi B üzeri d, parantez bir eksi B üzeri s, üzeri büyük D, x alt t eşittir, teta B, büyük teta B üzeri s, epsilon alt t."
 
 Burada mevsimsel polinomlar $B$ yerine $B^s$ içerir:
 
@@ -530,9 +542,11 @@ George Box ve Gwilym Jenkins, 1970'te ARIMA modellerinin nasıl kurulacağını 
 
 Adaylar arasında seçim için bilgi kriterleri kullanılır. En yaygını Akaike Bilgi Kriteri'dir:
 
-$$
-\mathrm{AIC} = -2 \log L + 2k
-$$
+```math
+\mathrm{AIC} = \underbrace{-2 \log L}_{\substack{\text{uyum terimi: uyum}\\\text{iyileştikçe küçülür}}} + \underbrace{2k}_{\substack{\text{ceza: parametre}\\\text{başına 2 puan}}}
+```
+
+**Nasıl okunur?** "AIC eşittir, eksi iki çarpı log L, artı iki k."
 
 > **Simge notu:** $`L`$: modelin olabilirlik (likelihood) değeri, yani veriyi ne kadar iyi açıkladığı · $`\log L`$: olabilirliğin doğal logaritması · $`k`$: tahmin edilen parametre sayısı (katsayılar ve beyaz gürültünün varyansı $`\sigma^2`$)
 
@@ -578,6 +592,12 @@ $$
 
 BIC benzer bir kriterdir ama parametre cezası daha ağırdır: $2k$ yerine $k \log n$ ($n$: gözlem sayısı). Farkı alınmış `AirPassengers` serisinde $n = 131$ olduğundan $\log 131 \approx 4.88$'dir ve her parametre 2 yerine yaklaşık 4.9 puan ceza alır; bu yüzden BIC daha sade modelleri tercih eder. AICc ise küçük örneklemler için düzeltilmiş AIC'dir; `auto.arima()` varsayılan olarak AICc'ye bakar.
 
+```math
+\mathrm{BIC} = \underbrace{-2 \log L}_{\text{AIC ile aynı uyum terimi}} + \underbrace{k \log n}_{\substack{\text{ceza: parametre}\\\text{başına log n puan}}}
+```
+
+**Nasıl okunur?** "BIC eşittir, eksi iki çarpı log L, artı k çarpı log n." Yani: Ceza gözlem sayısıyla büyür; n en az 8 olduğunda log n, 2'yi aştığı için (log 8 yaklaşık 2.08) BIC her parametreye AIC'den daha ağır ceza keser.
+
 **Not —** AIC'nin mutlak değeri anlamsızdır; yalnızca aynı veri üzerindeki (aynı dönüşüm, aynı $d$ ve $D$) modeller karşılaştırılır. Örneğin 7.7.4'teki AIC 536 (log alınmamış eğitim verisi, $d = 0$) ile R'daki −483 (log seri, $d = 1$) karşılaştırılamaz.
 
 **3. Teşhis (diagnostic checking).** Modelin açıklayamadığı kısma, yani **artıklara** (residuals) bakılır: $e_t = x_t - \hat{x}_ t$. Kurduğumuz modeli, verideki hikâyeyi açıklamaya çalışan bir dedektif gibi düşünün. Artıklar, dedektifin açıklayamayıp geride bıraktığı kırıntılardır. Artıklarda bir desen varsa (örneğin her yaz hatalar büyüyorsa) dedektif önemli bir ipucunu kaçırmış demektir. Amacımız artıkların, boş bir radyo kanalındaki cızırtı gibi, tamamen rastgele ve öngörülemez olmasıdır (beyaz gürültü; Bölüm 2.2, 6.6.1).
@@ -592,9 +612,11 @@ Ek olarak artıkların **normal dağılıma yakın** olması, tahmin aralıklar�
 
 Üçüncü özelliğin formel testi **Ljung-Box** testidir. Fikri basittir: Artıkların 1, 2, …, $h$ gecikmedeki otokorelasyonlarını (Bölüm 6.3) hesapla, her birinin **karesini** al (böylece artı ve eksi değerler birbirini götürmez) ve hepsini tek bir sayıda topla:
 
-$$
-Q^{\ast} = n(n+2) \sum_{k=1}^{h} \frac{r_k^2}{n-k}
-$$
+```math
+Q^{\ast} = \underbrace{n(n+2)}_{\substack{\text{kısa seri}\\\text{düzeltmesi}}} \underbrace{\sum_{k=1}^{h} \frac{\overbrace{r_k^2}^{\text{otokorelasyonun karesi}}}{n-k}}_{\substack{\text{ilk h gecikme için}\\\text{ağırlıklı toplam}}}
+```
+
+**Nasıl okunur?** "Q yıldız eşittir, n çarpı parantez n artı iki, çarpı k eşittir 1'den h'ye kadar, r alt k karenin n eksi k'ya bölümlerinin toplamı."
 
 > **Simge notu:** $`\hat{x}_t`$ *(x şapka)*: modelin $`t`$ anı için ürettiği tahmin · $`n`$: gözlem (artık) sayısı · $`r_k`$ *(r k)*: artıkların $`k`$ gecikmedeki örneklem otokorelasyonu · $`\sum_{k=1}^{h}`$ *(büyük sigma, toplam)*: $`k = 1`$'den $`h`$'ye kadar her terimi hesaplayıp topla · $`Q^{\ast}`$ *(Q yıldız)*: Ljung-Box test istatistiği
 
@@ -695,9 +717,11 @@ ADF, "$`\phi`$ 1'e eşit mi?" sorusunu "**$\gamma$ sıfır mı?**" sorusuna çev
 
 **Tanım 1 (ADF testi — Augmented Dickey-Fuller):** Gerçek serilerde yukarıdaki çekirdek denkleme üç parça eklenir. Serinin farkı; bir sabit, bir trend, serinin bir önceki seviyesi ve gecikmeli farkları üzerine regresyonla açıklanır:
 
-$$
-\nabla x_t = \alpha + \beta t + \gamma x_{t-1} + \sum_{i=1}^{k} \delta_i \nabla x_{t-i} + \varepsilon_t
-$$
+```math
+\underbrace{\nabla x_t}_{\text{bugünkü değişim}} = \underbrace{\alpha + \beta t}_{\substack{\text{sabit ve}\\\text{trend}}} + \overbrace{\gamma x_{t-1}}^{\substack{\text{birim kök terimi}\\\text{(sınanan kısım)}}} + \underbrace{\sum_{i=1}^{k} \delta_i \nabla x_{t-i}}_{\substack{\text{geçmiş k değişim}\\\text{(genişletilmiş kısım)}}} + \varepsilon_t
+```
+
+**Nasıl okunur?** "Nabla x alt t eşittir, alfa artı beta çarpı t, artı gama çarpı x alt t eksi bir, artı i eşittir 1'den k'ya kadar delta alt i çarpı nabla x alt t eksi i toplamı, artı epsilon alt t."
 
 > **Simge notu:** $`\alpha`$ *(alfa)*: sabit terim · $`\beta`$ *(beta)*: doğrusal trend katsayısı · $`t`$: burada zaman sayacı (1, 2, 3, …) · $`\gamma`$ *(gama)*: birim kök katsayısı, $`\phi - 1`$ · $`\delta_i`$ *(delta i)*: $`i`$ dönem önceki değişimin katsayısı · $`\sum_{i=1}^{k}`$: $`i = 1`$'den $`k`$'ya kadar toplam · $`k`$: eklenen gecikmeli fark sayısı
 
@@ -709,9 +733,11 @@ $$
 
 **Test istatistiği ve kritik değerler.** Yazılım regresyonu kurar, $\gamma$'yı veriden kestirir ($\hat{\gamma}$, "gama şapka") ve bu tahmini kendi **standart hatasına** böler:
 
-$$
-\mathrm{DF} = \frac{\hat{\gamma}}{\mathrm{s.e.}(\hat{\gamma})}
-$$
+```math
+\mathrm{DF} = \frac{\overbrace{\hat{\gamma}}^{\text{gama tahmini}}}{\underbrace{\mathrm{s.e.}(\hat{\gamma})}_{\text{tahminin standart hatası}}}
+```
+
+**Nasıl okunur?** "DF eşittir, gama şapka bölü gama şapkanın standart hatası."
 
 Standart hata (s.e.), tahminin ne kadar belirsiz olduğunu ölçer; oran "tahmin sıfırdan kaç standart hata uzakta?" sorusunun cevabıdır. 7.6.2'deki `AirPassengers` regresyonunda $\hat{\gamma} = -0.7256$ ve standart hatası $0.0991$'dir; $-0.7256 / 0.0991 \approx -7.32$, çıktıdaki `Dickey-Fuller = -7.3186` değeridir (bu ara değerler `adf.test` çıktısında görünmez, yalnızca oranları görünür).
 
@@ -732,6 +758,15 @@ R'daki `tseries::adf.test()` p-değerini bu tablodan **doğrusal ara değerleme*
 - Küçük p-değeri (< 0.05) → $H_0$ reddedilir → seri durağan **değildir**.
 
 Testin fikri şöyledir: Seriden ortalamasını (trend sürümünde trend çizgisini) çıkarırız ve geriye kalan sapmaları baştan itibaren **art arda toplarız** (kümülatif toplam, 7.1.4). Seri gerçekten durağansa sapmalar bir artı bir eksi gelir, birbirini götürür ve kümülatif toplam sıfır civarında kalır. Seviye bir yöne kayıyorsa sapmalar uzun süre aynı işaretli olur ve toplam sıfırdan uzaklaşır. Örneğin sapmalar $+2, -1, -2, +1$ ise kümülatif toplamlar $2, 1, -1, 0$'dır. Sapmalar $-3, -2, -1, +1, +2, +3$ ise (önce ortalamanın altında, sonra üstünde, yani kayan bir seviye) kümülatif toplamlar $-3, -5, -6, -5, -3, 0$ olur ve sıfırdan çok daha fazla uzaklaşır. KPSS istatistiği, bu kümülatif toplamların karelerinin büyüklüğünü serinin kendi oynaklığına göre ölçekleyerek tek sayıda özetler. **Büyük istatistik → $H_0$ (durağanlık) reddedilir.** Seviye durağanlığı için kritik değerler %10, %5 ve %1 düzeyinde sırasıyla 0.347, 0.463 ve 0.739'dur.
+
+```math
+\begin{aligned}
+\underbrace{S_t}_{\substack{\text{kümülatif}\\\text{toplam}}} &= \overbrace{e_1 + e_2 + \dots + e_t}^{\text{baştan t. döneme kadar sapmalar}} \\
+\mathrm{KPSS} &= \underbrace{\frac{1}{n^2} \sum_{t=1}^{n} S_t^2}_{\substack{\text{kümülatif toplamların}\\\text{karelerinin büyüklüğü}}} \bigg/ \underbrace{\hat{\sigma}^2}_{\substack{\text{sapmaların}\\\text{oynaklığı}}}
+\end{aligned}
+```
+
+**Nasıl okunur?** "S alt t eşittir, e bir artı e iki artı üç nokta artı e alt t." ve "KPSS eşittir, bir bölü n kare çarpı t eşittir 1'den n'ye kadar S alt t karelerin toplamı, bölü sigma şapka kare." Yani: e'ler seriden ortalama (trend sürümünde trend çizgisi) çıkarılınca kalan sapmalardır; sigma şapka kare, 7.6.2'deki `Truncation lag parameter` kadar gecikmenin otokorelasyonu hesaba katılarak bulunan oynaklıktır.
 
 İki testin sonuçları birlikte yorumlanır. Tabloyu okurken önce her testin sonucunu sade bir cümleye çevirin: ADF'de $H_0$'ın reddi "durağan", KPSS'te $H_0$'ın reddi "durağan değil" demektir.
 

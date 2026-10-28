@@ -148,9 +148,11 @@ Bu amaçlar birbirinden kopuk değildir. İyi bir tahmin için önce seriyi **ta
 
 **Tanım (tahmin):** $T$ anına kadar olan gözlemlere dayanarak $h$ adım sonrası için yapılan tahmin şöyle gösterilir:
 
-$$
-\hat{x}_{T+h} = g(x_T, x_{T-1}, \dots, x_1)
-$$
+```math
+\underbrace{\hat{x}_{T+h}}_{\substack{\text{h adım sonrası}\\\text{için tahmin}}} = \overbrace{g}^{\text{model}}\big(\underbrace{x_T, x_{T-1}, \dots, x_1}_{\substack{\text{T anına kadarki}\\\text{bütün gözlemler}}}\big)
+```
+
+**Nasıl okunur?** "x şapka alt T artı h eşittir, g parantez içinde x alt T, x alt T eksi bir, üç nokta, x alt bir." Yani: Tahmin, yalnızca T anına kadar gözlenmiş değerlerden model aracılığıyla üretilir.
 
 Burada $g$, kullandığımız modeldir (ARIMA, Prophet, XGBoost, LSTM vb.). Matematikte **fonksiyon**, girdiyi alıp bir çıktı üreten kuraldır; burada girdi geçmiş gözlemler, çıktı tahmindir. $x$'in üzerindeki şapka işareti, değerin gözlenmiş değil **tahmin edilmiş** olduğunu belirtir. Örneğin `AirPassengers` serisi Aralık 1960'ta bittiği için $T = 144$'tür. $h = 1$ için $\hat{x}_ {145}$ Ocak 1961'in, $h = 12$ için $\hat{x}_ {156}$ Aralık 1961'in tahminidir.
 

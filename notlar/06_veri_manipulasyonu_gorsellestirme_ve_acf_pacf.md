@@ -251,6 +251,12 @@ Zaman serisi analizinin en temel fikirlerinden biri **gecikmeli değer (lagged v
 
 **Tanım:** $h$ adım gecikmeli seri, orijinal serinin zaman ekseninde $h$ dönem sağa (ileri tarihlere) kaydırılmış hâlidir. Böylece her tarihte, $h$ dönem önceki değer okunur. Bölüm 2.1'deki B operatörüyle $B^h x_t = x_{t-h}$ yazılır. Bir örnekle: $t$ = Mart 2000 ise $x_t = 2050.6$, $x_{t-1}$ = Şubat 2000 değeri = 2330.7, $x_{t-2}$ = Ocak 2000 değeri = 2510.5'tir.
 
+```math
+\underbrace{B^h}_{\substack{\text{h adım geri}\\\text{kaydır}}} \overbrace{x_t}^{\text{bugünkü değer}} = \underbrace{x_{t-h}}_{\substack{\text{h dönem önceki değer}\\\text{(lag-h)}}}
+```
+
+**Nasıl okunur?** "B üzeri h, x alt t eşittir x alt t eksi h." Yani: Seriyi h kez bir adım geri kaydırmak, her tarihe h dönem önceki değeri getirir.
+
 `lag()` fonksiyonu seriyi zamanda kaydırarak geçmiş değerleri bugünkü değerlerle aynı hizaya getirir. Amaç, geçmişin bugünü nasıl etkilediğini görmek ve bu bilgiyi modele bir **özellik (feature)** olarak sunmaktır. Aylık veride lag-1 "geçen ay", lag-12 ise "geçen yılın aynı ayı" demektir; lag-12 özellikle mevsimsel etkileri yakalamak için kullanılır. Bu fikir, Bölüm 12.1'de zaman serisini denetimli öğrenme problemine dönüştürürken yeniden karşımıza çıkacak.
 
 ```r
@@ -436,9 +442,11 @@ Sayının **işareti** ilişkinin yönünü, **büyüklüğü** ise gücünü g�
 
 Bu beş adımın formül hâli şudur:
 
-$$
-r = \frac{\sum (x - \bar{x})(y - \bar{y})}{\sqrt{\sum (x - \bar{x})^2 \cdot \sum (y - \bar{y})^2}}
-$$
+```math
+\underbrace{r}_{\text{korelasyon}} = \frac{\overbrace{\sum (x - \bar{x})(y - \bar{y})}^{\substack{\text{sapma çarpımlarının}\\\text{toplamı}}}}{\underbrace{\sqrt{\sum (x - \bar{x})^2 \cdot \sum (y - \bar{y})^2}}_{\substack{\text{iki kareli sapma toplamının}\\\text{çarpımının karekökü}}}}
+```
+
+**Nasıl okunur?** "r eşittir, x eksi x bar çarpı y eksi y bar'ın toplamı, bölü x eksi x bar'ın kareleri toplamı ile y eksi y bar'ın kareleri toplamının çarpımının karekökü."
 
 > **Simge notu:** $`r`$: korelasyon katsayısı · $`\bar{x}`$ *(x bar)*: x'in ortalaması · $`\sum`$ *(büyük sigma, toplam)*: "yanındaki ifadeyi her gözlem için hesapla ve hepsini topla" · $`\sqrt{\thickspace}`$ *(karekök)*: karesi içindeki sayıyı veren sayı; $`\sqrt{100} = 10`$ · $`(\cdot)^2`$ *(kare)*: sayının kendisiyle çarpımı
 
@@ -533,9 +541,15 @@ Aşağıdaki iki tanım, Bölüm 6.3.1'deki korelasyon tarifinin (sapmaları bul
 
 **Tanım 1 (Teorik otokorelasyon):** Durağan bir süreçte (Bölüm 3.2) $h$ gecikmedeki otokovaryans ve otokorelasyon şöyle tanımlanır:
 
-$$
-\gamma(h) = \mathrm{Cov}(x_t, x_{t-h}) = E[(x_t - \mu)(x_{t-h} - \mu)], \qquad \rho_h = \frac{\gamma(h)}{\gamma(0)} = \frac{\mathrm{Cov}(x_t, x_{t-h})}{\mathrm{Var}(x_t)}
-$$
+```math
+\underbrace{\gamma(h)}_{\substack{\text{h gecikmedeki}\\\text{otokovaryans}}} = \mathrm{Cov}(x_t, x_{t-h}) = \underbrace{E}_{\substack{\text{uzun vadeli}\\\text{ortalama}}}\big[\overbrace{(x_t - \mu)}^{\substack{\text{bugünkü}\\\text{sapma}}}\overbrace{(x_{t-h} - \mu)}^{\substack{\text{h adım önceki}\\\text{sapma}}}\big]
+```
+
+```math
+\underbrace{\rho_h}_{\substack{\text{h gecikmedeki}\\\text{otokorelasyon}}} = \frac{\overbrace{\gamma(h)}^{\text{otokovaryans}}}{\underbrace{\gamma(0)}_{\text{varyans}}} = \frac{\mathrm{Cov}(x_t, x_{t-h})}{\mathrm{Var}(x_t)}
+```
+
+**Nasıl okunur?** "Gama h eşittir, x alt t ile x alt t eksi h'nin kovaryansı; bu da x alt t eksi mü ile x alt t eksi h eksi mü çarpımının beklenen değeridir. Ro alt h eşittir gama h bölü gama sıfır, yani x alt t ile x alt t eksi h'nin kovaryansı bölü x alt t'nin varyansı."
 
 > **Simge notu:** $`\gamma(h)`$ *(gama h)*: h gecikmedeki otokovaryans; $`\gamma`$ Yunan alfabesindeki "g" harfidir · $`\mathrm{Cov}`$ *(kovaryans)*: iki değişkenin birlikte değişimi (Bölüm 6.3.1, 4. adım) · $`E[\cdot]`$ *(beklenen değer)*: köşeli parantez içindekinin uzun vadeli ortalaması; aynı süreci çok çok uzun süre gözleseydik bulacağımız ortalama · $`\mu`$ *(mü)*: serinin uzun vadeli ortalaması · $`\mathrm{Var}`$ *(varyans)*: ortalamadan sapmaların karelerinin ortalaması, yani yayılım; $`\gamma(0) = \mathrm{Var}(x_t)`$ · $`\rho_h`$ *(ro h)*: h gecikmedeki teorik otokorelasyon
 
@@ -545,9 +559,11 @@ Durağanlık sayesinde $\gamma(h)$ yalnızca aradaki mesafeye ($h$) bağlıdır,
 
 **Tanım 2 (Örneklem otokorelasyonu):** Elimizde $x_1, \dots, x_T$ gözlemleri varsa $\rho_h$ şöyle tahmin edilir:
 
-$$
-\hat{\rho}_h = \frac{\sum_{t=h+1}^{T} (x_t - \bar{x})(x_{t-h} - \bar{x})}{\sum_{t=1}^{T} (x_t - \bar{x})^2}
-$$
+```math
+\underbrace{\hat{\rho}_h}_{\substack{\text{örneklem}\\\text{otokorelasyonu}}} = \frac{\overbrace{\sum_{t=h+1}^{T} (x_t - \bar{x})(x_{t-h} - \bar{x})}^{\substack{T-h\text{ sapma çarpımının}\\\text{toplamı}}}}{\underbrace{\sum_{t=1}^{T} (x_t - \bar{x})^2}_{\substack{T\text{ kareli sapmanın}\\\text{toplamı}}}}
+```
+
+**Nasıl okunur?** "Ro şapka alt h eşittir; t eşittir h artı 1'den T'ye kadar, x alt t eksi x bar ile x alt t eksi h eksi x bar çarpımlarının toplamı, bölü t eşittir 1'den T'ye kadar x alt t eksi x bar'ın karelerinin toplamı."
 
 > **Simge notu:** $`x_1, \dots, x_T`$: birinciden T'nciye kadar bütün gözlemler; üç nokta "arada kalanlar" demektir · $`\bar{x}`$ *(x bar)*: serinin örneklem ortalaması · $`\sum_{t=h+1}^{T}`$ *(toplam, t eşittir h artı 1'den T'ye)*: t'yi h + 1'den başlatıp T'ye kadar birer artırarak her terimi hesapla ve topla
 
@@ -640,9 +656,11 @@ Bu çan biçimli dağılıma **normal dağılım** denir. Bir normal dağılım 
 
 Geriye standart sapmayı bulmak kalır. Rastgele bir seride $\hat{\rho}_ h$'nin standart sapması yaklaşık $1/\sqrt{T}$'dir: Gözlem sayısı arttıkça şans dalgalanması küçülür. İkisini birleştirince %95 güven sınırları:
 
-$$
-\pm 1.96 \times \frac{1}{\sqrt{T}} = \pm \frac{1.96}{\sqrt{T}}
-$$
+```math
+\pm \underbrace{1.96}_{\substack{\text{yüzde 95 için}\\\text{normal dağılım sınırı}}} \times \underbrace{\frac{1}{\sqrt{T}}}_{\substack{\text{beyaz gürültüde}\\\hat{\rho}_h\text{'nin standart sapması}}} = \pm \frac{1.96}{\sqrt{T}}
+```
+
+**Nasıl okunur?** "Artı eksi bir virgül doksan altı çarpı bir bölü karekök T, eşittir artı eksi bir virgül doksan altı bölü karekök T."
 
 > **Simge notu:** $`\pm`$ *(artı eksi)*: hem pozitif hem negatif sınır · $`\sqrt{T}`$ *(karekök T)*: gözlem sayısının karekökü
 
@@ -920,9 +938,11 @@ PACF'in birinci tanımı **regresyon** kavramını kullanır. Regresyon, bir de�
 
 **Tanım 1 (Regresyon katsayısı olarak PACF):** $h$ gecikmedeki kısmi otokorelasyon $\phi_{hh}$, $x_t$'nin ilk $h$ gecikmesine regresyonundaki **son** katsayıdır (seriden ortalaması çıkarılmış kabul edilir):
 
-$$
-x_t = \phi_{h1} x_{t-1} + \phi_{h2} x_{t-2} + \dots + \phi_{hh} x_{t-h} + e_t
-$$
+```math
+\underbrace{x_t}_{\text{bugün}} = \overbrace{\phi_{h1} x_{t-1} + \phi_{h2} x_{t-2} + \dots}^{\substack{\text{aradaki gecikmeler}\\\text{(kontrol değişkenleri)}}} + \underbrace{\phi_{hh}}_{\substack{\text{son katsayı:}\\\text{lag-h PACF}}} x_{t-h} + \underbrace{e_t}_{\text{hata terimi}}
+```
+
+**Nasıl okunur?** "x alt t eşittir fi alt h bir çarpı x alt t eksi 1, artı fi alt h iki çarpı x alt t eksi 2, artı böyle devam ederek, artı fi alt h h çarpı x alt t eksi h, artı e alt t."
 
 > **Simge notu:** $`\phi`$ *(fi)*: Yunan harfi; π (pi) ile karıştırılmamalıdır · $`\phi_{hh}`$ *(fi h h)*: h gecikmedeki kısmi otokorelasyon; ilk alt indis regresyonda kaç gecikme kullanıldığını, ikincisi hangi gecikmenin katsayısı olduğunu söyler · $`\phi_{hj}`$ *(fi h j)*: aynı regresyondaki j. gecikmenin katsayısı · $`e_t`$ *(e alt t)*: regresyonun hata terimi, yani geçmişle açıklanamayan kısım
 
@@ -930,9 +950,11 @@ Somut olarak: Lag-1 PACF için tek gecikmeli regresyon $x_t = \phi_{11} x_{t-1} 
 
 **Tanım 2 (Arındırılmış korelasyon olarak PACF):** Eşdeğer olarak $\phi_{hh}$, aradaki gecikmelerle açıklanabilen kısım çıkarıldıktan sonra $x_t$ ve $x_{t-h}$'nin **kalıntıları** (açıklanamayan artakalan kısımları) arasındaki korelasyondur. $h = 1$ için arada gecikme olmadığından $\phi_{11} = \rho_1$'dir. $h = 2$ için kapalı formül:
 
-$$
-\phi_{22} = \frac{\rho_2 - \rho_1^2}{1 - \rho_1^2}
-$$
+```math
+\underbrace{\phi_{22}}_{\text{lag-2 PACF}} = \frac{\overbrace{\rho_2}^{\substack{\text{gözlenen lag-2}\\\text{korelasyonu}}} - \overbrace{\rho_1^2}^{\substack{\text{zincirin ürettiği}\\\text{dolaylı kısım}}}}{\underbrace{1 - \rho_1^2}_{\text{ölçekleme}}}
+```
+
+**Nasıl okunur?** "Fi alt iki iki eşittir, ro iki eksi ro bir kare, bölü bir eksi ro bir kare."
 
 Formülün sezgisi: $\rho_1^2 = \rho_1 \times \rho_1$ ("ro bir kare"), "$`x_{t-2} \to x_{t-1} \to x_t`$" zincirinin, yani iki adet lag-1 ilişkisinin art arda bağlanmasının üreteceği dolaylı korelasyondur. Pay, gözlenen lag-2 korelasyonundan bu dolaylı kısmı çıkarır; payda ($1 - \rho_1^2$) sonucu yine −1 ile +1 arasına ölçekler. İki küçük örnek:
 
@@ -1198,9 +1220,11 @@ $x_t$ ile $x_{t-1}$'in ortak bir parçası vardır: dünkü şok $\varepsilon_{t
 
 Lag-1 korelasyonunun büyüklüğünü de hesaplayabiliriz. Şokların varyansını 1 kabul edelim. Ortak parçanın katkısı (kovaryans) iki ağırlığın çarpımıdır: $0.8 \times 1 = 0.8$. $x_t$'nin varyansı ise içindeki bağımsız şokların ağırlıklarının karelerinin toplamıdır: $1^2 + 0.8^2 = 1 + 0.64 = 1.64$. Korelasyon = kovaryans / varyans = $0.8/1.64 \approx 0.49$. Genel formül:
 
-$$
-\rho_1 = \frac{\theta}{1 + \theta^2}, \qquad \rho_h = 0 \quad (h \ge 2)
-$$
+```math
+\underbrace{\rho_1}_{\text{lag-1 ACF}} = \frac{\overbrace{\theta}^{\substack{\text{ortak şokun katkısı}\\\text{(kovaryans)}}}}{\underbrace{1 + \theta^2}_{x_t\text{'nin varyansı}}}, \qquad \underbrace{\rho_h = 0 \quad (h \ge 2)}_{\substack{\text{ortak şok yok:}\\\text{ACF kesilir}}}
+```
+
+**Nasıl okunur?** "Ro bir eşittir teta bölü bir artı teta kare; h büyük eşit 2 için ro alt h eşittir sıfır."
 
 Yani 2. gecikmeden itibaren ACF tam olarak sıfırdır.
 
@@ -1247,9 +1271,11 @@ Her eski değer, giderek küçülen ve işaret değiştiren bir **ek** bilgi ta�
 
 AR(p) sürecinde bir şokun etkisi, geri besleme yoluyla sonsuza kadar (azalarak) aktarılır: Bugünün bir kısmı yarına, yarının bir kısmı öbür güne geçer. Bu yüzden ACF sıfıra aniden inmez, **kuyruk** yaparak söner. AR(1) için teorik ACF:
 
-$$
-\rho_h = \phi^h, \qquad h = 0, 1, 2, \dots
-$$
+```math
+\underbrace{\rho_h}_{\substack{\text{AR(1) sürecinin}\\\text{teorik ACF'si}}} = \overbrace{\phi^h}^{\substack{\text{her adımda aynı}\\\text{oranda sönme}}}, \qquad h = 0, 1, 2, \dots
+```
+
+**Nasıl okunur?** "Ro alt h eşittir fi üzeri h; h sıfır, bir, iki diye devam eder."
 
 $\phi^h$, "$`\phi`$'yi $h$ kez kendisiyle çarp" demektir. $\phi = 0.5$ için (Şekil 6.9) $\rho_1 = 0.5$, $\rho_2 = 0.25$, $\rho_3 = 0.125$; $\phi = 0.7$ için $\rho_1 = 0.7$, $\rho_2 = 0.7 \times 0.7 = 0.49$, $\rho_3 = 0.49 \times 0.7 \approx 0.34$, … şeklinde geometrik olarak azalır. $\phi$ negatifse ACF işaret değiştirerek söner (ör. $\phi = -0.5$ için $-0.5, 0.25, -0.125, \dots$).
 

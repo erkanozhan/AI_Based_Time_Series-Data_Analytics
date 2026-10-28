@@ -47,7 +47,11 @@ Bu parametre yanlış ayarlanırsa mevsimsellik gibi önemli desenler modellenem
 
 R içeride zamanı ondalıklı bir yıl sayısı olarak tutar. `c(yıl, p)` biçimindeki bir başlangıç (p: döngü içindeki sıra) şu sayıya çevrilir: yıl + (p − 1) / frekans. Örneğin `c(2023, 3)` ve frekans 4 için 2023 + 2/4 = 2023,5 (3. çeyrek, yılın yarısı geçmişken başlar). Sonraki her gözlem bir öncekinden sabit bir adım sonra gelir. $k$'inci gözlemin zamanı şöyle hesaplanır:
 
-$$t_k = t_1 + \frac{k-1}{f}, \qquad \Delta t = \frac{1}{f}$$
+```math
+\underbrace{t_k}_{\substack{\text{k'inci gözlemin}\\\text{zamanı}}} = \underbrace{t_1}_{\text{başlangıç}} + \frac{\overbrace{k-1}^{\substack{\text{başlangıçtan bu yana}\\\text{atılan adım sayısı}}}}{\underbrace{f}_{\text{frekans}}}, \qquad \underbrace{\Delta t = \frac{1}{f}}_{\substack{\text{ardışık iki gözlem}\\\text{arasındaki adım}}}
+```
+
+**Nasıl okunur?** "t alt k eşittir t alt 1 artı k eksi 1 bölü f; delta t eşittir 1 bölü f." Yani: k'inci gözleme varmak için başlangıçtan k − 1 adım atılır ve her adım 1/f yıl sürer.
 
 > **Simge notu:** $`t_k`$ *(t alt k)*: k'inci gözlemin zamanı; alt indis $`k`$ gözlemin sıra numarasıdır ($`k = 1, 2, 3, \dots`$) · $`t_1`$: ilk gözlemin zamanı (başlangıç) · $`f`$: frekans · $`\Delta t`$ *(delta t; Δ büyük Yunan harfi "delta", "fark/adım" anlamında kullanılır)*: ardışık iki gözlem arasındaki sabit zaman adımı (aylık veride 1/12 yıl)
 

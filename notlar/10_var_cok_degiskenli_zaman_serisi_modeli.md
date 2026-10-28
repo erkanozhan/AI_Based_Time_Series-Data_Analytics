@@ -33,10 +33,12 @@ VAR'da ise her değişken için ayrı bir denklem yazılır ve her denklemde **h
 
 ```math
 \begin{aligned}
-y_{1,t} &= c_1 + a_{11} y_{1,t-1} + a_{12} y_{2,t-1} + u_{1,t} \\
-y_{2,t} &= c_2 + a_{21} y_{1,t-1} + a_{22} y_{2,t-1} + u_{2,t}
+y_{1,t} &= c_1 + \overbrace{a_{11} y_{1,t-1}}^{\text{kendi gecikmesi}} + \overbrace{a_{12} y_{2,t-1}}^{\substack{\text{faizin gecikmesi}\\\text{(çapraz etki)}}} + \overbrace{u_{1,t}}^{\text{şok}} \\
+y_{2,t} &= c_2 + \underbrace{a_{21} y_{1,t-1}}_{\substack{\text{enflasyonun gecikmesi}\\\text{(çapraz etki)}}} + \underbrace{a_{22} y_{2,t-1}}_{\text{kendi gecikmesi}} + u_{2,t}
 \end{aligned}
 ```
+
+**Nasıl okunur?** "y bir t eşittir, c bir artı a bir bir çarpı y bir t eksi bir artı a bir iki çarpı y iki t eksi bir artı u bir t. y iki t eşittir, c iki artı a iki bir çarpı y bir t eksi bir artı a iki iki çarpı y iki t eksi bir artı u iki t."
 
 Bu yazımda alt indisler iki bilgi taşır. $y_{2,t-1}$ ifadesinde virgülden önceki sayı **hangi değişken** olduğunu (1 = enflasyon, 2 = faiz), virgülden sonraki kısım **hangi dönem** olduğunu söyler; yani $y_{2,t-1}$ "faizin bir önceki dönemdeki değeri" diye okunur. Katsayılarda da iki sayı vardır: $a_{12}$ ("a bir iki" diye okunur) birinci denklemdeki (enflasyon denklemi) ikinci değişkenin (faiz) katsayısıdır. Akılda tutmak için: **ilk sayı etkilenen, ikinci sayı etkileyen** değişkendir.
 
@@ -197,28 +199,32 @@ $$
 Bu satırı açık hâliyle yazıp satır satır okursak, 10.1'deki iki denklemi aynen geri elde ederiz:
 
 ```math
-\begin{bmatrix} y_{1,t} \\ y_{2,t} \end{bmatrix}
+\underbrace{\begin{bmatrix} y_{1,t} \\ y_{2,t} \end{bmatrix}}_{\substack{\mathbf{y}_t\\\text{bugünkü değerler}}}
 =
-\begin{bmatrix} c_1 \\ c_2 \end{bmatrix}
+\overbrace{\begin{bmatrix} c_1 \\ c_2 \end{bmatrix}}^{\substack{\mathbf{c}\\\text{sabitler}}}
 +
-\begin{bmatrix} a_{11} & a_{12} \\ a_{21} & a_{22} \end{bmatrix}
-\begin{bmatrix} y_{1,t-1} \\ y_{2,t-1} \end{bmatrix}
+\underbrace{\begin{bmatrix} a_{11} & a_{12} \\ a_{21} & a_{22} \end{bmatrix}}_{\substack{A_1\\\text{katsayı matrisi}}}
+\overbrace{\begin{bmatrix} y_{1,t-1} \\ y_{2,t-1} \end{bmatrix}}^{\substack{\mathbf{y}_{t-1}\\\text{geçen dönem}}}
 +
-\begin{bmatrix} u_{1,t} \\ u_{2,t} \end{bmatrix}
+\underbrace{\begin{bmatrix} u_{1,t} \\ u_{2,t} \end{bmatrix}}_{\substack{\mathbf{u}_t\\\text{şoklar}}}
 ```
+
+**Nasıl okunur?** Kısa yazım: "Kalın y alt t eşittir, kalın c artı A bir çarpı kalın y alt t eksi bir artı kalın u alt t." Matris ile vektörün yan yana yazılması, 10.1.1'deki "satırla çarp ve topla" işlemi demektir.
 
 Yani matris biçimi yeni bir model değildir; aynı iki denklemin kısaltılmış yazımıdır. Avantajı, 3, 5 ya da 10 değişkenli modellerde de aynı tek satırın kullanılabilmesidir.
 
 **Tanım (VAR(p) modeli):** $k$ değişkenli bir VAR(p) modeli şöyle yazılır:
 
 ```math
-\underbrace{\begin{bmatrix} y_{1,t} \\ \vdots \\ y_{k,t} \end{bmatrix}}_{\mathbf{y}_t}
-= \mathbf{c} + A_1 \mathbf{y}_{t-1} + A_2 \mathbf{y}_{t-2} + \dots + A_p \mathbf{y}_{t-p} + \mathbf{u}_t,
+\underbrace{\begin{bmatrix} y_{1,t} \\ \vdots \\ y_{k,t} \end{bmatrix}}_{\substack{\mathbf{y}_t\\\text{k değişkenin}\\\text{bugünkü değeri}}}
+= \overbrace{\mathbf{c}}^{\text{sabitler}} + \underbrace{A_1 \mathbf{y}_{t-1} + A_2 \mathbf{y}_{t-2} + \dots + A_p \mathbf{y}_{t-p}}_{\substack{\text{tüm değişkenlerin}\\\text{son p dönemi}}} + \overbrace{\mathbf{u}_t}^{\text{şok vektörü}},
 \qquad
-\mathrm{E}[\mathbf{u}_t] = \mathbf{0},
+\underbrace{\mathrm{E}[\mathbf{u}_t] = \mathbf{0}}_{\substack{\text{şokların}\\\text{ortalaması sıfır}}},
 \quad
-\mathrm{Cov}(\mathbf{u}_t) = \Sigma_u
+\overbrace{\mathrm{Cov}(\mathbf{u}_t) = \Sigma_u}^{\substack{\text{aynı dönemdeki şoklar}\\\text{ilişkili olabilir}}}
 ```
+
+**Nasıl okunur?** "Kalın y alt t eşittir, kalın c artı A bir çarpı kalın y alt t eksi bir artı A iki çarpı kalın y alt t eksi iki artı üç nokta artı A p çarpı kalın y alt t eksi p artı kalın u alt t; kalın u alt t'nin beklenen değeri sıfır vektörü, kovaryansı büyük sigma alt u."
 
 Burada:
 
@@ -390,11 +396,13 @@ Bu dengeyi kurmak için **bilgi kriterleri** kullanılır. Hepsi aynı felsefeye
 
 ```math
 \begin{aligned}
-\mathrm{AIC}(p) &= \ln \lvert \hat{\Sigma}_u(p) \rvert + \frac{2}{T} \, p k^2 \\
-\mathrm{BIC}(p) &= \ln \lvert \hat{\Sigma}_u(p) \rvert + \frac{\ln T}{T} \, p k^2 \\
-\mathrm{HQ}(p)  &= \ln \lvert \hat{\Sigma}_u(p) \rvert + \frac{2 \ln(\ln T)}{T} \, p k^2
+\mathrm{AIC}(p) &= \overbrace{\ln \lvert \hat{\Sigma}_u(p) \rvert}^{\substack{\text{uyum: hatalar}\\\text{küçüldükçe küçülür}}} + \overbrace{\frac{2}{T} \, p k^2}^{\text{karmaşıklık cezası}} \\
+\mathrm{BIC}(p) &= \ln \lvert \hat{\Sigma}_u(p) \rvert + \underbrace{\frac{\ln T}{T}}_{\substack{\text{daha ağır}\\\text{ceza katsayısı}}} \, p k^2 \\
+\mathrm{HQ}(p)  &= \ln \lvert \hat{\Sigma}_u(p) \rvert + \frac{2 \ln(\ln T)}{T} \, \underbrace{p k^2}_{\substack{\text{parametre}\\\text{sayısı}}}
 \end{aligned}
 ```
+
+**Nasıl okunur?** "A I C p eşittir, sigma u şapka p'nin determinantının doğal logaritması artı iki bölü T çarpı p k kare." BIC'de ceza katsayısı "el en T bölü T", HQ'da "iki çarpı el en el en T bölü T" diye okunur; ilk terim üçünde de aynıdır.
 
 > **Simge notu:** $`\hat{\Sigma}_u`$ *(sigma u şapka)*: veriden tahmin edilen hata kovaryans matrisi; şapka (^) "tahmin edilen" demektir · $`\lvert \cdot \rvert`$: **burada mutlak değer değil, determinant** anlamındadır (aşağıda) · $`\ln`$ *(doğal logaritma, "el en")*: büyüdükçe yavaş artan bir fonksiyon; burada yalnızca "küçük değer, küçük sonuç" sırasını korumak için kullanılır
 
@@ -544,9 +552,11 @@ print(1 / ozdeger)                # karakteristik denklemin kökleri z = 1/λ
 
 **Tanım 1 (VAR(1) için stabilite):** $\mathbf{y}_ t = \mathbf{c} + A_1 \mathbf{y}_ {t-1} + \mathbf{u}_ t$ modeli, $A_1$ matrisinin tüm öz değerleri birim çemberin içindeyse stabildir:
 
-$$
-\lvert \lambda_i \rvert < 1 \quad (i = 1, \dots, k), \qquad \det(A_1 - \lambda I) = 0
-$$
+```math
+\underbrace{\lvert \lambda_i \rvert}_{\substack{\text{i. öz değerin}\\\text{büyüklüğü (modülü)}}} < \overbrace{1}^{\substack{\text{birim çemberin}\\\text{yarıçapı}}} \quad (i = 1, \dots, k), \qquad \underbrace{\det(A_1 - \lambda I) = 0}_{\substack{\text{öz değerleri}\\\text{veren denklem}}}
+```
+
+**Nasıl okunur?** "Lambda alt i'nin mutlak değeri birden küçüktür, i eşittir birden k'ye kadar; burada lambdalar, A bir eksi lambda çarpı I'nın determinantını sıfır yapan sayılardır."
 
 > **Simge notu:** $`\lambda_i`$ *(lambda)*: $`i`$. öz değer (karmaşık sayı olabilir) · $`\det`$ *(determinant)* · $`I`$: birim matris · $`\lvert \lambda \rvert`$ *(mutlak değer / modül)*: sayının işaretten bağımsız büyüklüğü; karmaşık sayıda merkeze uzaklık · $`\mathbf{v}`$ *(kalın v)*: öz vektör (yön)
 
@@ -649,15 +659,17 @@ Bilinen bir örnek: Aralık başındaki yılbaşı süsü satışları, birkaç 
 
 **Tanım:** İki değişkenli VAR(p) modelinde enflasyon ($y_1$) denklemi
 
-$$
-y_{1,t} = c_1 + \sum_{i=1}^{p} a_{11}^{(i)} y_{1,t-i} + \sum_{i=1}^{p} a_{12}^{(i)} y_{2,t-i} + u_{1,t}
-$$
+```math
+\underbrace{y_{1,t}}_{\text{bugünkü enflasyon}} = c_1 + \underbrace{\sum_{i=1}^{p} a_{11}^{(i)} y_{1,t-i}}_{\substack{\text{enflasyonun kendi}\\\text{p gecikmesi}}} + \overbrace{\sum_{i=1}^{p} a_{12}^{(i)} y_{2,t-i}}^{\substack{\text{faizin p gecikmesi}\\\text{(kısıtlı modelde yok)}}} + u_{1,t}
+```
 
 olsun. $\sum$ işareti "toplam" demektir: altındaki $i = 1$'den üstündeki $p$'ye kadar her $i$ için terimi yazıp toplarız. Örneğin $p = 2$ için ikinci toplam açık hâliyle $a_{12}^{(1)} y_{2,t-1} + a_{12}^{(2)} y_{2,t-2}$'dir: faizin bir ve iki önceki dönemdeki değerleri, her biri kendi katsayısıyla. "$`y_2`$, $y_1$'in Granger nedeni değildir" hipotezi, $y_2$'nin tüm gecikme katsayılarının sıfır olmasıdır:
 
 $$
 H_0: a_{12}^{(1)} = a_{12}^{(2)} = \dots = a_{12}^{(p)} = 0
 $$
+
+**Nasıl okunur?** "y bir t eşittir, c bir artı i eşittir birden p'ye kadar a bir bir üst i çarpı y bir t eksi i toplamı artı i eşittir birden p'ye kadar a bir iki üst i çarpı y iki t eksi i toplamı artı u bir t." Sıfır hipotezi: "a bir iki üst bir eşittir a bir iki üst iki eşittir üç nokta eşittir a bir iki üst p eşittir sıfır." Bu hipotez doğruysa üstteki parantezle işaretli toplamın tamamı düşer ve geriye **kısıtlı model** kalır; tüm terimleri içeren denklem **kısıtsız modeldir**.
 
 > **Simge notu:** $`\sum`$ *(büyük sigma = toplam)*: altındaki başlangıçtan üstündeki sona kadar terimlerin toplamı; 10.1.1'deki $`\Sigma_u`$ ile aynı harftir ama orada bir matrisin adıdır · $`a_{12}^{(i)}`$: $`A_i`$ matrisinin (1,2) elemanı, yani faizin $`i`$. gecikmesinin enflasyon denklemindeki katsayısı. Üstteki parantezli $`(i)`$ **üs değildir**, yalnızca gecikme numarasıdır ($`a^{(2)}`$ "a kare" değil, "2. gecikmenin a'sı" diye okunur)
 
@@ -750,9 +762,11 @@ Faiz kendi şokundan sonra hızla düşer (1 → 0.4 → 0.18 → ...). Enflasyo
 
 **Tanım:** Elle yaptığımız hesabın genel hâli şudur. VAR(1)'i geriye doğru açalım: $\mathbf{y}_ t = A_1 \mathbf{y}_ {t-1} + \mathbf{u}_ t$ eşitliğinde $\mathbf{y}_ {t-1}$ yerine $A_1 \mathbf{y}_ {t-2} + \mathbf{u}_ {t-1}$ yazarsak $\mathbf{y}_ t = \mathbf{u}_ t + A_1 \mathbf{u}_ {t-1} + A_1^2 \mathbf{y}_ {t-2}$ olur; bunu sürdürdükçe bugünkü değer geçmiş şokların ağırlıklı toplamına dönüşür: bugünkü şok 1 ile, geçen dönemin şoku $A_1$ ile, iki dönem öncekinin şoku $A_1^2$ ile çarpılır ve böyle gider. Stabil bir VAR(p) için genel yazım (hareketli ortalama, MA(∞) gösterimi):
 
-$$
-\mathbf{y}_t = \boldsymbol{\mu} + \sum_{i=0}^{\infty} \Phi_i \mathbf{u}_{t-i}, \qquad \Phi_0 = I, \quad \Phi_i = \sum_{j=1}^{\min(i,p)} \Phi_{i-j} A_j
-$$
+```math
+\mathbf{y}_t = \underbrace{\boldsymbol{\mu}}_{\text{ortalama}} + \sum_{i=0}^{\infty} \underbrace{\Phi_i}_{\substack{\text{i dönem sonraki}\\\text{tepki matrisi}}} \overbrace{\mathbf{u}_{t-i}}^{\substack{\text{i dönem}\\\text{önceki şok}}}, \qquad \Phi_0 = I, \quad \underbrace{\Phi_i = \sum_{j=1}^{\min(i,p)} \Phi_{i-j} A_j}_{\substack{\text{tepkiler, önceki tepkilerden}\\\text{adım adım hesaplanır}}}
+```
+
+**Nasıl okunur?** "Kalın y alt t eşittir, kalın mü artı i eşittir sıfırdan sonsuza kadar büyük fi alt i çarpı kalın u alt t eksi i toplamı; büyük fi sıfır eşittir I, büyük fi alt i eşittir j eşittir birden i ile p'nin küçüğüne kadar büyük fi alt i eksi j çarpı A alt j toplamı."
 
 $\Phi_h$ matrisinin $(j, m)$ elemanı, $m$. değişkene $t$ anında gelen bir birimlik şokun $h$ dönem sonra $j$. değişkende yarattığı değişimdir. Bu değerlerin $h = 0, 1, 2, \dots$ için çizilmesi etki-tepki fonksiyonudur. VAR(1) için formül çok sadedir: $\Phi_h = A_1^h$. Örneğin $A_1^2$'nin satırları (0.27, 0.18) ve (0.09, 0.18)'dir; 2. sütunu [0.18, 0.18], yukarıda $h = 2$ için bulduğumuz tepkinin aynısıdır. Stabilite koşulu (Bölüm 10.5) tam olarak bu matris kuvvetlerinin sıfıra gitmesini, yani tepkilerin sönmesini garanti eder.
 
@@ -816,9 +830,11 @@ $\Phi_h$ matrisinin $(j, m)$ elemanı, $m$. değişkene $t$ anında gelen bir bi
 
 **Tanım:** Ortogonal tepki matrislerinin elemanları $\theta_{jm,i}$ olmak üzere, $j$. değişkenin $h$ adımlı tahmin hatası varyansında $m$. değişkenin şokunun payı:
 
-$$
-\omega_{jm}(h) = \frac{\sum_{i=0}^{h-1} \theta_{jm,i}^2}{\sum_{i=0}^{h-1} \sum_{l=1}^{k} \theta_{jl,i}^2}
-$$
+```math
+\underbrace{\omega_{jm}(h)}_{\substack{\text{m. şokun j. değişkenin}\\\text{hata varyansındaki payı}}} = \frac{\overbrace{\sum_{i=0}^{h-1} \theta_{jm,i}^2}^{\substack{\text{yalnızca m. şokun}\\\text{katkısı}}}}{\underbrace{\sum_{i=0}^{h-1} \sum_{l=1}^{k} \theta_{jl,i}^2}_{\text{tüm şokların katkısı}}}
+```
+
+**Nasıl okunur?** "Omega j m h eşittir, i eşittir sıfırdan h eksi bire kadar teta j m i karelerinin toplamı bölü, i eşittir sıfırdan h eksi bire ve l eşittir birden k'ye kadar teta j l i karelerinin toplamı."
 
 Payda tüm şokların katkılarının toplamı, pay ise yalnızca $m$. şokun katkısıdır. Tepkilerin karesi alınır, çünkü varyans (belirsizlik) şokun yönüne değil büyüklüğüne bağlıdır.
 

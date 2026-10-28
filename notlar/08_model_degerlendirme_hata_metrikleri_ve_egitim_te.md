@@ -91,9 +91,11 @@ Bir modelin hatasının "iyi" olup olmadığına karar vermek için bir **kıyas
 
 **Tanım 1 (Naive tahmin):** Gelecekteki tüm değerler, bilinen son gözleme eşit tahmin edilir. Günlük hayattaki karşılığı "yarın da bugünkü gibi olacak" demektir:
 
-$$
-\hat{y}_{T+h} = y_T
-$$
+```math
+\underbrace{\hat{y}_{T+h}}_{\substack{h\text{ adım sonrası}\\\text{için tahmin}}} = \underbrace{y_T}_{\text{son gözlem}}
+```
+
+**Nasıl okunur?** "y şapka alt T artı h eşittir y alt T." Yani: Ufuk ne olursa olsun tahmin, eğitim setinin son gözlemidir.
 
 > **Simge notu:** $`y`$: serinin gözlenen (gerçek) değeri · $`\hat{y}`$ *(y şapka)*: tahmin edilen değer; şapka işareti "bu bir ölçüm değil, tahmin" anlamına gelir · alt indis (harfin sağ altındaki küçük yazı) değerin **hangi zamana** ait olduğunu gösterir · $`T`$: eğitim setindeki son zaman noktası, yani elimizdeki son gözlemin sırası · $`h`$: kaç adım ilerisinin tahmin edildiği (tahmin ufku) · $`y_T`$: son gözlem · $`\hat{y}_{T+h}`$: son gözlemden $`h`$ adım sonrası için yapılan tahmin
 
@@ -101,9 +103,11 @@ $$
 
 **Tanım 2 (Mevsimsel naive tahmin):** Her gelecek dönem, bir önceki mevsimin aynı dönemine eşit tahmin edilir. Örneğin gelecek Temmuz = son bilinen Temmuz:
 
-$$
-\hat{y}_{T+h} = y_{T+h-s} \quad (h \le s)
-$$
+```math
+\underbrace{\hat{y}_{T+h}}_{\substack{h\text{ adım sonrası}\\\text{için tahmin}}} = \underbrace{y_{T+h-s}}_{\substack{s\text{ dönem (bir mevsim)}\\\text{önceki gözlem}}} \quad \overbrace{(h \le s)}^{\substack{\text{yalnızca}\\\text{ilk mevsimde}}}
+```
+
+**Nasıl okunur?** "y şapka alt T artı h eşittir y alt T artı h eksi s; h, s'den küçük ya da eşitken."
 
 Burada $s$ mevsim uzunluğudur (aylık veride 12). $y_{T+h-s}$, tahmin edilen aydan tam $s$ dönem, yani bir yıl önceki gözlemdir. Parantez içindeki $h \le s$ ("$`h`$, $s$'den küçük ya da ona eşit") koşulu, bu yazımın yalnızca ilk mevsim boyunca geçerli olduğunu söyler. Ufuk $s$'den uzunsa son bilinen mevsim tekrar tekrar kopyalanır. Aynı örnekte $T$ = Aralık 1959 ve $s = 12$ iken Temmuz 1960 için $h = 7$ olur ve tahmin $y_{T+7-12} = y_{T-5}$, yani Temmuz 1959'un değeri olan 548'dir. Ocak 1960'ın tahmini Ocak 1959'un değeri (360), Şubat 1960'ınki Şubat 1959'unki (342) olur ve bu böyle sürer.
 
@@ -115,9 +119,11 @@ Mevsimsel verilerde asıl rakip mevsimsel naive yöntemdir. 8.3'te göreceğimiz
 
 Her şeyin temelinde tek bir kavram vardır: **hata** (error), yani gerçek değer ile tahmin arasındaki fark:
 
-$$
-e_t = y_t - \hat{y}_t
-$$
+```math
+\underbrace{e_t}_{\text{hata}} = \underbrace{y_t}_{\text{gerçek değer}} - \underbrace{\hat{y}_t}_{\text{tahmin}}
+```
+
+**Nasıl okunur?** "e alt t eşittir y alt t eksi y şapka alt t."
 
 > **Simge notu:** $`e_t`$: $`t`$ anındaki hata (İngilizce *error*'ın baş harfi; Yunan harfi $`\varepsilon`$ "epsilon" ile karıştırmayın) · $`y_t`$: $`t`$ anındaki gerçek değer · $`\hat{y}_t`$ *(y şapka t)*: aynı an için yapılan tahmin · $`n`$: test setindeki gözlem (hata) sayısı
 
@@ -126,6 +132,12 @@ $$
 Pozitif hata, modelin gerçeği **eksik** tahmin ettiğini; negatif hata, **fazla** tahmin ettiğini gösterir. Test setindeki $n$ adet hatayı tek bir sayıda özetlemenin farklı yolları, farklı metrikleri doğurur.
 
 **Not —** Hataların basit ortalamasını almak işe yaramaz: +30 ve −30'luk iki hata toplamda $30 + (-30) = 0$, ortalamada da 0 eder ve model kusursuz görünür. Bu yüzden metrikler ya hatanın **mutlak değerini** (işaretini atıp yalnızca büyüklüğünü) ya da **karesini** kullanır; ikisi de eksi işaretini ortadan kaldırır. Yine de hataların işaretli ortalamasına (**yanlılık**, bias) ayrıca bakmak faydalıdır: Sürekli pozitif çıkıyorsa model sistematik olarak eksik tahmin yapıyor demektir.
+
+```math
+\text{Yanlılık} = \underbrace{\frac{1}{n} \sum_{t=1}^{n}}_{\substack{n\text{ hatanın}\\\text{ortalaması}}} \overbrace{e_t}^{\substack{\text{işaretli hata}\\\text{(mutlak değer yok)}}}
+```
+
+**Nasıl okunur?** "Yanlılık eşittir, bir bölü n çarpı, t eşittir 1'den n'ye kadar e alt t'lerin toplamı." Yani: Yukarıda "işe yaramaz" dediğimiz basit ortalamanın ta kendisidir; hatanın büyüklüğünü değil, yönünü ölçer.
 
 ![MAE ve RMSE](../images/ch08_mae_rmse.svg)
 
@@ -137,9 +149,11 @@ Pozitif hata, modelin gerçeği **eksik** tahmin ettiğini; negatif hata, **fazl
 
 **Tanım:**
 
-$$
-\mathrm{MAE} = \frac{1}{n} \sum_{t=1}^{n} \lvert y_t - \hat{y}_t \rvert
-$$
+```math
+\mathrm{MAE} = \underbrace{\frac{1}{n} \sum_{t=1}^{n}}_{\substack{n\text{ değerin}\\\text{ortalamasını al}}} \underbrace{\big\lvert \overbrace{y_t - \hat{y}_t}^{\text{hata } e_t} \big\rvert}_{\substack{\text{hatanın büyüklüğü}\\\text{(işaret atılır)}}}
+```
+
+**Nasıl okunur?** "MAE eşittir, bir bölü n çarpı, t eşittir 1'den n'ye kadar y alt t eksi y şapka alt t'nin mutlak değerlerinin toplamı." Yani: Açıklamadaki üç adımın formül hâlidir.
 
 > **Simge notu:** $`\sum`$ *(büyük sigma = toplam)*: "topla" komutunun kısaltmasıdır; altındaki $`t = 1`$ ve üstündeki $`n`$, "$`t`$'yi 1'den başlatıp $`n`$'ye kadar birer birer artır, her $`t`$ için sağdaki ifadeyi hesapla ve hepsini topla" demektir. Küçük sigma $`\sigma`$ (standart sapma) ile karıştırmayın · $`\lvert \cdot \rvert`$ *(mutlak değer)*: iki dikey çizgi arasındaki sayının işaretsiz büyüklüğü; $`\lvert -10 \rvert = 10`$, $`\lvert 5 \rvert = 5`$, $`\lvert 0 \rvert = 0`$ · $`\frac{1}{n}`$: toplamı $`n`$'ye bölmek, yani ortalamasını almak
 
@@ -153,9 +167,15 @@ MAE **verinin kendi biriminde** ifade edilir. Örneğin MAE = 20 ise model ortal
 
 **Tanım:** Önce hataların karelerinin ortalaması (MSE, *Mean Squared Error*, ortalama kare hata) alınır, sonra birimi geri kazanmak için karekökü alınır:
 
-$$
-\mathrm{MSE} = \frac{1}{n} \sum_{t=1}^{n} (y_t - \hat{y}_t)^2, \qquad \mathrm{RMSE} = \sqrt{\mathrm{MSE}}
-$$
+```math
+\mathrm{MSE} = \underbrace{\frac{1}{n} \sum_{t=1}^{n}}_{\substack{n\text{ değerin}\\\text{ortalamasını al}}} \underbrace{\big(\overbrace{y_t - \hat{y}_t}^{\text{hata } e_t}\big)^2}_{\substack{\text{hatanın karesi}\\\text{(büyük hata çok büyür)}}}
+```
+
+```math
+\mathrm{RMSE} = \underbrace{\sqrt{\mathrm{MSE}}}_{\substack{\text{karekök: verinin}\\\text{birimine geri döner}}}
+```
+
+**Nasıl okunur?** "MSE eşittir, bir bölü n çarpı, t eşittir 1'den n'ye kadar y alt t eksi y şapka alt t'nin karelerinin toplamı. RMSE eşittir MSE'nin karekökü."
 
 > **Simge notu:** $`(\cdot)^2`$ *(kare)*: sayıyı kendisiyle çarpmak; $`3^2 = 3 \cdot 3 = 9`$ ve $`(-3)^2 = (-3) \cdot (-3) = 9`$. Eksi çarpı eksi artı ettiği için kare alma da mutlak değer gibi işareti ortadan kaldırır · $`\sqrt{\cdot}`$ *(karekök)*: karesi içerideki sayıya eşit olan pozitif sayı; $`\sqrt{9} = 3`$, $`\sqrt{100} = 10`$ · $`\cdot`$ (ortadaki nokta): çarpma işareti
 
@@ -213,9 +233,11 @@ Yani **RMSE, MAE'den belirgin biçimde büyükse, model genel olarak iyi gitse d
 
 **Tanım:**
 
-$$
-\mathrm{MAPE} = \frac{100}{n} \sum_{t=1}^{n} \left\lvert \frac{y_t - \hat{y}_t}{y_t} \right\rvert
-$$
+```math
+\mathrm{MAPE} = \underbrace{\frac{100}{n} \sum_{t=1}^{n}}_{\substack{\text{ortalamayı al,}\\\text{100 ile yüzdeye çevir}}} \left\lvert \underbrace{\frac{y_t - \hat{y}_t}{y_t}}_{\substack{\text{hata, gerçek değerin}\\\text{kaçta kaçı?}}} \right\rvert
+```
+
+**Nasıl okunur?** "MAPE eşittir, yüz bölü n çarpı, t eşittir 1'den n'ye kadar, y alt t eksi y şapka alt t bölü y alt t oranının mutlak değerlerinin toplamı."
 
 Formülü içeriden dışarıya okuyalım: Her dönem için hata gerçek değere bölünür (hata, gerçeğin kaçta kaçı?), mutlak değeri alınır, bu oranların ortalaması bulunur ve 100 ile çarpılarak yüzdeye çevrilir. Örneğin gerçek değer 200, tahmin 190 ise oran $\lvert (200 - 190)/200 \rvert = 10/200 = 0.05$, yani %5'tir.
 
@@ -320,17 +342,21 @@ MAPE'nin sorunlarını hafifletmek için önerilmiş iki metrik de literatürde 
 
 **Tanım 1 (sMAPE — simetrik MAPE):** MAPE'de hata yalnızca gerçek değere bölünüyordu. sMAPE'de ise hata, gerçek değer ile tahminin **ortalamasına** bölünür. İkisinin ortalaması $(\lvert y_t \rvert + \lvert \hat{y}_ t \rvert)/2$ olduğundan, bu ortalamaya bölmek, payı 2 ile çarpıp toplama bölmekle aynı şeydir:
 
-$$
-\mathrm{sMAPE} = \frac{100}{n} \sum_{t=1}^{n} \frac{2 \lvert y_t - \hat{y}_t \rvert}{\lvert y_t \rvert + \lvert \hat{y}_t \rvert}
-$$
+```math
+\mathrm{sMAPE} = \underbrace{\frac{100}{n} \sum_{t=1}^{n}}_{\substack{\text{ortalamayı al,}\\\text{yüzdeye çevir}}} \dfrac{\overbrace{2 \lvert y_t - \hat{y}_t \rvert}^{\text{hatanın 2 katı}}}{\underbrace{\lvert y_t \rvert + \lvert \hat{y}_t \rvert}_{\substack{\text{gerçek ile}\\\text{tahminin toplamı}}}}
+```
+
+**Nasıl okunur?** "s MAPE eşittir, yüz bölü n çarpı, t eşittir 1'den n'ye kadar; iki çarpı y alt t eksi y şapka alt t'nin mutlak değeri, bölü y alt t'nin mutlak değeri artı y şapka alt t'nin mutlak değeri, terimlerinin toplamı."
 
 Yukarıdaki örnekte ilk ayın terimi $2 \cdot 10 / (100 + 110) = 20/210 \approx 0.0952$'dir. Diğer aylar $10/235 \approx 0.0426$, $0$ ve $60/270 \approx 0.2222$ verir. Toplam $\approx 0.3600$, ortalaması $0.3600/4 = 0.0900$, yani sMAPE ≈ %9.00'dur. Gerçek değer 0 olsa bile payda tahmin sayesinde sıfır olmaz (ikisi birden 0 değilse) ve tek bir terim en fazla 2'ye (%200) çıkabilir; bu yüzden sıfıra yakın değerlerde MAPE kadar patlamaz. Ancak adına rağmen tam simetrik değildir: Gerçek değer 100 iken 110 tahmin etmek $20/210 \approx$ %9.5, 90 tahmin etmek $20/190 \approx$ %10.5 hata sayılır; aynı 10 birimlik sapma, eksik tahminde biraz daha ağır cezalandırılır. Nedeni paydadır: Gerçek değer 100 iken payda, 110 tahmin edilince 210, 90 tahmin edilince 190 olur; düşük tahmin paydayı küçülttüğü için aynı sapma daha büyük bir yüzde verir.
 
 **Tanım 2 (MASE — ölçeklenmiş mutlak hata):** Fikir şudur: Modelin hatasını, "geçen yılın aynı ayını kopyala" diyen tembel yöntemin geçmişte yaptığı tipik hatayla kıyaslamak. Bunun için modelin test setindeki MAE'si, **eğitim setindeki** mevsimsel naive yöntemin MAE'sine bölünür:
 
-$$
-\mathrm{MASE} = \frac{\mathrm{MAE}_{\text{test}}}{\frac{1}{T-s} \sum_{t=s+1}^{T} \lvert y_t - y_{t-s} \rvert}
-$$
+```math
+\mathrm{MASE} = \dfrac{\overbrace{\mathrm{MAE}_{\text{test}}}^{\text{modelin test hatası}}}{\underbrace{\frac{1}{T-s} \sum_{t=s+1}^{T} \lvert y_t - y_{t-s} \rvert}_{\substack{\text{mevsimsel naive yöntemin}\\\text{eğitimdeki ortalama hatası}}}}
+```
+
+**Nasıl okunur?** "MASE eşittir, MAE alt test bölü; bir bölü T eksi s çarpı, t eşittir s artı 1'den T'ye kadar y alt t eksi y alt t eksi s'nin mutlak değerlerinin toplamı."
 
 > **Simge notu:** $`T`$: eğitim setindeki gözlem sayısı · $`s`$: mevsim uzunluğu (aylık veride 12) · $`y_{t-s}`$: $`t`$ anından $`s`$ dönem önceki değer, yani geçen yılın aynı ayı · $`\lvert y_t - y_{t-s} \rvert`$: "bu ayı geçen yılın aynı ayıyla tahmin etseydik" yapacağımız hatanın büyüklüğü
 

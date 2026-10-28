@@ -114,15 +114,19 @@ Bunu kesin olarak yazmak için birkaç harf kullanacağız. $n$ gözlemli bir se
 
 **Tanım 1 (Genişleyen pencere, expanding window):** $k$. fold'da eğitim kümesi serinin başından $t_k$'ye kadar olan tüm gözlemlerdir:
 
-$$
-\text{Eğitim}_k = \lbrace 1, \dots, t_k \rbrace, \quad \text{Doğrulama}_k = \lbrace t_k + 1, \dots, t_k + h \rbrace, \quad t_1 < t_2 < \dots < t_K
-$$
+```math
+\text{Eğitim}_k = \underbrace{\lbrace 1, \dots, t_k \rbrace}_{\substack{\text{serinin başından}\\t_k\text{ anına kadar}}}, \quad \text{Doğrulama}_k = \underbrace{\lbrace t_k + 1, \dots, t_k + h \rbrace}_{\substack{t_k\text{ anından sonraki}\\h\text{ gözlem}}}, \quad \overbrace{t_1 < t_2 < \dots < t_K}^{\substack{\text{başlangıç noktaları}\\\text{ileri kayar}}}
+```
+
+**Nasıl okunur?** "Eğitim alt k eşittir, birden t alt k'ya kadar olan küme; doğrulama alt k eşittir, t alt k artı birden t alt k artı h'ye kadar olan küme; t bir küçüktür t iki küçüktür … küçüktür t alt büyük K." Yani: Eğitim her fold'da serinin ilk gözleminden başlar ve fold ilerledikçe uzar.
 
 **Tanım 2 (Kayan pencere, sliding / rolling window):** Eğitim kümesi sabit uzunlukta, $m$ gözlemdir ve fold'lar ilerledikçe pencere ileri kayar:
 
-$$
-\text{Eğitim}_k = \lbrace t_k - m + 1, \dots, t_k \rbrace, \quad \text{Doğrulama}_k = \lbrace t_k + 1, \dots, t_k + h \rbrace
-$$
+```math
+\text{Eğitim}_k = \underbrace{\lbrace \overbrace{t_k - m + 1}^{\text{pencerenin başı}}, \dots, t_k \rbrace}_{\substack{\text{yalnızca son m gözlem}\\\text{(pencere ileri kayar)}}}, \quad \text{Doğrulama}_k = \underbrace{\lbrace t_k + 1, \dots, t_k + h \rbrace}_{\text{Tanım 1 ile aynı}}
+```
+
+**Nasıl okunur?** "Eğitim alt k eşittir, t alt k eksi m artı birden t alt k'ya kadar olan küme; doğrulama alt k eşittir, t alt k artı birden t alt k artı h'ye kadar olan küme." Yani: Pencerenin iki ucu da $t_k$ ile birlikte ileri kayar; uzunluğu hep $t_k - (t_k - m + 1) + 1 = m$ gözlemdir.
 
 > **Simge notu:** $`\lbrace \dots \rbrace`$ *(küme parantezi)*: içine yazılan gözlem sıra numaralarının oluşturduğu küme; $`\lbrace 1, \dots, 12 \rbrace`$ "1'den 12'ye kadar bütün gözlemler" diye okunur, üç nokta aradaki sayıların atlandığını gösterir · $`k`$ *(küçük k)*: fold'un sıra numarası (1., 2., …) · $`K`$ *(büyük K)*: toplam fold sayısı · $`t_k`$ *(t k)*: $`k`$. fold'da eğitimin bittiği an (tahmin başlangıç noktası); alt indis $`k`$ bu anın hangi fold'a ait olduğunu söyler · $`t_1 < t_2 < \dots < t_K`$: her fold'un başlangıç noktası bir öncekinden daha ileridedir · $`h`$: doğrulama kümesinin uzunluğu (tahmin ufku) · $`m`$: kayan penceredeki sabit eğitim uzunluğu · "Eğitim" ve "Doğrulama" yanındaki alt indis $`k`$: o kümelerin $`k`$. fold'a ait olduğu
 
@@ -228,6 +232,12 @@ scikit-learn'deki `TimeSeriesSplit` sınıfı, yukarıdaki iki yöntemi dört pa
 | `max_train_size` | `None` | Verilirse eğitim kümesi en fazla bu kadar son gözlemden oluşur (kayan pencere, $`m`$) |
 
 Tablodaki `//` işareti Python'da **tam sayı bölmesidir**: Bölümün yalnızca tam kısmı alınır, küsurat atılır. 24 gözlem ve 5 fold için varsayılan doğrulama uzunluğu $24 / 6 = 4$; 131 gözlem için $131 / 6 = 21.83…$ olduğundan `131 // 6 = 21` olur. `None` "değer verilmedi" anlamına gelir; `max_train_size=None` eğitim uzunluğuna sınır konmadığını, yani genişleyen pencereyi gösterir.
+
+```math
+\underbrace{h}_{\substack{\text{doğrulama}\\\text{uzunluğu}}} = \underbrace{\big\lfloor n / (K + 1) \big\rfloor}_{\substack{\text{bölümün tam kısmı}\\\text{(Python'da //)}}}
+```
+
+**Nasıl okunur?** "h eşittir, n bölü K artı birin tam kısmı (aşağı yuvarlanmış değeri)." Burada n gözlem sayısı, K fold sayısıdır (`n_splits`). Yani: Seri $K + 1$ eşit parçaya bölünür; ilk parça (bölmeden artan gözlemlerle birlikte) yalnızca eğitimde kalır, kalan $K$ parçanın her biri sırayla bir fold'un doğrulama kümesi olur.
 
 `TimeSeriesSplit` fold'ları serinin **sonundan geriye doğru** yerleştirir. Doğrulama kümelerinin toplamı $K \cdot h$ gözlemdir ve son doğrulama kümesi serinin son gözlemiyle biter. Bu yüzden ilk doğrulama kümesi $n - K \cdot h$ numaralı gözlemden başlar (Python'un 0'dan sayan numaralandırmasıyla). Her fold'un eğitimi ise doğrulamanın başlangıcından `gap` kadar önce biter.
 
@@ -409,6 +419,12 @@ GRU çapraz doğrulama RMSE: 32.17 ± 5.09
 ```
 
 Ortalama $(31.67 + 25.72 + 33.82 + 40.78 + 28.84) / 5 = 160.83 / 5 \approx 32.17$'dir. ± işaretinin ("artı eksi") sağındaki 5.09 standart sapmadır ve fold hatalarının ortalamanın çevresinde tipik olarak 5 birim kadar dağıldığını söyler.
+
+```math
+\underbrace{\overline{\text{RMSE}}}_{\substack{\text{çapraz doğrulama}\\\text{sonucu}}} = \overbrace{\frac{1}{K}\sum_{k=1}^{K}}^{\text{K fold'un ortalaması}} \underbrace{\text{RMSE}_k}_{\substack{\text{k. fold'un}\\\text{doğrulama hatası}}}, \qquad \text{rapor: } \overline{\text{RMSE}} \pm \underbrace{\sigma}_{\substack{\text{fold hatalarının}\\\text{standart sapması}}}
+```
+
+**Nasıl okunur?** "RMSE bar eşittir, bir bölü K çarpı, k eşittir birden K'ya kadar RMSE alt k'ların toplamı; rapor edilen değer RMSE bar artı eksi sigma." Burada sigma, fold hatalarının Bölüm 2.2'deki standart sapmasıdır (`np.std`).
 
 **Çıktının yorumu:** Beş fold, 1956'dan 1960'a kadar her yılı ayrı ayrı test eder ve eğitim kümesi her fold'da bir yıl büyür (genişleyen pencere). Fold'ların RMSE değerleri birbirinden belirgin biçimde farklıdır: En kolay yıl (1957) ile en zor yıl (1959) arasında 15 birimden fazla fark vardır. Yolcu sayısı ve mevsimsel dalgalanmalar yıllar içinde büyüdüğü için son yıllarda hata büyüme eğilimindedir, ama bu artış düzenli değildir; bir yılın kolay ya da zor olması o yılın kendine özgü hareketlerine de bağlıdır. Bu nedenle performansı tek bir sayı olarak değil, **ortalama ± standart sapma** olarak raporlamak gerekir. Standart sapmanın büyük olması, modelin dönemden döneme kararsız olduğunu gösterir. İki modeli karşılaştırırken aradaki fark bu standart sapmadan küçükse, "biri diğerinden daha iyi" demek için yeterli kanıt yoktur. Daha doğru bir kontrol, her fold'daki farka (model A − model B) bakmaktır; farkların çoğu aynı işaretteyse üstünlük daha inandırıcıdır. Yalnızca 1956'yı test etseydik (Fold 1) bu modelin hatasını 31.67 sanacaktık; yalnızca 1959'u test etseydik 40.78. Hangisinin "doğru" olduğunu tek bir dönemle bilemeyiz.
 

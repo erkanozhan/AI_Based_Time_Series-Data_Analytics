@@ -137,11 +137,13 @@ Tanımda üç istatistiksel kavram kullanılır. Üçünü de basit örneklerle 
 
 ```math
 \begin{aligned}
-&1)\quad E[x_t] = \mu && \text{(ortalama sabit, } t\text{'ye bağlı değil)}\\
-&2)\quad \mathrm{Var}(x_t) = \sigma^2 < \infty && \text{(varyans sabit ve sonlu)}\\
-&3)\quad \mathrm{Cov}(x_t, x_{t+h}) = \gamma(h) && \text{(kovaryans yalnızca gecikme } h\text{'ye bağlı)}
+&1)\quad \underbrace{E[x_t]}_{\text{t anındaki ortalama}} = \underbrace{\mu}_{\substack{\text{sabit sayı,}\\\text{t'ye bağlı değil}}}\\[6pt]
+&2)\quad \underbrace{\mathrm{Var}(x_t)}_{\text{t anındaki varyans}} = \underbrace{\sigma^2 < \infty}_{\text{sabit ve sonlu}}\\[6pt]
+&3)\quad \underbrace{\mathrm{Cov}(x_t, x_{t+h})}_{\substack{\text{h adım arayla iki}\\\text{değerin kovaryansı}}} = \underbrace{\gamma(h)}_{\substack{\text{yalnızca gecikme h'ye}\\\text{bağlı, t'ye değil}}}
 \end{aligned}
 ```
+
+**Nasıl okunur?** "Bir: E köşeli parantez x alt t eşittir mü. İki: varyans x alt t eşittir sigma kare, sigma kare sonsuzdan küçük. Üç: kovaryans x alt t, x alt t artı h eşittir gama h." Yani: Üç ölçü de takvimde nerede durduğumuza, yani t'ye bağlı değildir.
 
 > **Simge notu:** $`E[\cdot]`$ *(e, beklenen değer)*: rastgele değişkenin kuramsal ortalaması · $`\mu`$ *(mü)*: ortalama · $`\mathrm{Var}(\cdot)`$ *(varyans)*: ortalama etrafındaki yayılım · $`\sigma^2`$ *(sigma kare)*: varyansın değeri · $`\infty`$ *(sonsuz)*: $`\sigma^2 < \infty`$ varyansın sonlu olduğunu belirtir · $`\gamma(h)`$ *(gama h)*: h gecikmeli öz-kovaryans (otokovaryans) fonksiyonu, yani kovaryansın yalnızca h'ye bağlı bir kural olarak yazılmış hâli
 
@@ -202,6 +204,12 @@ Tüm denklem şu cümlenin kısaltmasıdır: **Bugünkü satış = (dünkü sat�
 - $\phi = 0.5$ iken şok her gün yarıya iner ve **söner**. Seri hep eski düzeyine döner: **durağan**.
 - $\phi = 1$ iken şok hiç küçülmez, **kalıcıdır**. Her yeni şok öncekilerin üstüne eklenir ve seri başıboş dolaşır. Denklem $x_t = x_{t-1} + \varepsilon_t$ hâline gelir; bu modele **rastgele yürüyüş** (*random walk*) denir. Seri **durağan değildir**.
 - $\phi = 1.2$ iken şok her gün %20 büyür ve seri **patlar** (*explosive*). Gerçek ekonomik ve iş verilerinde nadir görülür.
+
+```math
+\underbrace{x_t}_{\text{bugün}} = \underbrace{x_{t-1}}_{\substack{\text{dün, olduğu gibi}\\\text{taşınır } (\phi = 1)}} + \overbrace{\varepsilon_t}^{\text{bugünün yeni şoku}}
+```
+
+**Nasıl okunur?** "x alt t eşittir, x alt t eksi bir artı epsilon alt t." Yani: Dünün tamamı bugüne geçer, üstüne yeni şok eklenir; bu yüzden şoklar birikir.
 
 **Günlük hayattan bir örnek:** Bayramda alınan 2 kilo, düzenli spor yapan biri için birkaç haftada erir ($\phi < 1$, şok söner). Hiç dikkat etmeyen biri için ise her bayramın kilosu bir öncekinin üstüne eklenir ($\phi = 1$, şoklar birikir).
 
@@ -363,6 +371,18 @@ Durağan olmayan serilerin hepsi aynı türden değildir. İki tür özellikle �
 - **Fark-durağan (difference-stationary, birim köklü):** $x_t = x_{t-1} + \varepsilon_t$ (rastgele yürüyüş). Burada $\mathrm{Var}(x_t) = t\sigma^2$ olur. Şoklar **kalıcıdır**, bu yüzden seriyi durağanlaştırmak için fark almak gerekir: $\nabla x_t = \varepsilon_t$.
 
 > **Simge notu:** $`\beta_0`$, $`\beta_1`$ *(beta sıfır, beta bir)*: doğrusal trendin sabit terimi (başlangıç düzeyi) ve eğimi (her dönemdeki artış)
+
+```math
+\underbrace{x_t}_{\text{gözlem}} = \underbrace{\beta_0 + \beta_1 t}_{\substack{\text{deterministik trend}\\\text{(düz çizgi)}}} + \overbrace{\varepsilon_t}^{\substack{\text{geçici şok}\\\text{(trende geri döner)}}}
+```
+
+**Nasıl okunur?** "x alt t eşittir, beta sıfır artı beta bir çarpı t, artı epsilon alt t."
+
+```math
+\underbrace{\nabla x_t}_{\text{birinci fark}} = \overbrace{x_t - x_{t-1}}^{\text{bugün eksi dün}} = \underbrace{\varepsilon_t}_{\substack{\text{yalnızca şok:}\\\text{durağan}}}
+```
+
+**Nasıl okunur?** "Nabla x alt t eşittir, x alt t eksi x alt t eksi bir; bu da epsilon alt t'ye eşittir." Yani: Rastgele yürüyüşün farkı alınınca birikmiş şoklar gider, geriye yalnızca beyaz gürültü kalır.
 
 Örneğin $\beta_0 = 100$ ve $\beta_1 = 2$ ise trend çizgisi 100'den başlar ve her dönem 2 birim yükselir; seri bu çizginin çevresinde dalgalanır ve bir şoktan sonra yine çizgiye döner. Rastgele yürüyüşte ise dönülecek bir çizgi yoktur. Bu ayrım önemlidir çünkü yanlış dönüşüm (trend-durağan seriden fark almak ya da birim köklü seriden sadece trend çıkarmak) hatalı modellere yol açar. ARIMA'daki "I" (Integrated) harfi tam olarak bu fark alma işlemini temsil eder.
 
@@ -593,9 +613,11 @@ Bu dersteki ve gerçek dünyadaki analizlerin **büyük çoğunluğu kesikli zam
 
 - **Deterministik seri:** Tamamen bilinen bir fonksiyonla ifade edilir, hiçbir belirsizlik içermez:
 
-$$
-x_t = f(t), \qquad \text{örneğin} \quad x_t = A \sin\left(\frac{2\pi t}{P}\right) + \beta t
-$$
+```math
+x_t = \underbrace{f(t)}_{\substack{\text{zamanın bilinen}\\\text{fonksiyonu}}}, \qquad \text{örneğin} \quad x_t = \underbrace{A}_{\text{genlik}} \underbrace{\sin\left(\frac{2\pi t}{P}\right)}_{\substack{\text{her P adımda}\\\text{tekrar eden dalga}}} + \overbrace{\beta t}^{\substack{\text{doğrusal}\\\text{trend}}}
+```
+
+**Nasıl okunur?** "x alt t eşittir f t; örneğin x alt t eşittir, A çarpı sinüs iki pi t bölü P, artı beta t."
 
 > **Simge notu:** $`f(t)`$ *(ef t)*: zamanın bilinen bir fonksiyonu · $`A`$: dalganın genliği · $`\pi`$ *(pi)*: ≈ 3.14159 sabiti. Bölüm 3.2'deki $`\phi`$ (fi) bir katsayıdır, buradaki $`\pi`$ ise değişmeyen bir sayıdır · $`P`$: dalganın periyodu · $`\beta`$ *(beta)*: doğrusal trendin eğimi
 
@@ -610,9 +632,11 @@ Dalga 12 ayda bir tam tur atar ve 13. aydan itibaren aynı değerleri tekrarlar.
 
 - **Stokastik seri:** Bir **stokastik sürecin** (rastgele değişkenler ailesi $\lbrace X_t\rbrace$) bir gerçekleşmesidir. Genellikle sistematik bir kısım ile rastgele bir kısmın toplamı olarak yazılır:
 
-$$
-x_t = f(t) + \varepsilon_t, \qquad \varepsilon_t \sim \text{iid}(0, \sigma^2)
-$$
+```math
+x_t = \underbrace{f(t)}_{\text{sistematik kısım}} + \overbrace{\varepsilon_t}^{\text{rastgele kısım}}, \qquad \varepsilon_t \sim \text{iid}(0, \sigma^2)
+```
+
+**Nasıl okunur?** "x alt t eşittir, f t artı epsilon alt t; epsilon alt t, iid sıfır, sigma kare dağılımına sahiptir." Yani: Rastgele kısım, Bölüm 2.2'deki beyaz gürültüdür.
 
 > **Simge notu:** $`\lbrace X_t \rbrace`$ *(büyük X t)*: stokastik süreç, yani her t için bir rastgele değişken · $`\sim`$ *(tilda)*: "… dağılımına sahiptir" · $`\text{iid}(0, \sigma^2)`$ *(ay-ay-di sıfır, sigma kare)*: ortalaması 0, varyansı σ² olan bağımsız ve özdeş dağılımlı değişkenler
 

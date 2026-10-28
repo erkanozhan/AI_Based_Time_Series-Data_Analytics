@@ -103,15 +103,27 @@ Ağaç 1'in {B, C} yaprağı, iki artığın ortalamasıdır: $(0 + 30) / 2 = 15
 
 **Tanım (Gradient Boosting):** Başlangıç tahmini $f_0$ (genellikle hedefin ortalaması) olmak üzere, $m$. adımda önce her gözlemin artığı hesaplanır:
 
-$$r_i^{(m)} = y_i - \hat{y}_i^{(m-1)}$$
+```math
+\underbrace{r_i^{(m)}}_{\substack{\text{m. ağacın}\\\text{öğreneceği hedef}}} = \underbrace{y_i}_{\text{gerçek değer}} - \underbrace{\hat{y}_i^{(m-1)}}_{\substack{\text{önceki adımların}\\\text{toplam tahmini}}}
+```
+
+**Nasıl okunur?** "r alt i, üstte parantez içinde m, eşittir y alt i eksi y şapka alt i, üstte parantez içinde m eksi bir." Yani: Tablodaki Artık 1 satırı (−30, 0, 30) bu formülle bulunur.
 
 Ardından bu artıklara yeni bir ağaç $f_m$ uydurulur ve model küçük bir adımla güncellenir:
 
-$$\hat{y}_i^{(m)} = \hat{y}_i^{(m-1)} + \eta f_m(x_i)$$
+```math
+\underbrace{\hat{y}_i^{(m)}}_{\text{yeni tahmin}} = \underbrace{\hat{y}_i^{(m-1)}}_{\text{önceki tahmin}} + \overbrace{\eta}^{\text{öğrenme hızı}} \underbrace{f_m(x_i)}_{\substack{\text{m. ağacın}\\\text{düzeltmesi}}}
+```
+
+**Nasıl okunur?** "y şapka alt i üst m eşittir, y şapka alt i üst m eksi bir, artı eta çarpı f alt m, x alt i." Yani: Tablodaki "Tahmin 1 = önceki + 0.5 × ağaç 1" satırının formül hâlidir.
 
 $M$ ağaç kurulduktan sonra nihai tahmin, tüm ağaçların katkılarının toplamıdır:
 
-$$\hat{y}_i = f_0 + \eta \sum_{m=1}^{M} f_m(x_i)$$
+```math
+\underbrace{\hat{y}_i}_{\text{nihai tahmin}} = \underbrace{f_0}_{\substack{\text{başlangıç}\\\text{(ortalama)}}} + \eta \overbrace{\sum_{m=1}^{M} f_m(x_i)}^{\text{M ağacın katkılarının toplamı}}
+```
+
+**Nasıl okunur?** "y şapka alt i eşittir, f sıfır artı eta çarpı, m eşittir 1'den M'ye kadar f alt m x alt i'lerin toplamı."
 
 > **Simge notu:** $`i`$ (alt indis): kaçıncı gözlem olduğu (yukarıdaki örnekte A, B, C) · $`(m)`$ (parantez içindeki üst simge): kaçıncı adım olduğu; **bir üs değildir**, "m'nin kuvveti" diye okunmaz · $`r_i^{(m)}`$ *(r i, m. adım)*: m. ağacın öğrendiği artık · $`\hat{y}_i^{(m-1)}`$: bir önceki adımdaki tahmin · $`\eta`$ *(eta)*: öğrenme hızı (learning rate), her ağacın katkısını küçülten katsayı; Latin n harfine benzer ama Yunanca eta harfidir · $`f_m(x_i)`$ *(f m, x i)*: m. ağacın i. gözlem için verdiği değer · $`\sum_{m=1}^{M}`$ *(büyük sigma, toplam)*: m'yi 1'den M'ye kadar değiştirip terimleri topla; yani $`f_1(x_i) + f_2(x_i) + \dots + f_M(x_i)`$ · $`M`$: toplam ağaç sayısı
 
@@ -161,7 +173,11 @@ $$\hat{y}_i = f_0 + \eta \sum_{m=1}^{M} f_m(x_i)$$
 
 Yönteme "gradient" (gradyan) denmesinin nedeni şudur. **Kayıp** (loss), bir tahminin ne kadar kötü olduğunu ölçen sayıdır; kare hata kaybı $L = \frac{1}{2}(y - \hat{y})^2$'dir (baştaki ½ yalnızca hesabı sadeleştirmek içindir). **Türev**, tahmin çok az değiştiğinde kaybın ne hızla değiştiğini (eğimini) söyler. Kare hata kaybının tahmine göre türevinin ters işaretlisi tam olarak artıktır:
 
-$$-\frac{\partial L}{\partial \hat{y}} = y - \hat{y}$$
+```math
+\underbrace{-\frac{\partial L}{\partial \hat{y}}}_{\substack{\text{kaybın eğiminin}\\\text{ters işaretlisi}}} = \underbrace{y - \hat{y}}_{\text{artık}}
+```
+
+**Nasıl okunur?** "Eksi del L bölü del y şapka eşittir y eksi y şapka."
 
 Sayılarla deneyelim: $y = 100$ ve $\hat{y} = 90$ iken kayıp $\frac{1}{2} \cdot 10^2 = 50$'dir. Tahmini 1 artırıp 91 yaparsak kayıp $\frac{1}{2} \cdot 9^2 = 40.5$ olur; yani tahmindeki 1 birimlik artış kaybı yaklaşık 10 birim azaltır. Eğim yaklaşık −10'dur, ters işaretlisi +10'dur ve bu da artığın kendisidir ($100 - 90 = 10$). Yani artıklara ağaç uydurmak, kaybı en hızlı azaltan yönde (gradyanın tersi yönünde) adım atmakla, yani **gradyan inişiyle** aynı şeydir (gradyan inişi: Bölüm 12.1.4 ve 12.2; sisli dağ örneği). Başka kayıp fonksiyonları (ör. mutlak hata) kullanıldığında ağaçlar artık yerine bu negatif gradyana uydurulur.
 
@@ -171,9 +187,15 @@ Sayılarla deneyelim: $y = 100$ ve $\hat{y} = 90$ iken kayıp $\frac{1}{2} \cdot
 
 XGBoost, gradient boosting'in hızlı ve düzenlileştirilmiş (regularized) bir uygulamasıdır. Klasik gradient boosting yalnızca tahmin hatasını küçültmeye çalışırken, XGBoost amaç fonksiyonuna ağaçların **karmaşıklığını cezalandıran** bir terim ekler. Sözle: *toplam puan = tahmin hatası + karmaşıklık cezası*; model bu toplamı küçültmeye çalışır, dolayısıyla hatayı çok az azaltan karmaşık bir ağacı kurmaya değmez.
 
-$$\mathcal{L} = \sum_{i=1}^{n} l(y_i, \hat{y}_i) + \sum_{m=1}^{M} \Omega(f_m)$$
+```math
+\underbrace{\mathcal{L}}_{\text{toplam puan}} = \underbrace{\sum_{i=1}^{n} l(y_i, \hat{y}_i)}_{\substack{\text{tahmin hatası}\\\text{(tüm gözlemler)}}} + \underbrace{\sum_{m=1}^{M} \Omega(f_m)}_{\substack{\text{karmaşıklık cezası}\\\text{(tüm ağaçlar)}}}
+```
 
-$$\Omega(f) = \gamma T + \frac{1}{2} \lambda \sum_{j=1}^{T} w_j^2$$
+```math
+\Omega(f) = \underbrace{\gamma T}_{\substack{\text{yaprak başına}\\\text{sabit ceza}}} + \underbrace{\frac{1}{2} \lambda \sum_{j=1}^{T} w_j^2}_{\substack{\text{büyük yaprak değerlerine}\\\text{ceza}}}
+```
+
+**Nasıl okunur?** "Kaligrafik L eşittir, i eşittir 1'den n'ye kadar küçük l, y alt i virgül y şapka alt i'lerin toplamı, artı m eşittir 1'den M'ye kadar omega f alt m'lerin toplamı. Omega f eşittir gama çarpı T, artı yarım çarpı lambda çarpı, j eşittir 1'den T'ye kadar w alt j karelerinin toplamı."
 
 Burada ilk terim tahmin hatasını (ör. kare hata), ikinci terim ise her ağacın karmaşıklığını ölçer. $T$ ağaçtaki yaprak sayısıdır.
 
@@ -182,6 +204,12 @@ Burada ilk terim tahmin hatasını (ör. kare hata), ikinci terim ise her ağac�
 **Sayısal örnek:** $\gamma = 1$ ve $\lambda = 1$ olsun. Üç yapraklı, yaprak değerleri 2, −1 ve 3 olan bir ağacın cezası $\Omega = 1 \cdot 3 + \frac{1}{2} \cdot 1 \cdot (2^2 + (-1)^2 + 3^2) = 3 + \frac{1}{2} \cdot 14 = 3 + 7 = 10$'dur. İki yapraklı, yaprak değerleri 1 ve −1 olan daha sade bir ağacın cezası ise $2 + \frac{1}{2} \cdot (1 + 1) = 3$'tür. Karmaşık ağaç hatayı sade ağaca göre en az $10 - 3 = 7$ birim daha fazla azaltmıyorsa XGBoost sade ağacı tercih eder.
 
 **Yorum:** $\gamma$ büyüdükçe model yeni bir bölme yapmak için daha fazla hata azalması "talep eder": Bir bölme, hatayı en az $\gamma$ kadar azaltmıyorsa yapılmaz ve ağaçlar sade kalır. $\lambda$ büyüdükçe yaprak değerleri sıfıra doğru çekilir ve her ağacın tek başına yapabileceği aşırı düzeltmeler engellenir. Kare hata kaybında XGBoost'un bir yaprağa verdiği değer, *yapraktaki artıkların toplamı / (yapraktaki gözlem sayısı + λ)* formülüyle hesaplanır. Artıkları 10, 20 ve 30 olan bir yaprak için (toplam 60, gözlem sayısı 3): $\lambda = 0$ iken $60 / 3 = 20$ (düz ortalama), $\lambda = 1$ iken $60 / 4 = 15$, $\lambda = 3$ iken $60 / 6 = 10$ olur. İki cezanın ortak amacı, modelin eğitim verisini ezberlemesini (aşırı öğrenme) önlemektir.
+
+```math
+\underbrace{w_j}_{\text{yaprak değeri}} = \frac{\overbrace{\textstyle\sum_{x_i \in R_j} r_i}^{\text{yapraktaki artıkların toplamı}}}{\underbrace{n_j}_{\substack{\text{yapraktaki}\\\text{gözlem sayısı}}} + \underbrace{\lambda}_{\text{L2 cezası}}}
+```
+
+**Nasıl okunur?** "w alt j eşittir, x alt i R alt j'nin elemanı olan gözlemlerin r alt i değerlerinin toplamı, bölü n alt j artı lambda." Yani: $\lambda = 0$ iken bu, 13.1.1'deki yaprak ortalamasıdır.
 
 **Günlük hayattan bir örnek:** Her yeni yaprak açmak bir şube açmaya benzer. Şubenin sabit bir kirası ($\gamma$) vardır ve şube ancak getireceği ek kazanç (hatadaki azalma) kirayı aşıyorsa açılır. $\lambda$ ise her şubenin vaat ettiği kârı temkinle aşağı çeken bir denetçidir: Az müşterisi (az gözlemi) olan şubenin iddiasını daha çok kırpar. Yukarıdaki formülde de öyledir: 3 gözlemli yaprakta $\lambda = 1$ değeri 20'yi 15'e indirirken, aynı ortalamaya sahip 30 gözlemli bir yaprakta $600 / 31 \approx 19.4$ olur ve değer neredeyse hiç kırpılmaz.
 

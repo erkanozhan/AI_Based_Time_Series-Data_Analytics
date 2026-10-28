@@ -16,9 +16,11 @@ Matematikte **fonksiyon**, her girdiye bir çıktı karşılık getiren kuraldı
 
 **Tanım:** Prophet, gözlenen seriyi üç bileşen ile bir hata teriminin toplamı olarak modeller:
 
-$$
-y(t) = g(t) + s(t) + h(t) + \varepsilon_t
-$$
+```math
+\underbrace{y(t)}_{\text{gözlem}} = \underbrace{g(t)}_{\text{trend}} + \underbrace{s(t)}_{\text{mevsimsellik}} + \underbrace{h(t)}_{\text{tatil etkisi}} + \underbrace{\varepsilon_t}_{\text{hata}}
+```
+
+**Nasıl okunur?** "y t eşittir g t artı s t artı h t artı epsilon alt t."
 
 > **Simge notu:** $`y(t)`$: $`t`$ anındaki gözlem; "y t" diye okunur. Parantezli yazım $`y(t)`$ ile alt indisli yazım $`y_t`$ aynı şeyi anlatır: "t zamanındaki y değeri" · $`g(t)`$: trend fonksiyonu (*growth*, büyüme) · $`s(t)`$: mevsimsel (periyodik, düzenli tekrar eden) bileşen (*seasonality*) · $`h(t)`$: tatil/özel gün etkileri (*holidays*) · $`\varepsilon_t`$ *(epsilon t)*: modelin açıklayamadığı rastgele hata. $`\varepsilon`$ bir Yunan harfidir; küme işareti $`\in`$ ("elemanıdır") ile karıştırmayın
 
@@ -36,9 +38,11 @@ Trend, serinin uzun vadeli yönünü taşır. Prophet'ta iki seçenek vardır.
 
 **Tanım 1 (parçalı doğrusal trend):** Varsayılan seçenektir. Trendi bir cetvel gibi düz bir doğru olarak düşünün; ama bu cetvel belirli noktalarda bükülebilir. Doğrunun **eğimi** (her zaman adımında ne kadar arttığı) belirli zaman noktalarında değişebilir. Eğimin değiştiği bu noktalara **değişim noktaları (changepoints)** denir. $s_1, s_2, \dots, s_S$ değişim noktaları için basitleştirilmiş gösterim şöyledir:
 
-$$
-g(t) = \Big(k + \sum_{j: s_j \le t} \delta_j\Big) t + \Big(m + \sum_{j: s_j \le t} \gamma_j\Big)
-$$
+```math
+g(t) = \overbrace{\Big(\underbrace{k}_{\substack{\text{başlangıç}\\\text{eğimi}}} + \underbrace{\sum_{j: s_j \le t} \delta_j}_{\substack{\text{geçilen değişim}\\\text{noktalarındaki}\\\text{eğim ayarları}}}\Big)}^{t\text{ anındaki eğim}} t + \overbrace{\Big(\underbrace{m}_{\substack{\text{başlangıç}\\\text{seviyesi}}} + \underbrace{\sum_{j: s_j \le t} \gamma_j}_{\substack{\text{kopmayı önleyen}\\\text{düzeltmeler}}}\Big)}^{t\text{ anındaki kesişim}}
+```
+
+**Nasıl okunur?** "g t eşittir, parantez içinde k artı, s alt j'si t'den küçük ya da eşit olan bütün j'ler için delta alt j'lerin toplamı, çarpı t; artı, parantez içinde m artı, aynı j'ler için gama alt j'lerin toplamı."
 
 > **Simge notu:** $`k`$: başlangıç eğimi (büyüme hızı) · $`m`$: başlangıç seviyesi (doğrunun $`t = 0`$'daki değeri, kesişim) · $`s_j`$: j'inci değişim noktasının zamanı (buradaki $`s`$, mevsim uzunluğu değil; $`S`$ de değişim noktalarının sayısıdır) · $`\delta_j`$ *(delta j)*: j'inci değişim noktasında eğime eklenen miktar · $`\gamma_j`$ *(gama j)*: doğru parçalarının kopmadan birleşmesini sağlayan düzeltme terimi · $`\sum_{j: s_j \le t}`$ *(büyük sigma = toplam)*: "$`s_j \le t`$ olan, yani $`t`$ anına kadar geçilmiş bütün değişim noktaları için topla"; henüz gelinmemiş değişim noktaları toplama girmez
 
@@ -69,9 +73,11 @@ Bu ayarın test hatasına etkisini, Prophet kodunu ve test değerlendirmesini ö
 
 **Tanım 2 (lojistik büyüme trendi):** Bazı seriler sonsuza kadar büyüyemez; bir doygunluk seviyesine yaklaşır (ör. bir ülkedeki internet kullanıcı sayısı nüfusu aşamaz). Böyle bir büyüme önce yavaş başlar, sonra hızlanır, üst sınıra yaklaştıkça yeniden yavaşlar ve durur. Grafiği S harfine benzeyen bu eğri şöyle yazılır:
 
-$$
-g(t) = \frac{C}{1 + \exp\big(-k (t - m)\big)}
-$$
+```math
+g(t) = \dfrac{\overbrace{C}^{\text{üst sınır}}}{1 + \underbrace{\exp\big(-k (t - m)\big)}_{\substack{t\text{ büyüdükçe}\\\text{sıfıra yaklaşır}}}}
+```
+
+**Nasıl okunur?** "g t eşittir C bölü, bir artı e üzeri eksi k çarpı t eksi m." Yani: Payda hiçbir zaman 1'in altına inmediği için trend, üst sınır C'yi aşamaz.
 
 > **Simge notu:** $`C`$: taşıma kapasitesi (serinin ulaşabileceği üst sınır) · $`\exp(x)`$ *(üstel fonksiyon)*: $`e^{x}`$, yani $`e \approx 2.718`$ sayısının $`x`$'inci kuvveti; $`\exp(0) = 1`$, $`x`$ büyüdükçe çok hızlı büyür, $`x`$ eksi yönde büyüdükçe sıfıra yaklaşır · $`k`$: büyüme hızı · $`m`$: burada başlangıç seviyesi **değil**, eğrinin en hızlı yükseldiği orta noktanın zamanıdır (aynı harf iki tanımda farklı anlamda kullanılır)
 
@@ -109,9 +115,11 @@ Mevsimsel desen, her yıl aynı biçimde tekrar eden bir dalgadır. Prophet bu d
 
 Yapı taşları **kosinüs** (cos) ve **sinüs** (sin) fonksiyonlarıdır. İkisi de −1 ile +1 arasında gidip gelen ve belirli bir aralıkla kendini aynen tekrarlayan dalgalardır. Bir tam tur $2\pi$ ile gösterilir ($\pi$ "pi" ≈ 3.14159 olduğundan $2\pi \approx 6.283$). Formül şudur:
 
-$$
-s(t) = \sum_{n=1}^{N} \left[ a_n \cos\left(\frac{2\pi n t}{P}\right) + b_n \sin\left(\frac{2\pi n t}{P}\right) \right]
-$$
+```math
+s(t) = \underbrace{\sum_{n=1}^{N}}_{N\text{ dalgayı topla}} \Big[ \overbrace{a_n}^{\text{katsayı}} \cos\Big(\underbrace{\frac{2\pi n t}{P}}_{\substack{\text{açı: bir periyotta}\\ n\text{ tur}}}\Big) + \overbrace{b_n}^{\text{katsayı}} \sin\Big(\frac{2\pi n t}{P}\Big) \Big]
+```
+
+**Nasıl okunur?** "s t eşittir, n eşittir 1'den N'ye kadar; a alt n çarpı kosinüs iki pi n t bölü P, artı b alt n çarpı sinüs iki pi n t bölü P terimlerinin toplamı."
 
 > **Simge notu:** $`P`$: periyot, yani desenin kendini tekrarladığı süre (Prophet zamanı gün cinsinden ölçer: yıllık mevsimsellik için $`P = 365.25`$ gün, haftalık için $`P = 7`$) · $`n`$: dalganın sırası; $`n`$'inci dalga bir periyotta $`n`$ tur atar · $`N`$: kullanılan dalga (Fourier terimi) sayısı · $`\sum_{n=1}^{N}`$: "$`n`$'yi 1'den $`N`$'ye kadar artırarak köşeli parantez içindekileri topla" · $`a_n, b_n`$: veriden öğrenilen katsayılar; her dalganın boyunu (genliğini) ve ne kadar kaydığını belirler · $`\pi`$ *(pi)*: 3.14159...; ARIMA'daki $`\phi`$ (fi) ile karıştırmayın
 
@@ -164,9 +172,11 @@ Bölüm 2.3'teki ayrımı hatırlayalım: Prophet'ın $s(t)$ bileşeni sabit ve 
 
 Bayramlar, Kara Cuma, okul tatilleri veya kampanya günleri gibi olaylar her yıl aynı takvim gününe denk gelmeyebilir (ör. Ramazan Bayramı her yıl yaklaşık 11 gün öne kayar). Bu yüzden periyodu sabit olan Fourier serisiyle yakalanamazlar. Prophet bu günleri kullanıcıdan bir liste olarak alır ve her olay için ayrı bir etki katsayısı öğrenir:
 
-$$
-h(t) = \sum_{i=1}^{L} \kappa_i \cdot \mathbf{1}\big[t \in D_i\big]
-$$
+```math
+h(t) = \underbrace{\sum_{i=1}^{L}}_{L\text{ olayı topla}} \underbrace{\kappa_i}_{\substack{i\text{'inci olayın}\\\text{etkisi}}} \cdot \underbrace{\mathbf{1}\big[t \in D_i\big]}_{\substack{t\text{ o olayın gününde mi?}\\\text{evet: 1, hayır: 0}}}
+```
+
+**Nasıl okunur?** "h t eşittir, i eşittir 1'den L'ye kadar, kappa alt i çarpı, t D alt i'nin elemanıysa 1, değilse 0 olan göstergenin toplamı."
 
 > **Simge notu:** $`L`$: tanımlanan tatil/olay sayısı · $`D_i`$: i'inci olayın gerçekleştiği tarihler kümesi (ör. bütün yılların Ramazan Bayramı günleri) · $`\in`$ *(elemanıdır)*: $`t`$ tarihinin bu kümede olduğunu belirtir; epsilon ($`\varepsilon`$) ile karıştırmayın · $`\mathbf{1}[\cdot]`$ *(gösterge fonksiyonu)*: köşeli parantezdeki koşul doğruysa 1, değilse 0 veren bir açma-kapama anahtarı · $`\kappa_i`$ *(kappa i, "k"ye benzeyen Yunan harfi)*: i'inci olayın seriye eklediği etki
 
@@ -228,9 +238,11 @@ Yukarıdaki model **toplamsaldır**: Mevsimsel etki, trendin seviyesinden bağı
 
 Prophet bunu `seasonality_mode='multiplicative'` seçeneğiyle karşılar. Bu durumda model şu biçimi alır:
 
-$$
-y(t) = g(t) \cdot \big(1 + s(t) + h(t)\big) + \varepsilon_t
-$$
+```math
+y(t) = \underbrace{g(t)}_{\text{trend}} \cdot \underbrace{\big(1 + s(t) + h(t)\big)}_{\substack{\text{oransal düzeltme}\\\text{(1 = trend aynen)}}} + \underbrace{\varepsilon_t}_{\text{hata}}
+```
+
+**Nasıl okunur?** "y t eşittir g t çarpı, parantez içinde bir artı s t artı h t, artı epsilon alt t."
 
 Artık $s(t)$ bir miktar değil, trendin **oransal** bir düzeltmesidir: $s(t) = 0$ "trend aynen", $s(t) = 0.20$ "trendin %20 üzerinde", $s(t) = -0.20$ "trendin %20 altında" demektir. Parantez içindeki 1, trendin kendisini temsil eder: $g(t) \cdot (1 + 0.20) = g(t) + 0.20 \cdot g(t)$, yani trend artı trendin %20'si. Farkı sayılarla görelim:
 

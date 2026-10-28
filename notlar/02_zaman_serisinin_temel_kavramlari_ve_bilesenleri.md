@@ -112,9 +112,11 @@ Gözlediğimiz satış rakamı, bu dört etkinin **üst üste binmiş** hâlidir
 
 **Tanım (toplamsal ayrıştırma):**
 
-$$
-x_t = T_t + S_t + C_t + I_t
-$$
+```math
+\underbrace{x_t}_{\text{gözlenen değer}} = \overbrace{T_t}^{\text{trend}} + \underbrace{S_t}_{\text{mevsimsellik}} + \overbrace{C_t}^{\text{döngü}} + \underbrace{I_t}_{\text{düzensiz bileşen}}
+```
+
+**Nasıl okunur?** "x alt t eşittir, T alt t artı S alt t artı C alt t artı I alt t." Yani: Her t anında dört bileşenin o andaki değerleri toplanır.
 
 ![Zaman serisinin bileşenlerine ayrıştırılması](../images/ts_decomposition.svg)
 
@@ -136,7 +138,21 @@ $$
 
 Toplam sembolü $\sum$ (büyük sigma) "topla" komutudur. Altındaki $j = 1$ "saymaya 1'den başla", üstündeki $s$ "$`s`$'de dur" demektir; aradaki her $j$ için $S_j$ terimleri toplanır. Çeyreklik bir seride ($s = 4$) mevsim etkileri $+10$, $-5$, $+15$, $-20$ ise $\sum_{j=1}^{4} S_j = 10 + (-5) + 15 + (-20) = 0$ olur. Yani bazı çeyrekler ortalamanın üstünde, bazıları altındadır ama yıl boyunca birbirlerini dengelerler. Mevsimsellik yıllık toplamı değil, toplamın çeyreklere nasıl dağıldığını değiştirir.
 
+```math
+\underbrace{I_t}_{\text{düzensiz bileşen}} \overbrace{\sim}^{\substack{\text{dağılımına}\\\text{sahiptir}}} \underbrace{\text{iid}}_{\substack{\text{bağımsız ve}\\\text{özdeş dağılımlı}}}\big(\overbrace{0}^{\text{ortalama}}, \underbrace{\sigma^2}_{\text{varyans}}\big)
+```
+
 $I_t \sim \text{iid}(0, \sigma^2)$ ifadesi şöyle okunur: "$`I_t`$ değerleri birbirinden bağımsızdır, hepsi aynı olasılık dağılımından gelir; bu dağılımın ortalaması 0, varyansı $\sigma^2$'dir." **Varyans**, değerlerin ortalama etrafında ne kadar yayıldığının ölçüsüdür. Hesabı şöyledir: Her değerin ortalamadan farkı alınır, bu farkların karesi alınır ve karelerin ortalaması bulunur. Örneğin 2, 4 ve 6 değerlerinin ortalaması 4'tür. Ortalamadan farklar −2, 0 ve 2, kareleri 4, 0 ve 4'tür. Karelerin ortalaması $8/3 \approx 2.67$ olur. Kare almamızın nedeni, eksi ve artı farkların birbirini götürmesini engellemektir (farkların düz toplamı her zaman sıfırdır). Varyansın karekökü **standart sapma**dır ($\sigma$, burada $\sqrt{2.67} \approx 1.63$) ve aynı yayılımı verinin kendi biriminde ifade eder.
+
+```math
+\begin{gathered}
+\underbrace{\bar{x}}_{\text{ortalama}} = \underbrace{\frac{1}{n}\sum_{i=1}^{n} x_i}_{\substack{\text{değerleri topla,}\\\text{n'ye böl}}}
+\\[6pt]
+\underbrace{\sigma^2}_{\text{varyans}} = \underbrace{\frac{1}{n}\sum_{i=1}^{n}}_{\substack{\text{n değerin}\\\text{ortalamasını al}}} \underbrace{\big(\overbrace{x_i - \bar{x}}^{\text{ortalamadan fark}}\big)^2}_{\text{farkın karesi}}, \qquad \underbrace{\sigma}_{\substack{\text{standart}\\\text{sapma}}} = \sqrt{\sigma^2}
+\end{gathered}
+```
+
+**Nasıl okunur?** "x bar eşittir, bir bölü n çarpı, i eşittir 1'den n'ye kadar x alt i'lerin toplamı. Sigma kare eşittir, bir bölü n çarpı, i eşittir 1'den n'ye kadar x alt i eksi x bar'ın karelerinin toplamı. Sigma eşittir, sigma karenin karekökü." Burada n değer sayısı, x alt i ise i'nci değerdir; 2, 4, 6 örneğinde n = 3, x bar = 4 ve sigma kare = 8/3 olur.
 
 **Günlük hayattan bir örnek:** İki fırının ekmekleri ortalama 250 gram gelsin. Birinde ekmekler 245–255 gram arasında, diğerinde 200–300 gram arasında. Ortalama aynı, ama ikinci fırının varyansı çok daha büyüktür. Standart sapma, "Bir ekmek ortalamadan tipik olarak kaç gram şaşar?" sorusunun cevabıdır. Dikkat: Standart sapma en büyük sapma değil, tipik sapmadır; ikinci fırında bazı ekmekler 50 gram şaşar, ama standart sapma bundan küçüktür.
 
@@ -265,9 +281,11 @@ Mevsimsel etki **sabit bir miktardır.** Örneğin "Temmuz'da satışlar ortalam
 
 **Tanım 2 (çarpımsal model):**
 
-$$
-x_t = T_t \times S_t \times I_t
-$$
+```math
+\underbrace{x_t}_{\text{gözlenen değer}} = \underbrace{T_t}_{\text{trend (seviye)}} \times \overbrace{S_t}^{\substack{\text{mevsim katsayısı}\\\text{(ör. 1.20)}}} \times \underbrace{I_t}_{\substack{\text{düzensiz katsayı}\\\text{(1 çevresinde)}}}
+```
+
+**Nasıl okunur?** "x alt t eşittir, T alt t çarpı S alt t çarpı I alt t." Yani: Trend seviyesi, mevsim ve düzensiz katsayılarla çarpılarak büyütülür ya da küçültülür.
 
 Mevsimsel etki **bir orandır.** Örneğin "Temmuz'da satışlar ortalamadan her yıl yaklaşık %20 fazladır." Trend yükseldikçe bu %20'nin mutlak karşılığı da büyür. Çarpımsal modelde mevsimsel katsayıların ortalaması 1'dir. Örneğin $S_{\text{Temmuz}} = 1.20$, %20 fazlalık anlamına gelir.
 
@@ -284,9 +302,11 @@ Farkı sayılarla görelim. Trend bir yıl 1000, birkaç yıl sonra 3000 birim o
 
 Bu kural sayesinde çarpımsal bir modelin logaritması alınınca model toplamsal hâle gelir:
 
-$$
-\log x_t = \log T_t + \log S_t + \log I_t
-$$
+```math
+\underbrace{\log x_t}_{\substack{\text{gözlenen değerin}\\\text{logaritması}}} = \underbrace{\log T_t}_{\text{log trend}} + \overbrace{\log S_t}^{\text{log mevsim}} + \underbrace{\log I_t}_{\text{log düzensiz}}
+```
+
+**Nasıl okunur?** "log x alt t eşittir, log T alt t artı log S alt t artı log I alt t." Yani: Log ölçeğinde bileşenler artık çarpılmaz, toplanır.
 
 > **Simge notu:** $`\log`$ *(logaritma)*: bu derste doğal logaritma (R'daki `log()` gibi e tabanında); çarpımı toplama çevirir: log(a × b) = log a + log b · $`\log_{10}`$ *(on tabanında logaritma)* · $`e`$ *(e sayısı)*: ≈ 2.718 sabiti
 

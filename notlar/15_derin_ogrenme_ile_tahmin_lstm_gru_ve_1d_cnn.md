@@ -256,6 +256,8 @@ LSTM'in iç yapısını Bölüm 12.2.2'de kavramsal olarak gördük: Hücre, uzu
 
 LSTM hücresinin denklemleri ve sayısal örneği 12.2.2'dedir. Keras aynı denklemleri 12.2.2'de gösterdiğimiz ayrık yazımla uygular: Her kapıda girdiyi çarpan bir $W$, önceki gizli durumu çarpan bir $U$ ve bir yanlılık $b$ vardır; örneğin unutma kapısı $f_t = \sigma(W_f x_t + U_f h_{t-1} + b_f)$ biçiminde yazılır. Bu yazım, aşağıdaki parametre sayımını (dört ağırlık seti, her birinde $W$, $U$ ve $b$) ve 15.3'teki GRU denklemlerini okumayı kolaylaştırır. 50 birimli bir katmanda her harf 50 sayılık bir listeyi, $W$ ve $U$ de ağırlık tablolarını temsil eder.
 
+Diğer kapılar ($i_t$, $\tilde{C}_t$, $o_t$) aynı kalıpla, kendi $W$, $U$ ve $b$'leriyle yazılır; açıklamalı gösterimi ve okunuşu 12.2.2'dedir. Aşağıdaki "dört ağırlık seti" bu dört satırın ağırlıklarıdır.
+
 Modelimiz tek bir LSTM katmanı (50 birim) ve tek nöronlu bir çıktı katmanından (`Dense(1)`) oluşuyor. Keras'ta bir model dört adımda hazırlanır: (1) katmanlar sırayla dizilir, (2) `compile` ile hatanın nasıl ölçüleceği ve ağırlıkların nasıl düzeltileceği seçilir, (3) `fit` ile model eğitilir, (4) `predict` ile tahmin üretilir.
 
 ```python
@@ -325,6 +327,12 @@ Kodun önemli satırları şunlardır:
 - Eğitim tahminleri gerçek seriyi yakından izliyorsa ama test tahminleri özellikle 1959–1960 tepelerinde gerçek değerlerin altında kalıyorsa bu, 15.1.1'deki ekstrapolasyon sorununun işaretidir.
 - `rmse_lstm` yolcu sayısıyla aynı birimdedir (bin yolcu). Bizim çalıştırmamızda 46.19 çıktı. Sizin değeriniz 15.1.1'de (2. madde) belirttiğimiz nedenlerle farklı olabilir. Farkın ne kadar büyük olabileceğini 15.3'te göreceğiz. 15.5'te diğer modellerle bu değer üzerinden karşılaştıracağız.
 
+```math
+\text{LSTM parametre sayısı} = \underbrace{4}_{\substack{\text{ağırlık seti}\\(f,\ i,\ o,\ \tilde{C})}} \cdot \big[\underbrace{h \cdot (h + x)}_{\substack{\text{W ve U}\\\text{ağırlıkları}}} + \underbrace{h}_{\text{yanlılıklar}}\big]
+```
+
+**Nasıl okunur?** "Dört çarpı, köşeli parantez içinde h çarpı parantez içinde h artı x, artı h." Burada h birim sayısı (bizde 50), x her zaman adımındaki özellik sayısıdır (bizde 1). Yani: $h \cdot (h + x) = h \cdot x + h \cdot h$; ilk terim girdiyi çarpan $W$ tablosunun, ikincisi önceki gizli durumu çarpan $U$ tablosunun eleman sayısıdır.
+
 > **Hemen deneyin 15.2 · Parametre sayısını formülle doğrulayın** (Python, ~4 dk)
 >
 > Küçük bir LSTM kurun (eğitmeden) ve `summary()`'deki parametre sayısını formülle karşılaştırın. $h$ birim ve $x$ özellik için LSTM katmanı $4 \cdot [h \cdot (h + x) + h]$ parametre taşır.
@@ -366,10 +374,12 @@ GRU'nun bir zaman adımındaki hesaplaması:
 \begin{aligned}
 z_t &= \sigma\left(W_z x_t + U_z h_{t-1} + b_z\right) &&\text{(güncelleme kapısı)}\\
 r_t &= \sigma\left(W_r x_t + U_r h_{t-1} + b_r\right) &&\text{(sıfırlama kapısı)}\\
-\tilde{h}_t &= \tanh\left(W_h x_t + U_h \left(r_t \odot h_{t-1}\right) + b_h\right) &&\text{(aday durum)}\\
-h_t &= \left(1 - z_t\right) \odot h_{t-1} + z_t \odot \tilde{h}_t &&\text{(yeni durum)}
+\tilde{h}_t &= \tanh\big(W_h x_t + U_h \underbrace{\left(r_t \odot h_{t-1}\right)}_{\substack{\text{sıfırlama kapısından}\\\text{geçen geçmiş}}} + b_h\big) &&\text{(aday durum)}\\
+h_t &= \underbrace{\left(1 - z_t\right) \odot h_{t-1}}_{\substack{\text{eski durumdan}\\\text{alınan pay}}} + \underbrace{z_t \odot \tilde{h}_t}_{\substack{\text{adaydan}\\\text{alınan pay}}} &&\text{(yeni durum)}
 \end{aligned}
 ```
+
+**Nasıl okunur?** "z alt t eşittir sigma, parantez içinde W alt z çarpı x alt t artı U alt z çarpı h alt t eksi bir artı b alt z; r alt t de aynı biçimde, kendi W, U ve b'siyle okunur. h tilda alt t eşittir tanh, parantez içinde W alt h çarpı x alt t artı U alt h çarpı r alt t eleman eleman çarpı h alt t eksi bir, artı b alt h. h alt t eşittir, bir eksi z alt t eleman eleman çarpı h alt t eksi bir, artı z alt t eleman eleman çarpı h tilda alt t."
 
 > **Simge notu:** $`z_t`$ *(z t)*: güncelleme kapısının çıktısı (0–1 arası) · $`r_t`$ *(r t)*: sıfırlama kapısının çıktısı (0–1 arası) · $`\tilde{h}_t`$ *(h tilda t)*: aday gizli durum, yani bu ayın girdisinden ve sıfırlama kapısından geçen geçmişten hesaplanan "yeni durum önerisi" · $`1 - z_t`$: kapının "kapalı" kalan payı; $`z_t = 0.3`$ ise $`1 - z_t = 0.7`$ · Diğer harfler ($`\sigma`$, $`\tanh`$, $`W`$, $`U`$, $`b`$, $`\odot`$) 12.2.2 ve 15.2'dekiyle aynı anlamdadır.
 
@@ -499,9 +509,11 @@ Evrişimin fikri basittir: Birkaç sayıdan oluşan küçük bir **filtre** (ağ
 
 **Tanım (1D evrişim):** Uzunluğu $K$ olan bir filtrenin ağırlıkları $w_0, \dots, w_{K-1}$ ve yanlılığı $b$ olsun. Filtrenin $t$ konumundaki çıktısı:
 
-$$
-y_t = g\left(\sum_{k=0}^{K-1} w_k x_{t+k} + b\right)
-$$
+```math
+\underbrace{y_t}_{\substack{\text{t konumundaki}\\\text{çıktı}}} = \underbrace{g}_{\text{aktivasyon}}\Big(\overbrace{\sum_{k=0}^{K-1} w_k x_{t+k}}^{\substack{\text{filtre altındaki K değerin}\\\text{ağırlıklı toplamı}}} + \underbrace{b}_{\text{yanlılık}}\Big)
+```
+
+**Nasıl okunur?** "y alt t eşittir g, parantez içinde: k eşittir sıfırdan K eksi bire kadar w alt k çarpı x alt t artı k'ların toplamı, artı b."
 
 > **Simge notu:** $`\sum`$ *(büyük sigma, "toplam")*: altındaki $`k=0`$ ile üstündeki $`K-1`$ arasındaki her $`k`$ için yanındaki terimi yazıp hepsini toplamak demektir. $`K = 3`$ için $`\sum_{k=0}^{2} w_k x_{t+k} = w_0 x_t + w_1 x_{t+1} + w_2 x_{t+2}`$ olur. LSTM'deki küçük $`\sigma`$ (sigmoid) ile karıştırmayın · $`K`$: filtre uzunluğu (Keras'ta `kernel_size`) · $`k`$: filtre içindeki sıra numarası (0, 1, …, K−1) · $`w_k`$ *(dabılyu k)*: filtrenin $`k`$. ağırlığı, eğitimle öğrenilir · $`x_{t+k}`$: serinin $`t+k`$. değeri; $`t`$ filtrenin o anda başladığı konumdur · $`b`$: yanlılık · $`y_t`$: filtrenin $`t`$ konumundaki çıktısı · $`g`$: aktivasyon fonksiyonu (burada ReLU; tanımı 12.2'nin başındaki tabloda)
 
