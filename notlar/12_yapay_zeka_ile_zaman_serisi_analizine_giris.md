@@ -502,7 +502,7 @@ $h_2$ hem $x_2$'yi hem de $h_1$ üzerinden $x_1$'i içerir: Hafıza, geçmişi b
 >
 > <details><summary>Cevap</summary>
 >
-> (1) `t=2`'de `h=0.964` (yalnızca $\tanh(2)$), `t=3`'ten itibaren `h=0.000`: $W_h = 0$ iken ağın hiç hafızası yoktur, yalnızca o anki girdiyi görür. (2) `t=5`'te `h=0.469`: $W_h$ büyüdükçe geçmiş daha uzun süre taşınır (0.5 ile yalnızca 0.111 kalmıştı).
+> (1) `t=2`'de `h=0.964` (yalnızca $`\tanh(2)`$), `t=3`'ten itibaren `h=0.000`: $W_h = 0$ iken ağın hiç hafızası yoktur, yalnızca o anki girdiyi görür. (2) `t=5`'te `h=0.469`: $W_h$ büyüdükçe geçmiş daha uzun süre taşınır (0.5 ile yalnızca 0.111 kalmıştı).
 >
 > </details>
 
