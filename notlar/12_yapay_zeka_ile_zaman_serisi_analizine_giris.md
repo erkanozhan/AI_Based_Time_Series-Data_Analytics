@@ -347,6 +347,40 @@ Yukarıdaki tablo **tek adımlı (one-step-ahead)** bir tahmin kurar: Bilinen ge
 >
 > </details>
 
+> **Hemen deneyin 12.1.3b · Doğrudan stratejiyi özyinelemeli stratejiyle karşılaştırın** (Python, ~5 dk)
+>
+> Girdi olarak son üç ayı kullanan basit bir doğrusal regresyonla Ocak–Mart 1960'ı iki yolla tahmin edelim. Doğrudan stratejide her ufuk ($h$ = 1, 2, 3) için ayrı bir model eğitilir; özyinelemeli stratejide tek bir 1 adımlık model kendi tahminleriyle beslenir.
+>
+> ```python
+> import pandas as pd
+> from sklearn.linear_model import LinearRegression
+> seri = pd.read_csv("data/AirPassengers.csv", parse_dates=["Month"], index_col="Month")["Passengers"]
+> X = pd.DataFrame({"lag_0": seri, "lag_1": seri.shift(1), "lag_2": seri.shift(2)})
+> son = X.loc[["1959-12-01"]]                          # tahminin başladığı satır: Aralık 1959
+> for h in [1, 2, 3]:                                  # doğrudan: her h için ayrı model
+>     t = X.copy(); t["hedef"] = seri.shift(-h); t = t.loc[:"1959-12"].dropna()
+>     m = LinearRegression().fit(t[["lag_0", "lag_1", "lag_2"]], t["hedef"])
+>     print("dogrudan     h =", h, round(m.predict(son)[0], 2))
+> t = X.copy(); t["hedef"] = seri.shift(-1); t = t.loc[:"1959-12"].dropna()
+> m1 = LinearRegression().fit(t[["lag_0", "lag_1", "lag_2"]], t["hedef"])
+> pencere = list(seri[:"1959-12"].values[-3:])         # özyinelemeli: tek model, kendi tahminiyle
+> for h in [1, 2, 3]:
+>     girdi = pd.DataFrame([[pencere[-1], pencere[-2], pencere[-3]]], columns=["lag_0", "lag_1", "lag_2"])
+>     p = m1.predict(girdi)[0]
+>     print("ozyinelemeli h =", h, round(p, 2))
+>     pencere.append(p)
+> ```
+>
+> **Ne göreceksiniz:**
+>
+> | Ufuk | Gerçek | Doğrudan | Özyinelemeli |
+> | :---: | :---: | :---: | :---: |
+> | Ocak 1960 ($h$ = 1) | 417 | 424.37 | 424.37 |
+> | Şubat 1960 ($h$ = 2) | 391 | 426.37 | 417.74 |
+> | Mart 1960 ($h$ = 3) | 419 | 428.33 | 406.33 |
+>
+> $h$ = 1'de iki strateji aynı modeli kullandığı için sonuçlar aynıdır. Sonraki ufuklarda tahminler ayrışır: Doğrudan modeller her ufuk için son bilinen gerçek değerlerden yola çıkar; özyinelemeli model ise kendi tahminlerini girdi olarak kullanır. Bu küçük örnekte hiçbir strateji her ayda üstün değildir; hangisinin daha iyi olduğu veriye ve modele bağlıdır ve doğrulama verisi üzerinde sınanarak seçilmelidir.
+
 #### 12.1.4. Ölçekleme İhtiyacı
 
 Farklı algoritmaların verinin ölçeğine (sayıların büyüklüğüne) duyarlılığı farklıdır:
@@ -418,7 +452,7 @@ Model 0–1 ölçeğinde tahmin üretir. Sonucu yolcu sayısı olarak okumak iç
 
 #### 12.1.5. Veri Sızıntısı Uyarısı
 
-Bölüm 8.1.1'de tanımlanan **veri sızıntısı (data leakage)**, modelin eğitim sırasında, tahmin anında gerçekte bilinemeyecek bir bilgiye erişmesidir. Sızıntılı bir model eğitim ve test metriklerinde harika görünür, ancak gerçek kullanımda çuvallar. Sınavdan önce cevap anahtarını görmüş bir öğrenci gibidir: Notu yüksektir, ama konuyu öğrenmemiştir.
+Bölüm 8.1.1'de tanımlanan **veri sızıntısı (data leakage)**, modelin eğitim sırasında, tahmin anında gerçekte bilinemeyecek bir bilgiye erişmesidir. Sızıntılı bir model eğitim ve test metriklerinde harika görünür, ancak gerçek kullanımda başarısız olur. Sınavdan önce cevap anahtarını görmüş bir öğrenci gibidir: Notu yüksektir, ama konuyu öğrenmemiştir.
 
 Zaman serisinde sızıntının en sık görülen biçimleri:
 
@@ -832,7 +866,7 @@ Bilinmesi gereken birkaç nokta:
 
 > **Hemen deneyin 12.3 · Her model için "geçilmesi gereken çıta"** (R, ~3 dk)
 >
-> Çıta: Bölüm 8.3'teki tabloya göre mevsimsel naive (her ay = geçen yılın aynı ayı) 1960'ta MAE 47.83 verir. Bir makine öğrenmesi modelinin bu çıtayı geçmesi gerekir; 13.4'teki XGBoost'un test MAE'si 30.48'dir. Mevsimsel naive trendi kaçırır: 1960'ın her ayı 1959'un aynı ayından yüksektir. Trendi kaba bir büyüme oranıyla ekleyen bir kural deneyelim. RStudio'da çalıştırın:
+> Çıta: Bölüm 8.3'teki tabloya göre mevsimsel naive (her ay = geçen yılın aynı ayı) 1960'ta MAE 47.83 verir. Bir makine öğrenmesi modelinin bu çıtayı geçmesi gerekir; 13.4'teki XGBoost'un test MAE'si 27.49'dur. Mevsimsel naive trendi kaçırır: 1960'ın her ayı 1959'un aynı ayından yüksektir. Trendi kaba bir büyüme oranıyla ekleyen bir kural deneyelim. RStudio'da çalıştırın:
 >
 > ```r
 > library(forecast)
@@ -846,7 +880,7 @@ Bilinmesi gereken birkaç nokta:
 >
 > <details><summary>Cevap</summary>
 >
-> Çıta satırı `[1] 47.83333`, yeni kural `[1] 14.91667` verir: Trendi kaba bir büyüme oranıyla ekleyen bu basit kural, 13.4'teki seviye XGBoost modelinden (30.48) daha iyidir. Karmaşık bir modeli her zaman basit referanslarla karşılaştırmanın nedeni budur.
+> Çıta satırı `[1] 47.83333`, yeni kural `[1] 14.91667` verir: Trendi kaba bir büyüme oranıyla ekleyen bu basit kural, 13.4'teki seviye XGBoost modelinden (27.49) daha iyidir. Karmaşık bir modeli her zaman basit referanslarla karşılaştırmanın nedeni budur.
 >
 > </details>
 

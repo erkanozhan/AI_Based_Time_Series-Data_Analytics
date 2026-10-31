@@ -40,7 +40,7 @@
 <line x1="498.0" y1="245.0" x2="822.0" y2="245.0" stroke="#6b7280" stroke-width="1.2"/>
 <line x1="660.0" y1="397.0" x2="660.0" y2="93.0" stroke="#6b7280" stroke-width="1.2"/>
 <circle cx="660.0" cy="245.0" r="132" fill="#dbeafe" fill-opacity="0.45" stroke="#2563eb" stroke-width="1.8"/>
-<text x="822.0" y="277.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">gerçek kısım</text>
+<text x="822.0" y="277.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="end" font-weight="normal">gerçel kısım</text>
 <text x="666.0" y="105.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="start" font-weight="normal">sanal kısım</text>
 <text x="520.0" y="262.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">-1</text>
 <text x="804.0" y="262.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">1</text>

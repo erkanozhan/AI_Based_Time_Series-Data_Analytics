@@ -1,6 +1,6 @@
 # %% [markdown]
 # # Bölüm 8 — Model Değerlendirme: `evaluate_model()` ile SARIMA ve Mevsimsel Naive
-# Ders notu: Course_notes.md, Bölüm 8.4. Bu dosya bölümdeki Python kodlarının tamamını içerir.
+# Ders notu: notlar/08_model_degerlendirme_hata_metrikleri_ve_egitim_test_ayrimi.md, Bölüm 8.4. Bu dosya bölümdeki Python kodlarının tamamını içerir.
 # Çalıştırma: depo kök dizininden `python Codes/python/ch08_model_degerlendirme.py`
 # veya VS Code'da hücre hücre (# %%) ya da Colab'da notebook sürümü.
 #

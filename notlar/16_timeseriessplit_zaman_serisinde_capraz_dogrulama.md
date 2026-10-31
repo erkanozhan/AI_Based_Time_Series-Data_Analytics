@@ -8,7 +8,7 @@ Makine öğrenmesinde bu sorunun standart çözümü **çapraz doğrulamadır (c
 
 ### 16.1. Neden Rastgele K-Fold Zaman Serisinde Yanlıştır?
 
-**Tanım (K-fold çapraz doğrulama):** Veri $K$ eşit parçaya (fold) bölünür. Her turda bir parça doğrulama, kalan $K-1$ parça eğitim için kullanılır. $K$ turun hatalarının ortalaması modelin performans tahminidir. Genellikle bölmeden önce veri **rastgele karıştırılır** (`shuffle=True`).
+**Tanım (K-fold çapraz doğrulama):** Veri $K$ eşit parçaya (fold) bölünür. Her turda bir parça doğrulama, kalan $K-1$ parça eğitim için kullanılır. $K$ turun hatalarının ortalaması modelin performans tahminidir. Genellikle bölmeden önce veri **rastgele karıştırılır** (`shuffle=True`). Dikkat: `cross_val_score(..., cv=5)` gibi bir **tamsayı** verildiğinde scikit-learn regresyonda karıştırmasız `KFold` kullanır; bu bölme de zaman serisinde geleceği eğitime sızdırır (Hemen deneyin 16.4b).
 
 Burada $K$ yalnızca parça (fold) sayısını gösteren bir harftir. Örneğin 100 gözlem ve $K = 5$ için her parça 20 gözlemdir. 1. turda 1. parça doğrulamaya ayrılır ve model kalan $5 - 1 = 4$ parçayla (80 gözlem) eğitilir; 2. turda 2. parça doğrulamaya ayrılır, ve böyle devam eder. 5 tur sonunda her gözlem tam bir kez doğrulamada yer almış olur. Turların hataları 10, 12, 9, 11 ve 13 çıktıysa performans tahmini $(10 + 12 + 9 + 11 + 13) / 5 = 55 / 5 = 11$ olur.
 
@@ -50,7 +50,7 @@ Bu yöntem, gözlemlerin birbirinden bağımsız olduğu tablo verilerinde (ör.
 > TSS   4: doğrulama [10 11]  eğitimde gelecekten 0 ay
 > ```
 >
-> Rastgele K-fold'da doğrulama ayları zamana dağılır ve her fold'un eğitiminde 5–9 "gelecek" ay vardır (örneğin 4. fold'da 0. ay, 1–11. aylar görülerek tahmin edilir). `TimeSeriesSplit`'te bu sayı her zaman 0'dır.
+> Rastgele K-fold'da doğrulama ayları zamana dağılır ve her fold'un eğitiminde 5–9 "gelecek" ay vardır (örneğin 4. fold'da 0. ay, 3 ve 5 dışındaki 1–11. aylar, yani 9 gelecek ay görülerek tahmin edilir). `TimeSeriesSplit`'te bu sayı her zaman 0'dır.
 >
 > **Şimdi siz:** `shuffle=True, random_state=0` kısmını silin (`KFold(n_splits=4)`). Karıştırma olmayınca sorun çözülür mü? Önce tahmin edin.
 >
@@ -60,7 +60,7 @@ Bu yöntem, gözlemlerin birbirinden bağımsız olduğu tablo verilerinde (ör.
 >
 > </details>
 
-Sonuç: Rastgele K-fold, zaman serisinde **gerçekte olduğundan çok daha iyi** görünen, iyimser performans tahminleri üretir. Bu tahminlere güvenerek seçilen model, canlıya alındığında hayal kırıklığı yaratır.
+Sonuç: Rastgele K-fold, zaman serisinde **gerçekte olduğundan çok daha iyi** görünen, iyimser performans tahminleri üretir. Bu tahminlere güvenerek seçilen model, kullanıma alındığında hayal kırıklığı yaratır.
 
 Doğru değerlendirme **gerçek tahmin koşulunu taklit etmelidir**. Tahminin yapıldığı ana $t$ diyelim (ör. Aralık 1955'in sonu). Model, $t$ anına kadar olan veriyle eğitilir ve yalnızca $t$'den **sonraki** gözlemler üzerinde test edilir. Bu işlem farklı $t$ noktaları için tekrarlanır. Literatürde bu yaklaşıma **kayan başlangıç noktası (rolling origin)** ya da **ileriye doğru yürüyen doğrulama (walk-forward validation)** denir.
 
@@ -128,7 +128,7 @@ Bunu kesin olarak yazmak için birkaç harf kullanacağız. $n$ gözlemli bir se
 
 **Nasıl okunur?** "Eğitim alt k eşittir, t alt k eksi m artı birden t alt k'ya kadar olan küme; doğrulama alt k eşittir, t alt k artı birden t alt k artı h'ye kadar olan küme." Yani: Pencerenin iki ucu da $t_k$ ile birlikte ileri kayar; uzunluğu hep $t_k - (t_k - m + 1) + 1 = m$ gözlemdir.
 
-> **Simge notu:** $`\lbrace \dots \rbrace`$ *(küme parantezi)*: içine yazılan gözlem sıra numaralarının oluşturduğu küme; $`\lbrace 1, \dots, 12 \rbrace`$ "1'den 12'ye kadar bütün gözlemler" diye okunur, üç nokta aradaki sayıların atlandığını gösterir · $`k`$ *(küçük k)*: fold'un sıra numarası (1., 2., …) · $`K`$ *(büyük K)*: toplam fold sayısı · $`t_k`$ *(t k)*: $`k`$. fold'da eğitimin bittiği an (tahmin başlangıç noktası); alt indis $`k`$ bu anın hangi fold'a ait olduğunu söyler · $`t_1 < t_2 < \dots < t_K`$: her fold'un başlangıç noktası bir öncekinden daha ileridedir · $`h`$: doğrulama kümesinin uzunluğu (tahmin ufku) · $`m`$: kayan penceredeki sabit eğitim uzunluğu · "Eğitim" ve "Doğrulama" yanındaki alt indis $`k`$: o kümelerin $`k`$. fold'a ait olduğu
+> **Simge notu:** $`\lbrace \dots \rbrace`$ *(küme parantezi)*: içine yazılan gözlem sıra numaralarının oluşturduğu küme; $`\lbrace 1, \dots, 12 \rbrace`$ "1'den 12'ye kadar bütün gözlemler" diye okunur, üç nokta aradaki sayıların atlandığını gösterir · $`k`$ *(küçük k)*: fold'un sıra numarası (1., 2., …) · $`K`$ *(büyük K)*: toplam fold sayısı · $`t_k`$ *(t k)*: $`k`$. fold'da eğitimin bittiği an (tahmin başlangıç noktası); alt indis $`k`$ bu anın hangi fold'a ait olduğunu söyler · $`t_1 < t_2 < \dots < t_K`$: her fold'un başlangıç noktası bir öncekinden daha ileridedir · $`h`$: doğrulama kümesinin uzunluğu (her doğrulama kümesi $`h`$ aylık bir dönemi kapsar; tahminlerin tek adımlı mı özyinelemeli mi yapıldığı ayrıca belirtilmelidir, bkz. Hemen deneyin 16.5b) · $`m`$: kayan penceredeki sabit eğitim uzunluğu · "Eğitim" ve "Doğrulama" yanındaki alt indis $`k`$: o kümelerin $`k`$. fold'a ait olduğu
 
 **Sayısal örnek:** $n = 24$ gözlem, $K = 5$ fold ve $h = 4$ olsun. Fold'ların başlangıç noktaları $t_1 = 4$, $t_2 = 8$, $t_3 = 12$, $t_4 = 16$, $t_5 = 20$ olur. 3. fold'a bakalım ($t_3 = 12$):
 
@@ -396,7 +396,7 @@ for k, (train_idx, val_idx) in enumerate(tscv.split(values), 1):
 print(f"\nGRU çapraz doğrulama RMSE: {np.mean(fold_rmse):.2f} ± {np.std(fold_rmse):.2f}")
 ```
 
-Kodun 15. bölümden farklı olan kısımları döngünün içindedir:
+Kodun 15. bölümden farklı olan kısımları döngünün içindedir. Ayrıca burada `batch_size=8` kullanılır (15.3'te 1); bu, her fold'daki eğitimi hızlandırır:
 
 1. `read_csv` satırı Hemen deneyin 13.1.1'deki gibidir; `rename`, bazı kopyalardaki `#Passengers` adını `Passengers` yapar.
 2. `TimeSeriesSplit(n_splits=5, test_size=12)` 144 aylık seride son $5 \cdot 12 = 60$ ayı beş yıllık doğrulama dilimine ayırır; ilk doğrulama dilimi $144 - 60 = 84$ numaralı gözlemde, yani Ocak 1956'da başlar. `tscv.split(values)` her turda `train_idx` (eğitim aylarının sıra numaraları) ve `val_idx` (doğrulama aylarının sıra numaraları) verir.
@@ -470,6 +470,42 @@ Ortalama $(31.67 + 25.72 + 33.82 + 40.78 + 28.84) / 5 = 160.83 / 5 \approx 32.17
 >
 > </details>
 
+> **Hemen deneyin 16.4b · Ölçekleyiciyi bir `Pipeline` içinde fold'a bırakın** (Python, ~3 dk)
+>
+> Ölçekleyici ile modeli `make_pipeline` ile tek bir nesnede birleştirince, `cross_val_score` ölçekleyiciyi her fold'da yalnızca o fold'un eğitim kısmıyla fit eder.
+>
+> ```python
+> import numpy as np, pandas as pd
+> from sklearn.pipeline import make_pipeline
+> from sklearn.preprocessing import MinMaxScaler
+> from sklearn.linear_model import Ridge
+> from sklearn.model_selection import TimeSeriesSplit, cross_val_score, cross_validate
+> s = pd.read_csv("data/AirPassengers.csv")["Passengers"]
+> X = pd.DataFrame({f"lag_{l}": s.shift(l) for l in range(1, 13)}).dropna()   # 12 gecikme
+> y = s.loc[X.index]
+> model = make_pipeline(MinMaxScaler(), Ridge(alpha=1.0))
+> for ad, cv in [("cv=5           ", 5), ("TimeSeriesSplit", TimeSeriesSplit(n_splits=5, test_size=12))]:
+>     rmse = -cross_val_score(model, X, y, cv=cv, scoring="neg_root_mean_squared_error")
+>     print(f"{ad} ortalama RMSE: {rmse.mean():6.2f}   fold'lar: {np.round(rmse, 1)}")
+> sonuc = cross_validate(model, X, y, cv=TimeSeriesSplit(n_splits=5, test_size=12), return_estimator=True)
+> for k, est in enumerate(sonuc["estimator"], 1):
+>     print(f"Fold {k}: ölçekleyicinin gördüğü en büyük lag_1 = {est.named_steps['minmaxscaler'].data_max_[0]:.0f}")
+> ```
+>
+> **Ne göreceksiniz:**
+>
+> ```text
+> cv=5            ortalama RMSE:  20.28   fold'lar: [10.6 17.1 19.9 25.4 28.4]
+> TimeSeriesSplit ortalama RMSE:  24.98   fold'lar: [18.5 21.2 31.5 26.9 26.8]
+> Fold 1: ölçekleyicinin gördüğü en büyük lag_1 = 364
+> Fold 2: ölçekleyicinin gördüğü en büyük lag_1 = 413
+> Fold 3: ölçekleyicinin gördüğü en büyük lag_1 = 467
+> Fold 4: ölçekleyicinin gördüğü en büyük lag_1 = 505
+> Fold 5: ölçekleyicinin gördüğü en büyük lag_1 = 559
+> ```
+>
+> Ölçekleyicinin her fold'da gördüğü en büyük değer, yalnızca o fold'un eğitim dönemindeki rekordur; doğrulama yılının değerleri ölçeklemeye karışmaz. İlk satır ayrıca önemli bir tuzağı gösterir: `cv=5` gibi bir **tamsayı** verildiğinde scikit-learn regresyonda karıştırmasız `KFold` kullanır. Bu bölmede de modelin eğitim kümesi doğrulama döneminden sonraki ayları içerir; sonuç bu yüzden iyimserdir (20.28'e karşı 24.98). Zaman serisinde `cv` parametresine her zaman `TimeSeriesSplit(...)` nesnesi verilmelidir.
+
 ### 16.5. Uygulama: GRU ve XGBoost'u Aynı Fold'larda Karşılaştırmak
 
 Bu bölümün mesajı, bir modeli tek bir dönemle değerlendirmenin yanıltabileceğidir. Aynı mesaj iki modeli **karşılaştırırken** de geçerlidir. Bu uygulamada Bölüm 15.3'teki GRU, Bölüm 13'teki XGBoost ve referans olarak mevsimsel naive (Bölüm 8), 16.4'teki beş fold'un **aynısında** değerlendirilir: 1956'dan 1960'a kadar her yıl ayrı bir doğrulama dilimidir. Fold'ların aynı olması şarttır, çünkü farklı yıllarda ölçülen hatalar birbiriyle karşılaştırılamaz (bkz. Bölüm 15'in sonundaki test dönemleri tablosu).
@@ -498,7 +534,7 @@ for k, (train_idx, val_idx) in enumerate(folds, 1):
     # XGBoost: satırlar TARİHLE seçilir; doğrulama ayları GRU'nunkilerle aynı olur
     train_end = df.index[train_idx[-1]]
     model_xgb = xgb.XGBRegressor(n_estimators=500, learning_rate=0.05, max_depth=4,
-                                 subsample=0.8, colsample_bytree=0.8, random_state=SEED)
+                                 random_state=SEED)        # alt örnekleme yok: sonuç belirlenimci
     model_xgb.fit(X.loc[:train_end], y.loc[:train_end])
     xgb_pred[k] = model_xgb.predict(X.loc[df.index[val_idx]])
     naive_pred[k] = values[val_idx - 12].ravel()     # mevsimsel naive: geçen yılın aynı ayı
@@ -512,7 +548,7 @@ Kilit satırlarda üç fikir vardır:
 
 Tam kod: [`Codes/python/ch16_timeseriessplit.py`](../Codes/python/ch16_timeseriessplit.py) · [Notebook](../Codes/notebooks/ch16_timeseriessplit.ipynb)
 
-Programın bizim çalıştırmamızdaki çıktısının özeti aşağıdadır. XGBoost ve mevsimsel naive satırları her çalıştırmada aynı çıkar (tohum sabit, ağaçlar CPU'da belirlenimci biçimde kurulur). GRU satırları ise işletim sistemine ve TensorFlow sürümüne göre birkaç birim değişebilir.
+Programın bizim çalıştırmamızdaki çıktısının özeti aşağıdadır. XGBoost ve mevsimsel naive satırları, aynı xgboost sürümüyle (3.2.0) her çalıştırmada aynı çıkar: Model satır ve sütun alt örneklemesi kullanmadığı için rastgelelik içermez. GRU satırları ise işletim sistemine ve TensorFlow sürümüne göre birkaç birim değişebilir.
 
 ```text
 Fold 1: 72 eğitim penceresi, 74 epoch sürdü, en iyi epoch 59
@@ -528,44 +564,44 @@ Fold 5: XGBoost eğitimi 119 gözlem (1950-02 - 1959-12)
 FOLD BAŞINA RMSE
 model    GRU  XGBoost  Mevsimsel naive  GRU - XGBoost
 yıl
-1956   34.71    23.57            45.18          11.14
-1957   34.20    29.81            41.47           4.39
-1958   25.82    26.85            17.01          -1.03
-1959   35.73    46.97            49.25         -11.24
-1960   37.13    37.17            50.71          -0.05
+1956   34.71    22.06            45.18          12.65
+1957   34.20    27.87            41.47           6.33
+1958   25.82    28.65            17.01          -2.83
+1959   35.73    52.16            49.25         -16.43
+1960   37.13    35.62            50.71           1.51
 
 Model                       RMSE             MAE             MAPE
 GRU                33.52 ± 3.98    26.92 ± 2.77    6.71% ± 0.65%
-XGBoost            32.88 ± 8.36    26.71 ± 9.03    6.37% ± 1.79%
+XGBoost            33.27 ± 10.38   27.08 ± 11.42   6.50% ± 2.48%
 Mevsimsel naive    40.73 ± 12.29   38.43 ± 13.21   9.68% ± 3.48%
 
-GRU, XGBoost'tan 3 fold'da daha iyi, 2 fold'da daha kötü; fark ortalaması 0.64
+GRU, XGBoost'tan 2 fold'da daha iyi, 3 fold'da daha kötü; fark ortalaması 0.25
 
 En önemli 5 özellik:
-       feature  importance
-        lag_12    0.591006
-rolling_mean_6    0.132072
-rolling_mean_3    0.119410
-         lag_1    0.057974
-        lag_11    0.033651
+        feature  importance
+         lag_12    0.886182
+          lag_1    0.053156
+rolling_mean_12    0.021985
+         lag_11    0.010599
+ rolling_mean_6    0.007080
 ```
 
 **Çıktının yorumu:**
 
 - **GRU'nun epoch sayıları:** Fold 1'in eğitimi 1949–1955'tir (84 ay). İlk 12 ay yalnızca ilk pencerenin girdisi olduğu için $84 - 12 = 72$ pencere oluşur; bunların son 12'si iç doğrulamaya ayrılır. Fold 1, 2 ve 5'te erken durdurma devreye girmiştir: Örneğin Fold 1'de en iyi epoch 59'dur ve eğitim 15 epoch'luk sabırdan sonra $59 + 15 = 74$. epoch'ta durmuştur. Fold 3 ve 4'te iç doğrulama kaybı 200 epoch boyunca yavaş da olsa iyileşmeye devam etmiş, eğitim üst sınırda bitmiştir. Her fold'un kendi epoch sayısını seçmesi doğaldır: Veri miktarı ve iç doğrulama ayları değiştikçe "kaç epoch yeter?" sorusunun cevabı da değişir. Bu GRU, 16.4'tekinden iki noktada ayrılır (`Dropout` katmanı ve fold içinde seçilen epoch sayısı); bu yüzden ortalama hatası 16.4'teki 32.17'den biraz farklıdır.
 - **XGBoost'un eğitim boyu:** Özellik tablosu bir ay geç başladığı için XGBoost her fold'da GRU'dan bir gözlem eksikle eğitilir (72'ye karşı 71, …). Doğrulama ayları ise birebir aynıdır.
-- **İki model berabere:** Ortalama RMSE'ler 33.52 ve 32.88'dir; aradaki 0.64'lük fark iki modelin standart sapmasından (3.98 ve 8.36) çok küçüktür. 16.4'teki ölçüte göre bu veriyle "biri diğerinden daha iyi" demek için kanıt yoktur. Fold fold farklara bakınca da tablo aynıdır: GRU 1958, 1959 ve 1960'ta önde (1960'taki 0.05'lik fark pratikte beraberliktir), XGBoost 1956 ve 1957'de önde. Beş farkın 3'e 2 bölünmesi açık bir üstünlük göstermez.
-- **Ama kararlılıkları farklı:** XGBoost'un fold hataları GRU'nunkilerin iki katından fazla dağılır (8.36'ya karşı 3.98). En kötü yılı 1959'dur (46.97). Bölüm 13.3'teki tavan sorunu burada açıkça görülür: Fold 4'ün eğitimindeki en büyük değer 505 (Ağustos 1958) iken XGBoost 1959 için en fazla yaklaşık 493 tahmin eder, oysa 1959 yazında gerçek değer 559'a çıkar. Ağaçlar eğitimde gördükleri değerlerin üstüne çıkamadığı için her fold'da tahmin tavanı eğitimdeki rekorun biraz altında kalır. GRU ise ölçeklenmiş girdilerle bu rekorun bir miktar üstüne çıkabilir.
-- **Tek yıl yanıltırdı:** Yalnızca 1959'u test etseydik GRU'yu 11 birim farkla açıkça daha iyi bulurduk; yalnızca 1956'yı test etseydik XGBoost'u aynı farkla daha iyi bulurduk. İkisi de beş yılın bütününün söylediğiyle çelişir.
+- **İki model berabere:** Ortalama RMSE'ler 33.52 ve 33.27'dir; aradaki 0.25'lik fark iki modelin standart sapmasından (3.98 ve 10.38) çok küçüktür. 16.4'teki ölçüte göre bu veriyle "biri diğerinden daha iyi" demek için kanıt yoktur. Fold fold farklara bakınca da tablo aynıdır: GRU 1958 ve 1959'da, XGBoost 1956, 1957 ve 1960'ta öndedir. Beş farkın 2'ye 3 bölünmesi açık bir üstünlük göstermez.
+- **Ama kararlılıkları farklı:** XGBoost'un fold hataları GRU'nunkilerin yaklaşık 2.6 katı dağılır (10.38'e karşı 3.98). En kötü yılı 1959'dur (52.16); o yıl mevsimsel naive'in (49.25) de gerisinde kalır. Bölüm 13.3'teki tavan sorunu burada açıkça görülür: Fold 4'ün eğitimindeki en büyük değer 505 (Ağustos 1958) iken XGBoost 1959 için en fazla yaklaşık 499 tahmin eder, oysa 1959 yazında gerçek değer 559'a çıkar. Ağaçlar eğitimde gördükleri değerlerin üstüne çıkamadığı için her fold'da tahmin tavanı eğitimdeki rekorun biraz altında kalır. GRU ise ölçeklenmiş girdilerle bu rekorun bir miktar üstüne çıkabilir.
+- **Tek yıl yanıltırdı:** Yalnızca 1959'u test etseydik GRU'yu yaklaşık 16 birim farkla açıkça daha iyi bulurduk; yalnızca 1956'yı test etseydik XGBoost'u yaklaşık 13 birim farkla daha iyi bulurduk. İkisi de beş yılın bütününün söylediğiyle çelişir.
 - **Referans:** İki model de ortalamada mevsimsel naive'i (40.73 ± 12.29) geçer. Ancak 1958'de naive (17.01) ikisini de yener. O yıl yolcu sayısı bir önceki yıla göre yalnızca %3.4 artmıştır (diğer doğrulama yıllarında %11–16; bkz. Hemen deneyin 8.4.2). "Geçen yılın aynı ayı" tahmini bu durgun yılda neredeyse isabetliyken trendi öğrenmiş modeller büyümeyi olduğundan fazla tahmin eder.
-- **Özellik önemi:** Son fold'un modelinde (eğitim 1950-02 – 1959-12) `lag_12` (bir yıl önceki aynı ay) toplam önemin yaklaşık %59'unu tek başına alır; onu 6 ve 3 aylık hareketli ortalamalar (0.13, 0.12), `lag_1` (0.06) ve `lag_11` (0.03) izler. Önem skorlarının toplamı 1'dir. Tablo, serinin güçlü mevsimselliğini (`lag_12`) ve trendini (hareketli ortalamalar) yansıtır.
+- **Özellik önemi:** Son fold'un modelinde (eğitim 1950-02 – 1959-12) `lag_12` (bir yıl önceki aynı ay) toplam önemin yaklaşık %89'unu tek başına alır; onu çok geride `lag_1` (0.05), 12 aylık hareketli ortalama (0.02), `lag_11` (0.01) ve 6 aylık hareketli ortalama (0.007) izler. Önem skorlarının toplamı 1'dir. Tablo, modelin kararlarını büyük ölçüde serinin güçlü mevsimselliğine (`lag_12`) dayandırdığını gösterir; düzey ve trend bilgisi ağırlıklı olarak `lag_1` ve hareketli ortalamalar üzerinden gelir.
 - **Hangisi seçilmeli?** Bu veriyle doğruluk tek başına bir seçim gerekçesi değildir. XGBoost daha hızlı eğitilir, daha kolay yorumlanır ve tohumdan etkilenmez. GRU bu deneyde yıldan yıla daha kararlıdır, ama sonucu tohuma ve donanıma bağlıdır (15.3'te aynı mimarinin bir tohumda test döneminde çöktüğünü gördük). Seçim, verinin büyüklüğüne, yorumlanabilirlik ihtiyacına ve problemin yapısına göre yapılmalıdır.
 
-> **Not —** Bu kodda ölçekleyici her fold'da yalnızca o fold'un eğitim aylarıyla fit edilir, GRU'nun erken durdurması fold'un eğitim kısmından ayrılan iç doğrulamayla yapılır ve `seasonal_diff` yalnızca geçmiş değerlerden üretilir (13.2). Doğrulama yılları hiçbir aşamada model kurmak ya da ayar seçmek için kullanılmaz. Beş fold'un GRU eğitimleri CPU'da birkaç dakika sürer.
+> **Not —** Bu kodda ölçekleyici her fold'da yalnızca o fold'un eğitim aylarıyla fit edilir, GRU'nun erken durdurması fold'un eğitim kısmından ayrılan iç doğrulamayla yapılır ve `seasonal_diff` yalnızca geçmiş değerlerden üretilir (13.2). Yıl bilgisi tüm seri üzerinden ölçeklenmez; böyle bir ölçekleme doğrulama yıllarının en büyük değerini eğitime taşırdı. Özellik tablosunda bu yüzden 21 sütun vardır. Doğrulama yılları hiçbir aşamada model kurmak ya da ayar seçmek için kullanılmaz. Beş fold'un GRU eğitimleri CPU'da birkaç dakika sürer.
 
 > **Hemen deneyin 16.5 · Fold fold XGBoost'a karşı mevsimsel naive** (Python, ~5 dk)
 >
-> 16.5'teki 22 özellik yerine yalnızca 12 gecikmeyle kurulan sade bir XGBoost'u her fold'da mevsimsel naive ile ("bu ay = geçen yılın aynı ayı") karşılaştırın. Doğrulama dilimleri tam birer yıldır (`test_size=12`).
+> 16.5'teki 21 özellik yerine yalnızca 12 gecikmeyle kurulan sade bir XGBoost'u her fold'da mevsimsel naive ile ("bu ay = geçen yılın aynı ayı") karşılaştırın. Doğrulama dilimleri tam birer yıldır (`test_size=12`).
 >
 > ```python
 > import numpy as np, pandas as pd, xgboost as xgb
@@ -604,9 +640,51 @@ rolling_mean_3    0.119410
 >
 > <details><summary>Cevap</summary>
 >
-> `XGBoost 33.80 ± 9.55` (fold'lar 24.49, 29.61, 28.25, 51.69, 34.99); naive satırları değişmez. Ortalama biraz iyileşti, ama 1958 (28.25'e karşı 17.01) ve 1959 (51.69'a karşı 49.25) yine naive'in yılı. Fark (yaklaşık 6.9) hâlâ standart sapmalar düzeyinde; tek bir ayarı değiştirmek tabloyu kökten değiştirmedi.
+> `XGBoost 33.80 ± 9.56` (fold'lar 24.49, 29.58, 28.25, 51.69, 34.99); naive satırları değişmez. Ortalama biraz iyileşti, ama 1958 (28.25'e karşı 17.01) ve 1959 (51.69'a karşı 49.25) yine naive'in yılı. Fark (yaklaşık 6.9) hâlâ standart sapmalar düzeyinde; tek bir ayarı değiştirmek tabloyu kökten değiştirmedi.
 >
 > </details>
+
+> **Hemen deneyin 16.5b · Aynı fold'larda tek adımlı ve özyinelemeli tahmin** (Python, ~5 dk)
+>
+> 16.5'teki karşılaştırmalar **tek adımlıdır**: Doğrulama yılının her ayı tahmin edilirken gecikme sütunlarında o yılın gerçekleşen değerleri bulunur (12.1.3). Gerçek bir 12 aylık tahminde model kendi tahminlerini girdi olarak kullanmak zorundadır. Hemen deneyin 16.5'teki sade XGBoost ile iki düzeni aynı fold'larda karşılaştıralım:
+>
+> ```python
+> import numpy as np, pandas as pd, xgboost as xgb
+> from sklearn.model_selection import TimeSeriesSplit
+> s = pd.read_csv("data/AirPassengers.csv")["Passengers"]
+> X = pd.DataFrame({f"lag_{l}": s.shift(l) for l in range(1, 13)}).dropna()
+> y = s.loc[X.index]
+> r_tek, r_oz = [], []
+> for k, (tr, va) in enumerate(TimeSeriesSplit(n_splits=5, test_size=12).split(X), 1):
+>     m = xgb.XGBRegressor(n_estimators=300, max_depth=3, learning_rate=0.05, random_state=42)
+>     m.fit(X.iloc[tr], y.iloc[tr])
+>     tek = m.predict(X.iloc[va])                       # tek adımlı: gecikmeler gerçek değerler
+>     gecmis = list(y.iloc[tr].values[-12:])            # özyinelemeli: eğitimin son 12 ayı
+>     oz = []
+>     for _ in range(len(va)):
+>         girdi = pd.DataFrame([gecmis[::-1][:12]], columns=X.columns)   # lag_1 = en son değer
+>         tahmin = float(m.predict(girdi)[0])
+>         oz.append(tahmin)
+>         gecmis.append(tahmin)                         # tahmin, sonraki ayın girdisi olur
+>     gercek = y.iloc[va].values
+>     r_tek.append(np.sqrt(np.mean((gercek - tek) ** 2)))
+>     r_oz.append(np.sqrt(np.mean((gercek - np.array(oz)) ** 2)))
+>     print(f"Fold {k} ({1955 + k}): tek adımlı {r_tek[-1]:6.2f}   özyinelemeli {r_oz[-1]:6.2f}")
+> print(f"Ortalama: tek adımlı {np.mean(r_tek):.2f}   özyinelemeli {np.mean(r_oz):.2f}")
+> ```
+>
+> **Ne göreceksiniz:**
+>
+> ```text
+> Fold 1 (1956): tek adımlı  21.69   özyinelemeli  22.20
+> Fold 2 (1957): tek adımlı  32.35   özyinelemeli  33.74
+> Fold 3 (1958): tek adımlı  30.63   özyinelemeli  31.07
+> Fold 4 (1959): tek adımlı  55.26   özyinelemeli  44.85
+> Fold 5 (1960): tek adımlı  40.28   özyinelemeli  39.17
+> Ortalama: tek adımlı 36.04   özyinelemeli 34.21
+> ```
+>
+> Dört fold'da iki düzen birbirine yakın sonuç verir. 1959'da ise tek adımlı tahmin belirgin biçimde kötüdür: Model, eğitim aralığının üstündeki gerçek Temmuz değerini (548) girdi olarak alınca Ağustos'u yaklaşık 443 tahmin eder (gerçek değer 559); özyinelemeli tahmin aynı ay için yaklaşık 499 verir. Değerlendirme düzeni sonucu değiştirebilir; özyinelemeli tahmin her zaman daha kötü değildir. Bu yüzden bir karşılaştırmada hangi düzenin kullanıldığı açıkça belirtilmelidir.
 
 ---
 

@@ -1,6 +1,6 @@
 # %% [markdown]
 # # Bölüm 16 — TimeSeriesSplit: Zaman Serisinde Çapraz Doğrulama
-# Ders notu: Course_notes.md, Bölüm 16 (16.3 parametre demosu, 16.4 fold içinde ön işleme, 16.5 kapsamlı örnek).
+# Ders notu: notlar/16_timeseriessplit_zaman_serisinde_capraz_dogrulama.md (16.3 parametre demosu, 16.4 fold içinde ön işleme, 16.5 kapsamlı örnek).
 # Bu dosya bölümdeki Python kodlarının tamamını içerir.
 # Çalıştırma: depo kök dizininden `python Codes/python/ch16_timeseriessplit.py`
 # veya VS Code'da hücre hücre (# %%) ya da Colab'da notebook sürümü.
@@ -295,8 +295,8 @@ df_features['seasonal_diff'] = past - past.shift(12)
 df_features['month'] = df_features.index.month
 df_features['quarter'] = df_features.index.quarter
 df_features['year'] = df_features.index.year
-df_features['year_normalized'] = (df_features['year'] - df_features['year'].min()) / \
-                                  (df_features['year'].max() - df_features['year'].min())
+# Yılı tüm seri üzerinden min–max ile ölçeklemek, doğrulama yıllarını eğitime sızdırırdı;
+# bu yüzden ölçeklenmiş yıl sütunu kullanılmaz (ağaç modelleri ham yılla da çalışır).
 
 # Gecikmeler nedeniyle ilk satırlarda oluşan eksik değerleri at
 df_features = df_features.dropna()
@@ -329,8 +329,7 @@ for k, (train_idx, val_idx) in enumerate(folds, 1):
         n_estimators=500,        # ağaç sayısı
         learning_rate=0.05,      # her ağacın katkı oranı
         max_depth=4,             # ağaç derinliği
-        subsample=0.8,           # her ağaçta kullanılan satır oranı
-        colsample_bytree=0.8,    # her ağaçta kullanılan özellik oranı
+        # subsample/colsample_bytree kullanılmaz: sonuçlar rastgelelik içermez
         random_state=SEED
     )
     model_xgb.fit(X_tr, y_tr)

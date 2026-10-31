@@ -1,6 +1,6 @@
 # =============================================================================
 # Bölüm 3 — Zaman Serisi Tipleri
-# Ders notu: Course_notes.md, Bölüm 3 (3.2 Durağan ve Durağan Olmayan: mini uygulama)
+# Ders notu: notlar/03_zaman_serisi_tipleri.md, Bölüm 3 (3.2 Durağan ve Durağan Olmayan: mini uygulama)
 #
 # Çalıştırma: depo kök dizininden  Rscript Codes/R/ch03_duraganlik.R
 #             ya da RStudio'da dosyayı açıp satır satır (Ctrl+Enter) çalıştırın.

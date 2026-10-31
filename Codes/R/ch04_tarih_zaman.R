@@ -1,6 +1,6 @@
 # =============================================================================
 # Bölüm 4 — R'da Tarih ve Zaman Nesneleri
-# Ders notu: Course_notes.md, Bölüm 4 (Date, POSIXct, POSIXlt, saat dilimleri,
+# Ders notu: notlar/04_rda_tarih_ve_zaman_nesneleri.md, Bölüm 4 (Date, POSIXct, POSIXlt, saat dilimleri,
 #            lubridate, tarih aritmetiği, pratik lubridate örnekleri)
 #
 # Çalıştırma: depo kök dizininden  Rscript Codes/R/ch04_tarih_zaman.R

@@ -1,7 +1,7 @@
 # =============================================================
 # GRETL İLE AIRPASSENGERS: ARIMA MODELLEMESİ VE TAHMİN
 # =============================================================
-# Ders notu: Course_notes.md, Bölüm 11.5 (Komut Dili ile Otomasyon: ARIMA Betiği)
+# Ders notu: notlar/11_gretl_ekonometrik_analiz_icin_gorsel_ortam.md, Bölüm 11.5 (Komut Dili ile Otomasyon: ARIMA Betiği)
 # Veri: 1949-1960 aylık uluslararası havayolu yolcu sayıları (bin kişi)
 #
 # ÇALIŞTIRMA

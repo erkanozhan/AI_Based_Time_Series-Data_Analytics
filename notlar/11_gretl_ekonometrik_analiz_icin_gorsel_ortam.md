@@ -8,6 +8,8 @@ Python ve R'da komut yazarak çalışmak oldukça esnektir, ancak ilk adımda yo
 *   Aynı işlemler Gretl'in kendi komut diliyle (*hansl*) betik (script) olarak da yazılıp tekrarlanabilir.
 *   Zaman serisi yapısını tanımlamayı, otokorelasyonları görmeyi ve durağanlık testlerini yapmayı kolaylaştırır.
 
+Gretl'in menülerine kısa bir giriş için bkz. [Ek B: Gretl'e Giriş](../Gretl.md).
+
 Gretl'i, kod yazmadan "ekonometrik çekirdek modelleri" denemek için pratik bir masaüstü laboratuvarı olarak düşünebilirsiniz. Bu bölümde önceki bölümlerde teorisini gördüğümüz yöntemleri Gretl'de uygulayacağız: ARIMA (Bölüm 7), ADF/KPSS testleri (Bölüm 3.2 ve 7.5), hata metrikleri (Bölüm 8) ve VAR (Bölüm 10). Bu bölümdeki betikler Gretl 2024d sürümüyle çalıştırılıp çıktıları kontrol edilmiştir.
 
 ---
@@ -169,7 +171,7 @@ Model penceresinde **Graphs → Residual plot → Against time** ile artıkları
 >
 > <details><summary>Cevap</summary>
 >
-> `l_g ~ time`: R-kare 0.9015; `l_g ~ time + dm2…dm12`: **R-kare 0.983468**. Log ölçeğinde mevsim etkisi her yıl aynı oranda olduğu için sabit kuklalar daha iyi uyar (Bölüm 2.5'daki çarpımsal yapı). Örneğin `dm7` katsayısı 0.300619'dur: Temmuz, Ocak'a göre yaklaşık $e^{0.30} \approx 1.35$ kat, yani yaklaşık %35 daha kalabalıktır. Ancak `Durbin-Watson` 0.425184'tür ve otokorelasyon testinde `Ljung-Box Q' = 393.56`, p-değeri `8.74e-77`'dir: R-kare çok yüksek olsa da artıklar güçlü otokorelasyonludur. Bu, yukarıdaki paragrafta söylendiği gibi dinamik (ARIMA) bir modele geçme gereğini gösterir.
+> `l_g ~ time`: R-kare 0.9015; `l_g ~ time + dm2…dm12`: **R-kare 0.983468**. Log ölçeğinde mevsim etkisi her yıl aynı oranda olduğu için sabit kuklalar daha iyi uyar (Bölüm 2.4'teki çarpımsal yapı). Örneğin `dm7` katsayısı 0.300619'dur: Temmuz, Ocak'a göre yaklaşık $e^{0.30} \approx 1.35$ kat, yani yaklaşık %35 daha kalabalıktır. Ancak `Durbin-Watson` 0.425184'tür ve otokorelasyon testinde `Ljung-Box Q' = 393.56`, p-değeri `8.74e-77`'dir: R-kare çok yüksek olsa da artıklar güçlü otokorelasyonludur. Bu, yukarıdaki paragrafta söylendiği gibi dinamik (ARIMA) bir modele geçme gereğini gösterir.
 >
 > </details>
 
@@ -213,12 +215,12 @@ Serinin durağan olup olmadığı ve artıkların otokorelasyon içerip içermed
 | Değişkenin ACF/PACF grafiği | Değişkeni seç → **Variable → Correlogram** | `corrgm x 36` |
 | ADF birim kök testi | **Variable → Unit root tests → Augmented Dickey-Fuller test** | `adf 12 x --c --ct` |
 | KPSS durağanlık testi | **Variable → Unit root tests → KPSS test** | `kpss 12 x` |
-| Artıklarda otokorelasyon (Ljung-Box) | Model penceresi → **Tests → Autocorrelation** | `modtest --autocorr` |
+| Artıklarda otokorelasyon (ARIMA'da Ljung-Box, OLS'de Breusch-Godfrey, VAR'da Rao F) | Model penceresi → **Tests → Autocorrelation** | `modtest --autocorr` |
 | Artıkların normalliği | Model penceresi → **Tests → Normality of residual** | `modtest --normality` |
 
 Komutlardaki sayılar ve seçenekler şöyle okunur: `corrgm x 36` `x` değişkeninin ilk 36 gecikmedeki ACF ve PACF değerlerini tablo olarak yazar (ve grafiğini çizer). `adf 12 x --c --ct` ADF testini 12 gecikmeli farkla yapar; `--c` yalnızca sabitli, `--ct` sabit ve trendli sürümü ister, ikisi birlikte yazılınca iki sonuç da raporlanır. `kpss 12 x` KPSS testini 12 gecikmelik bant genişliğiyle yapar. `modtest` her zaman **en son tahmin edilen modele** uygulanır; bu yüzden bir modeli kurduktan hemen sonra yazılır.
 
-ADF testinde $H_0$ "birim kök vardır (seri durağan değildir)", KPSS testinde ise $H_0$ "seri durağandır" şeklindedir; iki testi birlikte kullanmak daha güvenilir bir karar verir. Ljung-Box testinde $H_0$ "artıklarda otokorelasyon yoktur" hipotezidir ve iyi bir modelde reddedilmemesi (p > 0,05) istenir. Normallik testinde de $H_0$ "artıklar normal dağılır" şeklindedir (H₀/H₁ ve p-değeri: bkz. Bölüm 3.2).
+ADF testinde $H_0$ "birim kök vardır (seri durağan değildir)", KPSS testinde ise $H_0$ "seri durağandır" şeklindedir; iki testi birlikte kullanmak daha güvenilir bir karar verir. Ljung-Box testinde $H_0$ "artıklarda otokorelasyon yoktur" hipotezidir ve iyi bir modelde reddedilmemesi (p > 0.05) istenir. Normallik testinde de $H_0$ "artıklar normal dağılır" şeklindedir (H₀/H₁ ve p-değeri: bkz. Bölüm 3.2).
 
 Bu testler, ARIMA kurarken ya da daha sonra LSTM/GRU gibi modellere (Bölüm 15) geçmeden önce serinin yapısını anlamak için de yararlıdır.
 
@@ -305,7 +307,7 @@ Komutların ne yaptığı:
 
 *   **Adım 2–4:** Betik seriyi çizip özet istatistiklerini aldıktan sonra, büyüyen dalgalanmalar nedeniyle log alır (`lnpass`); 4. adımdaki 36 gecikmelik korelogramda mevsimsel örüntü (12, 24, 36. gecikmeler) incelenir. Adım 3'te `lnpass` için ADF p-değeri yüksektir (sabitli 0.31, sabit+trendli 0.82: durağan değil), `ddlnpass` için düşüktür (yaklaşık 0.0002: durağan). KPSS'de ise tersi beklenir: `ddlnpass` için test istatistiği 0.103, %5 kritik değerin (0.462) altında kalır ve p > 0.10 olur; "seri durağandır" hipotezi reddedilmez. Bu, Bölüm 7'deki $d = 1$, $D = 1$ seçimini destekler.
 *   **Adım 5:** Betik beş aday modeli `--quiet` ile kurar, AIC'lerini `$aic` ile saklar ve `printf` (biçimlendirilmiş yazdırma) ile tablo hâlinde yazdırır; en küçük AIC değerine sahip model seçilir. AIC'ler ancak aynı seri üzerinde kurulan modeller arasında karşılaştırılabilir: $d = 1$, $D = 1$ olan dört mevsimsel model aynı fark serisini modellediği için karşılaştırılabilir. Bunlar arasında airline model en iyisidir (AIC −483.39; diğerleri −481.89, −481.48, −477.40). ARIMA(1,1,1) mevsimsel fark içermez; AIC'si (−242.63) farklı bir seri üzerinden hesaplandığı için diğerleriyle doğrudan karşılaştırılamaz. Bu model ancak mevsimsel yapıyı hiç modellemediği için kötü bir seçimdir ve artıklarında 12. gecikmede güçlü korelasyon kalır.
-*   **Adım 6:** Airline modelin katsayıları $\theta_1 \approx -0.40$ ve $\Theta_1 \approx -0.56$'dır (Gretl çıktısında `theta_1` ve `Theta_1`); ikisi de çok anlamlıdır (p < 0.001). Betik artıkları çizer, korelogramlarını alır ve Ljung-Box ile normallik testlerini yapar: `modtest --autocorr` Ljung-Box p-değeri 0.57'dir (0,05'ten büyük) ve artık korelogramında anlamlı çubuk neredeyse kalmaz: model serideki yapıyı yakalamıştır. Normallik testi p-değeri 0.17'dir; artıkların normal olduğu hipotezi reddedilmez.
+*   **Adım 6:** Airline modelin katsayıları $\theta_1 \approx -0.40$ ve $\Theta_1 \approx -0.56$'dır (Gretl çıktısında `theta_1` ve `Theta_1`); ikisi de çok anlamlıdır (p < 0.001). Betik artıkları çizer, korelogramlarını alır ve Ljung-Box ile normallik testlerini yapar: `modtest --autocorr` Ljung-Box p-değeri 0.57'dir (0.05'ten büyük) ve artık korelogramında anlamlı çubuk neredeyse kalmaz: model serideki yapıyı yakalamıştır. Normallik testi p-değeri 0.17'dir; artıkların normal olduğu hipotezi reddedilmez.
 *   **Adım 7:** 1960 tahminleri `exp()` ile yolcu sayısına çevrildikten sonra RMSE = 18.59, MAE = 13.26 (yolcu sayısı biriminde, bin kişi) ve MAPE = %2.90 çıkar. Bunlar, aynı modelin aynı eğitim-test ayrımıyla R'da elde edilen sonuçlarla (Bölüm 8.3) birebir aynıdır. `--nc` seçeneği kullanılmazsa Gretl'in eklediği sabit terim yüzünden değerler biraz farklı çıkar (18.68, 13.37, %2.93).
 *   **Adım 8:** `fcast` tablosu her ay için log ölçeğinde tahmin, standart hata ve %95 aralığı verir. `exp(lnpass_f)` ile yolcu sayısına çevrilen `pass_f` değerleri 1961 Ocak için yaklaşık 450, Temmuz için 670 bin yolcudur; betik bunları gerçek seriyle birlikte çizer ve grafik trendin ve mevsimsel örüntünün 1961'e taşındığını göstermelidir.
 
@@ -361,7 +363,7 @@ VAR modelinin teorisi (tanım, gecikme seçimi, stabilite, Granger nedenselliği
     *   **Tests → Autocorrelation** ile artıklarda otokorelasyon testi,
     *   **Analysis → Forecasts…** ile tahminler elde edilir.
 
-**Granger nedenselliği nerede?** Gretl VAR çıktısında her denklemin altında yer alan **"F-tests of zero restrictions"** bölümündeki "All lags of interest" satırı, enflasyon denkleminde faizin tüm gecikme katsayılarının sıfır olduğu hipotezini sınar. Bu, Bölüm 10.6'daki Granger nedensellik testinin ta kendisidir: p-değeri 0,05'ten küçükse faiz, enflasyonun Granger nedenidir. Bu veride satır `F(2, 111) = 0.17759 [0.8375]` şeklindedir: köşeli parantezdeki 0.8375 p-değeridir ve faiz enflasyonun Granger nedeni değildir. Aynı denklemdeki "All lags of exchange" satırı ise `F(2, 111) = 33.412 [0.0000]` verir.
+**Granger nedenselliği nerede?** Gretl VAR çıktısında her denklemin altında yer alan **"F-tests of zero restrictions"** bölümündeki "All lags of interest" satırı, enflasyon denkleminde faizin tüm gecikme katsayılarının sıfır olduğu hipotezini sınar. Bu, Bölüm 10.6'daki Granger nedensellik testinin ta kendisidir: p-değeri 0.05'ten küçükse faiz, enflasyonun Granger nedenidir. Bu veride satır `F(2, 111) = 0.17759 [0.8375]` şeklindedir: köşeli parantezdeki 0.8375 p-değeridir ve faiz enflasyonun Granger nedeni değildir. Aynı denklemdeki "All lags of exchange" satırı ise `F(2, 111) = 33.412 [0.0000]` verir.
 
 > **Hemen deneyin 11.6.1a · Gretl'de hazır bir veriyle VAR ve ters kökler** (Gretl menüleri, ~5 dk)
 >
@@ -464,6 +466,18 @@ Bu betik çalıştırıldığında Gretl önce gecikme seçim tablosunu, ardınd
 IRF grafiklerini ve ters kök grafiğini görmek için betik çalıştıktan sonra model penceresindeki **Graphs** menüsü kullanılabilir.
 
 **Not —** Bölüm 10'daki Python uygulamasında olduğu gibi, VAR'a girmeden önce serilerin durağanlığı ADF/KPSS ile kontrol edilmeli (Bölüm 11.4), gerekirse **Add → First differences of selected variables** ile farkları alınmalıdır. Betikte bunu denemek için `var` satırlarından önce `diff inflation interest exchange` yazıp modeli `d_inflation d_interest d_exchange` değişkenleriyle kurabilirsiniz.
+
+Durağanlık kontrolünün ve stabilitenin Gretl'deki karşılığı şöyle yazılabilir:
+
+```gretl
+diff inflation interest exchange
+adf 12 inflation --c --test-down=AIC      # en çok 12 gecikme, sayıyı AIC seçer
+adf 12 d_inflation --c --test-down=AIC
+var 2 inflation interest exchange --quiet
+eval maxc(abs(eigen($compan)))            # en büyük öz değer modülü
+```
+
+`--test-down=AIC` seçeneği verildiğinde `12` sabit gecikme değil üst sınırdır: Gretl 12 gecikmeden başlayıp gecikme sayısını AIC ile geriye doğru seçer. Bu veride düzey serilerin p-değerleri 0.9158 (enflasyon), 0.1278 (faiz) ve 1 (kur) çıkar; farkı alınmış serilerde 0.0153, 0.0142 ve 1.2e-08'e iner. Gretl gecikmeyi statsmodels'tan farklı seçtiği için düzey enflasyonun p-değeri Bölüm 10.9'daki 0.806'dan farklıdır, ama karar aynıdır: düzey seriler durağan değil, farklar durağan. Son satır VAR(2) için 0.99737 yazar (Şekil 10.2b'deki 0.997); aynı satırı `var 7 ...` sonrasında çalıştırırsanız 1.0238 çıkar ve AIC'nin önerdiği VAR(7)'nin stabil olmadığını görürsünüz (Bölüm 10.9).
 
 > **Hemen deneyin 11.6.2 · Farkı alınmış serilerle VAR: Granger sonuçları değişir mi?** (Gretl betiği, ~5 dk)
 >

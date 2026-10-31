@@ -1,6 +1,6 @@
 # %% [markdown]
 # # Bölüm 9 — Facebook Prophet ile `AirPassengers` Tahmini
-# Ders notu: Course_notes.md, Bölüm 9. Bu dosya bölümdeki Python kodlarının tamamını içerir.
+# Ders notu: notlar/09_facebook_prophet.md, Bölüm 9. Bu dosya bölümdeki Python kodlarının tamamını içerir.
 # Çalıştırma: depo kök dizininden `python Codes/python/ch09_prophet.py`
 # veya VS Code'da hücre hücre (# %%) ya da Colab'da notebook sürümü.
 # Kurulum: `pip install prophet` (Colab'da genellikle hazır kuruludur).

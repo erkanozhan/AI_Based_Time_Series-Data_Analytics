@@ -1,6 +1,6 @@
 # %% [markdown]
 # # Bölüm 7 — Python ile SARIMA: `AirPassengers`
-# Ders notu: Course_notes.md, Bölüm 7.7 (Python ile Aynı Analiz). Bu dosya bölümdeki Python kodlarının tamamını içerir.
+# Ders notu: notlar/07_klasik_istatistiksel_modeller_arima_ve_sarima.md, Bölüm 7.7 (Python ile Aynı Analiz). Bu dosya bölümdeki Python kodlarının tamamını içerir.
 # Çalıştırma: depo kök dizininden `python Codes/python/ch07_sarima_airpassengers.py`
 # veya VS Code'da hücre hücre (# %%) ya da Colab'da notebook sürümü.
 

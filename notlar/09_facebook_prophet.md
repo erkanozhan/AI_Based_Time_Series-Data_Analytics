@@ -1,4 +1,4 @@
-[İçindekiler](../Course_notes.md) · [← 8. Model Değerlendirme: Hata Metrikleri ve Eğitim-Test Ayrımı](08_model_degerlendirme_hata_metrikleri_ve_egitim_te.md) · [10. VAR: Çok Değişkenli Zaman Serisi Modeli →](10_var_cok_degiskenli_zaman_serisi_modeli.md)
+[İçindekiler](../Course_notes.md) · [← 8. Model Değerlendirme: Hata Metrikleri ve Eğitim-Test Ayrımı](08_model_degerlendirme_hata_metrikleri_ve_egitim_test_ayrimi.md) · [10. VAR: Çok Değişkenli Zaman Serisi Modeli →](10_var_cok_degiskenli_zaman_serisi_modeli.md)
 
 ## 9. Facebook Prophet
 
@@ -6,7 +6,7 @@ Bölüm 7'de ARIMA/SARIMA ile seriyi önce durağanlaştırıp sonra kendi geçm
 
 **Açıklama:** Prophet, bir zaman serisini "zamanın bir fonksiyonu" olarak görür ve bu fonksiyonu anlaşılır parçalara ayırarak kurar: genel gidişat (trend), düzenli tekrarlar (mevsimsellik) ve özel günlerin etkisi (tatiller). ARIMA'daki gibi fark alma, ACF/PACF okuma ya da $(p,d,q)$ derecelerini seçme zorunluluğu yoktur; seri durağan olmasa da doğrudan uygulanabilir. LSTM gibi (Bölüm 15) içyapısı kapalı bir model de değildir: Her bileşeni ayrı ayrı çizip yorumlayabiliriz.
 
-Bu fikir size tanıdık gelmeli. Bölüm 2.2 ve 2.5'da bir seriyi trend, mevsimsellik ve düzensiz bileşene **ayrıştırmıştık**. Prophet, bu ayrıştırma düşüncesini bir **tahmin modeline** dönüştürür: Bileşenleri yalnızca geçmişte ayırmakla kalmaz, her birini matematiksel bir fonksiyonla ifade edip geleceğe uzatır.
+Bu fikir size tanıdık gelmeli. Bölüm 2.2 ve 2.5'te bir seriyi trend, mevsimsellik ve düzensiz bileşene **ayrıştırmıştık**. Prophet, bu ayrıştırma düşüncesini bir **tahmin modeline** dönüştürür: Bileşenleri yalnızca geçmişte ayırmakla kalmaz, her birini matematiksel bir fonksiyonla ifade edip geleceğe uzatır.
 
 ---
 
@@ -36,7 +36,7 @@ Bileşenler birbirinden bağımsız olarak modellenir ve sonra toplanır. Model 
 
 Trend, serinin uzun vadeli yönünü taşır. Prophet'ta iki seçenek vardır.
 
-**Tanım 1 (parçalı doğrusal trend):** Varsayılan seçenektir. Trendi bir cetvel gibi düz bir doğru olarak düşünün; ama bu cetvel belirli noktalarda bükülebilir. Doğrunun **eğimi** (her zaman adımında ne kadar arttığı) belirli zaman noktalarında değişebilir. Eğimin değiştiği bu noktalara **değişim noktaları (changepoints)** denir. $s_1, s_2, \dots, s_S$ değişim noktaları için basitleştirilmiş gösterim şöyledir:
+**Tanım 1 (parçalı doğrusal trend, *piecewise linear trend*):** Varsayılan seçenektir. Trendi bir cetvel gibi düz bir doğru olarak düşünün; ama bu cetvel belirli noktalarda bükülebilir. Doğrunun **eğimi** (her zaman adımında ne kadar arttığı) belirli zaman noktalarında değişebilir. Eğimin değiştiği bu noktalara **değişim noktaları (changepoints)** denir. $s_1, s_2, \dots, s_S$ değişim noktaları için basitleştirilmiş gösterim şöyledir:
 
 ```math
 g(t) = \overbrace{\Big(\underbrace{k}_{\substack{\text{başlangıç}\\\text{eğimi}}} + \underbrace{\sum_{j: s_j \le t} \delta_j}_{\substack{\text{geçilen değişim}\\\text{noktalarındaki}\\\text{eğim ayarları}}}\Big)}^{t\text{ anındaki eğim}} t + \overbrace{\Big(\underbrace{m}_{\substack{\text{başlangıç}\\\text{seviyesi}}} + \underbrace{\sum_{j: s_j \le t} \gamma_j}_{\substack{\text{kopmayı önleyen}\\\text{düzeltmeler}}}\Big)}^{t\text{ anındaki kesişim}}
@@ -58,7 +58,7 @@ Genel kural $\gamma_j = -s_j \cdot \delta_j$'dir. $\gamma_j$'ler veriden ayrıca
 
 ![Değişim noktaları ile parçalı doğrusal trend](../images/ch09_degisim_noktalari.svg)
 
-*Şekil 9.2 — Parçalı doğrusal trend: Eğim yalnızca değişim noktalarında ($`s_1, s_2, s_3`$) değişir. Tahmin döneminde trend son eğimle uzatılır ve belirsizlik aralığı giderek genişler.*
+*Şekil 9.2 — Parçalı doğrusal trend: Eğim yalnızca değişim noktalarında ($`s_1, s_2, s_3`$) değişir. Tahmin döneminde trend son eğimle uzatılır ve belirsizlik aralığı (*uncertainty interval*) giderek genişler.*
 
 Değişim noktalarını elle vermemiz gerekmez. Prophet varsayılan olarak verinin **ilk %80'lik** kısmına eşit aralıklı 25 **aday** değişim noktası yerleştirir (`n_changepoints=25`, `changepoint_range=0.8`). Ardından her $`\delta_j`$ için sıfıra yakın değerleri ödüllendiren bir **ön dağılım** (önsel, *prior*; Laplace önseli) kullanır. Ön dağılım, veriye bakmadan önce bir parametre hakkındaki varsayımımızdır. Buradaki varsayım "eğim değişikliklerinin çoğu sıfırdır, arada bir büyük olabilir" şeklindedir ve bir ceza gibi çalışır: Eğimi değiştirmek modele "pahalıya" mal olur, bu yüzden model eğimi ancak veri bunu açıkça gerektiriyorsa değiştirir. Sonuçta adayların çoğunda $`\delta_j \approx 0`$ kalır; yalnızca gerçekten yön değişimi olan yerlerde eğim anlamlı biçimde değişir. 9.2'deki `AirPassengers` modelinde 25 adayın yalnızca 5'inde (Ağustos 1953 ile Şubat 1955 arasındaki adaylarda) eğim belirgin biçimde artmıştır; bunu Şekil 9.5'teki trend panelinde 1954 civarındaki hafif bükülme olarak görebilirsiniz.
 
@@ -71,7 +71,7 @@ Bu esnekliği `changepoint_prior_scale` parametresi (varsayılan 0.05) belirler.
 
 Bu ayarın test hatasına etkisini, Prophet kodunu ve test değerlendirmesini öğrendikten sonra 9.3'ün sonunda (Hemen deneyin 9.3b) deneyeceğiz.
 
-**Tanım 2 (lojistik büyüme trendi):** Bazı seriler sonsuza kadar büyüyemez; bir doygunluk seviyesine yaklaşır (ör. bir ülkedeki internet kullanıcı sayısı nüfusu aşamaz). Böyle bir büyüme önce yavaş başlar, sonra hızlanır, üst sınıra yaklaştıkça yeniden yavaşlar ve durur. Grafiği S harfine benzeyen bu eğri şöyle yazılır:
+**Tanım 2 (lojistik büyüme trendi, *logistic growth*):** Bazı seriler sonsuza kadar büyüyemez; bir doygunluk seviyesine yaklaşır (ör. bir ülkedeki internet kullanıcı sayısı nüfusu aşamaz). Böyle bir büyüme önce yavaş başlar, sonra hızlanır, üst sınıra yaklaştıkça yeniden yavaşlar ve durur. Grafiği S harfine benzeyen bu eğri şöyle yazılır:
 
 ```math
 g(t) = \dfrac{\overbrace{C}^{\text{üst sınır}}}{1 + \underbrace{\exp\big(-k (t - m)\big)}_{\substack{t\text{ büyüdükçe}\\\text{sıfıra yaklaşır}}}}
@@ -79,7 +79,7 @@ g(t) = \dfrac{\overbrace{C}^{\text{üst sınır}}}{1 + \underbrace{\exp\big(-k (
 
 **Nasıl okunur?** "g t eşittir C bölü, bir artı e üzeri eksi k çarpı t eksi m." Yani: Payda hiçbir zaman 1'in altına inmediği için trend, üst sınır C'yi aşamaz.
 
-> **Simge notu:** $`C`$: taşıma kapasitesi (serinin ulaşabileceği üst sınır) · $`\exp(x)`$ *(üstel fonksiyon)*: $`e^{x}`$, yani $`e \approx 2.718`$ sayısının $`x`$'inci kuvveti; $`\exp(0) = 1`$, $`x`$ büyüdükçe çok hızlı büyür, $`x`$ eksi yönde büyüdükçe sıfıra yaklaşır · $`k`$: büyüme hızı · $`m`$: burada başlangıç seviyesi **değil**, eğrinin en hızlı yükseldiği orta noktanın zamanıdır (aynı harf iki tanımda farklı anlamda kullanılır)
+> **Simge notu:** $`C`$: taşıma kapasitesi (*carrying capacity*; serinin ulaşabileceği üst sınır) · $`\exp(x)`$ *(üstel fonksiyon)*: $`e^{x}`$, yani $`e \approx 2.718`$ sayısının $`x`$'inci kuvveti; $`\exp(0) = 1`$, $`x`$ büyüdükçe çok hızlı büyür, $`x`$ negatif yönde büyüdükçe (ör. −5, −10) sıfıra yaklaşır · $`k`$: büyüme hızı · $`m`$: burada başlangıç seviyesi **değil**, eğrinin en hızlı yükseldiği orta noktanın zamanıdır (aynı harf iki tanımda farklı anlamda kullanılır)
 
 $C = 100$, $k = 1$, $m = 5$ alıp birkaç noktada hesaplayalım:
 
@@ -91,7 +91,7 @@ $C = 100$, $k = 1$, $m = 5$ alıp birkaç noktada hesaplayalım:
 | 7 | −2 | ≈ 0.135 | $`100 / 1.135 \approx 88.1`$ |
 | 10 | −5 | ≈ 0.0067 | $`100 / 1.0067 \approx 99.3`$ |
 
-Tablo eğrinin hikâyesini anlatır: Başta neredeyse sıfır, orta noktada ($t = m$) tam olarak üst sınırın yarısı (50), sonra 100'e yaklaşır ama onu hiç aşmaz. Prophet'ta bu seçenek `Prophet(growth='logistic')` ile kullanılır; veri çerçevesine üst sınırı gösteren bir `cap` sütunu eklemek gerekir. Lojistik trendde de büyüme hızı $k$ değişim noktalarında ayarlanabilir.
+Tablo eğrinin hikâyesini anlatır: Başta neredeyse sıfır, orta noktada ($t = m$) tam olarak üst sınırın yarısı (50), sonra 100'e yaklaşır ama onu hiç aşmaz. Prophet'ta bu seçenek `Prophet(growth='logistic')` ile kullanılır; üst sınırı gösteren bir `cap` sütununun hem eğitim veri çerçevesine hem de `make_future_dataframe()` ile üretilen gelecek tablosuna eklenmesi gerekir (ör. `future['cap'] = 100`). Gelecek tablosunda `cap` sütunu yoksa `predict()` hata verir. Lojistik trendde de büyüme hızı $k$ değişim noktalarında ayarlanabilir.
 
 > **Hemen deneyin 9.1.1 · Lojistik eğriyi Excel'de çizin** (Excel / LibreOffice Calc, ~4 dk)
 >
@@ -146,7 +146,7 @@ Tek bir dalga bile "kış düşük, yaz yüksek" desenini yakalar. Ancak gerçek
 
 *Şekil 9.3 — Fourier terimleri: (a) Yılda 1, 2 ve 3 tur atan dalgalar, katsayıları `AirPassengers` verisinden bulunmuş hâlleriyle. (b) Bu dalgaların toplamı: Yalnızca ilk dalga ($`N = 1`$) aylık mevsim etkilerinden ortalama 15.6 bin yolcu sapar; üç dalga ($`N = 3`$) bu sapmayı 6.0'a indirir.*
 
-**Yorum:** $n = 1$ terimi periyot başına tek bir tepe ve tek bir çukur üreten en kaba dalgadır. $n$ büyüdükçe daha hızlı salınan dalgalar eklenir; bunların toplamı, yaz tepesi ve kış çukuru gibi düzgün olmayan desenleri de yakalayabilir. $N$ (Prophet'taki adı `fourier_order`) büyüdükçe mevsimsel eğri daha esnek olur; varsayılan değer yıllık mevsimsellik için 10, haftalık için 3'tür. Esneklik bedelsiz değildir: Çok büyük $N$, veriye değil gürültüye uyan kıpır kıpır bir eğri üretebilir (9.2.1'deki bileşen grafiğinde bunun bir örneğini göreceğiz). Katsayılar $a_n, b_n$ sıradan bir regresyonla tahmin edilir: Her $\cos$ ve $\sin$ terimi bir girdi sütunu gibi davranır.
+**Yorum:** $n = 1$ terimi periyot başına tek bir tepe ve tek bir çukur üreten en kaba dalgadır. $n$ büyüdükçe daha hızlı salınan dalgalar eklenir; bunların toplamı, yaz tepesi ve kış çukuru gibi düzgün olmayan desenleri de yakalayabilir. $N$ (Prophet'taki adı `fourier_order`) büyüdükçe mevsimsel eğri daha esnek olur; varsayılan değer yıllık mevsimsellik için 10, haftalık için 3'tür. Esneklik bedelsiz değildir: Çok büyük $N$, veriye değil gürültüye uyan, aşırı dalgalı bir eğri üretebilir (9.2.1'deki bileşen grafiğinde bunun bir örneğini göreceğiz). Katsayılar $a_n, b_n$ sıradan bir regresyonla tahmin edilir: Her $\cos$ ve $\sin$ terimi bir girdi sütunu gibi davranır.
 
 Bölüm 2.3'teki ayrımı hatırlayalım: Prophet'ın $s(t)$ bileşeni sabit ve bilinen periyotlu **mevsimselliği** modeller; süresi belirsiz **döngüsel** dalgalanmalar ise çoğunlukla trend bileşenine karışır.
 
@@ -178,7 +178,7 @@ h(t) = \underbrace{\sum_{i=1}^{L}}_{L\text{ olayı topla}} \underbrace{\kappa_i}
 
 **Nasıl okunur?** "h t eşittir, i eşittir 1'den L'ye kadar, kappa alt i çarpı, t D alt i'nin elemanıysa 1, değilse 0 olan göstergenin toplamı."
 
-> **Simge notu:** $`L`$: tanımlanan tatil/olay sayısı · $`D_i`$: i'inci olayın gerçekleştiği tarihler kümesi (ör. bütün yılların Ramazan Bayramı günleri) · $`\in`$ *(elemanıdır)*: $`t`$ tarihinin bu kümede olduğunu belirtir; epsilon ($`\varepsilon`$) ile karıştırmayın · $`\mathbf{1}[\cdot]`$ *(gösterge fonksiyonu)*: köşeli parantezdeki koşul doğruysa 1, değilse 0 veren bir açma-kapama anahtarı · $`\kappa_i`$ *(kappa i, "k"ye benzeyen Yunan harfi)*: i'inci olayın seriye eklediği etki
+> **Simge notu:** $`L`$: tanımlanan tatil/olay sayısı · $`D_i`$: i'inci olayın gerçekleştiği tarihler kümesi (ör. bütün yılların Ramazan Bayramı günleri) · $`\in`$ *(elemanıdır)*: $`t`$ tarihinin bu kümede olduğunu belirtir; epsilon ($`\varepsilon`$) ile karıştırmayın · $`\mathbf{1}[\cdot]`$ *(gösterge fonksiyonu, indicator function)*: köşeli parantezdeki koşul doğruysa 1, değilse 0 veren bir açma-kapama anahtarı · $`\kappa_i`$ *(kappa i, "k"ye benzeyen Yunan harfi)*: i'inci olayın seriye eklediği etki
 
 Yani $t$ günü bir tatile denk geliyorsa, o tatilin etkisi $\kappa_i$ tahmine eklenir. Örneğin günlük satış verisinde iki olay tanımlayalım: Ramazan Bayramı ($\kappa_1 = +80$) ve yılbaşı ($\kappa_2 = +120$). Bayram günlerinden birinde $h(t) = 80 \cdot 1 + 120 \cdot 0 = 80$, 31 Aralık'ta $h(t) = 80 \cdot 0 + 120 \cdot 1 = 120$, sıradan bir günde ise $80 \cdot 0 + 120 \cdot 0 = 0$'dır. Tatiller `holidays` parametresiyle bir veri çerçevesi olarak verilir; ülke tatilleri için `m.add_country_holidays(country_name='TR')` kısayolu da vardır. Aylık `AirPassengers` verisinde günlük tatil etkisi anlamlı olmadığından bu bileşeni aşağıdaki uygulamada kullanmıyoruz.
 
@@ -251,7 +251,7 @@ Artık $s(t)$ bir miktar değil, trendin **oransal** bir düzeltmesidir: $s(t) =
 | 200 | $`200 + 60 = 260`$ | $`200 \cdot 1.20 = 240`$ |
 | 450 | $`450 + 60 = 510`$ | $`450 \cdot 1.20 = 540`$ |
 
-Toplamsal modelde yaz artışı seviye ne olursa olsun 60 yolcudur. Çarpımsal modelde ise trend 200'deyken 40, 450'deyken 90 yolcudur (bkz. Bölüm 2.4'teki çarpımsal model). 9.3'te kuracağımız çarpımsal modelde Temmuz 1960 için trend yaklaşık 462.4, yıllık etki $s(t) \approx 0.2304$'tür ve tahmin $462.4 \cdot 1.2304 \approx 568.9$ bin yolcu olur. Bu %23'lük Temmuz etkisi, Bölüm 2.5'daki çarpımsal ayrıştırmada bulduğumuz Temmuz katsayısıyla (yaklaşık 1.23) neredeyse aynıdır.
+Toplamsal modelde yaz artışı seviye ne olursa olsun 60 yolcudur. Çarpımsal modelde ise trend 200'deyken 40, 450'deyken 90 yolcudur (bkz. Bölüm 2.4'teki çarpımsal model). 9.3'te kuracağımız çarpımsal modelde Temmuz 1960 için trend yaklaşık 462.4, yıllık etki $s(t) \approx 0.2304$'tür ve tahmin $462.4 \cdot 1.2304 \approx 568.9$ bin yolcu olur. Bu %23'lük Temmuz etkisi, Bölüm 2.5'teki çarpımsal ayrıştırmada bulduğumuz Temmuz katsayısıyla (yaklaşık 1.23) neredeyse aynıdır.
 
 **Günlük hayattan bir örnek:** Bu fark iki tür yaz ikramiyesine benzer. Toplamsal modelde herkese, maaşı ne olursa olsun, aynı tutar eklenir (+60 yolcu). Çarpımsal modelde ise ikramiye maaşın %20'sidir: Maaş (trend) büyüdükçe aynı oran daha büyük bir tutara karşılık gelir. Benzetmenin sınırı: İkramiye hep eklenir; mevsim etkisi ise yıl içinde artıları ve eksileri birbirini götüren geçici bir sapmadır (kış aylarında trendin altına iner).
 
@@ -380,7 +380,7 @@ Yorumlarken şunlara dikkat edin:
 - **Aralığın düzeyi:** Prophet'ın belirsizlik aralığı varsayılan olarak **%80**'dir (`interval_width=0.8`), %95 değil. Bu, model doğruysa gerçek değerlerin yaklaşık 10'da 8'inin bandın içine düşmesi gerektiği anlamına gelir. Nitekim geçmiş 144 aydan 27'si (yaklaşık %19) bandın dışında kalır. %95'lik aralık için modeli `Prophet(interval_width=0.95)` ile kurun; bant genişler.
 - **Aralığın genişliği:** Bandın iki kaynağı vardır: gözlemlerin modelin çevresindeki olağan dağınıklığı (gürültü) ve trendin gelecekte değişebilme ihtimali. İkincisi ufuk uzadıkça büyür, çünkü Prophet geçmişte gördüğü değişim noktası sıklığına ve büyüklüğüne bakarak gelecekte de benzer eğim değişimleri olabileceğini simüle eder (Şekil 9.2'deki genişleyen bant). Burada ise 12 aylık kısa ufukta gürültü baskındır: `yhat_upper - yhat_lower` farkı Ocak 1961'de yaklaşık 58, Aralık 1961'de yaklaşık 59'dur; genişleme ancak çok yıllık ufuklarda belirginleşir.
 - **Toplamsal modelin zayıflığı:** Varsayılan toplamsal modelde mevsimsel genlik sabittir; model bütün yıllara aynı boyda bir dalga uydurur. `AirPassengers`'ta ise dalgalar zamanla büyür. Sonuç Şekil 9.4'te açıkça görülür: İlk yıllarda model dalgayı abartır, son yıllarda ise yetersiz kalır (sayılar 9.3'te). Bandın dışına taşan siyah noktaların ilk ve son yıllarda toplanması bundandır. Bu yüzden model 1961 yazının tepesini olduğundan **düşük**, kış çukurunu olduğundan **yüksek** tahmin etme eğilimindedir.
-- **Bileşen grafiği (Şekil 9.5):** *Trend* paneli, yolcu sayısının 1949'da yaklaşık 107 binden 1960 sonunda yaklaşık 484 bine neredeyse doğrusal arttığını gösterir; eğim 1954 civarında, 9.1.1'de sözünü ettiğimiz değişim noktalarında hafifçe dikleşir. *Yearly* paneli yılın günlerine göre mevsimsel etkiyi gösterir. Ay başlarındaki değerlere bakıldığında Temmuz (yaklaşık +71) ve Ağustos (yaklaşık +69) en yüksek, Kasım (yaklaşık −60) en düşük, Şubat, Aralık ve Ocak da (yaklaşık −35, −33, −25) ortalamanın altındadır. Bu sıralama, Bölüm 2.5'daki ayrıştırmada elde ettiğimiz mevsimsel katsayılarla tutarlıdır.
+- **Bileşen grafiği (Şekil 9.5):** *Trend* paneli, yolcu sayısının 1949'da yaklaşık 107 binden 1960 sonunda yaklaşık 484 bine neredeyse doğrusal arttığını gösterir; eğim 1954 civarında, 9.1.1'de sözünü ettiğimiz değişim noktalarında hafifçe dikleşir. *Yearly* paneli yılın günlerine göre mevsimsel etkiyi gösterir. Ay başlarındaki değerlere bakıldığında Temmuz (yaklaşık +71) ve Ağustos (yaklaşık +69) en yüksek, Kasım (yaklaşık −60) en düşük, Şubat, Aralık ve Ocak da (yaklaşık −35, −33, −25) ortalamanın altındadır. Bu sıralama, Bölüm 2.5'teki ayrıştırmada elde ettiğimiz mevsimsel katsayılarla tutarlıdır.
 - **Ay aralarındaki kıvrımlar:** Yearly panelindeki eğri ay başları arasında da inip çıkar (ör. Şubat ortasında +50'nin üstüne çıkan bir tepe, Aralık ortasında −90'a inen bir çukur). Bunlar gerçek değildir: Aylık veride yalnızca her ayın 1'inde gözlem vardır ve 10 Fourier çiftiyle ($N = 10$, yani 20 katsayı) kurulan esnek eğri, gözlem olmayan günlerde serbestçe kıvrılabilir. Aylık veride bu panelin yalnızca ay başı değerlerini okuyun. Daha düzgün bir eğri isterseniz `Prophet(yearly_seasonality=5)` gibi bir tam sayı vererek Fourier terimi sayısını azaltabilirsiniz.
 
 **Günlük hayattan bir örnek:** İlk maddedeki %80'lik bant, "%80 eminim" diyen bir arkadaşa benzer: Böyle konuştuğu durumların yaklaşık 10'da 8'inde haklı çıkıyorsa sözüne güvenebilirsiniz. Hemen deneyin 9.3a'daki çarpımsal model "%80 eminim" deyip 1960'ın 12 ayının yalnızca 4'ünde haklı çıkar; yani gereğinden fazla kendinden emindir. Benzetmenin sınırı: 12 ay küçük bir örneklemdir; tek bir yılın sonucu şanstan da etkilenebilir.
@@ -415,7 +415,7 @@ Yorumlarken şunlara dikkat edin:
 > N = 5  ay başlarında en düşük: -59.5   tüm günlerde en düşük: -59.9
 > ```
 >
-> Ay başlarındaki en düşük değer (Kasım, −59.5) iki modelde de aynıdır; diğer ay başı değerleri de en fazla 2–3 birim farklıdır. Ama $N = 10$'da eğri ay araları gözlemsiz günlerde −91.8'e kadar iner (Aralık ortası; maddedeki "−90'a inen çukur"). $N = 5$'te bu sahte çukur kaybolur: Günlük en düşük değer (−59.9) ay başı değerine neredeyse eşittir. Aylık veride 5 dalga, ay başı değerlerini neredeyse bozmadan eğriyi düzgünleştirmeye yetmektedir.
+> Ay başlarındaki en düşük değer (Kasım, −59.5) iki modelde de aynıdır; diğer ay başı değerleri de en fazla 2–3 birim farklıdır. Ama $N = 10$'da eğri ay aralarındaki gözlemsiz günlerde −91.8'e kadar iner (Aralık ortası; maddedeki "−90'a inen çukur"). $N = 5$'te bu sahte çukur kaybolur: Günlük en düşük değer (−59.9) ay başı değerine neredeyse eşittir. Aylık veride 5 dalga, ay başı değerlerini neredeyse bozmadan eğriyi düzgünleştirmeye yetmektedir.
 >
 > **Şimdi siz:** Listeye `3` ekleyin. Ay başlarındaki en düşük değer ne olur? Daha da azaltmak iyi bir fikir mi?
 >
@@ -549,7 +549,23 @@ Kodun önemli noktaları şunlardır:
 
 **Not —** 9.1.4'teki diğer yolu, yani seriyi `np.log()` ile dönüştürüp toplamsal model kurmayı ve tahminleri `np.exp()` ile geri çevirmeyi de denedik: Aynı test yılında MAE = 23.52, RMSE = 29.46, MAPE = %4.70 elde edildi. Bu, çarpımsal modele çok yakın bir sonuçtur; iki yol da aynı sorunu (seviyeyle büyüyen dalgalar) çözer.
 
-**Not —** Tek bir test yılı, şansa bağlı iyi ya da kötü bir sonuç verebilir. Daha güvenilir bir değerlendirme için test penceresini zaman içinde kaydırarak birden çok kez ölçmek gerekir. Prophet bunun için `prophet.diagnostics` modülünde `cross_validation()` ve `performance_metrics()` fonksiyonlarını sunar. Bu yaklaşımın genel mantığı Bölüm 16'da (TimeSeriesSplit) ele alınmaktadır.
+**Not —** Tek bir test yılı, şansa bağlı iyi ya da kötü bir sonuç verebilir. Daha güvenilir bir değerlendirme için test penceresini zaman içinde kaydırarak birden çok kez ölçmek gerekir. Prophet bunun için `prophet.diagnostics` modülünde `cross_validation()` ve `performance_metrics()` fonksiyonlarını sunar. Bu yaklaşımın genel mantığı Bölüm 16'da (TimeSeriesSplit) ele alınmaktadır. Aşağıdaki kısa kod, çarpımsal modeli 1958, 1959 ve 1960 yıllarında ayrı ayrı sınar:
+
+```python
+from prophet.diagnostics import cross_validation, performance_metrics
+
+m = Prophet(seasonality_mode='multiplicative', daily_seasonality=False)
+m.fit(df)                                    # df: 1949-1960, 144 ay
+df_cv = cross_validation(m, initial='2922 days', period='365 days', horizon='365 days')
+print(df_cv.groupby('cutoff').size())        # her kesim noktası için 12 test ayı
+print(performance_metrics(df_cv, rolling_window=1)[['mae', 'rmse', 'mape']])
+```
+
+- `horizon='365 days'`: Her turda kesim noktasından (*cutoff*) sonraki bir yıl tahmin edilir. Prophet süreleri gün cinsinden ister; aylık veride de böyle yazılır.
+- `period='365 days'`: Kesim noktası her turda bir yıl kaydırılır.
+- `initial='2922 days'` (8 yıl): İlk turdaki eğitim dönemi en az bu kadar uzun olur.
+
+Prophet kesim noktalarını serinin sonundan geriye doğru yerleştirir. Bu ayarlarla üç tur oluşur: 108 ayla eğitilip 1958'i, 120 ayla eğitilip 1959'u ve 132 ayla eğitilip 1960'ı tahmin eden modeller. Son tur, 9.3'teki değerlendirmenin aynısıdır. Her turda model yalnızca kesim noktasına kadarki veriyle yeniden eğitilir. `performance_metrics(..., rolling_window=1)` üç turun bütün test aylarını tek satırda özetler; `rolling_window` verilmezse metrikler ufkun her uzunluğu için ayrı satırlarda raporlanır. (Bu kodun çıktısı burada verilmemiştir; kendi bilgisayarınızda çalıştırıp üç yılın hatalarını 9.3'teki tek yıllık sonuçla karşılaştırın.)
 
 > **Hemen deneyin 9.3a · 1960'ın gerçek değerleri %80'lik bandın içinde mi?** (Python, ~4 dk)
 >
@@ -656,7 +672,7 @@ Kodun önemli noktaları şunlardır:
 | Eksik gözlemlere, düzensiz aralıklara ve aykırı değerlere karşı dayanıklıdır | Varsayılan ayarlar her seri için uygun değildir; `changepoint_prior_scale`, `seasonality_mode` gibi parametreler dikkatle seçilmelidir |
 | Belirsizlik aralığını otomatik üretir; alan bilgisi (üst sınır, özel günler) modele kolayca aktarılır | Belirgin mevsimsellik ya da trend içermeyen, gürültülü serilerde basit yöntemlerden daha iyi olmayabilir |
 
-**Ne zaman tercih edilmeli?** Prophet özellikle günlük ya da haftalık iş verilerinde (satış, web trafiği, talep) parlar: Bu serilerde birden çok mevsimsellik, tatil etkileri ve zaman zaman yön değiştiren bir trend bir arada bulunur. Kısa vadeli dinamiklerin baskın olduğu ya da değişkenler arası etkileşimin önemli olduğu durumlarda ARIMA/SARIMA (Bölüm 7), VAR (Bölüm 10) veya makine öğrenmesi yaklaşımları (Bölüm 12–15) daha uygun olabilir. `AirPassengers` örneği bunu somut olarak gösterdi: Bu düzenli aylık seride log dönüşümlü SARIMA, Prophet'tan daha küçük hata verdi. Hangi model seçilirse seçilsin, Bölüm 8'deki gibi basit bir referans modelle (naive) karşılaştırmak unutulmamalıdır.
+**Ne zaman tercih edilmeli?** Prophet özellikle günlük ya da haftalık iş verilerinde (satış, web trafiği, talep) öne çıkar: Bu serilerde birden çok mevsimsellik, tatil etkileri ve zaman zaman yön değiştiren bir trend bir arada bulunur. Kısa vadeli dinamiklerin baskın olduğu ya da değişkenler arası etkileşimin önemli olduğu durumlarda ARIMA/SARIMA (Bölüm 7), VAR (Bölüm 10) veya makine öğrenmesi yaklaşımları (Bölüm 12–15) daha uygun olabilir. `AirPassengers` örneği bunu somut olarak gösterdi: Bu düzenli aylık seride log dönüşümlü SARIMA, Prophet'tan daha küçük hata verdi. Hangi model seçilirse seçilsin, Bölüm 8'deki gibi basit bir referans modelle (naive) karşılaştırmak unutulmamalıdır.
 
 > **Hemen deneyin 9.4 · Desensiz seride Prophet naive'i yenebilir mi?** (Python, ~4 dk)
 >
@@ -701,4 +717,4 @@ Kodun önemli noktaları şunlardır:
 
 ---
 
-[İçindekiler](../Course_notes.md) · [← 8. Model Değerlendirme: Hata Metrikleri ve Eğitim-Test Ayrımı](08_model_degerlendirme_hata_metrikleri_ve_egitim_te.md) · [10. VAR: Çok Değişkenli Zaman Serisi Modeli →](10_var_cok_degiskenli_zaman_serisi_modeli.md)
+[İçindekiler](../Course_notes.md) · [← 8. Model Değerlendirme: Hata Metrikleri ve Eğitim-Test Ayrımı](08_model_degerlendirme_hata_metrikleri_ve_egitim_test_ayrimi.md) · [10. VAR: Çok Değişkenli Zaman Serisi Modeli →](10_var_cok_degiskenli_zaman_serisi_modeli.md)

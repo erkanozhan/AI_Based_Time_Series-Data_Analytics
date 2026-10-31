@@ -1,6 +1,6 @@
 # =============================================================================
 # Bölüm 7 — Klasik İstatistiksel Modeller: ARIMA ve SARIMA
-# Ders notu: Course_notes.md, Bölüm 7.2 (karakteristik kökler) ve 7.6 (R Uygulaması: AirPassengers ile SARIMA)
+# Ders notu: notlar/07_klasik_istatistiksel_modeller_arima_ve_sarima.md, Bölüm 7.2 (karakteristik kökler) ve 7.6 (R Uygulaması: AirPassengers ile SARIMA)
 #
 # Çalıştırma: depo kök dizininden  Rscript Codes/R/ch07_sarima_airpassengers.R
 #             ya da RStudio'da dosyayı açıp satır satır (Ctrl+Enter) çalıştırın.

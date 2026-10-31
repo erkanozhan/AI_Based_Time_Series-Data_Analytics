@@ -254,9 +254,9 @@ Sayılar ve sıraları değişmez; değişen yalnızca kabın düzenidir. Sağda
 
 LSTM'in iç yapısını Bölüm 12.2.2'de kavramsal olarak gördük: Hücre, uzun süreli bilgiyi taşıyan bir **hücre durumu** $C_t$ (defter) ve her adımda dışarıya verilen bir **gizli durum** $h_t$ tutar; 0 ile 1 arasında değer alan üç **kapı** (vana) bu iki durum arasındaki bilgi akışını denetler.
 
-LSTM hücresinin denklemleri ve sayısal örneği 12.2.2'dedir. Keras aynı denklemleri 12.2.2'de gösterdiğimiz ayrık yazımla uygular: Her kapıda girdiyi çarpan bir $W$, önceki gizli durumu çarpan bir $U$ ve bir yanlılık $b$ vardır; örneğin unutma kapısı $f_t = \sigma(W_f x_t + U_f h_{t-1} + b_f)$ biçiminde yazılır. Bu yazım, aşağıdaki parametre sayımını (dört ağırlık seti, her birinde $W$, $U$ ve $b$) ve 15.3'teki GRU denklemlerini okumayı kolaylaştırır. 50 birimli bir katmanda her harf 50 sayılık bir listeyi, $W$ ve $U$ de ağırlık tablolarını temsil eder.
+LSTM hücresinin denklemleri ve sayısal örneği 12.2.2'dedir. Orada her kapı birleşik yazımla, örneğin $f_t = \sigma(W_f [h_{t-1}, x_t] + b_f)$ biçiminde verildi ve bu yazımın $W_{f,h} h_{t-1} + W_{f,x} x_t$ ile aynı olduğu gösterildi. Keras ağırlıkları bu ayrık biçimde, girdi ve gizli durum için iki ayrı tablo olarak saklar. Bu bölümde yaygın kaynaklardaki kısa gösterimi kullanıyoruz: Girdiyi çarpan $W_{f,x}$ tablosunu $W_f$, önceki gizli durumu çarpan $W_{f,h}$ tablosunu $U_f$ ile gösteriyoruz. Böylece unutma kapısı $f_t = \sigma(W_f x_t + U_f h_{t-1} + b_f)$ biçiminde yazılır. Bu yazım, aşağıdaki parametre sayımını (dört ağırlık seti, her birinde $W$, $U$ ve $b$) ve 15.3'teki GRU denklemlerini okumayı kolaylaştırır. 50 birimli bir katmanda her harf 50 sayılık bir listeyi, $W$ ve $U$ de ağırlık tablolarını temsil eder. Dikkat: 12.2.1'deki basit RNN'de $W_h$ önceki gizli durumu çarpan tabloydu. Bu bölümde ise $W$ her zaman girdiyi, $U$ önceki gizli durumu çarpar; 15.3'teki $W_h$ ve $U_h$'nin alt indisindeki $h$, bu tabloların aday durum $\tilde{h}_t$'ye ait olduğunu gösterir.
 
-Diğer kapılar ($i_t$, $\tilde{C}_t$, $o_t$) aynı kalıpla, kendi $W$, $U$ ve $b$'leriyle yazılır; açıklamalı gösterimi ve okunuşu 12.2.2'dedir. Aşağıdaki "dört ağırlık seti" bu dört satırın ağırlıklarıdır.
+Diğer kapılar ($i_t$, $o_t$) ve aday bilgi $\tilde{C}_t$ aynı kalıpla, kendi $W$, $U$ ve $b$'leriyle yazılır; açıklamalı gösterimi ve okunuşu 12.2.2'dedir. Aşağıdaki "dört ağırlık seti" bu dört satırın ağırlıklarıdır.
 
 Modelimiz tek bir LSTM katmanı (50 birim) ve tek nöronlu bir çıktı katmanından (`Dense(1)`) oluşuyor. Keras'ta bir model dört adımda hazırlanır: (1) katmanlar sırayla dizilir, (2) `compile` ile hatanın nasıl ölçüleceği ve ağırlıkların nasıl düzeltileceği seçilir, (3) `fit` ile model eğitilir, (4) `predict` ile tahmin üretilir.
 
@@ -349,11 +349,11 @@ Kodun önemli satırları şunlardır:
 >
 > **Ne göreceksiniz:** Tabloda `lstm (LSTM)` satırında `320`, `dense (Dense)` satırında `9`, altta `Total params: 329` ve en sonda `Formül: 320`. Hesap: $4 \cdot [8 \cdot 9 + 8] = 4 \cdot 80 = 320$; `Dense(1)` için $8 + 1 = 9$. (Katman adlarının sonunda `_1`, `_2` gibi ekler görebilirsiniz; aynı oturumda birden çok model kurduğunuzda Keras adları numaralandırır.)
 >
-> **Şimdi siz:** Çalıştırmadan önce tahmin edin: (1) `x = 3` (üç değişkenli seri) olursa LSTM katmanı kaç parametre taşır? (2) `Input(shape=(24, x))` ile pencere 24 aya çıkarsa toplam değişir mi? (3) `LSTM(h)` yerine `GRU(h)` yazarsanız (15.3'teki formül: $3 \cdot [h \cdot (h + x) + 2h]$) kaç olur?
+> **Şimdi siz:** Çalıştırmadan önce tahmin edin: (1) `x = 3` (üç değişkenli seri) olursa LSTM katmanı kaç parametre taşır? (2) `Input(shape=(24, x))` ile pencere 24 aya çıkarsa toplam değişir mi? (3) `LSTM(h)` yerine `GRU(h)` yazarsanız (15.3'teki formül: $3 \cdot [h \cdot (h + x) + 2h]$) kaç olur? (4) `print([w.shape for w in model.layers[0].get_weights()])` satırı katmanın ağırlık tablolarının şekillerini yazdırır (`model.layers[0]` modelin ilk katmanı, yani LSTM'dir; `Input` katman listesinde yer almaz). `x = 1` iken LSTM ve GRU için hangi şekilleri beklersiniz?
 >
 > <details><summary>Cevap</summary>
 >
-> (1) $4 \cdot [8 \cdot 11 + 8] = 384$; Keras da 384 gösterir (toplam 393). (2) Değişmez, toplam yine 329: aynı ağırlıklar her zaman adımında tekrar kullanılır, pencere uzunluğu parametre sayısını etkilemez. (3) $3 \cdot [8 \cdot 9 + 16] = 264$; Keras'ta GRU katmanı 264 parametre gösterir (aynı boyutlu LSTM'den 56 az).
+> (1) $4 \cdot [8 \cdot 11 + 8] = 384$; Keras da 384 gösterir (toplam 393). (2) Değişmez, toplam yine 329: aynı ağırlıklar her zaman adımında tekrar kullanılır, pencere uzunluğu parametre sayısını etkilemez. (3) $3 \cdot [8 \cdot 9 + 16] = 264$; Keras'ta GRU katmanı 264 parametre gösterir (aynı boyutlu LSTM'den 56 az). (4) Keras ağırlık setlerini yan yana, tek bir tabloda saklar. LSTM için `[(1, 32), (8, 32), (32,)]` beklenir: girdi ağırlıkları $W$ (1 özellik × $4 \cdot 8 = 32$ sütun), gizli durum ağırlıkları $U$ (8 × 32) ve 32 yanlılık; $32 + 256 + 32 = 320$. GRU için `[(1, 24), (8, 24), (2, 24)]` beklenir: üç set ($3 \cdot 8 = 24$ sütun) ve **iki satırlık** bir yanlılık tablosu. İkinci satır, 15.3'teki notta anlatılan ek yanlılıklardır; $24 + 192 + 48 = 264$.
 >
 > </details>
 
@@ -394,7 +394,13 @@ h_t &= \underbrace{\left(1 - z_t\right) \odot h_{t-1}}_{\substack{\text{eski dur
 
 Sıfırlama kapısının etkisini görmek için adayın hesabına bakalım. Basitlik için $W_h = 1$, $U_h = 1$, $b_h = 0$ ve bu ayın girdisi $x_t = 0.3$ olsun. $r_t = 1$ iken geçmiş tam olarak hesaba girer: $\tilde{h}_ t = \tanh(0.3 + 1 \cdot 0.8) = \tanh(1.1) \approx 0.80$. $r_t = 0$ iken geçmiş tamamen devre dışı kalır: $\tilde{h}_ t = \tanh(0.3 + 0 \cdot 0.8) = \tanh(0.3) \approx 0.29$. Gerçek modelde $z_t$ ve $r_t$ sabit değildir; her ay, o ayın girdisine ve önceki duruma bakılarak yeniden hesaplanır ve bunları üreten ağırlıklar eğitimle öğrenilir.
 
-> **Not —** Kaynaklarda son denklemde $`z_t`$ ile $`1-z_t`$ bazen yer değiştirmiş olarak yazılır (Keras'ın uygulaması $`h_t = z_t \odot h_{t-1} + (1-z_t) \odot \tilde{h}_t`$ biçimindedir). Bu yalnızca kapının neyi "açık" saydığıyla ilgili bir gösterim farkıdır; model aynı şeyi öğrenir.
+> **Not — Keras'ın GRU'su bu yazımdan iki noktada ayrılır.** (1) Kaynaklarda son denklemde $`z_t`$ ile $`1-z_t`$ bazen yer değiştirmiş olarak yazılır; Keras'ın uygulaması da $`h_t = z_t \odot h_{t-1} + (1-z_t) \odot \tilde{h}_t`$ biçimindedir. Bu yalnızca kapının neyi "açık" saydığıyla ilgili bir gösterim farkıdır; model aynı şeyi öğrenir. (2) Keras'ın varsayılan ayarında (`reset_after=True`) sıfırlama kapısı, önceki gizli durum $`U_h`$ ile çarpıldıktan **sonra** uygulanır ve bu çarpıma ayrı bir yanlılık $`b'_h`$ eklenir:
+>
+> ```math
+> \tilde{h}_t = \tanh\big(W_h x_t + b_h + r_t \odot (U_h h_{t-1} + b'_h)\big)
+> ```
+>
+> Yukarıdaki aday durum denklemi ise GRU'nun özgün yazımıdır (Keras'ta `reset_after=False`). Keras, $`z_t`$ ve $`r_t`$ kapılarında da girdi tarafı ve gizli durum tarafı için ayrı birer yanlılık tutar; aşağıdaki parametre sayımında görülen "her ağırlık seti için iki yanlılık" buradan gelir.
 
 Böylece GRU, LSTM'e göre:
 
@@ -448,9 +454,9 @@ plt.show()
 
 Kod, LSTM kodunun neredeyse aynısıdır; değişen iki şey vardır. Birincisi, `LSTM(50)` yerine `GRU(50)` katmanı kullanılır. İkincisi, model kurulmadan önce `tf.keras.utils.set_random_seed(SEED)` yeniden çağrılır. Böylece GRU'nun ağırlıkları, LSTM eğitimi sırasında üretilen rastgele sayılardan etkilenmeden, aynı tohumdan başlar ve kodu tek başına çalıştırdığınızda da aynı sonucu verir. `compile`, `fit`, `predict` ve `inverse_transform` satırları 15.2'de anlattığımız gibi çalışır.
 
-**Çıktının yorumu:** Keras'ın varsayılan GRU uygulaması (`reset_after=True`) her ağırlık seti için iki yanlılık tutar. Bu yüzden parametre sayısı $3 \times [50 \times (1 + 50) + 2 \times 50] = 3 \times [2550 + 100] = 3 \times 2650 = 7950$ olur. LSTM'in 10.400 parametresine göre fark $10400 - 7950 = 2450$, yani yaklaşık %24'tür ($2450 / 10400 \approx 0.236$).
+**Çıktının yorumu:** Keras'ın varsayılan GRU uygulaması (`reset_after=True`) her ağırlık seti için iki yanlılık tutar (15.3'teki not). Bu yüzden parametre sayısı $3 \times [50 \times (1 + 50) + 2 \times 50] = 3 \times [2550 + 100] = 3 \times 2650 = 7950$ olur. LSTM'in 10.400 parametresine göre fark $10400 - 7950 = 2450$, yani yaklaşık %24'tür ($2450 / 10400 \approx 0.236$).
 
-Bizim bilgisayarımızda `SEED = 42` ile GRU'nun test RMSE'si **183.64** çıktı; LSTM'in 46.19'unun yaklaşık dört katı. Eğitim hatası ise iki modelde de benzer ve küçüktü (yaklaşık 13–15 yolcu). Sorun eğitimde değil, test döneminde ortaya çıkıyor. Bunun bir model hatası mı yoksa şanssız bir başlangıç mı olduğunu anlamak için aynı kodu yalnızca tohumu değiştirerek yeniden çalıştırdık:
+Bizim bilgisayarımızda `SEED = 42` ile GRU'nun test RMSE'si **183.64** çıktı; LSTM'in 46.19'unun yaklaşık dört katı. Eğitim hatası ise iki modelde de benzer ve küçüktü (yaklaşık 13–15 bin yolcu). Sorun eğitimde değil, test döneminde ortaya çıkıyor. Bunun bir model hatası mı yoksa şanssız bir başlangıç mı olduğunu anlamak için aynı kodu yalnızca tohumu değiştirerek yeniden çalıştırdık:
 
 | Tohum (`SEED`) | LSTM test RMSE | GRU test RMSE |
 | --- | --- | --- |
@@ -863,7 +869,7 @@ Bu yapılandırmanın test RMSE değeri: 27.91
 
 ### 15.5. Model Karşılaştırması
 
-Artık çantamızda beş farklı yaklaşım var. Bunların yanına, hiçbir şey öğrenmeyen iki **referans** (naive) tahmini de koyuyoruz; bir modelin işe yarayıp yaramadığını ancak bu çıtaya göre söyleyebiliriz (Bölüm 8.1.2 ve 17.3):
+Elimizde artık beş farklı yaklaşım var. Bunların yanına, hiçbir şey öğrenmeyen iki **referans** (naive) tahmini de koyuyoruz; bir modelin işe yarayıp yaramadığını ancak bu çıtaya göre söyleyebiliriz (Bölüm 8.1.2 ve 17.3):
 
 | Model | Yaklaşım | Bölüm | Tahmin biçimi (bu karşılaştırmada) |
 | --- | --- | --- | --- |
@@ -900,8 +906,10 @@ feat = feat.dropna()                      # ilk 12 ayın gecikmeleri eksik
 train_f = feat[feat.index < test_dates[0]]
 test_f = feat[feat.index >= test_dates[0]]   # 60 ay
 
+# Satır ve sütun alt örneklemesi (subsample, colsample_bytree) kullanılmaz:
+# her ağaç bütün satırları ve sütunları görür, sonuç belirlenimci olur.
 model_xgb = xgb.XGBRegressor(n_estimators=500, learning_rate=0.05, max_depth=4,
-                             subsample=0.8, colsample_bytree=0.8, random_state=SEED)
+                             random_state=SEED)
 model_xgb.fit(train_f.drop(columns='y'), train_f['y'])
 pred_xgb = model_xgb.predict(test_f.drop(columns='y'))
 rmse_xgb = np.sqrt(mean_squared_error(test_f['y'], pred_xgb))
@@ -934,7 +942,7 @@ plt.show()
 Kod dört bölümden oluşur:
 
 1. **XGBoost için tablo:** `pd.Series(dataset[:, 0], index=dates)` yolcu sayılarını tarihlerle etiketlenmiş bir seriye çevirir. `s.shift(lag)` 12.1.2'deki gibi her satıra `lag` ay önceki değeri yazar. Döngü 1'den 12'ye kadar bütün gecikmeleri `lag_1`, …, `lag_12` sütunları olarak ekler; `feat.index.month` ise ay numarasını (1–12) ekler. İlk 12 satırda bazı gecikmeler boş kalacağı için `dropna()` bu satırları atar.
-2. **Ayrım ve eğitim:** `feat[feat.index < test_dates[0]]` yalnızca Ocak 1956'dan önceki satırları seçer (köşeli parantez içine bir koşul yazmak, koşulu sağlayan satırları süzer). `drop(columns='y')` hedef sütununu girdilerden çıkarır. XGBoost Bölüm 13'teki ayarlarla (ağaç sayısı erken durdurma yerine 500'e sabitlenerek) eğitilir ve 60 test ayını tahmin eder. Bu satırlar her test ayı için gerçek geçmiş değerleri kullandığından XGBoost da LSTM, GRU ve CNN gibi tek adımlı tahmin yapar.
+2. **Ayrım ve eğitim:** `feat[feat.index < test_dates[0]]` yalnızca Ocak 1956'dan önceki satırları seçer (köşeli parantez içine bir koşul yazmak, koşulu sağlayan satırları süzer). `drop(columns='y')` hedef sütununu girdilerden çıkarır. XGBoost Bölüm 13'teki ayarlarla (ağaç sayısı erken durdurma yerine 500'e sabitlenerek) eğitilir. Satır ve sütun alt örneklemesi (`subsample`, `colsample_bytree`) kullanılmadığı için her ağaç bütün eğitim satırlarını ve bütün özellikleri görür; model rastgelelik içermez. Eğitilen model ardından 60 test ayını tahmin eder. Bu satırlar her test ayı için gerçek geçmiş değerleri kullandığından XGBoost da LSTM, GRU ve CNN gibi tek adımlı tahmin yapar.
 3. **Naive referanslar:** `test_mask = s.index >= test_dates[0]` her ay için "bu ay test döneminde mi?" sorusunun cevabını (`True`/`False`) tutar; `s[test_mask]` yalnızca 60 test ayını seçer. `s.shift(1)` her aya bir önceki ayın değerini, `s.shift(12)` ise bir yıl önceki aynı ayın değerini yazar; bunların test aylarına düşen kısmı doğrudan tahmin olarak kullanılır. Burada hiçbir model eğitilmez.
 4. **Tablo ve grafik:** `pd.DataFrame({...})` model adları ile RMSE değerlerinden iki sütunlu bir tablo kurar, `sort_values('RMSE')` satırları küçükten büyüğe sıralar ve `to_string(index=False, float_format='%.2f')` tabloyu satır numarası olmadan, iki ondalıkla yazdırır. `plt.barh` yatay çubuk grafiği çizer; `invert_yaxis()` en küçük hatayı en üste getirir.
 
@@ -947,11 +955,11 @@ Mevsimsel naive (geçen yıl)  42.54
            Naive (geçen ay)  45.57
                        LSTM  46.19
             ARIMA (Bölüm 7)  47.87
-         XGBoost (Bölüm 13)  89.42
+         XGBoost (Bölüm 13)  86.31
                         GRU 183.64
 ```
 
-ARIMA, XGBoost ve iki naive satırı her çalıştırmada aynıdır. LSTM, GRU ve 1D-CNN satırları ise tohuma, işletim sistemine ve TensorFlow sürümüne göre değişir; sizin tablonuzda sıralama bile farklı çıkabilir.
+ARIMA ve iki naive satırı her çalıştırmada aynıdır. XGBoost satırı da rastgele alt örnekleme kullanılmadığı için belirlenimcidir: Aynı xgboost sürümüyle (biz 3.2.0 kullandık) her çalıştırmada, tohum değiştirilse bile aynı sonucu verir; farklı bir sürümde küçük farklar görülebilir. LSTM, GRU ve 1D-CNN satırları ise tohuma, işletim sistemine ve TensorFlow sürümüne göre değişir; sizin tablonuzda sıralama bile farklı çıkabilir.
 
 **Sonuçların yorumu:** Tablo en düşük RMSE'den en yükseğe doğru sıralanır. Bu veri setinde şu genel tablo ortaya çıkar:
 
@@ -959,7 +967,7 @@ ARIMA, XGBoost ve iki naive satırı her çalıştırmada aynıdır. LSTM, GRU v
 - **Naive referanslar** tablonun ikinci ve üçüncü sırasındadır: Hiçbir şey öğrenmeden geçen yılın aynı ayını (42.54) ya da geçen ayı (45.57) yazmak, LSTM'den, XGBoost'tan ve GRU'dan daha düşük hata verir. Tek adımlı bir model bu çıtayı geçemiyorsa, eğitim için harcanan çaba pratikte bir şey kazandırmamıştır (Bölüm 17.3).
 - **LSTM** (46.19), her ay gerçek son 12 ayı görmesine rağmen bu çalıştırmada mevsimsel naive'in (42.54) gerisinde kaldı: Geçen yılın aynı ayını kopyalamaktan daha iyi bir tahmin üretemedi.
 - **ARIMA (SARIMA)** (47.87) tablodaki tek adımlı referanslarla doğrudan karşılaştırılmamalıdır, çünkü çok daha zor bir görevi çözer: 1955 sonunda durup 60 ay ileriyi tahmin eder (15.5'in başındaki tablonun son sütunu; çok adımlı tahmin için bkz. 12.1.3 ve 14.2.1). Örneğin Aralık 1960'ı tahmin ederken ARIMA'nın elinde yalnızca 1955 sonuna kadarki veri vardır; LSTM ise Aralık 1959–Kasım 1960 arasındaki 12 gerçek değeri görür. ARIMA'nın adil referansı, aynı koşulda 1955'i beş kez tekrarlayan çok adımlı mevsimsel naive'dir; bu referansın RMSE'si 126.01'dir (Bölüm 8.4.2'deki tablo), yani ARIMA onu çok büyük farkla yener. ARIMA trend ve 12 aylık mevsimselliği açıkça modellediği için eğitim aralığının dışına da doğal biçimde uzanır; üstelik sonucu tohuma bağlı değildir. Bu zor görevde bile LSTM'e yakın sonuç vermesi onun lehine güçlü bir kanıttır; 1D-CNN'in bu çalıştırmadaki üstünlüğü de daha kolay bir görevde elde edildiği bilinerek okunmalıdır. Tamamen eşit koşullar için ya ARIMA da her ay yeni gözlemle güncellenerek tek adımlı tahmin yapmalı ya da sinir ağları kendi tahminlerini girdi olarak kullanarak (özyinelemeli) çok adımlı tahmine zorlanmalıdır. İlk yolun sonucunu aşağıdaki **Hemen deneyin 15.5** kutusunda göreceksiniz.
-- **XGBoost** bu testte zorlandı (89.42): Karar ağaçları eğitimde gördükleri en büyük değerin üzerinde tahmin üretemez (ekstrapolasyon sorunu, bkz. Bölüm 13.3). Eğitim döneminin en büyük değeri 364 iken XGBoost'un 60 test ayındaki en büyük tahmini yaklaşık 361'dir; test dönemindeki 364'ün üzerindeki rekor yolcu sayılarına (en yüksek 622) hiç ulaşamaz.
+- **XGBoost** bu testte zorlandı (86.31): Karar ağaçları eğitimde gördükleri en büyük değerin üzerinde tahmin üretemez (ekstrapolasyon sorunu, bkz. Bölüm 13.3). Eğitim döneminin en büyük değeri 364 iken XGBoost'un 60 test ayındaki en büyük tahmini yaklaşık 360'tır; test dönemindeki 364'ün üzerindeki rekor yolcu sayılarına (en yüksek 622) hiç ulaşamaz.
 - **GRU** (183.64), 15.3'te gördüğümüz gibi bu tohumla test döneminde çöktü; başka tohumlarla LSTM'e yakın sonuçlar (yaklaşık 47–53) verdi. Derin öğrenme modelleri kısa vadeli desenleri iyi yakalar, ancak 72 eğitim örneği derin öğrenme için çok küçüktür ve 15.1.1'de gördüğümüz ekstrapolasyon sorunu tahminleri kararsız kılabilir.
 
 Genel ders şudur: Bu tür küçük, düzenli ve klasik zaman serilerinde iyi ayarlanmış bir ARIMA modeli oldukça başarılıdır. LSTM, GRU ve 1D-CNN gibi derin öğrenme modelleri ise çok daha fazla veriye sahip, çok değişkenli, karmaşık ve doğrusal olmayan desenler içeren problemlerde gerçekten öne çıkar. Veri bilimcinin ustalığı, verinin yapısına bakarak hangi aracın daha iyi çalışacağına karar verebilmesindedir. Her problemin kendine özgü dinamikleri vardır; en iyi modeli bulmak için denemeler yapmak ve sonuçları dikkatle analiz etmek gerekir.
@@ -1005,7 +1013,7 @@ Son olarak, buradaki bütün sonuçlar **tek bir** eğitim-test ayrımına dayan
 >
 > <details><summary>Cevap</summary>
 >
-> (1) Tek adımlı ARIMA 13.96, 1D-CNN 32.43, mevsimsel naive 42.54, naive 45.57, LSTM 46.19, XGBoost 89.42, GRU 183.64. (2) RMSE 13.26 çıkar, biraz daha iyi görünür. Ama bu sayı geçersizdir: Katsayılar (ör. mevsimsel MA katsayısı −0.300 yerine −0.142) test dönemi de görülerek tahmin edilmiştir; model sınava girmeden cevap anahtarını görmüştür (veri sızıntısı, Bölüm 12.1.5 ve 17.6). Doğru yöntem, katsayıları yalnızca eğitimden öğrenip test dönemine `apply` ile uygulamaktır.
+> (1) Tek adımlı ARIMA 13.96, 1D-CNN 32.43, mevsimsel naive 42.54, naive 45.57, LSTM 46.19, XGBoost 86.31, GRU 183.64. (2) RMSE 13.26 çıkar, biraz daha iyi görünür. Ama bu sayı geçersizdir: Katsayılar (ör. mevsimsel MA katsayısı −0.300 yerine −0.142) test dönemi de görülerek tahmin edilmiştir; model sınava girmeden cevap anahtarını görmüştür (veri sızıntısı, Bölüm 12.1.5 ve 17.6). Doğru yöntem, katsayıları yalnızca eğitimden öğrenip test dönemine `apply` ile uygulamaktır.
 >
 > </details>
 

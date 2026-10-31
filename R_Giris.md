@@ -1,537 +1,350 @@
-# R Programlama ve Zaman Serisi Analizine Giriş
-## Ders Notları
+[İçindekiler](Course_notes.md) · [Ek B: Gretl'e Giriş →](Gretl.md)
 
-**Dersin Amacı:** Bu derste R programlama dilinin temellerini öğrenecek ve zaman serisi analizine hazırlık yapacaksınız. Lütfen örnekleri kendi bilgisayarınızda uygulayın - okumak yeterli değildir.
+## Ek A. R'a Giriş
+
+Bu ek, ders notlarında kullanılan R (*R programming language*) komutlarını ilk kez görenler için kısa bir başlangıç kılavuzudur. Değişken atama, temel işlemler, vektörler, veri çerçeveleri, paketler, veri okuma ve temel grafikler sırasıyla ele alınır. Tarih ve zaman nesneleri Bölüm 4'te, zaman serisi nesneleri (`ts`, `xts`) Bölüm 5'te ayrıntılı olarak işlenir. Ekteki bütün kodlar depo kök dizininden çalıştırılacak biçimde yazılmıştır; gerekli paketlerin kurulumu [`Codes/README.md`](Codes/README.md) dosyasında anlatılır.
 
 ---
 
-## R'a Giriş ve Temel Yapılar
+### A.1. Neden R?
 
-### Neden R Öğreniyoruz?
+R, istatistiksel hesaplama ve grafik için geliştirilmiş, açık kaynak kodlu ve ücretsiz bir programlama dilidir. Zaman serisi analizinde R'ın başlıca avantajı, ARIMA, üstel düzeltme (Holt-Winters) ve ayrıştırma gibi klasik istatistiksel yöntemler için uzun süredir geliştirilen, olgun paketlere sahip olmasıdır. Python ise makine öğrenmesi ve derin öğrenme kütüphaneleriyle öne çıkar; bu nedenle derste iki dil birlikte kullanılır.
 
-Bazılarınız "Python'u biliyorum, R'ı da öğrenmem gerekir mi?" diye soruyor. Açıkçası, zaman serisi analizi için R'ın avantajları var. ARIMA, Holt-Winters gibi klasik modeller için R'daki implementasyonlar Python'dakilerden daha olgun. Ama tabii, her iki dili de bilmek ideal.
+Paketler, R'ın resmî paket arşivi CRAN (*Comprehensive R Archive Network*) üzerinden dağıtılır. CRAN'da bugün 20 000'i aşkın paket bulunmaktadır.
 
-R açık kaynak kodlu. Yani ücretsiz. Peki bu ne demek? Herkes kod yazabiliyor, paket geliştirebiliyor. Şu an 13,500'den fazla paket var. Karşılaştırma yapalım: 10 yıl önce 3,000 civarıydı. Üstel bir büyüme var.
+R'ın öne çıkan özellikleri şunlardır:
 
-### R'ın Avantajları:
+- Açık kaynak kodludur ve ücretsizdir.
+- Geniş bir paket ekosistemine sahiptir.
+- Güçlü görselleştirme araçları sunar.
+- Etkin bir kullanıcı topluluğu vardır.
+- Zaman serisi analizi için özel nesne ve fonksiyonlar içerir.
 
-- Açık kaynak kodlu ve ücretsiz
-- Geniş paket ekosistemi
-- Güçlü görselleştirme araçları
-- Aktif kullanıcı topluluğu
-- Zaman serisi analizi için özel araçlar
+R'ın yanında genellikle RStudio kullanılır. RStudio bir tümleşik geliştirme ortamıdır (IDE, *integrated development environment*): Kod düzenleyici, konsol, grafik paneli ve çalışma alanı aynı pencerede toplanır. Önce CRAN'dan R, ardından RStudio kurulur.
 
-**Önemli:** R'ı ve RStudio'yu mutlaka kurun. CRAN sitesinden R'ı, sonra RStudio'yu indirin. RStudio bir IDE - yani gelişmiş bir editör. R konsolu da var ama RStudio kullanmak hayatınızı kolaylaştırır.
+### A.2. İlk Adımlar
 
-### İlk Adımlar
-
-R'ı açtığınızda konsol görürsünüz. Buraya direkt kod yazabilirsiniz:
+R açıldığında komutların yazıldığı bir konsol görünür. Komutlar doğrudan konsola yazılabilir:
 
 ```r
-# Yorum satırı - R bunu çalıştırmaz
+# Yorum satırı: R bu satırı çalıştırmaz
 print("Merhaba")
+#> [1] "Merhaba"
 ```
 
-Hash işareti yorum için kullanılır. Kodunuzu açıklayın, kendinize not alın. 6 ay sonra kendi kodunuzu anlamayabilirsiniz yoksa.
+`#` işaretinden sonra gelen metin **yorumdur** (*comment*). Yorumlar kodun ne yaptığını açıklamak için yazılır; birkaç ay sonra kodu yeniden okuyan kişi için büyük kolaylık sağlar. Ders notlarında `#>` ile başlayan satırlar ise R'ın ekrana yazdığı çıktıyı gösterir; konsola yazılmaz.
 
-### Değişken Atama - Kritik Bir Nokta
+### A.3. Değişken Atama
 
-R'da değişkenlere değer atamak için iki yöntem var:
+R'da bir değere ad vermek için iki işaret kullanılabilir:
 
 ```r
 x <- 5
 y = 5
 ```
 
-İkisi de çalışır ama `<-` kullanın. Neden? R topluluğunda bu standart. Fonksiyon içinde parametre atarken `=` kullanılır, karışıklık olmasın diye.
-
-Bir örnek:
+İkisi de çalışır; ancak R topluluğunda atama için `<-` kullanmak yerleşik bir alışkanlıktır. `=` işareti çoğunlukla fonksiyon çağrısında argüman verirken kullanılır (`round(3.14159, digits = 2)` gibi); iki kullanımın ayrı tutulması kodun okunurluğunu artırır.
 
 ```r
 ogrenci_sayisi <- 45
-ortalama_yas <- 21.5
-ders_adi <- "Zaman Serisi Analizi"
-
-# Değerleri görelim
+ortalama_yas   <- 21.5
+ders_adi       <- "Zaman Serisi Analizi"
 print(ogrenci_sayisi)
+#> [1] 45
 ```
 
-**Dikkat:** R case-sensitive. Yani `Yas` ile `yas` farklı şeyler. Kod yazarken tutarlı olun.
+**Dikkat:** R büyük-küçük harfe duyarlıdır (*case-sensitive*): `Yas` ile `yas` iki ayrı addır. Aynı kural fonksiyon ve veri seti adları için de geçerlidir.
 
-### Operatörler
+### A.4. Operatörler
 
-Matematiksel işlemler basit:
+Aritmetik işlemler:
 
 ```r
-# Temel aritmetik
-# Aritmetik işlemler
 x <- 10
 y <- 2
-
-# Toplama
-x + y  # 12
-
-# Çıkarma
-x - y  # 8
-
-# Çarpma
-x * y  # 20
-
-# Bölme
-x / y  # 5
-
-# Üs alma
-x ^ 2  # 100
-
-# Mod alma
-x %% 3  # 1
+x + y    # toplama
+#> [1] 12
+x - y    # çıkarma
+#> [1] 8
+x * y    # çarpma
+#> [1] 20
+x / y    # bölme
+#> [1] 5
+x ^ 2    # üs alma
+#> [1] 100
+x %% 3   # bölümden kalan (mod)
+#> [1] 1
 ```
 
-Karşılaştırmalar:
+Karşılaştırma operatörleri sonuç olarak mantıksal bir değer (`TRUE` ya da `FALSE`) döndürür:
 
 ```r
-5 > 3     # TRUE
-5 == 5    # TRUE (eşitlik için çift eşittir!)
-5 != 3    # TRUE (eşit değil)
-```
-
-Mantıksal operatörler (bunlar çok kullanacaksınız):
-
-```r
-TRUE & FALSE   # FALSE (VE)
-TRUE | FALSE   # TRUE (VEYA)
-!TRUE          # FALSE (DEĞİL)
 a <- 5
 b <- 7
-
-# Eşitlik kontrolü
-a == b  # FALSE
-
-# Eşit değil
-a != b  # TRUE
-
-# Büyüktür
-a > b   # FALSE
-
-# Küçüktür
-a < b   # TRUE
-
-# Büyük eşit
-a >= 5  # TRUE
-
-# Küçük eşit
-b <= 7  # TRUE
+a == b   # eşit mi? (eşitlik için çift eşittir)
+#> [1] FALSE
+a != b   # eşit değil mi?
+#> [1] TRUE
+a > b    # büyük mü?
+#> [1] FALSE
+a <= 5   # küçük ya da eşit mi?
+#> [1] TRUE
 ```
 
-#### Şimdi bir örnek:
+Mantıksal operatörler koşulları birleştirir: `&` "ve", `|` "veya", `!` "değil" anlamına gelir.
 
 ```r
-sinav_notu <- 65
+sinav_notu  <- 65
 devamsizlik <- 3
-
-# Geçti mi kontrolü
-gecti <- (sinav_notu >= 60) & (devamsizlik < 5)
-print(gecti)  # TRUE
+gecti <- (sinav_notu >= 60) & (devamsizlik < 5)   # iki koşul da sağlanıyor mu?
+print(gecti)
+#> [1] TRUE
 ```
 
-### Pratik Uygulama
-
-Kendiniz deneyin:
+Kısa bir uygulama olarak iki ürünün %20 indirimli toplam fiyatı şöyle hesaplanır:
 
 ```r
-# İki ürünün fiyatı
 urun1 <- 150
 urun2 <- 200
-
-# İndirimli fiyatlar (%20 indirim)
-indirimli1 <- urun1 * 0.8
-indirimli2 <- urun2 * 0.8
-
-# Toplam tutar
-toplam <- indirimli1 + indirimli2
+toplam <- urun1 * 0.8 + urun2 * 0.8
 print(paste("Toplam:", toplam, "TL"))
+#> [1] "Toplam: 280 TL"
 ```
 
 ---
 
-## R'da Veri Yapıları
+### A.5. Veri Yapıları
 
-### Vektörler - R'ın Temeli
+#### A.5.1. Vektörler
 
-R'da her şey vektör. Tek bir sayı bile aslında 1 elemanlı vektör. Şunu deneyin:
+R'da temel veri yapısı **vektördür** (*vector*): aynı türden değerlerin sıralı bir listesi. Tek bir sayı bile bir elemanlı bir vektördür:
 
 ```r
 x <- 5
-length(x)  # 1
+length(x)
+#> [1] 1
 ```
 
-Vektör oluşturmak için `c()` fonksiyonu kullanılır (combine kelimesinden gelir):
+Vektör oluşturmak için `c()` fonksiyonu kullanılır (*combine*, birleştir):
 
 ```r
-notlar <- c(70, 85, 92, 68, 75)
-isimler <- c("Ali", "Ayşe", "Mehmet")
+notlar    <- c(70, 85, 92, 68, 75)
+isimler   <- c("Ali", "Ayşe", "Mehmet")
 mantiksal <- c(TRUE, FALSE, TRUE, TRUE)
 ```
 
-Vektör işlemleri vektörize çalışır (bu çok önemli):
+Vektör işlemleri eleman eleman yapılır (*vektörel işlem*); döngü yazmaya gerek kalmaz:
 
 ```r
-notlar <- c(70, 85, 92, 68, 75)
-notlar + 5        # Her nota 5 ekler
-notlar * 1.1      # %10 artırır
-notlar > 75       # Her eleman için kontrol
+notlar + 5      # her nota 5 ekler
+#> [1] 75 90 97 73 80
+notlar * 1.1    # her notu %10 artırır
+#> [1]  77.0  93.5 101.2  74.8  82.5
+notlar > 75     # her eleman için koşul
+#> [1] FALSE  TRUE  TRUE FALSE FALSE
 ```
 
-Bu Python'daki listelerden farklı. R'da vektör işlemleri çok hızlı çünkü altta C kodu çalışıyor.
-
-**Vektör İndeksleme:**
+Köşeli parantez vektörden eleman seçer. R'da sıra numaraları 1'den başlar (Python'da 0'dan):
 
 ```r
-notlar <- c(70, 85, 92, 68, 75)
-
-notlar[1]        # İlk eleman (dikkat: R'da indeks 1'den başlar!)
-notlar[c(1,3)]   # 1. ve 3. elemanlar
-notlar[-1]       # 1. eleman hariç hepsi
-notlar[notlar > 75]  # 75'ten büyük olanlar
+notlar[1]             # ilk eleman
+#> [1] 70
+notlar[c(1, 3)]       # 1. ve 3. elemanlar
+#> [1] 70 92
+notlar[-1]            # 1. eleman hariç hepsi
+#> [1] 85 92 68 75
+notlar[notlar > 75]   # 75'ten büyük olanlar
+#> [1] 85 92
 ```
 
-Python'dan geliyorsanız dikkat: R'da indeks 0 değil 1'den başlar.
+#### A.5.2. Veri Çerçeveleri
 
-### Data Frame - Gerçek Veri
-
-Data frame, Excel'deki tablolar gibi. Farklı tipte sütunlar içerebilir:
+**Veri çerçevesi** (*data frame*), her sütunu bir değişken, her satırı bir gözlem olan tablodur; sütunlar farklı türlerde olabilir:
 
 ```r
 ogrenciler <- data.frame(
-  ad = c("Ali", "Ayşe", "Mehmet", "Fatma"),
-  yas = c(20, 22, 21, 23),
-  not = c(85, 92, 78, 88),
+  ad    = c("Ali", "Ayşe", "Mehmet", "Fatma"),
+  yas   = c(20, 22, 21, 23),
+  not   = c(85, 92, 78, 88),
   gecti = c(TRUE, TRUE, TRUE, TRUE)
 )
-
 print(ogrenciler)
+#>       ad yas not gecti
+#> 1    Ali  20  85  TRUE
+#> 2   Ayşe  22  92  TRUE
+#> 3 Mehmet  21  78  TRUE
+#> 4  Fatma  23  88  TRUE
 ```
 
-**Çıktı:**
-```
-     ad yas not gecti
-1    Ali  20  85  TRUE
-2   Ayşe  22  92  TRUE
-3 Mehmet  21  78  TRUE
-4  Fatma  23  88  TRUE
-```
+Bir veri çerçevesini incelemek için sık kullanılan fonksiyonlar: `str()` (yapı), `head()` (ilk satırlar), `summary()` (özet istatistikler), `dim()` (satır ve sütun sayısı) ve `names()` (sütun adları).
 
-Veriyi incelemek için kullanışlı fonksiyonlar:
+Sütun ve satır seçimi:
 
 ```r
-str(ogrenciler)      # Yapı bilgisi
-head(ogrenciler, 2)  # İlk 2 satır
-summary(ogrenciler)  # Özet istatistikler
-dim(ogrenciler)      # Boyutlar (satır, sütun)
-names(ogrenciler)    # Sütun isimleri
+ogrenciler$not                    # sütun adıyla (en yaygın yol)
+#> [1] 85 92 78 88
+ogrenciler[, "not"]               # [satır, sütun] biçiminde, sütun adıyla
+ogrenciler[, 3]                   # aynı sütun, sıra numarasıyla
+ogrenciler[1, ]                   # ilk satır
+ogrenciler[1:2, c("ad", "not")]   # ilk iki satırın iki sütunu
+ogrenciler[ogrenciler$not > 85, ] # koşula göre süzme
+#>      ad yas not gecti
+#> 2  Ayşe  22  92  TRUE
+#> 4 Fatma  23  88  TRUE
 ```
 
-**Veri Çekme - Önemli:**
+Köşeli parantez içinde virgülün solu satırları, sağı sütunları seçer; boş bırakılan taraf "hepsi" anlamına gelir.
+
+Aylık bir satış tablosunda hedefi aşan aylar ve hedeften sapma oranı şöyle bulunur:
 
 ```r
-# Sütun seçimi - 3 yöntem (hepsi aynı sonucu verir)
-ogrenciler$not              # En yaygın
-ogrenciler[, "not"]         # Sütun ismiyle
-ogrenciler[, 3]             # İndeksle
-
-# Satır seçimi
-ogrenciler[1, ]             # İlk satır
-ogrenciler[c(1,3), ]        # 1. ve 3. satırlar
-
-# Hem satır hem sütun
-ogrenciler[1:2, c("ad", "not")]
-
-# Filtreleme (bunu çok kullanacaksınız)
-yuksek_notlar <- ogrenciler[ogrenciler$not > 85, ]
-print(yuksek_notlar)
-```
-
-### Örnek
-
-```r
-# Aylık satış verisi
 satis <- data.frame(
-  ay = c("Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran"),
+  ay     = c("Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran"),
   miktar = c(1200, 1350, 1180, 1420, 1580, 1650),
-  hedef = c(1300, 1300, 1300, 1400, 1500, 1600)
+  hedef  = c(1300, 1300, 1300, 1400, 1500, 1600)
 )
-
-# Hedefi aşan aylar
-basarili <- satis[satis$miktar > satis$hedef, ]
-print(basarili)
-
-# Ortalama satış
-mean(satis$miktar)
-
-# Sapma oranı (hedeften)
-satis$sapma_yuzde <- ((satis$miktar - satis$hedef) / satis$hedef) * 100
-print(satis)
+satis[satis$miktar > satis$hedef, "ay"]    # hedefi aşan aylar
+#> [1] "Şubat"   "Nisan"   "Mayıs"   "Haziran"
+mean(satis$miktar)                         # ortalama satış
+#> [1] 1396.667
+satis$sapma_yuzde <- round((satis$miktar - satis$hedef) / satis$hedef * 100, 1)
+satis$sapma_yuzde
+#> [1] -7.7  3.8 -9.2  1.4  5.3  3.1
 ```
 
 ---
 
-## Paketler ve Veri İçe Aktarma
+### A.6. Paketler
 
-### R Paketleri
-
-R'ın gücü paketlerinden gelir. Temel R (base R) bile güçlü ama gerçek iş paketlerle yapılır.
-
-**Paket kurulumu (sadece bir kez):**
+R'ın temel kurulumuyla gelen fonksiyonlar (*base R*) geniş bir yelpazeyi kapsar; özel yöntemler ise **paketlerle** eklenir. Bir paket bilgisayara bir kez kurulur, her yeni oturumda ise yüklenir:
 
 ```r
-install.packages("forecast")
-install.packages("dplyr")
-packageversion("forecast")  # Versiyon kontrolü
+install.packages("forecast")   # kurulum: yalnızca bir kez
+library(forecast)              # yükleme: her oturumda
+packageVersion("forecast")     # kurulu sürümü gösterir
 ```
 
-**Paketi yükleme (her oturum için):**
+Bazı fonksiyonlar paketlerin yalnızca yeni sürümlerinde bulunduğu için sürüm bilgisi önemlidir. Derste kullanılan paketlerin tamamı tek komutla kurulabilir (`source("Codes/install_packages.R")`). Başlıcaları şunlardır:
+
+| Paket | Kullanım amacı | İlk kullanıldığı bölüm |
+| --- | --- | --- |
+| `stats` | Temel istatistik fonksiyonları (`acf()`, `arima()`, `decompose()`); R ile birlikte gelir | 2 |
+| `tseries` | Durağanlık testleri (`adf.test()`, `kpss.test()`) | 3 |
+| `lubridate` | Tarih ve zaman işlemleri | 4 |
+| `xts`, `zoo` | Düzensiz aralıklı zaman serileri | 5 |
+| `TSstudio` | `USgas` veri seti ve `ts_info()` | 5 |
+| `ggplot2` | Gelişmiş grafikler | 6 |
+| `forecast` | `auto.arima()`, `forecast()`, `accuracy()` | 7 |
+
+### A.7. Veri Okuma
+
+#### A.7.1. CSV Dosyası
+
+Virgülle ayrılmış değer dosyaları (CSV, *comma-separated values*) `read.csv()` ile okunur. Depodaki `data/AirPassengers.csv` dosyası iki sütun içerir: `Month` (yıl-ay) ve `Passengers` (bin yolcu).
 
 ```r
-library(forecast)
-library(dplyr)
+ap <- read.csv("data/AirPassengers.csv")
+str(ap)
+#> 'data.frame':	144 obs. of  2 variables:
+#>  $ Month     : chr  "1949-01" "1949-02" "1949-03" "1949-04" ...
+#>  $ Passengers: int  112 118 132 129 121 135 148 148 136 119 ...
+head(ap, 3)
+#>     Month Passengers
+#> 1 1949-01        112
+#> 2 1949-02        118
+#> 3 1949-03        132
 ```
 
-Bunları karıştırmayın. Install bir kez, library her oturumda.
+R 4.0'dan beri `read.csv()` metin sütunlarını karakter (`chr`) olarak okur. Daha eski sürümlerde metinler varsayılan olarak faktöre (`factor`) çevrildiği için eski kaynaklarda `stringsAsFactors = FALSE` argümanı sıkça görülür; güncel sürümlerde bu argüman gerekmez.
 
-**Hangi paketlere ihtiyacınız var?**
-
-Zaman serisi analizi için temel paketler:
+Dosya internetteki bir adresten de okunabilir (örneğin Colab'da):
 
 ```r
-# Veri manipülasyonu
-install.packages("dplyr")
-install.packages("lubridate")  # Tarih/zaman
-
-# Zaman serisi
-install.packages("forecast")
-install.packages("TSstudio")
-
-# Görselleştirme
-install.packages("ggplot2")
-install.packages("plotly")
+url <- "https://raw.githubusercontent.com/erkanozhan/AI_Based_Time_Series-Data_Analytics/main/data/AirPassengers.csv"
+ap <- read.csv(url)
 ```
 
-Paket versiyonunu kontrol edin:
+Excel dosyaları için `readxl` paketindeki `read_excel("dosya.xlsx")` fonksiyonu kullanılır.
+
+#### A.7.2. Paketlerle Gelen Veri Setleri
+
+R ve bazı paketler hazır veri setleriyle gelir; `data()` bunları çalışma alanına yükler:
 
 ```r
-packageVersion("forecast")  # Versiyon önemli, bazı fonksiyonlar eski versiyonlarda yok
-```
-Özetle:
-Önemli Paketler (Zaman Serisi Analizi için):
-
-- **stats**: R'ın temel istatistik paketi
-- **forecast**: Tahmin modelleri için
-- **TSstudio**: Zaman serisi görselleştirme
-- **lubridate**: Tarih ve zaman işlemleri
-- **dplyr**: Veri manipülasyonu
-- **ggplot2**: Gelişmiş görselleştirme
-
-### Veri İçe Aktarma
-
-**CSV dosyası:**
-
-```r
-# Yerel dosya
-veriler <- read.csv("veri.csv", stringsAsFactors = FALSE)
-
-# İnternetten
-url <- "https://raw.githubusercontent.com/dosya/veri.csv"
-veriler <- read.csv(url, stringsAsFactors = FALSE)
-```
-
-`stringsAsFactors = FALSE` önemli. Yoksa metinleri otomatik factor yapar, genelde istemezsiniz.
-
-**Excel dosyası:**
-
-```r
-library(readxl)
-veriler <- read_excel("veri.xlsx")
-# Veya yolu seçin
-veriler <- read_excel(file.choose())
-# file.choose() ile dosya seçme penceresi açılır. Ben bunu çok kullanıyorum.    
-```
-
-**Paket dataseti:**
-
-```r
+data("AirPassengers")   # R ile gelir (datasets paketi)
+data("iris")            # R ile gelir; ad küçük harfle yazılır
 library(TSstudio)
-data(USgas)  # Paket içinden yükler
-data("AirPassengers")  # Base R'dan
-data("Iris")         # Base R'dan
+data(USgas)             # TSstudio paketinden
 ```
 
-### Örnek:
+Veri seti adları da büyük-küçük harfe duyarlıdır: `data("Iris")` yazıldığında R veri setini bulamaz ve uyarı verir.
+
+### A.8. Temel İstatistikler
+
+Okunan verinin özet istatistikleri şöyle hesaplanır:
 
 ```r
-# İnternetten satış verisi çekelim
-url <- "https://raw.githubusercontent.com/PacktPublishing/Hands-On-Time-Series-Analysis-with-R/master/Chapter%201/TOTALNSA.csv"
-satis_verisi <- read.csv(url, stringsAsFactors = FALSE)
-
-# Yapıya bakalım
-str(satis_verisi)
-head(satis_verisi, 10)
-
-# Sütun isimlerini düzeltelim
-names(satis_verisi) <- c("tarih", "satis")
+yolcu <- ap$Passengers
+summary(yolcu)
+#>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#>   104.0   180.0   265.5   280.3   360.5   622.0 
+sd(yolcu)      # standart sapma
+#> [1] 119.9663
+var(yolcu)     # varyans
+#> [1] 14391.92
+range(yolcu)   # en küçük ve en büyük değer
+#> [1] 104 622
 ```
 
-### Temel İstatistikler
+**Varyans** (*variance*) değerlerin ortalama etrafındaki yayılımını ölçer: Her değerin ortalamadan farkı alınır, farkların kareleri toplanır ve gözlem sayısının bir eksiğine ($n - 1$) bölünür. **Standart sapma** (*standard deviation*) varyansın kareköküdür ve verinin kendi biriminde ifade edildiği için daha kolay yorumlanır. R'ın `var()` ve `sd()` fonksiyonları $n - 1$'e böler; $n$'ye bölen tanımla farkı Bölüm 2.2'de açıklanır.
 
-Bir veri yüklediniz, şimdi ne yapacaksınız?
-
+Eksik değer (`NA`) içeren bir vektörde `mean(x)` sonucu da `NA` olur; eksik değerleri dışarıda bırakmak için `na.rm = TRUE` argümanı verilir:
 
 ```r
-# Özet istatistikler
-summary(veriler)
-mean(veriler$satis)
-median(veriler$satis)
-sd(veriler$satis)        # Standart sapma
-var(veriler$satis)       # Varyans
-# Varyans = (standart sapma)^2
-# Standart sapma = sqrt(varyans)
-# Varyans: Bir dağılımın ne kadar geniş olduğunu gösterir.
-# Şöyle ki, varyans büyükse veriler ortalamadan çok sapıyor demektir. Varyans şöyle hesaplanır:
-# 1. Her bir veri noktasının ortalamadan farkını bulun.
-# 2. Bu farkların karesini alın.
-# 3. Karesi alınan farkların ortalamasını bulun. İşte bu varyanstır.
-# Standart sapma ise varyansın kareköküdür. Yani varyansın birimi verinin biriminin karesi iken, standart sapma verinin birimi ile aynıdır. Bu yüzden standart sapma daha yorumlanabilirdir.  
-range(veriler$satis)     # Min ve Max
-quantile(veriler$satis)  # Yüzdelikler
+mean(c(10, 20, NA))
+#> [1] NA
+mean(c(10, 20, NA), na.rm = TRUE)
+#> [1] 15
 ```
 
-### Başka Bir Örnek veri
-```r
-notlar <- c(65, 78, 82, 91, 55, 88, 76, 94, 69, 85)
+### A.9. Temel Grafikler
 
-# Temel istatistikler
-ortalama <- mean(notlar)
-medyan <- median(notlar)
-std_sapma <- sd(notlar)
-varyans <- var(notlar)
-minimum <- min(notlar)
-maksimum <- max(notlar)
-
-# Sonuçları yazdırma
-cat("Ortalama:", ortalama, "\n")
-cat("Medyan:", medyan, "\n")
-cat("Standart Sapma:", std_sapma, "\n")
-cat("Minimum:", minimum, "\n")
-cat("Maksimum:", maksimum, "\n")
-
-# Özet istatistikler
-summary(notlar)
-```
-
-Eksik veri varsa:
+Görselleştirme, veriyi anlamanın en hızlı yoludur. Temel R ile üç sık kullanılan grafik şöyle çizilir:
 
 ```r
-mean(veriler$satis, na.rm = TRUE)  # NA'ları çıkar
+# Histogram: değerlerin hangi aralıklarda yoğunlaştığını gösterir
+hist(yolcu, main = "Aylık yolcu sayısının dağılımı",
+     xlab = "Yolcu (bin)", ylab = "Frekans", col = "lightblue")
+
+# Kutu grafiği: ortanca, çeyrekler ve olası aykırı değerler
+boxplot(yolcu, main = "Aylık yolcu sayısı", ylab = "Yolcu (bin)", col = "lightgreen")
+
+# Çizgi grafiği: değerlerin zaman sırasına göre seyri
+plot(yolcu, type = "l", main = "Aylık yolcu sayısı, 1949-1960",
+     xlab = "Gözlem sırası (ay)", ylab = "Yolcu (bin)", col = "darkred", lwd = 2)
 ```
 
-### Basic Görselleştirme
+**Histogram** (*histogram*) değerlerin aralıklara göre dağılımını gösterir. **Kutu grafiği** (*box plot*) verinin ortancasını (medyan), orta %50'sini kapsayan kutuyu ve kutunun dışında kalan olası aykırı değerleri özetler. **Çizgi grafiği** zaman serisi analizinin ilk adımıdır: Trend ve mevsimsellik çoğu zaman ilk bakışta fark edilir (Bölüm 1.5). Burada yatay eksen yalnızca gözlem sırasıdır; tarih bilgisini taşıyan `ts` nesnesiyle çizim Bölüm 5'te ele alınır.
 
-R'da görselleştirme, veriyi anlamanın en hızlı yoludur. Karmaşık tablolar yerine bir grafiğe bakarak trendleri, aykırı değerleri ve dağılımı anında görebilirsiniz. İşte temel R fonksiyonlarıyla yapabileceğiniz birkaç basit ama güçlü görselleştirme:
+### A.10. Alıştırmalar
 
-### Histogram: Veri Dağılımını Anlamak
-
-Histogram, sayısal bir değişkenin dağılımını gösterir. Verilerin en çok hangi aralıkta yoğunlaştığını, simetrik olup olmadığını veya çarpıklık içerip içermediğini görmenizi sağlar.
-
-```r
-# Satış verisinin histogramı
-hist(veriler$satis, 
-     main = "Satış Miktarlarının Dağılımı", # Grafiğin başlığı
-     xlab = "Satış Miktarı",               # X ekseni etiketi
-     ylab = "Frekans (Gözlem Sayısı)",      # Y ekseni etiketi
-     col = "lightblue",                    # Sütunların rengi
-     border = "darkblue")                  # Sütunların kenarlık rengi
-```
-
-Bu grafik, örneğin satışların çoğunlukla belirli bir aralıkta toplanıp toplanmadığını veya birden fazla tepe noktası olup olmadığını (bimodal dağılım) gösterir.
-
-### Kutu Grafiği (Boxplot): Aykırı Değerleri Tespit Etmek
-
-Kutu grafiği, verinin medyanını, çeyrekliklerini (quartiles) ve potansiyel aykırı değerleri tek bir grafikte özetler. Özellikle farklı kategorileri karşılaştırırken çok kullanışlıdır.
-
-```r
-# Satış verisinin kutu grafiği
-boxplot(veriler$satis,
-        main = "Satış Verisinin Kutu Grafiği", # Grafiğin başlığı
-        ylab = "Satış Miktarı",               # Y ekseni etiketi
-        col = "lightgreen",                   # Kutu rengi
-        notch = TRUE)                         # Medyan etrafında güven aralığı çentiği
-```
-Grafikteki kutu, verilerin orta %50'sini temsil eder. Kutunun dışındaki noktalar genellikle aykırı değer olarak kabul edilir ve incelenmesi gerekir.
-
-### Çizgi Grafiği: Zaman İçindeki Değişimi Görmek
-
-Zaman serisi analizinin temel taşıdır. Verinin zaman içindeki seyrini, trendleri, mevsimselliği ve döngüsel hareketleri görmek için kullanılır.
-
-```r
-# Zaman serisi grafiği (verinin sırasına göre)
-plot(veriler$satis, 
-     type = "l",                           # 'l' çizgi grafiği anlamına gelir
-     main = "Zaman İçinde Satışların Değişimi", # Grafiğin başlığı
-     ylab = "Satış Miktarı",                 # Y ekseni etiketi
-     xlab = "Zaman (Gözlem Sırası)",         # X ekseni etiketi
-     col = "darkred",                        # Çizgi rengi
-     lwd = 2)                              # Çizgi kalınlığı
-```
-Bu grafik, satışlarda artan bir trend mi var, yoksa belirli dönemlerde tekrarlayan düşüşler/yükselişler (mevsimsellik) mi var gibi sorulara ilk bakışta cevap vermenizi sağlar.
-```
-
-## Ödev ve Pratik
-
-**Bu haftanın ödevi (zorunlu):**
-
-1. Kendi bir data frame oluşturun (en az 20 satır, 4 sütun)
-2. Bu verinin özetini çıkarın
-3. En az 3 filtreleme yapın
-4. Ortalama, medyan, standart sapma hesaplayın
-5. Bir histogram çizdirin
-
-**Örnek veri fikirleri:**
-- Günlük hava durumu
-- Haftalık market harcamaları
-- Aylık elektrik faturaları
-- Kurs notları
-
-**Dikkat edilecek noktalar:**
-
-- Kodunuza yorum ekleyin
-- Değişken isimlerini anlamlı seçin
-- Her adımı kontrol edin (`head()`, `str()` kullanın)
-- Hata alırsanız mesajı okuyun, Google'da aratın
+1. En az 20 satır ve 4 sütundan oluşan bir veri çerçevesi oluşturun (örneğin haftalık market harcamaları, aylık elektrik faturaları ya da günlük hava sıcaklığı).
+2. `str()`, `head()` ve `summary()` ile verinin özetini çıkarın.
+3. En az üç farklı koşulla satır süzün.
+4. Bir sütunun ortalamasını, ortancasını ve standart sapmasını hesaplayın.
+5. Aynı sütunun histogramını ve çizgi grafiğini çizin.
 
 **Sık yapılan hatalar:**
 
-1. `<-` yerine `=` kullanmak (kabul edilir ama standart değil)
-2. İndeksleri karıştırmak (R'da 1'den başlar!)
-3. Parantez kapatmayı unutmak
-4. Fonksiyon ismini yanlış yazmak (R case-sensitive)
+1. Sıra numarasını 0'dan başlatmak (R'da 1'den başlar).
+2. Büyük-küçük harfi karıştırmak (`packageversion()` yerine `packageVersion()`, `data("Iris")` yerine `data("iris")`).
+3. Açılan parantezi kapatmayı unutmak.
+4. Paketi `library()` ile yüklemeden fonksiyonunu çağırmak.
+
+Yardım için konsola `?fonksiyon_adı` (örneğin `?mean`) yazılır; paketlerin belgeleri CRAN sayfalarında bulunur.
+
+Sonraki adım, tarih ve zaman nesneleridir: [Bölüm 4. R'da Tarih ve Zaman Nesneleri](notlar/04_rda_tarih_ve_zaman_nesneleri.md).
 
 ---
 
-## Gelecek Hafta
-
-Gelecek hafta tarih ve zaman nesnelerini işleyeceğiz. Bu zaman serisi için kritik. Hazırlık:
-
-```r
-# Bu fonksiyonlara bakın
-Sys.Date()
-Sys.time()
-as.Date("2024-01-01")
-```
-
-**Kaynaklar:**
-
-- R Documentation: `?fonksiyon_ismi`
-- Stack Overflow: En çok kullanacağınız kaynak
-- CRAN: Paket dokümantasyonları
-
-**Son not:** R öğrenmek pratikle olur. Her gün en az 30 dakika kod yazın. Okumak yetmez.
-
+[İçindekiler](Course_notes.md) · [Ek B: Gretl'e Giriş →](Gretl.md)

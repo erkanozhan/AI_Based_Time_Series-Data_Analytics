@@ -16,14 +16,14 @@ Bir `ts` nesnesi iki temel bilgiden oluşur:
 
 **Tanım (frekans):** Frekans, **bir temel döngü (çoğunlukla bir yıl) içindeki gözlem sayısıdır.** Aylık veride yıl 12 aya bölündüğü için `frequency = 12`, çeyreklik veride `frequency = 4` olur. Frekans aynı zamanda mevsimsel dönemin uzunluğudur: `decompose()` ve mevsimsel ARIMA (Bölüm 7.3) gibi yöntemler "kaç gözlemde bir tekrar eden desen aranacağını" bu sayıdan öğrenir.
 
-Bu parametre yanlış ayarlanırsa mevsimsellik gibi önemli desenler modellenemez. Örneğin aylık bir seriyi `frequency = 1` ile tanımlarsanız R, her yıl yaz aylarında tekrar eden zirveyi mevsimsellik olarak göremez; çünkü ona göre seride bir "yıl içi" yoktur, her gözlem ayrı bir yıldır.
+Bu parametre yanlış ayarlanırsa mevsimsellik gibi önemli desenler modellenemez. Örneğin aylık bir seri `frequency = 1` ile tanımlanırsa R, her yıl yaz aylarında tekrar eden zirveyi mevsimsellik olarak göremez; çünkü ona göre seride bir "yıl içi" yoktur, her gözlem ayrı bir yıldır.
 
 | Veri tipi | Temel döngü | `frequency` | Açıklama |
 | --- | --- | --- | --- |
 | Yıllık | — | `1` | Mevsimsellik yoktur |
 | Çeyreklik | Yıl | `4` | 4 çeyrek / yıl |
 | Aylık | Yıl | `12` | 12 ay / yıl |
-| Haftalık | Yıl | `52` ya da `52.18` | Bir yıl 365,25 / 7 ≈ 52,18 haftadır |
+| Haftalık | Yıl | `52` ya da `52.18` | Bir yıl 365.25 / 7 ≈ 52.18 haftadır |
 | Günlük | Hafta | `7` | Haftanın günü etkisi (hafta içi / hafta sonu) |
 | Günlük | Yıl | `365` ya da `365.25` | Yıllık mevsimsellik (ör. sıcaklık) |
 | Günlük (iş günü) | Hafta | `5` | Borsa, hafta sonu olmayan veriler |
@@ -34,7 +34,7 @@ Bu parametre yanlış ayarlanırsa mevsimsellik gibi önemli desenler modellenem
 
 > **Simge notu:** $`\approx`$ *(yaklaşık eşittir)*: iki değerin yaklaşık olarak eşit olduğunu gösterir
 
-**Not —** Günlük veride hangi frekansın seçileceği, hangi döngüyle ilgilendiğinize bağlıdır: haftalık desen için 7, yıllık desen için 365,25. Hem haftalık hem yıllık döngü birlikte varsa tek bir `ts` frekansı yetmez; bu durumda `forecast` paketindeki `msts()` (çok mevsimli seri) ya da Bölüm 9'daki Prophet gibi araçlar kullanılır. Ondalıklı frekanslar (`52.18`, `365.25`) `ts` tarafından kabul edilir, ancak bazı fonksiyonlar (ör. `decompose()`) mevsimsel dönemi tam sayı gözlem olarak ele alır; bu nedenle pratikte çoğunlukla `52` ya da `365` gibi tam sayılar tercih edilir.
+**Not —** Günlük veride hangi frekansın seçileceği, hangi döngüyle ilgilenildiğine bağlıdır: haftalık desen için 7, yıllık desen için 365.25. Hem haftalık hem yıllık döngü birlikte varsa tek bir `ts` frekansı yetmez; bu durumda `forecast` paketindeki `msts()` (çok mevsimli seri) ya da Bölüm 9'daki Prophet gibi araçlar kullanılır. Ondalıklı frekanslar (`52.18`, `365.25`) `ts` tarafından kabul edilir, ancak bazı fonksiyonlar (ör. `decompose()`) mevsimsel dönemi tam sayı gözlem olarak ele alır; bu nedenle pratikte çoğunlukla `52` ya da `365` gibi tam sayılar tercih edilir.
 
 **`start` ve `end` argümanları:** Zaman, `c(büyük birim, küçük birim)` biçiminde verilir: birinci sayı döngünün kendisi (çoğunlukla yıl), ikinci sayı döngü içindeki sıra (ay, çeyrek, gün...). `c()` (*combine*, birleştir) R'da birden çok değeri tek bir vektörde toplayan fonksiyondur; `c(2024, 1)` iki sayılık bir vektördür.
 
@@ -43,9 +43,9 @@ Bu parametre yanlış ayarlanırsa mevsimsellik gibi önemli desenler modellenem
 - `start = 2020` ve `frequency = 1` → yıllık seride tek sayı yeterlidir.
 - `end` verilmezse veri uzunluğundan hesaplanır; verilirse seri o noktada kesilir.
 
-**Günlük hayattan bir örnek:** Okulun haftalık ders programını düşünün: satırlar günler, her satırda 8 ders saati var. "Salı, 3. ders" demek dersi bulmaya yeter, saatini ayrıca yazmaya gerek yoktur; çünkü çizelgenin düzeni bellidir. `ts` de böyledir: `frequency = 12` "her satırda (yılda) 12 hücre var", `start = c(2024, 1)` "ilk değer 2024 satırının 1. hücresinde" der. Sonraki her değer sıradaki hücreye yazılır ve tarihi hücresinden hesaplanır. Benzetmenin sınırı: `ts`'de hücre atlanamaz; eksik dönem `NA` ile doldurulmalıdır.
+**Günlük hayattan bir örnek:** Okulun haftalık ders programını düşünelim: satırlar günler, her satırda 8 ders saati var. "Salı, 3. ders" demek dersi bulmaya yeter, saatini ayrıca yazmaya gerek yoktur; çünkü çizelgenin düzeni bellidir. `ts` de böyledir: `frequency = 12` "her satırda (yılda) 12 hücre var", `start = c(2024, 1)` "ilk değer 2024 satırının 1. hücresinde" der. Sonraki her değer sıradaki hücreye yazılır ve tarihi hücresinden hesaplanır. Benzetmenin sınırı: `ts`'de hücre atlanamaz; eksik dönem `NA` ile doldurulmalıdır.
 
-R içeride zamanı ondalıklı bir yıl sayısı olarak tutar. `c(yıl, p)` biçimindeki bir başlangıç (p: döngü içindeki sıra) şu sayıya çevrilir: yıl + (p − 1) / frekans. Örneğin `c(2023, 3)` ve frekans 4 için 2023 + 2/4 = 2023,5 (3. çeyrek, yılın yarısı geçmişken başlar). Sonraki her gözlem bir öncekinden sabit bir adım sonra gelir. $k$'inci gözlemin zamanı şöyle hesaplanır:
+R içeride zamanı ondalıklı bir yıl sayısı olarak tutar. `c(yıl, p)` biçimindeki bir başlangıç (p: döngü içindeki sıra) şu sayıya çevrilir: yıl + (p − 1) / frekans. Örneğin `c(2023, 3)` ve frekans 4 için 2023 + 2/4 = 2023.5 (3. çeyrek, yılın yarısı geçmişken başlar). Sonraki her gözlem bir öncekinden sabit bir adım sonra gelir. $k$'inci gözlemin zamanı şöyle hesaplanır:
 
 ```math
 \underbrace{t_k}_{\substack{\text{k'inci gözlemin}\\\text{zamanı}}} = \underbrace{t_1}_{\text{başlangıç}} + \frac{\overbrace{k-1}^{\substack{\text{başlangıçtan bu yana}\\\text{atılan adım sayısı}}}}{\underbrace{f}_{\text{frekans}}}, \qquad \underbrace{\Delta t = \frac{1}{f}}_{\substack{\text{ardışık iki gözlem}\\\text{arasındaki adım}}}
@@ -71,13 +71,13 @@ Aylık seride ($f = 12$) adım $1/12$ yıldır: Ocak 2024 için $t_1 = 2024$, Ar
 > cycle(x)   # döngü içindeki sıra (çeyrek numarası)
 > ```
 >
-> **Ne göreceksiniz:** `time(x)` bir tablo verir: 2023 satırında `2023.50 2023.75`, 2024 satırında `2024.00 2024.25 2024.50 2024.75`. Bunlar $`t_k = 2023{,}5 + (k-1)/4`$ formülünün değerleridir; her adım $`1/4 = 0{,}25`$ yıldır. `cycle(x)` aynı düzende `3 4` ve `1 2 3 4` yazar: gözlemin hangi çeyreğe düştüğü.
+> **Ne göreceksiniz:** `time(x)` bir tablo verir: 2023 satırında `2023.50 2023.75`, 2024 satırında `2024.00 2024.25 2024.50 2024.75`. Bunlar $`t_k = 2023.5 + (k-1)/4`$ formülünün değerleridir; her adım $`1/4 = 0.25`$ yıldır. `cycle(x)` aynı düzende `3 4` ve `1 2 3 4` yazar: gözlemin hangi çeyreğe düştüğü.
 >
 > **Şimdi siz:** (1) Aynı altı değeri `frequency = 12` ile tanımlayıp `time()`'a bakın. İlk ve son değeri önce kendiniz hesaplayın. (2) Yanlış frekansın etkisi: `ap1 <- ts(as.numeric(AirPassengers), start = 1949, frequency = 1)` yazın (`as.numeric()` serinin zaman bilgisini atıp çıplak sayıları bırakır) ve `end(ap1)` ile bitiş yılına bakın.
 >
 > <details><summary>Cevap</summary>
 >
-> (1) Başlangıç artık Mart 2023'tür: $`2023 + 2/12 \approx 2023{,}167`$; son değer $`2023{,}167 + 5/12 \approx 2023{,}583`$ (Ağustos 2023). R bu kez sütun başlıklarına ay adları (`Mar` ... `Aug`) yazar. (2) `[1] 2092    1`: R, 144 aylık gözlemi 144 ayrı **yıl** sanmış ve seriyi 2092'ye kadar uzatmıştır; mevsimsellik de kaybolur. (Ek tuzak: `frequency = 1` iken `start = c(2023, 3)` yazarsanız seri 2023 + (3 − 1)/1 = **2025**'te başlar.)
+> (1) Başlangıç artık Mart 2023'tür: $`2023 + 2/12 \approx 2023.167`$; son değer $`2023.167 + 5/12 \approx 2023.583`$ (Ağustos 2023). R bu kez sütun başlıklarına ay adları (`Mar` ... `Aug`) yazar. (2) `[1] 2092    1`: R, 144 aylık gözlemi 144 ayrı **yıl** sanmış ve seriyi 2092'ye kadar uzatmıştır; mevsimsellik de kaybolur. (Ek tuzak: `frequency = 1` iken `start = c(2023, 3)` yazarsanız seri 2023 + (3 − 1)/1 = **2025**'te başlar.)
 >
 > </details>
 
@@ -85,7 +85,7 @@ Aylık seride ($f = 12$) adım $1/12$ yıldır: Ocak 2024 için $t_1 = 2024$, Ar
 
 > **Uygulama dosyası:** [`Codes/R/ch05_ts_xts.R`](../Codes/R/ch05_ts_xts.R)
 >
-> Bu bölümdeki R kodlarının tamamı bu dosyada. RStudio'da açıp satır satır çalıştırabilir ya da depo kök dizininde `Rscript Codes/R/ch05_ts_xts.R` komutunu kullanabilirsiniz.
+> Bu bölümdeki R kodlarının tamamı bu dosyada. Dosya RStudio'da açılıp satır satır ya da depo kök dizininde `Rscript Codes/R/ch05_ts_xts.R` komutuyla çalıştırılabilir.
 
 #### 5.2.1. Elle Veri Girerek
 
@@ -212,14 +212,14 @@ frequency(USgas)   # [1] 12
 Bu kod, hazır bir veri setini bir paketten yükler ve zaman bilgisini kontrol eder. Bir seriyle çalışmaya başlamadan önce nerede başlayıp bittiğine ve frekansına bakmak, yanlış ayarlanmış zaman bilgisini erkenden yakalamanın en kolay yoludur. Kodu satır satır okuyalım:
 
 1. `# install.packages("TSstudio") # Yüklü değilse`: Başındaki `#` yüzünden çalışmayan bir satırdır. `TSstudio` kurulu değilse baştaki `#` silinip satır **bir kez** çalıştırılır; `install.packages()` paketi internetten (CRAN'dan) indirip kurar (3.2).
-2. `library(TSstudio)`: `TSstudio` paketini bu oturuma yükler; `USgas` verisi ve `ts_info()` fonksiyonu bu paketten gelir. Yüklerken `package 'TSstudio' was built under R version ...` gibi bir uyarı görebilirsiniz; paketin sizin R'ınızdan biraz farklı bir sürümle hazırlandığını söyler ve kodu etkilemez.
+2. `library(TSstudio)`: `TSstudio` paketini bu oturuma yükler; `USgas` verisi ve `ts_info()` fonksiyonu bu paketten gelir. Yüklerken `package 'TSstudio' was built under R version ...` gibi bir uyarı görülebilir; uyarı, paketin kullanılan R sürümünden biraz farklı bir sürümle hazırlandığını söyler ve kodu etkilemez.
 3. `data(USgas)`: Paketle gelen `USgas` veri setini çalışma alanına getirir. Ad burada tırnaksız yazılmıştır; `data("USgas")` ile aynıdır (2.5).
 4. `ts_info(USgas)`: Bir `ts` nesnesinin özetini tek seferde ekrana yazar. Bu fonksiyon yalnızca yazdırır; saklanacak bir sonuç döndürmez.
 5. `start(USgas)`, `end(USgas)`, `frequency(USgas)`: 5.2.1'deki fonksiyonlardır. Bu kez beklenen çıktılar ayrı `#>` satırları yerine her satırın sonuna yorum olarak yazılmıştır (`# [1] 2000    1` gibi).
 
 `ts_info()` çıktısı dört satırdır. İlk satır serinin tek değişkenli (*1 variable*) ve 238 gözlemli bir `ts` nesnesi olduğunu, `Frequency: 12` aylık olduğunu söyler. `Start time: 2000 1` Ocak 2000, `End time: 2019 10` Ekim 2019'dur; kontrol: $19 \times 12 + 10 = 238$.
 
-**Not —** Paketin eski sürümlerinde `USgas` Kasım 2018'de biten 227 gözlemlik bir seriydi; kitaplarda ve eski kaynaklarda bu değerleri görebilirsiniz. Yukarıdaki çıktı güncel `TSstudio` sürümüne aittir.
+**Not —** Paketin eski sürümlerinde `USgas` Kasım 2018'de biten 227 gözlemlik bir seriydi; kitaplarda ve eski kaynaklarda bu değerler görülebilir. Yukarıdaki çıktı güncel `TSstudio` sürümüne aittir.
 
 > **Hemen deneyin 5.2.2 · ABD'de doğal gaz en çok hangi ay tüketiliyor?** (R, ~3 dk)
 >
@@ -244,7 +244,7 @@ Bu kod, hazır bir veri setini bir paketten yükler ve zaman bilgisini kontrol e
 
 #### 5.2.3. R'ın Yerleşik Veri Seti: `AirPassengers`
 
-`AirPassengers`, 1949–1960 yılları arasındaki aylık uluslararası havayolu yolcu sayılarını (bin kişi) içerir. Bölüm 2.5'da ayrıştırdığımız bu seriyi ders boyunca defalarca kullanacağız.
+`AirPassengers`, 1949–1960 yılları arasındaki aylık uluslararası havayolu yolcu sayılarını (bin kişi) içerir. Bölüm 2.5'te ayrıştırdığımız bu seriyi ders boyunca defalarca kullanacağız.
 
 ```r
 data(AirPassengers)
@@ -309,7 +309,7 @@ Bu kod, ders boyunca kullanacağımız `AirPassengers` serisinin zaten bir `ts` 
 
 #### 5.2.4. Veri Alt Kümesi Alma: `window()`
 
-Bir `ts` serisinin belirli bir dönemini seçmek için `window()` fonksiyonu kullanılır. Bu, en sık kullanacağınız fonksiyonlardan biridir: belirli bir dönemi incelemek, bir kırılma öncesini ve sonrasını karşılaştırmak ve özellikle **eğitim/test ayrımı** yapmak (Bölüm 8) için kullanılır.
+Bir `ts` serisinin belirli bir dönemini seçmek için `window()` fonksiyonu kullanılır. Bu, en sık kullanılan fonksiyonlardan biridir: belirli bir dönemi incelemek, bir kırılma öncesini ve sonrasını karşılaştırmak ve özellikle **eğitim/test ayrımı** yapmak (Bölüm 8) için kullanılır.
 
 `start` ve `end` argümanları 5.1'deki `c(yıl, dönem)` biçimini izler; ikisinden biri verilmezse serinin başı ya da sonu kabul edilir. Sonuç yine bir `ts` nesnesidir, yani frekans ve zaman bilgisi korunur.
 
@@ -390,7 +390,7 @@ Bu kod `window()` ile üç kesim yapar: `AirPassengers`'tan üç yıllık bir d�
 
 ### 5.3. `ts` Nesnesinin Ötesi: `xts` ile Gerçek Dünya Verileri
 
-`ts` nesnesi, ders kitaplarındaki gibi **eşit aralıklı ve boşluksuz** veriler (aylık, çeyreklik, yıllık) için uygundur. Gerçek dünya verileri ise nadiren bu kadar düzenlidir: hafta sonları ve tatillerde işlem görmeyen borsa verileri, zaman zaman kesintiye uğrayan sensör kayıtları, saniyelik işlem kayıtları... `ts`'nin "başlangıç + sabit adım" yapısı bu durumlarda yetersiz kalır, çünkü bir gözlemin zamanını yalnızca sırasından hesaplar; arada bir boşluk olduğunu bilemez. Örneğin cuma gününden sonra pazartesi gelen bir borsa serisini günlük `ts` olarak tanımlarsanız, R pazartesi değerini cumartesiye yazar.
+`ts` nesnesi, ders kitaplarındaki gibi **eşit aralıklı ve boşluksuz** veriler (aylık, çeyreklik, yıllık) için uygundur. Gerçek dünya verileri ise nadiren bu kadar düzenlidir: hafta sonları ve tatillerde işlem görmeyen borsa verileri, zaman zaman kesintiye uğrayan sensör kayıtları, saniyelik işlem kayıtları... `ts`'nin "başlangıç + sabit adım" yapısı bu durumlarda yetersiz kalır, çünkü bir gözlemin zamanını yalnızca sırasından hesaplar; arada bir boşluk olduğunu bilemez. Örneğin cuma gününden sonra pazartesi gelen bir borsa serisi günlük `ts` olarak tanımlanırsa R pazartesi değerini cumartesiye yazar.
 
 **Tanım (`xts`):** `xts` (eXtensible Time Series, genişletilebilir zaman serisi), `zoo` paketi üzerine kurulmuş bir zaman serisi sınıfıdır. İki parçadan oluşur: bir **veri matrisi** (`coredata`, "çekirdek veri") ve her satıra karşılık gelen, sıralı bir **zaman indeksi** (`index`; `Date`, `POSIXct` gibi Bölüm 4'teki sınıflardan biri). İndeks, bir kitabın sayfa numaraları gibidir: her satırın "adresi" o satırın tarihidir; üstelik numaralar ardışık olmak zorunda değildir: 25, 26, 29 diye giden sayfalar gibi, hafta sonu "sayfaları" yoktur ve hiçbir şey kaymaz. Böylece her gözlem kendi zaman damgasıyla eşleşir ve düzensiz ya da yüksek frekanslı verilerle çalışmak kolaylaşır.
 
@@ -591,9 +591,9 @@ Bu kod, günlük `xts` verisini daha kaba dönemlere özetler: önce haftalara, 
 
 `to.period()` çıktısının dört sütunu borsa dünyasından gelen dört özettir: dönemin ilk değeri (*Open*, açılış), en yüksek değeri (*High*), en düşük değeri (*Low*) ve son değeri (*Close*, kapanış). Sütun adlarının başındaki `veri_xts.` öneki, fonksiyona verilen nesnenin adından gelir. İlk hafta (25–26 Ocak) değerleri 101 ve 103'tür: açılış 101, en yüksek 103, en düşük 101, kapanış 103. İkinci hafta (29 Ocak – 2 Şubat) değerleri 102, 105, 104, 107, 106'dır: açılış 102, en yüksek 107, en düşük 102, kapanış 106. Her dönem, o dönemin **son gözleminin tarihiyle** etiketlenir: ilk hafta 26 Ocak ile, ikinci hafta 2 Şubat ile.
 
-`apply.monthly()` çıktısında da her ay, verideki son tarihiyle etiketlenir: Ocak `2024-01-31`, Şubat `2024-02-02`. Ocak ayının ortalaması $(101 + 103 + 102 + 105 + 104) / 5 = 515 / 5 = 103$, Şubat'ınki $(107 + 106) / 2 = 106{,}5$'tir. R aynı sütundaki sayıları aynı ondalık basamak sayısıyla yazdığı için 103 de `103.0` olarak görünür. `FUN = mean` da aynı sonucu verir, ancak güncel `xts` sürümleri çok sütunlu verilerde karışıklığı önlemek için `colMeans` kullanılmasını öneren bir bilgi notu (*NOTE*) yazdırır.
+`apply.monthly()` çıktısında da her ay, verideki son tarihiyle etiketlenir: Ocak `2024-01-31`, Şubat `2024-02-02`. Ocak ayının ortalaması $(101 + 103 + 102 + 105 + 104) / 5 = 515 / 5 = 103$, Şubat'ınki $(107 + 106) / 2 = 106.5$'tir. R aynı sütundaki sayıları aynı ondalık basamak sayısıyla yazdığı için 103 de `103.0` olarak görünür. `FUN = mean` da aynı sonucu verir, ancak güncel `xts` sürümleri çok sütunlu verilerde karışıklığı önlemek için `colMeans` kullanılmasını öneren bir bilgi notu (*NOTE*) yazdırır.
 
-**Günlük hayattan bir örnek:** Harçlığınızdan her gün biraz ayırıp kumbaraya attığınızı ve deftere yazdığınızı düşünün. Ay sonunda o ayın bütün satırlarını toplayıp tek satıra yazmak `apply.monthly(..., FUN = colSums)`'tır; ortalamayı yazmak `colMeans`'tir. `to.period()` ise her ay için dört değeri not eder: ayın ilk kaydı (Open), ay içindeki en büyük ve en küçük kayıt (High, Low) ve son kayıt (Close). Deftere günlük miktar yerine kumbaradaki toplam parayı yazsaydınız, bunlar ayın açılış, en yüksek, en düşük ve kapanış bakiyesi olurdu.
+**Günlük hayattan bir örnek:** Bir öğrencinin harçlığından her gün biraz ayırıp kumbaraya attığını ve bunu deftere yazdığını düşünelim. Ay sonunda o ayın bütün satırlarını toplayıp tek satıra yazmak `apply.monthly(..., FUN = colSums)`'tır; ortalamayı yazmak `colMeans`'tir. `to.period()` ise her ay için dört değeri not eder: ayın ilk kaydı (Open), ay içindeki en büyük ve en küçük kayıt (High, Low) ve son kayıt (Close). Deftere günlük miktar yerine kumbaradaki toplam para yazılsaydı, bunlar ayın açılış, en yüksek, en düşük ve kapanış bakiyesi olurdu.
 
 > **Hemen deneyin 5.3.2 · Günlükten aylığa: elle hesaplayıp kontrol edin** (R ve Python, ~5 dk)
 >
@@ -629,10 +629,10 @@ Bu kod, günlük `xts` verisini daha kaba dönemlere özetler: önce haftalara, 
 <details>
 <summary><b>Kendinizi test edin (cevaplar için tıklayın)</b></summary>
 
-1. **Çeyreklik bir seri 2022'nin 2. çeyreğinde başlıyor ve 10 gözlemden oluşuyor. `ts()` çağrısını yazın; seri hangi çeyrekte biter?**
-   → `ts(x, start = c(2022, 2), frequency = 4)`. Başlangıç $`2022 + 1/4 = 2022{,}25`$; bitiş $`2022{,}25 + 9/4 = 2024{,}5`$, yani 2024'ün 3. çeyreği (`end()` sonucu `2024 3`).
+1. **Çeyreklik bir seri 2022'nin 2. çeyreğinde başlıyor ve 10 gözlemden oluşuyor. `ts()` çağrısı nasıl yazılır; seri hangi çeyrekte biter?**
+   → `ts(x, start = c(2022, 2), frequency = 4)`. Başlangıç $`2022 + 1/4 = 2022.25`$; bitiş $`2022.25 + 9/4 = 2024.5`$, yani 2024'ün 3. çeyreği (`end()` sonucu `2024 3`).
 
-2. **Saatlik elektrik tüketiminde günlük döngüyü modellemek istiyorsunuz. `frequency` kaç olmalı? Haftalık döngü için?**
+2. **Saatlik elektrik tüketiminde günlük döngü modellenmek isteniyor. `frequency` kaç olmalı? Haftalık döngü için?**
    → Günlük döngü için 24 (bir günde 24 gözlem), haftalık döngü için $`24 \times 7 = 168`$.
 
 3. **Bir hisse senedinin yalnızca iş günlerinde kaydedilen kapanış fiyatlarını `ts(fiyat, frequency = 7)` ile tanımlamak neden hatalıdır?**

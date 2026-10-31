@@ -39,7 +39,7 @@ Bu gösterimdeki kavramlar şunlardır:
 
 > **Gecikme neden bu kadar önemli?** Zaman serisi analizinin temel varsayımı, **geçmişin geleceği hakkında bilgi taşıdığıdır.** Bugünkü değer ($`x_t`$) ile gecikmeli değerler ($`x_{t-1}, x_{t-2}, \dots`$) arasındaki ilişki, ACF/PACF grafiklerinin (Bölüm 6), ARIMA modellerinin (Bölüm 7) ve LSTM gibi derin öğrenme modellerinin (Bölüm 15) temelini oluşturur.
 
-Zaman serisi formüllerinde iki **operatör** çok sık geçer. Operatör bir sayı değil, bir **komuttur**: önüne yazıldığı seriye "şunu yap" der. Hesap makinesindeki karekök tuşu gibi düşünebilirsiniz: Tuşun kendisi bir sayı değildir, önündeki sayıya uygulanan bir işlemdir.
+Zaman serisi formüllerinde iki **operatör** çok sık geçer. Operatör bir sayı değil, bir **komuttur**: önüne yazıldığı seriye "şunu yap" der. Bunu hesap makinesindeki karekök tuşuna benzetebiliriz: Tuşun kendisi bir sayı değildir, önündeki sayıya uygulanan bir işlemdir.
 
 - **Gecikme (backshift) operatörü $B$:** "Bir adım geri git" komutudur: $B x_t = x_{t-1}$. Komutu iki kez uygularsak iki adım geri gideriz: $B(B x_t) = B^2 x_t = x_{t-2}$. Genel olarak $B^h x_t = x_{t-h}$'dir. Buradaki üs (sağ üstteki küçük sayı) bir sayının kuvveti anlamına gelmez; "$`B`$ komutunu $h$ kez uygula" demektir. Ekonometri kaynaklarının çoğu (ve birim kök tartışmalarının büyük kısmı) aynı operatörü İngilizce *lag* kelimesinden $L$ harfiyle yazar: $L x_t = x_{t-1}$. $B$ ile $L$ aynı şeydir; bu derste $B$ kullanıyoruz.
 - **Fark operatörü $\nabla$:** "Bugünden dünü çıkar" komutudur: $\nabla x_t = x_t - x_{t-1}$. Mevsimsel fark ise "bugünden $s$ dönem önceki değeri çıkar" komutudur: $\nabla_s x_t = x_t - x_{t-s}$.
@@ -58,7 +58,7 @@ Ayrıca $B^2 x_3 = x_1 = 5$'tir: 3. dönemden iki adım geri gidince 1. döneme 
 
 Operatörlerin işe yarayan özelliği, komutları sayılar gibi parantez içinde toplayıp çıkarabilmemizdir. $(1 - B)x_t$ ifadesinde parantezi dağıtırız: "$`x_t`$'nin kendisi" eksi "$`x_t`$'ye $B$ komutunun uygulanmış hâli", yani $1 \cdot x_t - B x_t = x_t - x_{t-1}$. Bu tam olarak birinci farktır. Yukarıdaki seride $t = 3$ için $(1 - B)x_3 = 6 - 8 = -2$ bulunur. Aynı şekilde $\nabla_s x_t = (1 - B^s) x_t$ yazılır. Bölüm 3.2'de bu yazım bir adım daha ileri götürülecek: $B$ komutunun yerine geçici olarak sıradan bir bilinmeyen koyacak ve **birim kök** kavramına buradan ulaşacağız.
 
-> **Simge notu:** $`B`$ *(be)*: gecikme (backshift) operatörü, seriyi bir adım geriye kaydırır · $`L`$ *(le, lag)*: aynı operatörün birçok kaynaktaki adı · $`B^h`$ *(be üzeri h)*: B'nin h kez uygulanması, yani h adım geri kaydırma · $`\nabla`$ *(nabla, ters üçgen)*: birinci fark operatörü. Büyük delta $`\Delta`$ ile karıştırmayın; $`\Delta t`$ yukarıda iki gözlem arasındaki süreyi gösteriyor · $`\nabla_s`$ *(nabla s)*: s adımlık mevsimsel fark operatörü
+> **Simge notu:** $`B`$ *(be)*: gecikme (backshift) operatörü, seriyi bir adım geriye kaydırır · $`L`$ *(le, lag)*: aynı operatörün birçok kaynaktaki adı · $`B^h`$ *(be üzeri h)*: B'nin h kez uygulanması, yani h adım geri kaydırma · $`\nabla`$ *(nabla, ters üçgen)*: birinci fark operatörü. Büyük delta $`\Delta`$ ile karıştırılmamalıdır; $`\Delta t`$ yukarıda iki gözlem arasındaki süreyi gösteriyor · $`\nabla_s`$ *(nabla s)*: s adımlık mevsimsel fark operatörü
 
 > **Hemen deneyin 2.1a · Fark operatörünü R'a hesaplatın** (R, ~3 dk)
 >
@@ -124,17 +124,17 @@ Gözlediğimiz satış rakamı, bu dört etkinin **üst üste binmiş** hâlidir
 
 | Bileşen | Sembol | Ne anlatır? | Zaman ölçeği | Örnek |
 | --- | --- | --- | --- | --- |
-| **Trend** | $T_t$ | Uzun vadeli yön: artış, azalış ya da sabitlik | Yıllar | E-ticaret satışlarının sürekli büyümesi |
-| **Mevsimsellik** | $S_t$ | Takvime bağlı, **sabit periyotla** tekrar eden desen | Gün, hafta, yıl içi | Yazın artan dondurma, kışın artan doğalgaz tüketimi |
-| **Döngü** | $C_t$ | **Periyodu sabit olmayan**, genellikle uzun dalgalanmalar | Genellikle 2 yıldan uzun | Ekonomik genişleme ve daralma dönemleri |
-| **Düzensiz bileşen** | $I_t$ | Diğer bileşenlerle açıklanamayan rastgele kısım | Her gözlem | Grev, beklenmedik hava olayı, ölçüm hatası |
+| **Trend** (*trend*) | $T_t$ | Uzun vadeli yön: artış, azalış ya da sabitlik | Yıllar | E-ticaret satışlarının sürekli büyümesi |
+| **Mevsimsellik** (*seasonality*) | $S_t$ | Takvime bağlı, **sabit periyotla** tekrar eden desen | Gün, hafta, yıl içi | Yazın artan dondurma, kışın artan doğalgaz tüketimi |
+| **Döngü** (*cycle*) | $C_t$ | **Periyodu sabit olmayan**, genellikle uzun dalgalanmalar | Genellikle 2 yıldan uzun | Ekonomik genişleme ve daralma dönemleri |
+| **Düzensiz bileşen** (*irregular component*) | $I_t$ | Diğer bileşenlerle açıklanamayan rastgele kısım | Her gözlem | Grev, beklenmedik hava olayı, ölçüm hatası |
 
 **Bileşenlerin özellikleri:**
 
 - **Trend** doğrusal olmak zorunda değildir. Üstel büyüme, doygunluğa ulaşan S-eğrisi ya da yön değiştiren bir trend de olabilir.
 - **Mevsimsellik** için $S_t \approx S_{t-s}$ geçerlidir: desen her $s$ adımda bir tekrar eder. Aylık veride ($s = 12$) bu, "bu Ocak'ın mevsim etkisi geçen Ocak'ınkine yaklaşık eşittir" demektir. Toplamsal modelde mevsimsel etkilerin bir periyot boyunca toplamı sıfırdır ($\sum_{j=1}^{s} S_j = 0$). Böylece mevsimsellik seviyeyi değil, yalnızca yıl içindeki dağılımı etkiler.
 - **Bir seride birden fazla mevsimsellik olabilir.** Örneğin saatlik elektrik tüketiminde hem günlük (24 saat) hem haftalık (168 saat) desen bulunur.
-- **Düzensiz bileşen**, ideal durumda ortalaması sıfır olan ve kendi içinde ilişki taşımayan **beyaz gürültüdür**: $I_t \sim \text{iid}(0, \sigma^2)$. Ayrıştırma sonrasında artıklarda hâlâ bir desen görüyorsak, bazı yapıları yakalayamamışız demektir.
+- **Düzensiz bileşen**, ideal durumda ortalaması sıfır olan ve kendi içinde ilişki taşımayan **beyaz gürültüdür** (*white noise*): $I_t \sim \text{iid}(0, \sigma^2)$. Burada beyaz gürültünün güçlü biçimi, yani bağımsız ve özdeş dağılımlı şoklar varsayılır; Bölüm 6.6.1'deki genel tanım yalnızca şokların birbiriyle ilişkisiz olmasını ister. Ayrıştırma sonrasında kalan bileşende hâlâ bir desen görülüyorsa bazı yapılar yakalanamamış demektir.
 
 Toplam sembolü $\sum$ (büyük sigma) "topla" komutudur. Altındaki $j = 1$ "saymaya 1'den başla", üstündeki $s$ "$`s`$'de dur" demektir; aradaki her $j$ için $S_j$ terimleri toplanır. Çeyreklik bir seride ($s = 4$) mevsim etkileri $+10$, $-5$, $+15$, $-20$ ise $\sum_{j=1}^{4} S_j = 10 + (-5) + 15 + (-20) = 0$ olur. Yani bazı çeyrekler ortalamanın üstünde, bazıları altındadır ama yıl boyunca birbirlerini dengelerler. Mevsimsellik yıllık toplamı değil, toplamın çeyreklere nasıl dağıldığını değiştirir.
 
@@ -142,7 +142,7 @@ Toplam sembolü $\sum$ (büyük sigma) "topla" komutudur. Altındaki $j = 1$ "sa
 \underbrace{I_t}_{\text{düzensiz bileşen}} \overbrace{\sim}^{\substack{\text{dağılımına}\\\text{sahiptir}}} \underbrace{\text{iid}}_{\substack{\text{bağımsız ve}\\\text{özdeş dağılımlı}}}\big(\overbrace{0}^{\text{ortalama}}, \underbrace{\sigma^2}_{\text{varyans}}\big)
 ```
 
-$I_t \sim \text{iid}(0, \sigma^2)$ ifadesi şöyle okunur: "$`I_t`$ değerleri birbirinden bağımsızdır, hepsi aynı olasılık dağılımından gelir; bu dağılımın ortalaması 0, varyansı $\sigma^2$'dir." **Varyans**, değerlerin ortalama etrafında ne kadar yayıldığının ölçüsüdür. Hesabı şöyledir: Her değerin ortalamadan farkı alınır, bu farkların karesi alınır ve karelerin ortalaması bulunur. Örneğin 2, 4 ve 6 değerlerinin ortalaması 4'tür. Ortalamadan farklar −2, 0 ve 2, kareleri 4, 0 ve 4'tür. Karelerin ortalaması $8/3 \approx 2.67$ olur. Kare almamızın nedeni, eksi ve artı farkların birbirini götürmesini engellemektir (farkların düz toplamı her zaman sıfırdır). Varyansın karekökü **standart sapma**dır ($\sigma$, burada $\sqrt{2.67} \approx 1.63$) ve aynı yayılımı verinin kendi biriminde ifade eder.
+$I_t \sim \text{iid}(0, \sigma^2)$ ifadesi şöyle okunur: "$`I_t`$ değerleri birbirinden bağımsızdır, hepsi aynı olasılık dağılımından gelir; bu dağılımın ortalaması 0, varyansı $\sigma^2$'dir." **Varyans** (*variance*), değerlerin ortalama etrafında ne kadar yayıldığının ölçüsüdür. Hesabı şöyledir: Her değerin ortalamadan farkı alınır, bu farkların karesi alınır ve karelerin ortalaması bulunur. Örneğin 2, 4 ve 6 değerlerinin ortalaması 4'tür. Ortalamadan farklar −2, 0 ve 2, kareleri 4, 0 ve 4'tür. Karelerin ortalaması $8/3 \approx 2.67$ olur. Kare almamızın nedeni, eksi ve artı farkların birbirini götürmesini engellemektir (farkların düz toplamı her zaman sıfırdır). Varyansın karekökü **standart sapma**dır (*standard deviation*, $\sigma$; burada $\sqrt{2.67} \approx 1.63$) ve aynı yayılımı verinin kendi biriminde ifade eder.
 
 ```math
 \begin{gathered}
@@ -156,7 +156,7 @@ $I_t \sim \text{iid}(0, \sigma^2)$ ifadesi şöyle okunur: "$`I_t`$ değerleri b
 
 **Günlük hayattan bir örnek:** İki fırının ekmekleri ortalama 250 gram gelsin. Birinde ekmekler 245–255 gram arasında, diğerinde 200–300 gram arasında. Ortalama aynı, ama ikinci fırının varyansı çok daha büyüktür. Standart sapma, "Bir ekmek ortalamadan tipik olarak kaç gram şaşar?" sorusunun cevabıdır. Dikkat: Standart sapma en büyük sapma değil, tipik sapmadır; ikinci fırında bazı ekmekler 50 gram şaşar, ama standart sapma bundan küçüktür.
 
-Düzensiz bileşen gibi bir gürültüye "beyaz" denmesinin nedeni, beyaz ışığın tüm renkleri eşit ölçüde içermesi gibi hiçbir düzen ya da ritim içermemesidir.
+Bu tür bir gürültüye "beyaz" denmesinin nedeni bir benzetmedir: Beyaz ışık bütün renkleri (dalga boylarını) eşit ölçüde içerir; beyaz gürültü de yavaş ve hızlı bütün salınımları (frekansları) eşit güçte içerir. Hiçbir ritim öne çıkmadığı için seride bir düzen ya da tekrar görülmez.
 
 > **Simge notu:** $`\approx`$ *(yaklaşık eşittir)*: iki değer birbirine yakındır · $`\sum_{j=1}^{s}`$ *(büyük sigma, j eşittir 1'den s'ye)*: j = 1, …, s için terimlerin toplamı · $`\sim`$ *(tilda)*: "… dağılımına sahiptir" · $`\text{iid}`$ *(ay-ay-di)*: bağımsız ve özdeş dağılımlı (independent and identically distributed) · $`\sigma`$ *(küçük sigma)*: standart sapma · $`\sigma^2`$ *(sigma kare)*: varyans. Toplam sembolü büyük sigma ($`\Sigma`$) ile standart sapma sembolü küçük sigma ($`\sigma`$) aynı harfin iki biçimidir ama anlamları tamamen farklıdır
 
@@ -214,6 +214,10 @@ Düzensiz bileşen gibi bir gürültüye "beyaz" denmesinin nedeni, beyaz ışı
 >
 > </details>
 
+**Not — Neden $n - 1$?** Varyans hesabında sapmalar, bilinmeyen gerçek ortalamadan değil, verinin kendi ortalamasından alınır. Verinin kendi ortalaması tanımı gereği o verinin tam ortasına düşer; bu yüzden sapmalar gerçek ortalamaya göre olacağından biraz küçük çıkar ve $n$'ye bölünen varyans yayılımı sistematik olarak küçük gösterir. $n - 1$'e bölmek bu küçülmeyi düzeltir (*Bessel düzeltmesi*, Bessel's correction). 2, 4, 6 örneğinde iki tanım $8/3 \approx 2.67$ ve $8/2 = 4$ verir. Gözlem sayısı büyüdükçe fark önemsizleşir: 144 gözlemli `AirPassengers` serisinde iki varyansın oranı $143/144 \approx 0.993$'tür.
+
+**Günlük hayattan bir örnek:** Okçunun isabetini ölçmek için hedef tahtası, atışlardan sonra okların tam ortasına çizilirse oklar hedefe olduğundan yakın görünür. Verinin kendi ortalamasını referans almak da böyledir; $n - 1$'e bölmek bu iyimserliği telafi eder.
+
 ---
 
 ### 2.3. Mevsimsellik ile Döngüsellik Arasındaki Fark
@@ -232,7 +236,7 @@ Bu iki kavram, ikisi de "iniş çıkış" olduğu için en sık karıştırılan
 | Genlik | Görece istikrarlı | Döngüden döngüye değişir |
 | Tahmin edilebilirlik | Yüksek: "gelecek temmuz da zirve olacak" | Düşük: "bir sonraki kriz ne zaman?" |
 
-**Pratik bir test:** Kendinize şunu sorun: *"Bir sonraki tepenin hangi tarihte olacağını takvime bakarak söyleyebilir miyim?"* Cevap evetse mevsimselliktir, hayırsa döngüdür.
+**Pratik bir test:** Şu soru sorulur: *"Bir sonraki tepenin hangi tarihte olacağı takvime bakarak söylenebilir mi?"* Cevap evetse mevsimselliktir, hayırsa döngüdür.
 
 > **Hemen deneyin 2.3 · Vaşaklar ve sıcaklık: döngü mü, mevsim mi?** (R, ~5 dk)
 >
@@ -291,9 +295,9 @@ Mevsimsel etki **bir orandır.** Örneğin "Temmuz'da satışlar ortalamadan her
 
 Farkı sayılarla görelim. Trend bir yıl 1000, birkaç yıl sonra 3000 birim olsun. Toplamsal modelde Temmuz etkisi "+500 birim" ise Temmuz değeri $1000 + 500 = 1500$'den $3000 + 500 = 3500$'e çıkar: dalganın boyu hep 500'dür. Çarpımsal modelde Temmuz katsayısı 1.20 ise Temmuz değeri $1000 \times 1.20 = 1200$'den $3000 \times 1.20 = 3600$'e çıkar: dalganın boyu 200'den 600'e büyür. Şekil 2.4b'deki "huni" görüntüsü buradan doğar.
 
-**Hangisini seçmeliyim?**
+**Hangi model seçilmeli?**
 
-| Grafikte ne görüyorsunuz? | Model |
+| Grafikte görülen | Model |
 | --- | --- |
 | Mevsimsel dalgaların yüksekliği zaman içinde yaklaşık sabit | Toplamsal |
 | Dalgalar seviye yükseldikçe büyüyor ("huni" şekli) | Çarpımsal |
@@ -346,7 +350,7 @@ Bu nedenle çarpımsal yapıdaki serilerde (örneğin `AirPassengers`) önce `lo
 
 > **Uygulama dosyası:** [`Codes/R/ch02_ayristirma.R`](../Codes/R/ch02_ayristirma.R)
 >
-> Bu bölümdeki R kodlarının tamamı bu dosyada. RStudio'da açıp satır satır çalıştırabilir ya da depo kök dizininde `Rscript Codes/R/ch02_ayristirma.R` komutunu kullanabilirsiniz.
+> Bu bölümdeki R kodlarının tamamı bu dosyada. Dosya RStudio'da açılıp satır satır ya da depo kök dizininde `Rscript Codes/R/ch02_ayristirma.R` komutuyla çalıştırılabilir.
 
 
 Bu bölümde anlattığımız ayrıştırmayı şimdi gerçek bir seriye uygulayalım.
@@ -444,7 +448,7 @@ Kod, `AirPassengers` serisini aynı amaçla üç farklı yoldan bileşenlerine a
 
 Bileşenler kavramı bizi doğrudan dersin en kritik kavramına götürür: **durağanlık** (stationarity).
 
-**Açıklama:** Kabaca, durağan bir seride trend ve sabit mevsimsel desen yoktur; seri sabit bir düzey çevresinde, hep aynı genişlikte dalgalanır. Serinin hangi zaman diliminden bir parça alırsanız alın, ortalama ve dalgalanma düzeyi aynıdır. Bu, serinin tamamen rastgele olduğu anlamına gelmez: Bugünkü değer dünküne benzeyebilir (Bölüm 3.2.2'deki AR(1)). Önemli olan, bu benzerliğin zamanla değişmemesidir.
+**Açıklama:** Kabaca, durağan bir seride trend ve sabit mevsimsel desen yoktur; seri sabit bir düzey çevresinde, hep aynı genişlikte dalgalanır. Serinin hangi zaman diliminden parça alınırsa alınsın, ortalama ve dalgalanma düzeyi aynıdır. Bu, serinin tamamen rastgele olduğu anlamına gelmez: Bugünkü değer dünküne benzeyebilir (Bölüm 3.2.2'deki AR(1)). Önemli olan, bu benzerliğin zamanla değişmemesidir.
 
 Bu yüzden ayrıştırma ile durağanlık birbirine sıkı sıkıya bağlıdır: Klasik modellerin (ARIMA vb.) çoğu durağan seri ister. Seriyi durağanlaştırmak için yaptığımız işlemler de aslında bileşenleri temizlemektir:
 
@@ -488,7 +492,7 @@ Durağanlığın matematiksel tanımı ve testleri Bölüm 3.2'de ayrıntılı o
 3. **Bir seride mevsimsel dalgaların yüksekliği 10 yılda iki katına çıkmış. Hangi model uygundur, ne yapılmalıdır?**
    → Çarpımsal model. Ya doğrudan `type = "multiplicative"` kullanılır ya da seriye `log()` uygulanıp toplamsal yöntemlerle devam edilir.
 
-4. **Ayrıştırma sonrasında düzensiz bileşende hâlâ her yıl tekrar eden bir desen görüyorsunuz. Bu ne anlama gelir?**
+4. **Ayrıştırma sonrasında düzensiz bileşende hâlâ her yıl tekrar eden bir desen görülüyor. Bu ne anlama gelir?**
    → Mevsimsellik tam olarak yakalanamamıştır. Model türü (toplamsal/çarpımsal) yanlış seçilmiş olabilir, mevsimsel desen zamanla değişiyor olabilir (bu durumda `stl()` ile `s.window` ayarlanmalıdır) ya da ikinci bir mevsimsellik bulunuyor olabilir.
 
 5. **$`\nabla_{12}  x_t`$ ifadesi ne anlama gelir?**

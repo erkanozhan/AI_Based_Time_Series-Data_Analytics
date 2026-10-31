@@ -6,7 +6,7 @@ Bu son bölüm, ders boyunca gördüğümüz yöntemlerden bağımsız olarak ge
 
 ---
 
-### 17.1. Görsel İnceleme Tartışılamaz (Visual Inspection is Non-Negotiable)
+### 17.1. Görsel İnceleme Vazgeçilmezdir (Visual Inspection is Non-Negotiable)
 
 Herhangi bir modelleme kodu yazmadan önce veriyi mutlaka grafiğe dökün. Özet istatistikler yanıltabilir, ama grafikler nadiren yanıltır. Grafikte şunları arayın:
 
@@ -67,7 +67,7 @@ Karmaşık bir modelin (örneğin LSTM) gerçekten "iyi" olup olmadığını anl
 
 - **Naive 1:** Yarının değeri, bugünün değeri ile aynı olacaktır.
 - **Naive 2 (mevsimsel):** Önümüzdeki Haziran ayının satışları, geçen Haziran ile aynı olacaktır.
-- *Kural:* Karmaşık modeliniz bu basit yöntemleri geçemiyorsa, canlıya almaya değmez.
+- *Kural:* Karmaşık modeliniz bu basit yöntemleri geçemiyorsa, kullanıma almaya değmez.
 
 *Sayısal örnek:* Son üç günün satışı 100, 120, 110 ise naive tahmin yarın için 110'dur; hiçbir hesap gerektirmez. Yarın gerçekleşen satış 115 olursa naive yöntemin hatası $115 - 110 = 5$ olur. Aylarca uğraşılan bir LSTM modeli aynı gün 108 tahmin etmişse hatası $115 - 108 = 7$'dir ve naive yöntemden kötüdür. Bir günlük karşılaştırma elbette yetmez, ama uzun bir test döneminde de durum böyleyse karmaşık modelin bir katkısı yoktur.
 
@@ -110,11 +110,11 @@ Referans modelle karşılaştırma ve hata metrikleri Bölüm 8.1.2'de ele alın
 
 ### 17.4. Durağanlığa Saygı Gösterin (Respect Stationarity)
 
-Çoğu klasik istatistiksel model (ARIMA, VAR gibi), serinin istatistiksel özelliklerinin (ortalama, varyans) zaman içinde değişmemesini, yani serinin **durağan** olmasını varsayar (Bölüm 2.2, 3.2).
+Çoğu klasik istatistiksel model (ARIMA, VAR gibi), serinin istatistiksel özelliklerinin (ortalama, varyans) zaman içinde değişmemesini, yani serinin **durağan** olmasını varsayar (Bölüm 2.6, 3.2).
 
 - Veride trend varsa farkını alın (difference it): Her değerden bir öncekini çıkarın. 100, 110, 125, 135 serisinin farkları $110 - 100 = 10$, $125 - 110 = 15$, $135 - 125 = 10$ olur; sürekli yükselen seri, 10–15 civarında dolaşan bir seriye dönüşür.
 - Mevsimsellik varsa mevsimsel fark alın: Aylık veride her değerden bir yıl önceki aynı ayın değerini çıkarın (ör. Temmuz 1950 eksi Temmuz 1949: $170 - 148 = 22$).
-- Varyans seviyeyle birlikte artıyorsa logaritmik dönüşüm uygulayın: Logaritma büyük sayıları küçüklere göre daha çok sıkıştırır ve seri büyüdükçe genişleyen dalgaları eşitler (Bölüm 2.5 ve 7.6).
+- Varyans seviyeyle birlikte artıyorsa logaritmik dönüşüm uygulayın: Logaritma büyük sayıları küçüklere göre daha çok sıkıştırır ve seri büyüdükçe genişleyen dalgaları eşitler (Bölüm 2.4 ve 7.6).
 - Durağanlığı yalnızca gözle değil, ADF ve KPSS gibi testlerle de doğrulayın.
 
 Durağanlığın tanımı Bölüm 2.6 ve 3.2'de, ADF ve KPSS testleri Bölüm 7.5'te, fark alma ve log dönüşümünün ARIMA/SARIMA'da uygulanması Bölüm 7.6'da işlenmiştir. Makine öğrenmesi modelleri durağanlık varsaymasa da, trendli serilerde fark almanın ağaç tabanlı modellere nasıl yardımcı olduğu Bölüm 12.1.4 ve 13.4.2'de tartışılmıştır.
@@ -164,7 +164,7 @@ Prophet'ta tatil etkileri Bölüm 9'da, gecikme ve takvim özellikleriyle özell
 
 > **Hemen deneyin 17.5 · Emniyet kemeri yasası: alan bilgisini modele koyun** (R, ~4 dk)
 >
-> R'daki `Seatbelts` verisi İngiltere'de 1969–1984 arası aylık trafik kazası kayıplarını içerir. 31 Ocak 1983'te çıkan yasayla ön koltukta emniyet kemeri takmak zorunlu oldu. Algoritma bunu bilemez; biz söyleyebiliriz.
+> R'daki `Seatbelts` verisi İngiltere'de 1969–1984 arası aylık trafik kazası kayıplarını içerir. 1981'de çıkan ve 31 Ocak 1983'te yürürlüğe giren yasayla ön koltukta emniyet kemeri takmak zorunlu oldu. Algoritma bunu bilemez; biz söyleyebiliriz.
 >
 > ```r
 > library(forecast)
@@ -201,10 +201,10 @@ Prophet'ta tatil etkileri Bölüm 9'da, gecikme ve takvim özellikleriyle özell
 
 ### 17.6. Veri Sızıntısına Dikkat Edin (Watch Out for Leakage)
 
-Zaman serilerinde veri sızıntısı sinsi olabilir. Model eğitilirken tahmin anında bilinemeyecek bir gelecek bilgisi kullanılırsa, model eğitimde harika görünür ama üretimde (production) çuvallar.
+Zaman serilerinde veri sızıntısı sinsi olabilir. Model eğitilirken tahmin anında bilinemeyecek bir gelecek bilgisi kullanılırsa, model eğitimde çok başarılı görünür ama üretimde (production) başarısız olur.
 
 - *Örnek:* Ocak 2024'ün günlük satışlarını tahmin etmek için Ocak 2024'ün "aylık ortalama sıcaklığını" kullanmak. (Ay bitene kadar aylık ortalamayı bilemezsiniz!)
-- *Diğer sık hatalar:* Ölçekleyiciyi tüm veriyle uydurmak (Bölüm 12.1.4, 15.1.1 ve 16.4), hareketli ortalamayı `shift(1)` olmadan hesaplamak, sıradan k-katlı çapraz doğrulama kullanmak (Bölüm 16.1).
+- *Diğer sık hatalar:* Ölçekleyiciyi tüm veriyle uydurmak (Bölüm 12.1.4, 15.1.1 ve 16.4), hareketli ortalamayı `shift(1)` olmadan hesaplamak, sıradan K-katlı çapraz doğrulama (*K-fold*) kullanmak (Bölüm 16.1).
 
 `shift(1)` unutulursa hareketli ortalama tahmin edilen değeri içerir (sayısal örnek 12.1.5'te).
 
@@ -212,7 +212,7 @@ Zamansal ayrım Bölüm 8'de, sızıntı türleri Bölüm 12.1.5'te, zaman seris
 
 ### 17.7. Diyagnostikler Önemlidir: Hataları Kontrol Edin (Diagnostics Matter)
 
-İyi bir model tüm "sinyali" alır ve geriye yalnızca "gürültü" bırakır. Modelin artıklarını (gerçek değer eksi tahmin) kontrol edin: Artıklar Bölüm 7.4 ve 7.6.6'daki üç koşulu sağlamalıdır: beyaz gürültü (Bölüm 2.2; otokorelasyon yok, artıkların ACF grafiğine bakın), sıfır ortalama ve sabit varyans. *Hatalarda bir desen varsa, modeliniz bir şeyi gözden kaçırmış demektir.*
+İyi bir model tüm "sinyali" alır ve geriye yalnızca "gürültü" bırakır. Modelin artıklarını (gerçek değer eksi tahmin) kontrol edin: Artıklar Bölüm 7.4 ve 7.6.6'daki üç koşulu sağlamalıdır: sıfır ortalama, sabit varyans ve otokorelasyon yokluğu (artıkların ACF grafiğine bakın). Bu üç koşul birlikte artıkların **beyaz gürültü** olduğu anlamına gelir (Bölüm 2.2). *Hatalarda bir desen varsa, modeliniz bir şeyi gözden kaçırmış demektir.*
 
 *Örnek:* Altı ayın artıkları +5, +7, +6, +8, +6, +7 ise hepsi pozitiftir ve ortalamaları $(5 + 7 + 6 + 8 + 6 + 7) / 6 = 39 / 6 = 6.5$'tir. Model her ay yaklaşık 6.5 birim düşük tahmin ediyordur; bu bir desendir ve düzeltilebilir (ör. trend eksik modellenmiş olabilir). Artıklar +3, −2, +1, −4, +2, 0 gibi işaret değiştirerek sıfır çevresinde dağılıyorsa (ortalama $0 / 6 = 0$) modelin kaçırdığı belirgin bir yapı görünmez. Bölüm 15.4.2'deki CNN'in "Ortalama hata" satırı bu kontrolün bir örneğidir.
 
@@ -346,7 +346,7 @@ Bu metriklerin formülleri, karşılaştırması ve Python uygulaması Bölüm 8
 
 ### 17.10. Karmaşıklık ≠ Doğruluk (Complexity ≠ Accuracy)
 
-Her problem için en yeni Transformer veya derin öğrenme modelini kullanma eğilimi vardır. Oysa birçok gerçek dünya tek değişkenli (univariate) zaman serisinde üstel düzeltme (ETS: geçmiş değerlerin, yakın geçmişe daha çok ağırlık veren ağırlıklı ortalamasıyla tahmin yapan klasik yöntem ailesi) veya ARIMA gibi basit modeller, karmaşık sinir ağlarından daha iyi performans gösterir.
+Her problem için en yeni Transformer veya derin öğrenme modelini kullanma eğilimi vardır. Oysa birçok gerçek dünya tek değişkenli (univariate) zaman serisinde üstel düzeltme (İng. *exponential smoothing*; ETS: *Error, Trend, Seasonal*, yani hata, trend ve mevsimsellik bileşenleri; geçmiş değerlerin, yakın geçmişe daha çok ağırlık veren ağırlıklı ortalamasıyla tahmin yapan klasik yöntem ailesi) veya ARIMA gibi basit modeller, karmaşık sinir ağlarından daha iyi performans gösterir.
 
 - Basit başlayın; karmaşıklığı ancak basit modeller yetersiz kaldığında artırın.
 

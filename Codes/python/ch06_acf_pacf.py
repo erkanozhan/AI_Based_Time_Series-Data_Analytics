@@ -1,6 +1,6 @@
 # %% [markdown]
 # # Bölüm 6 — ACF ve PACF (Python)
-# Ders notu: Course_notes.md, Bölüm 6.3.7 (ACF) ve 6.4.3 (PACF). Bu dosya iki alt bölümdeki Python kodlarının tamamını içerir;
+# Ders notu: notlar/06_veri_manipulasyonu_gorsellestirme_ve_acf_pacf.md, Bölüm 6.3.7 (ACF) ve 6.4.3 (PACF). Bu dosya iki alt bölümdeki Python kodlarının tamamını içerir;
 # R karşılıkları `Codes/R/ch06_manipulasyon_acf.R` dosyasındadır.
 # Çalıştırma: depo kök dizininden `python Codes/python/ch06_acf_pacf.py`
 # veya VS Code'da hücre hücre (# %%) ya da Colab'da notebook sürümü.

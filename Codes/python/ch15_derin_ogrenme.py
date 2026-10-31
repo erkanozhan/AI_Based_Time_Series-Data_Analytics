@@ -1,6 +1,6 @@
 # %% [markdown]
 # # Bölüm 15 — Derin Öğrenme ile Tahmin: LSTM, GRU ve 1D-CNN
-# Ders notu: Course_notes.md, Bölüm 15. Bu dosya bölümdeki Python kodlarının tamamını,
+# Ders notu: notlar/15_derin_ogrenme_ile_tahmin_lstm_gru_ve_1d_cnn.md. Bu dosya bölümdeki Python kodlarının tamamını,
 # baştan sona çalışacak sırayla içerir (15.1 ortak veri → 15.2 LSTM → 15.3 GRU → 15.4 1D-CNN → 15.5 karşılaştırma).
 # Çalıştırma: depo kök dizininden `python Codes/python/ch15_derin_ogrenme.py`
 # veya VS Code'da hücre hücre (# %%) ya da Colab'da notebook sürümü.
@@ -486,8 +486,10 @@ feat = feat.dropna()                      # ilk 12 ayın gecikmeleri eksik
 train_f = feat[feat.index < test_dates[0]]
 test_f = feat[feat.index >= test_dates[0]]   # 60 ay
 
+# Satır ve sütun alt örneklemesi (subsample, colsample_bytree) kullanılmaz:
+# model rastgelelik içermez, sonuç aynı xgboost sürümüyle her çalıştırmada aynıdır.
 model_xgb = xgb.XGBRegressor(n_estimators=500, learning_rate=0.05, max_depth=4,
-                             subsample=0.8, colsample_bytree=0.8, random_state=SEED)
+                             random_state=SEED)
 model_xgb.fit(train_f.drop(columns='y'), train_f['y'])
 pred_xgb = model_xgb.predict(test_f.drop(columns='y'))
 rmse_xgb = np.sqrt(mean_squared_error(test_f['y'], pred_xgb))

@@ -2,7 +2,7 @@
 
 ## 14. Weka Zaman Serisi Tahmin Modülü (Forecast Sekmesi)
 
-Bölüm 13.5'te Weka `Explorer` içindeki `Classify` sekmesini kullanarak işin mutfağını gördük: gecikme özelliklerini `TSLagMaker` filtresiyle elle ürettik ve bir regresyon algoritmasıyla test dönemini tahmin ettik. Bu yolun iki eksiği vardı: veri setinin bittiği tarihten sonrasını (ör. 1961 yılını) tahmin etmek zahmetliydi ve modelin "1 ay sonrası" ile "12 ay sonrası" için ne kadar başarılı olduğunu ayrı ayrı göremiyorduk.
+Bölüm 13.5'te Weka `Explorer` içindeki `Classify` sekmesini kullanarak işleyişin ayrıntılarını gördük: gecikme özelliklerini `TSLagMaker` filtresiyle elle ürettik ve bir regresyon algoritmasıyla test dönemini tahmin ettik. Bu yolun iki eksiği vardı: veri setinin bittiği tarihten sonrasını (ör. 1961 yılını) tahmin etmek zahmetliydi ve modelin "1 ay sonrası" ile "12 ay sonrası" için ne kadar başarılı olduğunu ayrı ayrı göremiyorduk.
 
 Bu bölümde her iki sorunu da çözen **`Forecast`** sekmesini inceleyeceğiz. Bu sekme, Bölüm 13.5.1'de kurduğumuz `timeseriesForecasting` paketiyle birlikte `Explorer` penceresine eklenir. Forecast sekmesi gecikme ve takvim özelliklerini kendisi üretir, seçtiğiniz algoritmayla **özyinelemeli** çok adımlı tahmin yapar ve modelin başarısını her tahmin ufku için ayrı ayrı raporlar. Gecikmeleri arka planda kendisi ürettiği için 13.5.3'teki kopyalama, yeniden adlandırma ve sıralama adımlarına burada gerek yoktur.
 
@@ -115,7 +115,7 @@ Gecikme sayısı $p = 12$ iken girdilerin kaçının gerçek, kaçının tahmin 
 >
 > <details><summary>Cevap</summary>
 >
-> `1962-07*` = 791.3482, `1962-12*` = 314.6953. Temmuz–Aralık farkı 1960'ta 622 − 432 = 190, 1961 tahmininde 679.8 − 386.5 ≈ 293, 1962 tahmininde 791.3 − 314.7 ≈ 477'dir. Mevsimsel salınım her yıl gerçekçi olmayan biçimde büyür; Aralık 1962 tahmini Aralık 1960'ın gerçek değerinin bile çok altındadır. Bu, 14.2.1'de anlatılan hata birikiminin somut bir örneğidir: ufuk uzadıkça model giderek kendi tahminleri üzerine tahmin yapar. Ayrıca değerlendirme tablosu artık 24 sütunludur; 15. adımdan sonraki sütunlarda `N` = 0 ve hata `N/A` yazar (nedeni 14.5'te).
+> `1962-07*` = 791.3482, `1962-12*` = 314.6953. Temmuz–Aralık farkı 1960'ta 622 − 432 = 190, 1961 tahmininde 679.8 − 386.5 ≈ 293, 1962 tahmininde 791.3 − 314.7 ≈ 477'dir. Mevsimsel salınım her yıl gerçekçi olmayan biçimde büyür; Aralık 1962 tahmini Aralık 1960'ın gerçek değerinin bile çok altındadır. Bu, 14.2.1'de anlatılan hata birikiminin somut bir örneğidir: ufuk uzadıkça model giderek kendi tahminleri üzerine tahmin yapar. Ayrıca değerlendirme tablosu artık 24 sütunludur; 15. adımdan itibaren sütunlarda `N` = 0 ve hata `N/A` yazar (nedeni 14.5'te).
 >
 > </details>
 

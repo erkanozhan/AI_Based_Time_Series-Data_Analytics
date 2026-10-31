@@ -1,6 +1,6 @@
 # =============================================================================
 # Bölüm 6 — Veri Manipülasyonu, Görselleştirme ve ACF/PACF
-# Ders notu: Course_notes.md, Bölüm 6 (plot, ggplot2, aggregate, lag, decompose,
+# Ders notu: notlar/06_veri_manipulasyonu_gorsellestirme_ve_acf_pacf.md, Bölüm 6 (plot, ggplot2, aggregate, lag, decompose,
 #            ACF, PACF, USgas korelogramları, AR/MA imzaları)
 #
 # Çalıştırma: depo kök dizininden  Rscript Codes/R/ch06_manipulasyon_acf.R

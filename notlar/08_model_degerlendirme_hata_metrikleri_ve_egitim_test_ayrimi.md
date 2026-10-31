@@ -9,13 +9,13 @@ Bu bölümde iki soruya yanıt arayacağız:
 1. Modeli hangi veriyle eğitip hangi veriyle sınamalıyız? (8.1)
 2. Tahminle gerçek arasındaki farkı hangi sayılarla özetlemeliyiz? (8.2)
 
-Ardından bu araçları R (8.3) ve Python (8.4) ile `AirPassengers` üzerinde uygulayacağız. Burada tanımlayacağımız metrikleri ve `evaluate_model()` fonksiyonunu kitabın geri kalanında Prophet, XGBoost ve LSTM gibi modelleri karşılaştırmak için tekrar tekrar kullanacağız.
+Ardından bu araçları R (8.3) ve Python (8.4) ile `AirPassengers` üzerinde uygulayacağız. Burada tanımlayacağımız metrikleri ve `evaluate_model()` fonksiyonunu ders notunun geri kalanında Prophet, XGBoost ve LSTM gibi modelleri karşılaştırmak için tekrar tekrar kullanacağız.
 
 ---
 
 ### 8.1. Neden Değerlendirme? Eğitim-Test Mantığı
 
-**Açıklama:** Bir öğrencinin başarısını, sınavda daha önce çözdüğü soruları sorarak ölçemezsiniz; o soruları ezberlemiş olabilir. Gerçek başarı, hiç görmediği yeni soruları çözebilmesidir. Modeller için de aynısı geçerlidir. Bir model eğitildiği veriye çok iyi uyabilir ama geleceği kötü tahmin edebilir. Bu duruma **aşırı öğrenme** (aşırı uyum, overfitting) denir.
+**Açıklama:** Bir öğrencinin başarısını, sınavda daha önce çözdüğü soruları sorarak ölçülemez; o soruları ezberlemiş olabilir. Gerçek başarı, hiç görmediği yeni soruları çözebilmesidir. Modeller için de aynısı geçerlidir. Bir model eğitildiği veriye çok iyi uyabilir ama geleceği kötü tahmin edebilir. Bu duruma **aşırı öğrenme** (aşırı uyum, overfitting) denir.
 
 Bu yüzden elimizdeki veriyi ikiye ayırırız:
 
@@ -45,9 +45,9 @@ Gelecekten geçmişe bilgi taşınmasına **veri sızıntısı** (data leakage) 
 
 **Günlük hayattan bir örnek:** Sınav soruları sızarsa yüksek notlar öğrenmeyi göstermez. Ama sızıntı her zaman soruların kendisi değildir: "En zor soru 20 puanlık, cevaplar 0–100 arasında" bilgisini önceden duymak bile işi kolaylaştırır. Tüm seriden min/max alarak ölçekleme bu ikinci türe benzer: Model, test dönemi dahil bütün serinin en büyük ve en küçük değerini dolaylı yoldan öğrenmiş olur. Benzetmenin sınırı: Veri sızıntısı çoğu zaman kasıtsızdır; kopya çeken öğrenci değil, dikkatsiz bir kod satırıdır.
 
-**Not —** Test setinin uzunluğu, gerçekte ihtiyaç duyacağınız **tahmin ufkuna** yakın seçilmelidir. Önümüzdeki 12 ayı tahmin edecekseniz, son 12 ayı test setine ayırmak mantıklıdır.
+**Not —** Test setinin uzunluğu, gerçekte ihtiyaç duyulan **tahmin ufkuna** yakın seçilmelidir. Önümüzdeki 12 ay tahmin edilecekse son 12 ayı test setine ayırmak mantıklıdır.
 
-**Günlük hayattan bir örnek:** Navigasyon uygulaması 5 dakika sonra nerede olacağınızı neredeyse tam bilir, ama 3 saatlik yolculuğun varış saatinde yanılma payı büyüktür. 12 aylık ve 60 aylık testlerin hatasını kıyaslamak da 5 dakikalık ve 3 saatlik tahmini kıyaslamaya benzer; bunu 8.4.2'de sayılarla göreceğiz.
+**Günlük hayattan bir örnek:** Navigasyon uygulaması aracın 5 dakika sonra nerede olacağını neredeyse tam bilir, ama 3 saatlik yolculuğun varış saatinde yanılma payı büyüktür. 12 aylık ve 60 aylık testlerin hatasını kıyaslamak da 5 dakikalık ve 3 saatlik tahmini kıyaslamaya benzer; bunu 8.4.2'de sayılarla göreceğiz.
 
 **Not —** Tek bir eğitim-test ayrımı, sonucun seçilen kesim noktasına bağlı olmasına yol açar. Daha sağlam bir değerlendirme için kesim noktası zaman içinde ileri kaydırılarak birden çok kez eğitim-test yapılır. Zaman serisine uygun bu çapraz doğrulama yöntemini (`TimeSeriesSplit`) Bölüm 16'da ayrıntılı olarak ele alacağız.
 
@@ -97,7 +97,7 @@ Bir modelin hatasının "iyi" olup olmadığına karar vermek için bir **kıyas
 
 **Nasıl okunur?** "y şapka alt T artı h eşittir y alt T." Yani: Ufuk ne olursa olsun tahmin, eğitim setinin son gözlemidir.
 
-> **Simge notu:** $`y`$: serinin gözlenen (gerçek) değeri · $`\hat{y}`$ *(y şapka)*: tahmin edilen değer; şapka işareti "bu bir ölçüm değil, tahmin" anlamına gelir · alt indis (harfin sağ altındaki küçük yazı) değerin **hangi zamana** ait olduğunu gösterir · $`T`$: eğitim setindeki son zaman noktası, yani elimizdeki son gözlemin sırası · $`h`$: kaç adım ilerisinin tahmin edildiği (tahmin ufku) · $`y_T`$: son gözlem · $`\hat{y}_{T+h}`$: son gözlemden $`h`$ adım sonrası için yapılan tahmin
+> **Simge notu:** $`y`$: serinin gözlenen (gerçek) değeri; Bölüm 1–7'deki $`x`$ ile aynı anlamdadır (bu bölümden itibaren makine öğrenmesi kaynaklarındaki alışkanlığa uyularak $`y`$ ve $`\hat{y}`$ kullanılır) · $`\hat{y}`$ *(y şapka)*: tahmin edilen değer; şapka işareti "bu bir ölçüm değil, tahmin" anlamına gelir · alt indis (harfin sağ altındaki küçük yazı) değerin **hangi zamana** ait olduğunu gösterir · $`T`$: eğitim setindeki son zaman noktası, yani elimizdeki son gözlemin sırası · $`h`$: kaç adım ilerisinin tahmin edildiği (tahmin ufku) · $`y_T`$: son gözlem · $`\hat{y}_{T+h}`$: son gözlemden $`h`$ adım sonrası için yapılan tahmin
 
 Örneğin eğitim seti Aralık 1959'da bitiyorsa $T$ = Aralık 1959 ve $y_T = 405$'tir (bin yolcu). Naive yöntem Ocak 1960 için ($h = 1$) de, Haziran 1960 için ($h = 6$) de aynı cevabı verir: $\hat{y}_ {T+1} = \hat{y}_ {T+6} = 405$.
 
@@ -125,7 +125,7 @@ Her şeyin temelinde tek bir kavram vardır: **hata** (error), yani gerçek değ
 
 **Nasıl okunur?** "e alt t eşittir y alt t eksi y şapka alt t."
 
-> **Simge notu:** $`e_t`$: $`t`$ anındaki hata (İngilizce *error*'ın baş harfi; Yunan harfi $`\varepsilon`$ "epsilon" ile karıştırmayın) · $`y_t`$: $`t`$ anındaki gerçek değer · $`\hat{y}_t`$ *(y şapka t)*: aynı an için yapılan tahmin · $`n`$: test setindeki gözlem (hata) sayısı
+> **Simge notu:** $`e_t`$: $`t`$ anındaki hata (İngilizce *error*'ın baş harfi; Yunan harfi $`\varepsilon`$ "epsilon" ile karıştırılmamalıdır) · $`y_t`$: $`t`$ anındaki gerçek değer · $`\hat{y}_t`$ *(y şapka t)*: aynı an için yapılan tahmin · $`n`$: test setindeki gözlem (hata) sayısı
 
 Örneğin bir ay gerçekte 150 bin yolcu taşınmış ($y_t = 150$), model 120 bin tahmin etmişse ($\hat{y}_ t = 120$) hata $e_t = 150 - 120 = +30$'dur. Model 160 tahmin etseydi hata $150 - 160 = -10$ olurdu.
 
@@ -155,7 +155,7 @@ Pozitif hata, modelin gerçeği **eksik** tahmin ettiğini; negatif hata, **fazl
 
 **Nasıl okunur?** "MAE eşittir, bir bölü n çarpı, t eşittir 1'den n'ye kadar y alt t eksi y şapka alt t'nin mutlak değerlerinin toplamı." Yani: Açıklamadaki üç adımın formül hâlidir.
 
-> **Simge notu:** $`\sum`$ *(büyük sigma = toplam)*: "topla" komutunun kısaltmasıdır; altındaki $`t = 1`$ ve üstündeki $`n`$, "$`t`$'yi 1'den başlatıp $`n`$'ye kadar birer birer artır, her $`t`$ için sağdaki ifadeyi hesapla ve hepsini topla" demektir. Küçük sigma $`\sigma`$ (standart sapma) ile karıştırmayın · $`\lvert \cdot \rvert`$ *(mutlak değer)*: iki dikey çizgi arasındaki sayının işaretsiz büyüklüğü; $`\lvert -10 \rvert = 10`$, $`\lvert 5 \rvert = 5`$, $`\lvert 0 \rvert = 0`$ · $`\frac{1}{n}`$: toplamı $`n`$'ye bölmek, yani ortalamasını almak
+> **Simge notu:** $`\sum`$ *(büyük sigma = toplam)*: "topla" komutunun kısaltmasıdır; altındaki $`t = 1`$ ve üstündeki $`n`$, "$`t`$'yi 1'den başlatıp $`n`$'ye kadar birer birer artır, her $`t`$ için sağdaki ifadeyi hesapla ve hepsini topla" demektir. Küçük sigma $`\sigma`$ (standart sapma) ile karıştırılmamalıdır · $`\lvert \cdot \rvert`$ *(mutlak değer)*: iki dikey çizgi arasındaki sayının işaretsiz büyüklüğü; $`\lvert -10 \rvert = 10`$, $`\lvert 5 \rvert = 5`$, $`\lvert 0 \rvert = 0`$ · $`\frac{1}{n}`$: toplamı $`n`$'ye bölmek, yani ortalamasını almak
 
 Küçük bir örnek: Üç aylık hatalar $-10$, $+5$ ve $+30$ olsun. Mutlak değerler 10, 5 ve 30'dur; toplamları $10 + 5 + 30 = 45$, ortalamaları $45 / 3 = 15$'tir. Yani MAE = 15. İşaretli ortalama ise $(-10 + 5 + 30)/3 \approx 8.3$ olurdu ve hatanın gerçek büyüklüğünü olduğundan küçük gösterirdi.
 
@@ -192,7 +192,7 @@ Model B'nin hata büyüklüklerinin ortalaması (MAE) 10'dur; yedisi ortalamadan
 
 Yani **RMSE, MAE'den belirgin biçimde büyükse, model genel olarak iyi gitse de bazı noktalarda büyük sapmalar yapıyor demektir.**
 
-**Günlük hayattan bir örnek:** İki kargo firması düşünün. A firması on gönderinin hepsini 1 gün geç teslim ediyor; B firması dokuzunu zamanında, birini 10 gün geç. MAE ikisinde de 1 gündür. RMSE ise A için 1, B için $\sqrt{10} \approx 3.2$ gün çıkar: RMSE, tek bir büyük gecikmeyi ağır cezalandırır. Bozulabilir ürün gönderiyorsanız B'nin 10 günlük gecikmesi felakettir ve RMSE bu riski görünür kılar.
+**Günlük hayattan bir örnek:** İki kargo firması düşünelim. A firması on gönderinin hepsini 1 gün geç teslim ediyor; B firması dokuzunu zamanında, birini 10 gün geç. MAE ikisinde de 1 gündür. RMSE ise A için 1, B için $\sqrt{10} \approx 3.2$ gün çıkar: RMSE, tek bir büyük gecikmeyi ağır cezalandırır. Bozulabilir ürün gönderiliyorsa B'nin 10 günlük gecikmesi felakettir ve RMSE bu riski görünür kılar.
 
 > **Hemen deneyin 8.2.2 · Tek bir büyük hata RMSE'yi nasıl uçurur?** (Python, ~3 dk)
 >
@@ -245,11 +245,11 @@ Sonuç yüzde cinsindendir ve **ölçekten bağımsızdır**. MAPE = %5 ise mode
 
 **MAPE'nin zayıf noktaları:**
 
-- **Sıfıra yakın değerlerde patlar.** Paydada $y_t$ vardır ve bir sayıyı çok küçük bir sayıya bölmek sonucu çok büyütür. Hatayı hep 1 birim tutup yalnızca gerçek değeri küçültelim: $y_t = 100$ iken yüzde hata $1/100$ = %1, $y_t = 10$ iken $1/10$ = %10, $y_t = 1$ iken $1/1$ = %100, $y_t = 0.1$ iken $1/0.1$ = %1000 olur. Gerçek değer tam 0 ise sıfıra bölme yapılamaz ve MAPE tanımsızdır. Yani 0'a yakın tek bir gözlem, diğer bütün ayları ne kadar iyi tahmin etmiş olursanız olun ortalamayı uçurur. Bu yüzden satışı sıfır olabilen ürünler, sıcaklık (°C) ya da getiri gibi sıfırın çevresinde dolaşan ya da işaret değiştirebilen serilerde MAPE kullanılmamalıdır.
+- **Sıfıra yakın değerlerde patlar.** Paydada $y_t$ vardır ve bir sayıyı çok küçük bir sayıya bölmek sonucu çok büyütür. Hatayı hep 1 birim tutup yalnızca gerçek değeri küçültelim: $y_t = 100$ iken yüzde hata $1/100$ = %1, $y_t = 10$ iken $1/10$ = %10, $y_t = 1$ iken $1/1$ = %100, $y_t = 0.1$ iken $1/0.1$ = %1000 olur. Gerçek değer tam 0 ise sıfıra bölme yapılamaz ve MAPE tanımsızdır. Yani 0'a yakın tek bir gözlem, diğer bütün aylar ne kadar iyi tahmin edilmiş olursa olsun ortalamayı uçurur. Bu yüzden satışı sıfır olabilen ürünler, sıcaklık (°C) ya da getiri gibi sıfırın çevresinde dolaşan ya da işaret değiştirebilen serilerde MAPE kullanılmamalıdır.
 - **Asimetriktir.** Fazla tahminin cezası sınırsız, eksik tahminin cezası sınırlıdır. Gerçek değer 100 olsun: Model 0 tahmin ederse (olabilecek en kötü eksik tahmin) yüzde hata $100/100$ = %100'dür ve daha fazla olamaz. Model 300 tahmin ederse yüzde hata $200/100$ = %200 olur ve tahmin büyüdükçe sınırsızca artar. Bu yüzden MAPE'yi en aza indirmeye çalışan bir model sistematik olarak **düşük tahmin** yapma eğilimindedir.
 - **Anlamlı bir sıfır noktası gerektirir.** Oran ancak ölçeğin doğal bir sıfırı varsa (yolcu sayısı, ciro) yorumlanabilir. 0 °C "sıcaklık yok" demek olmadığından 20 °C, 10 °C'nin "iki katı" değildir; bu yüzden °C cinsinden bir yüzde hata da anlamlı değildir.
 
-**Günlük hayattan bir örnek:** İlk maddedeki patlamayı bir kantarla düşünün. 1 kg şaşan bir kantar kamyon tartarken önemsizdir, ama 500 gramlık bir paketi tartarken %200 yanılmış olur. Kantarın hatası aynıdır; değişen, tartılan şeyin büyüklüğüdür. Kefe neredeyse boşsa yüzde hata uçar, tamamen boşsa tanımsızdır.
+**Günlük hayattan bir örnek:** İlk maddedeki patlama bir kantar örneğiyle açıklanabilir. 1 kg şaşan bir kantar kamyon tartarken önemsizdir, ama 500 gramlık bir paketi tartarken %200 yanılmış olur. Kantarın hatası aynıdır; değişen, tartılan şeyin büyüklüğüdür. Kefe neredeyse boşsa yüzde hata uçar, tamamen boşsa tanımsızdır.
 
 > **Hemen deneyin 8.2.3 · MAPE'nin patladığını görün** (Python, ~3 dk)
 >
@@ -284,7 +284,7 @@ Sonuç yüzde cinsindendir ve **ölçekten bağımsızdır**. MAPE = %5 ise mode
 >
 > <details><summary>Cevap</summary>
 >
-> `0.1` ile `MAPE = 254.31` çıkar (son günün tek başına yüzde hatası %1000). `0.0` ile ekrana `RuntimeWarning: divide by zero encountered in divide` uyarısı gelir ve `MAPE = inf` (sonsuz) yazılır: Sıfıra bölme tanımsızdır. MAE ise her seferinde 1.0 kalır. Sıfıra yakın değer içeren serilerde MAE ya da MASE kullanmanın nedeni budur.
+> `0.1` ile `MAPE = 254.31` çıkar (son günün tek başına yüzde hatası %1000). `0.0` ile ekrana `RuntimeWarning: divide by zero encountered in divide` uyarısı gelir ve `MAPE = inf` (sonsuz) yazılır: Sıfıra bölme tanımsızdır. MAE ise her seferinde 1.0 kalır. Sıfıra yakın değer içeren serilerde MAE ya da MASE (8.2.5) kullanmanın nedeni budur.
 >
 > </details>
 
@@ -332,7 +332,7 @@ Buradan:
 >
 > <details><summary>Cevap</summary>
 >
-> Hatalar −10, +5, 0, +5 olur. MAE = 5; RMSE = $\sqrt{(100 + 25 + 0 + 25)/4} = \sqrt{37.5} \approx$ 6,12; MAPE = 4,375; yanlılık = 0. Büyük hata (30) ortadan kalktığı için RMSE/MAE oranı 16.01/11.25 ≈ 1.42'den 6.12/5 ≈ 1.22'ye düşer: Hatalar artık birbirine daha yakındır. Yanlılığın 0 olması, eksik ve fazla tahminlerin birbirini dengelediğini gösterir; ama MAE'nin 0 olmadığına dikkat edin (8.2'deki Not).
+> Hatalar −10, +5, 0, +5 olur. MAE = 5; RMSE = $\sqrt{(100 + 25 + 0 + 25)/4} = \sqrt{37.5} \approx 6.12$; MAPE = 4.375; yanlılık = 0. Büyük hata (30) ortadan kalktığı için RMSE/MAE oranı 16.01/11.25 ≈ 1.42'den 6.12/5 ≈ 1.22'ye düşer: Hatalar artık birbirine daha yakındır. Yanlılığın 0 olması, eksik ve fazla tahminlerin birbirini dengelediğini gösterir; ama MAE'nin 0 olmadığına dikkat edin (8.2'deki Not).
 >
 > </details>
 
@@ -364,7 +364,7 @@ Paydayı adım adım okuyalım. Toplam $t = s+1$'den başlar, çünkü eğitim s
 
 Küçük bir örnek (mevsimsellik olmadığını varsayıp $s = 1$ alalım; bu durumda naive yöntem "bir önceki dönemi kopyala" olur): Eğitim seti 10, 12, 11, 15 olsun ($T = 4$). Ardışık farkların büyüklükleri $\lvert 12 - 10 \rvert = 2$, $\lvert 11 - 12 \rvert = 1$, $\lvert 15 - 11 \rvert = 4$'tür. Toplam $2 + 1 + 4 = 7$, terim sayısı $T - s = 3$, payda $7/3 \approx 2.33$ olur. Modelimizin test setindeki MAE'si 1.5 ise $\mathrm{MASE} = 1.5 / 2.33 \approx 0.64$'tür: Model, naive yöntemin tipik hatasının yaklaşık üçte ikisi kadar yanılmaktadır. `AirPassengers` üzerindeki gerçek hesabı 8.3'te yapacağız.
 
-MASE birimsizdir (pay da payda da yolcu cinsinden olduğundan birimler sadeleşir) ve sıfıra bölme sorunu yoktur (eğitimde her değer bir yıl öncekine eşit değilse). Yorumunda dikkatli olmak gerekir: **MASE < 1, modelin test hatasının, mevsimsel naive yöntemin eğitim dönemindeki tipik hatasından küçük olduğunu gösterir; MASE > 1 ise büyük olduğunu.** Bu, modelin test döneminde naive'i yendiği anlamına gelmez, çünkü pay ve payda farklı dönemlerden gelir. Modelin test döneminde naive'i yendiğini görmek için naive'in test MAE'siyle doğrudan kıyaslayın (8.3). Mevsimsel olmayan veride $s = 1$ alınır. R'daki `forecast::accuracy()` fonksiyonu MASE'yi otomatik olarak hesaplar.
+MASE birimsizdir (pay da payda da yolcu cinsinden olduğundan birimler sadeleşir) ve sıfıra bölme sorunu yoktur (eğitimde her değer bir yıl öncekine eşit değilse). Yorumunda dikkatli olmak gerekir: **MASE < 1, modelin test hatasının, mevsimsel naive yöntemin eğitim dönemindeki tipik hatasından küçük olduğunu gösterir; MASE > 1 ise büyük olduğunu.** Bu, modelin test döneminde naive'i yendiği anlamına gelmez, çünkü pay ve payda farklı dönemlerden gelir. Modelin test döneminde naive'i yendiğini görmek için naive'in test MAE'siyle doğrudan kıyaslanmalıdır (8.3). Mevsimsel olmayan veride $s = 1$ alınır. R'daki `forecast::accuracy()` fonksiyonu MASE'yi otomatik olarak hesaplar.
 
 **Günlük hayattan bir örnek:** Bir öğrencinin 100 üzerinden 70 alması tek başına bir şey söylemez; notu bir referansla kıyaslarız. MASE'nin referansı "tembel yöntemin eğitim dönemindeki tipik hatası"dır, tıpkı geçen dönemin sınıf ortalaması gibi. Bu dönemin sınavı zorlaştıysa (seri büyüdüyse) ortalama bir öğrenci bile geçen dönemin ortalamasına ulaşamayabilir; 8.3'te mevsimsel naive yöntemin kendi ölçütüyle 1.57 alması budur. Benzetmenin sınırı: Notta yüksek değer iyidir, MASE'de düşük değer iyidir.
 
@@ -408,7 +408,7 @@ MASE birimsizdir (pay da payda da yolcu cinsinden olduğundan birimler sadeleşi
 
 #### 8.2.6. Hangi Durumda Hangi Metrik?
 
-Hangi metriği ne zaman kullanacağınızı bilmek, onu hesaplamak kadar önemlidir:
+Hangi metriğin ne zaman kullanılacağını bilmek, onu hesaplamak kadar önemlidir:
 
 | Durum | Tercih edilecek metrik | Neden |
 | --- | --- | --- |
@@ -419,7 +419,7 @@ Hangi metriği ne zaman kullanacağınızı bilmek, onu hesaplamak kadar önemli
 | Seride sıfır ya da sıfıra yakın değerler varsa | **MASE** (ya da MAE) | MAPE tanımsızlaşır ya da patlar |
 | "Model basit yöntemden iyi mi?" sorusu | Aynı test döneminde **naive modelle doğrudan kıyas**; ek olarak **MASE** | Referansa göre ölçer; MASE'nin referansı eğitim dönemidir (8.2.5) |
 
-Genel bir değerlendirmede tek bir metriğe bağlı kalmayın. MAE, RMSE ve MAPE'yi birlikte raporlayın ve mutlaka bir **naive referans** ile karşılaştırın.
+Genel bir değerlendirmede tek bir metriğe bağlı kalınmamalıdır. MAE, RMSE ve MAPE birlikte raporlanmalı ve mutlaka bir **naive referans** ile karşılaştırılmalıdır.
 
 > **Hemen deneyin 8.2.6 · Üç tembel yöntem, başka bir seride** (R, ~4 dk)
 >
@@ -464,7 +464,7 @@ Genel bir değerlendirmede tek bir metriğe bağlı kalmayın. MAE, RMSE ve MAPE
 
 > **Uygulama dosyası:** [`Codes/R/ch08_egitim_test.R`](../Codes/R/ch08_egitim_test.R)
 >
-> Bu bölümdeki R kodlarının tamamı bu dosyada. RStudio'da açıp satır satır çalıştırabilir ya da depo kök dizininde `Rscript Codes/R/ch08_egitim_test.R` komutunu kullanabilirsiniz.
+> Bu bölümdeki R kodlarının tamamı bu dosyada. Dosya RStudio'da açılıp satır satır ya da depo kök dizininde `Rscript Codes/R/ch08_egitim_test.R` komutuyla çalıştırılabilir.
 
 Bölüm 7.6'da SARIMA modelini **tüm veriyle** kurmuştuk; bu yüzden gerçek başarısını ölçemedik. Şimdi 1949–1959 dönemini eğitim, 1960 yılını (12 ay) test seti olarak ayıralım. Bölüm 7.6'daki gibi log dönüşümlü seriyle çalışıyoruz, çünkü `AirPassengers`'ta mevsimsel dalgalar seviyeyle birlikte büyür ve logaritma bu büyümeyi sabit genlikli dalgalara çevirir.
 
@@ -600,7 +600,7 @@ SARIMA'nın hatası, mevsimsel naive yönteminkinin yaklaşık dörtte biri ile 
 
 **Not —** `forecast` paketindeki `accuracy(fc_test, test)` fonksiyonu tüm bu metrikleri (ME, RMSE, MAE, MPE, MAPE, MASE, ACF1) hem eğitim hem test seti için tek seferde verir. Ancak burada modeli log ölçekte kurduğumuz için `accuracy()` sonuçları da **log ölçekte** olur (örneğin test seti MASE'si 0.23 çıkar, yukarıdaki 0.44 değil); orijinal yolcu birimindeki hatayı görmek için yukarıdaki gibi `exp()` ile geri dönüp elle hesaplamak daha anlaşılırdır.
 
-**Not —** Bu metriklerin hepsi nokta tahminini ölçer. Tahmin aralıklarının güvenilirliği, gerçek değerlerin aralığa düşme oranıyla ayrıca kontrol edilir (Bölüm 17.8).
+**Not —** Bu metriklerin hepsi nokta tahminini ölçer. Tahmin aralıklarının güvenilirliği, gerçek değerlerin aralığa düşme oranıyla ayrıca kontrol edilir (Bölüm 17.8). Bu örnekte kontrol tek satırdır: `sum(actual >= exp(fc_test$lower[, 2]) & actual <= exp(fc_test$upper[, 2]))` sonucu 11'dir, yani 1960'ın 12 ayından 11'i %95 aralığının içindedir; `[, 1]` ile %80 aralığı için de sonuç 11'dir. Aralığın dışında kalan tek ay, en büyük hatanın görüldüğü Mart'tır: Gerçek değer 419, %95 aralığı ise yaklaşık 423.2–514.3'tür. %95'lik bir aralıkta 12 aydan birinin dışarıda kalması olağandır; %80 aralığında ise ortalamada $12 \times 0.2 = 2.4$ ayın dışarıda kalması beklenir.
 
 **Görselleştirme.** Son olarak eğitim dönemini, test yılının gerçek değerlerini ve tahminleri orijinal ölçekte aynı grafikte gösterelim:
 
@@ -643,7 +643,7 @@ Bu blok, eğitim dönemini, test yılının gerçek değerlerini ve SARIMA tahmi
 10. `scale_color_manual(values = c("Gerçek (eğitim, 1949-1959)" = "black", ...))`: Renkleri elle belirler. `values` argümanına verilen isimli vektörde eşittirin solu `Tur` sütunundaki etiket, sağı o etiketin rengidir: eğitim siyah, test kırmızı, tahmin mavi. Etiketler `plot_data`'daki metinlerle harfi harfine aynı olmalıdır, yoksa eşleşme kurulmaz. Adlar burada tırnak içindedir, çünkü boşluk ve parantez içeren metinlerdir.
 11. `ggsave("ch08_sarima_test_tahmini.png", width = 10, height = 6, dpi = 300)`: Son çizilen `ggplot` grafiğini dosyaya kaydeder. Dosya türünü uzantıdan (`.png`) anlar ve dosyayı R'ın o anki çalışma dizinine yazar. `width` ve `height` inç cinsinden boyutlardır (varsayılan birim inçtir), `dpi` (*dots per inch*) her inçteki nokta sayısı, yani çözünürlüktür: Sonuç $10 \times 300 = 3000$ piksel genişliğinde ve $6 \times 300 = 1800$ piksel yüksekliğinde bir resimdir. (`Codes/R/` dosyasında grafik önce `p` adıyla saklanır, `print(p)` ile çizilir ve `ggsave(..., plot = p)` ile hangi grafiğin kaydedileceği açıkça belirtilir; sonuç aynıdır.)
 
-Bu blok ekrana sayı yazmaz; ekranda Şekil 8.3'teki grafik görünür ve aynı grafik PNG dosyası olarak kaydedilir. Eğitim çizgisinin Aralık 1959'da bittiğine, kırmızı test çizgisinin Ocak 1960'ta başladığına dikkat edin: Grafik, eğitim-test ayrımını da görsel olarak gösterir.
+Bu blok ekrana sayı yazmaz; ekranda Şekil 8.3'teki grafik görünür ve aynı grafik PNG dosyası olarak kaydedilir. Eğitim çizgisi Aralık 1959'da biter, kırmızı test çizgisi Ocak 1960'ta başlar: Grafik, eğitim-test ayrımını da görsel olarak gösterir.
 
 ![SARIMA test tahmini](../images/ch08_sarima_test_tahmini.png)
 
@@ -688,7 +688,7 @@ Grafikte mavi tahmin çizgisinin kırmızı gerçek çizgiyi yakından izlediği
 
 > **Uygulama dosyası:** [`Codes/python/ch08_model_degerlendirme.py`](../Codes/python/ch08_model_degerlendirme.py) · [Notebook](../Codes/notebooks/ch08_model_degerlendirme.ipynb) · [![Colab'da aç](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/Codes/notebooks/ch08_model_degerlendirme.ipynb)
 >
-> Bu bölümdeki kodların tamamı bu dosyada. Bilgisayarınızda çalıştırmak için depo kök dizininde `python Codes/python/ch08_model_degerlendirme.py` komutunu kullanın ya da dosyayı VS Code'da açıp hücre hücre çalıştırın. Kurulum yapmadan denemek için Colab bağlantısını kullanabilirsiniz.
+> Bu bölümdeki kodların tamamı bu dosyada. Dosya, depo kök dizininde `python Codes/python/ch08_model_degerlendirme.py` komutuyla ya da VS Code'da hücre hücre çalıştırılabilir. Kurulum yapmadan denemek için Colab bağlantısı kullanılabilir.
 
 
 Farklı modellerin performansını karşılaştırırken her seferinde aynı metrik kodunu yeniden yazmak yerine standart bir fonksiyon kullanmak hem zaman kazandırır hem de hataları önler.
@@ -741,7 +741,7 @@ def evaluate_model(y_true, y_pred, model_name):
 - `def evaluate_model(y_true, y_pred, model_name):` yeni bir fonksiyon tanımlar; parantez içindekiler fonksiyonun girdileridir ve alttaki girintili satırlar fonksiyonun gövdesidir. Üç tırnak (`"""`) arasındaki metin, fonksiyonun ne yaptığını anlatan açıklamadır (docstring); `help(evaluate_model)` yazınca görüntülenir.
 - `np.array(...).flatten()` girdileri tek boyutlu, düz bir sayı dizisine çevirir. Bu önemlidir, çünkü tahminler farklı modellerden farklı biçimlerde gelir: SARIMA bir Pandas Series, Prophet bir NumPy dizisi döndürür; LSTM gibi derin öğrenme modelleri ise çoğu zaman `(60, 1)` biçimli, yani 60 satır ve 1 sütundan oluşan iki boyutlu bir dizi verir. `flatten()` hepsini `(60,)` biçimine, yani 60 elemanlı tek bir sıraya indirir. Yan etkisi de faydalıdır: Series'in tarih indeksi atılır ve gerçek değerlerle tahminler **sıralarına göre** eşleştirilir. İndeksleri farklı olan iki Series (örneğin 0, 1, 2, ... indeksli tahminler ile tarih indeksli gerçek değerler) bu sayede yine doğru karşılaştırılır.
 - MAE ve RMSE için `scikit-learn`'ün hazır fonksiyonları kullanılır. `mean_absolute_error` doğrudan MAE'yi, `mean_squared_error` ise MSE'yi verir; RMSE için sonucun karekökünü `np.sqrt()` ile kendimiz alıyoruz. Bunlar 8.2'deki formüllerin birebir karşılığıdır.
-- MAPE için `mask = y_true != 0` her eleman için "gerçek değer sıfırdan farklı mı?" sorusunun cevabını tutan bir doğru/yanlış (`True`/`False`) dizisi üretir. `y_true[mask]` bu diziyi süzgeç gibi kullanıp yalnızca `True` olan konumları seçer. Böylece gerçek değeri 0 olan noktalar hesaba katılmaz. Bu, sıfıra bölme hatasını önler, ancak 8.2.3'teki "sıfıra **yakın** değerler" sorununu çözmez. Böyle serilerde MAPE yerine MASE ya da MAE'ye güvenin.
+- MAPE için `mask = y_true != 0` her eleman için "gerçek değer sıfırdan farklı mı?" sorusunun cevabını tutan bir doğru/yanlış (`True`/`False`) dizisi üretir. `y_true[mask]` bu diziyi süzgeç gibi kullanıp yalnızca `True` olan konumları seçer. Böylece gerçek değeri 0 olan noktalar hesaba katılmaz. Bu, sıfıra bölme hatasını önler, ancak 8.2.3'teki "sıfıra **yakın** değerler" sorununu çözmez. Böyle serilerde MAPE yerine MASE ya da MAE tercih edilmelidir.
 - `print(f"...")` satırları 7.7.2'deki f-dizeleridir. `{'=' * 40}` 40 tane `=` karakteri yazar; `{mae:>10.2f}` ise sayıyı virgülden sonra iki basamakla (`.2f`) ve 10 karakterlik bir alana sağa yaslanmış olarak (`>10`) yazar, böylece sütunlar alt alta hizalanır.
 - `return {'mae': mae, 'rmse': rmse, 'mape': mape}` sonuçları bir sözlük (`dict`) olarak döndürür: Her değer bir isimle (anahtar) eşleştirilir. Bu sayede birden çok modelin sonucu kolayca tabloya dönüştürülebilir.
 
@@ -824,7 +824,7 @@ Mevsimsel Naive  112.43  126.01  27.05
 
 **Çıktının yorumu:** SARIMA, 60 aylık uzun ufukta bile mevsimsel naive yöntemin MAE ve MAPE'sini üçte birin altına ($35.55 / 112.43 \approx 0.32$), RMSE'sini ise yaklaşık %38'ine indirmiştir. Mevsimsel naive yöntem her yıl 1955'in desenini kopyaladığı için büyümeyi hiç yakalayamaz ve hatası yıldan yıla artar: Yıllık MAE'si 1956'da yaklaşık 44, 1960'ta ise yaklaşık 192 bin yolcudur. Yine de SARIMA'nın buradaki MAPE'si (yaklaşık %8), R uygulamasındaki %2.9'dan çok yüksektir. Bunun iki nedeni vardır. Birincisi, test ufku 12 yerine 60 aydır; geleceğe ne kadar uzak bakılırsa hata o kadar birikir. İkincisi, 7.7.5'te gördüğümüz gibi Python'un seçtiği model eğitimdeki yıllık artışı (≈26 bin) doğru öğrenmiştir; sorun, test döneminde artışın ortalama 38.4 bine çıkmasıdır. Model sabit bir yıllık artış varsaydığı için hatalar hep aynı yöndedir ve yıldan yıla büyür (log seride kurulan model de bu bölmede RMSE ≈ 49.0 verir).
 
-**Not —** Bölüm 9, 13 ve 15'teki modelleri karşılaştırırken **aynı test dönemini** kullandığınızdan emin olun; farklı uzunlukta test setleri üzerinde hesaplanmış metrikler karşılaştırılamaz (hangi modelin hangi tabloyla kıyaslanacağı koddaki 3. adımın yorumlarında yazılıdır).
+**Not —** Bölüm 9, 13 ve 15'teki modeller karşılaştırılırken **aynı test döneminin** kullanıldığından emin olunmalıdır; farklı uzunlukta test setleri üzerinde hesaplanmış metrikler karşılaştırılamaz (hangi modelin hangi tabloyla kıyaslanacağı koddaki 3. adımın yorumlarında yazılıdır).
 
 > **Hemen deneyin 8.4.2 · Test seti uzadıkça hata büyür** (Python, ~3 dk)
 >
@@ -861,17 +861,17 @@ Mevsimsel Naive  112.43  126.01  27.05
 
 #### 8.4.3. Sonuçların Yorumlanması
 
-Metrikleri karşılaştırırken şu sorulara yanıt arayın:
+Metrikler karşılaştırılırken şu sorulara yanıt aranır:
 
 **1. Model naive referansı yeniyor mu?**
 
 - Evet, açık farkla → Model veriden gerçekten bir şey öğrenmiş.
-- Hayır ya da çok az farkla → Karmaşık modele gerek yok; basit yöntemi kullanın ya da modeli gözden geçirin.
+- Hayır ya da çok az farkla → Karmaşık modele gerek yok; basit yöntem kullanılmalı ya da model gözden geçirilmelidir.
 
 **2. MAE ile RMSE birbirine yakın mı?**
 
 - Yakın → Hatalar benzer büyüklükte, model tutarlı.
-- RMSE belirgin biçimde büyük → Bazı noktalarda büyük sapmalar var; hataların hangi dönemlerde yoğunlaştığına bakın (ör. yaz tepeleri, özel günler).
+- RMSE belirgin biçimde büyük → Bazı noktalarda büyük sapmalar var; hataların hangi dönemlerde yoğunlaştığına bakılmalıdır (ör. yaz tepeleri, özel günler).
 
 **3. MAPE makul düzeyde mi?** Kabaca bir fikir vermesi için şu eşikler sıkça kullanılır:
 
@@ -889,7 +889,7 @@ Bu eşikler evrensel değildir. Günlük hisse senedi getirisinde %20 mükemmel 
 
 **5. Hatalarda sistematik bir yön var mı?** Hataların çoğu aynı işaretteyse (8.3'teki gibi) model sistematik olarak fazla ya da eksik tahmin yapıyordur. Bu, trendin değiştiğine işaret edebilir.
 
-Hangi metriğe öncelik vereceğiniz probleme bağlıdır (8.2.6'daki tablo). Metriklerin yanında modelin yorumlanabilirliği, eğitim süresi ve bakım kolaylığı da seçimde rol oynar.
+Hangi metriğe öncelik verileceği probleme bağlıdır (8.2.6'daki tablo). Metriklerin yanında modelin yorumlanabilirliği, eğitim süresi ve bakım kolaylığı da seçimde rol oynar.
 
 > **Hemen deneyin 8.4.3 · Eğitim hatası düşerken test hatası patlayabilir** (R, ~4 dk)
 >

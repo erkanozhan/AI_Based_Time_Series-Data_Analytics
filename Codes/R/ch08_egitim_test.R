@@ -1,6 +1,6 @@
 # =============================================================================
 # Bölüm 8 — Model Değerlendirme: Hata Metrikleri ve Eğitim-Test Ayrımı
-# Ders notu: Course_notes.md, Bölüm 8.3 (R ile Eğitim-Test Uygulaması: AirPassengers)
+# Ders notu: notlar/08_model_degerlendirme_hata_metrikleri_ve_egitim_test_ayrimi.md, Bölüm 8.3 (R ile Eğitim-Test Uygulaması: AirPassengers)
 #
 # Çalıştırma: depo kök dizininden  Rscript Codes/R/ch08_egitim_test.R
 #             ya da RStudio'da dosyayı açıp satır satır (Ctrl+Enter) çalıştırın.

@@ -10,7 +10,7 @@ Bu bölümde zaman serisinin ne olduğunu, onu sıradan veri setlerinden ayıran
 
 ### 1.1. Zaman Serisi Nedir?
 
-**Açıklama:** Zaman serisi, aynı büyüklüğün zaman içinde **ardışık olarak** ve genellikle **eşit aralıklarla** kaydedilmiş ölçümleridir. Her gözlemin bir zaman damgası vardır ve gözlemler bu zamana göre sıralanır. Günlük hayattan birkaç örnek:
+**Açıklama:** Zaman serisi (*time series*), aynı büyüklüğün zaman içinde **ardışık olarak** ve genellikle **eşit aralıklarla** kaydedilmiş ölçümleridir. Her gözlemin bir zaman damgası vardır ve gözlemler bu zamana göre sıralanır. Günlük hayattan birkaç örnek:
 
 - Bir hastanedeki günlük hasta kabul sayısı,
 - Bir şirketin aylık satış rakamları,
@@ -23,7 +23,7 @@ $$
 \lbrace x_t : t \in \mathcal{T} \rbrace
 $$
 
-Burada $\mathcal{T}$, gözlem anlarının kümesidir. Bu derste çoğunlukla $\mathcal{T} = \lbrace 1, 2, \dots, T \rbrace$ biçiminde, eşit aralıklı ve sonlu sayıda gözlem içeren serilerle çalışacağız. Büyük $T$ toplam gözlem sayısıdır: `AirPassengers` serisinde 12 yıl × 12 ay = 144 gözlem olduğu için $T = 144$'tür. İstatistiksel bakış açısıyla elimizdeki seri, rastgele bir sürecin (stokastik süreç) gözlenmiş **tek bir gerçekleşmesi** olarak düşünülür. Bu fikre Bölüm 3.4'te yeniden döneceğiz.
+Burada $\mathcal{T}$, gözlem anlarının kümesidir. Bu derste çoğunlukla $\mathcal{T} = \lbrace 1, 2, \dots, T \rbrace$ biçiminde, eşit aralıklı ve sonlu sayıda gözlem içeren serilerle çalışacağız. Büyük $T$ toplam gözlem sayısıdır: `AirPassengers` serisinde 12 yıl × 12 ay = 144 gözlem olduğu için $T = 144$'tür. İstatistiksel bakış açısıyla elimizdeki seri, rastgele bir sürecin (stokastik süreç, *stochastic process*) gözlenmiş **tek bir gerçekleşmesi** olarak düşünülür. Bu fikre Bölüm 3.4'te yeniden döneceğiz.
 
 Bu gösterimi bir kez okumayı öğrenmek dersin geri kalanını çok kolaylaştırır. $x$, ölçtüğümüz büyüklüğün adıdır (örneğin yolcu sayısı). Harfin sağ altına küçük yazılan $t$ ise **alt indis**tir ve "kaçıncı zaman noktası?" sorusunun cevabını taşır; harf, İngilizce *time* (zaman) kelimesinden gelir. `AirPassengers` serisinde $x_1 = 112$ (Ocak 1949), $x_2 = 118$ (Şubat 1949) ve $x_7 = 148$'dir (Temmuz 1949). Alt indiste işlem de yapılabilir: $t$ "bugün" ise $x_{t-1}$ "dün", yani bir önceki dönemin değeri, $x_{t+1}$ ise "yarın" demektir. Örneğin $t = 7$ için $x_{t-1} = x_6 = 135$, yani Haziran 1949 değeridir.
 
@@ -33,11 +33,11 @@ Bu gösterimi bir kez okumayı öğrenmek dersin geri kalanını çok kolaylaşt
 
 *Şekil 1.1 — (a) Derste sık kullanacağımız `AirPassengers` serisi: 1949–1960 arası aylık uluslararası havayolu yolcu sayısı (bin kişi). (b) Saatlik elektrik yükü (benzetim verisi): gündüz ve akşam tepeleri her gün, düşük hafta sonu tüketimi her hafta tekrar eder.*
 
-Şekil 1.1'deki iki seri, ileride ayrıntılı inceleyeceğimiz kavramların neredeyse hepsini şimdiden gösterir. `AirPassengers` serisinde yolcu sayısı yıllar içinde **artar** (trend), her yaz **zirve** yapar (mevsimsellik) ve bu yaz tepeleri seviye yükseldikçe **büyür**. Elektrik yükünde ise iki ayrı tekrar eden desen vardır: 24 saatlik günlük döngü ve 7 günlük haftalık döngü. Bu bileşenler Bölüm 2'de sistematik olarak ele alınacaktır.
+Şekil 1.1'deki iki seri, ileride ayrıntılı inceleyeceğimiz kavramların neredeyse hepsini şimdiden gösterir. `AirPassengers` serisinde yolcu sayısı yıllar içinde **artar** (trend), her yaz **zirve** yapar (mevsimsellik, *seasonality*) ve bu yaz tepeleri seviye yükseldikçe **büyür**. Elektrik yükünde ise iki ayrı tekrar eden desen vardır: 24 saatlik günlük döngü ve 7 günlük haftalık döngü. Bu bileşenler Bölüm 2'de sistematik olarak ele alınacaktır.
 
 > **Hemen deneyin 1.1a · İlk zaman serinizi R'da görün** (R, ~3 dk)
 >
-> R'ı ilk kez açıyorsanız: RStudio'yu açın, sol alttaki **Console** (konsol) paneline satırları tek tek yazın ve her satırdan sonra `Enter`'a basın. `#` işaretinden sonrasını yazmanız gerekmez; o kısım açıklamadır, R onu okumaz. `AirPassengers` R ile birlikte gelir, hiçbir şey indirmeniz gerekmez.
+> R'ı ilk kez açıyorsanız: RStudio'yu açın, sol alttaki **Console** (konsol) paneline satırları tek tek yazın ve her satırdan sonra `Enter`'a basın. `#` işaretinden sonrasını yazmanız gerekmez; o kısım açıklamadır, R onu okumaz. `AirPassengers` R ile birlikte gelir, hiçbir şey indirmeniz gerekmez. R'ın temel yapıları (atama, vektör, veri çerçevesi, paket) için bkz. [Ek A: R'a Giriş](../R_Giris.md).
 >
 > ```r
 > AirPassengers           # serinin tamamını ekrana yazar (12 yıl x 12 ay)
@@ -86,19 +86,19 @@ Zaman serisinde durum tamamen farklıdır. Bu ayın yolcu sayısı, geçen ayın
 
 *Şekil 1.2 — Solda `AirPassengers` serisinin orijinal hâli, sağda aynı 144 değerin rastgele karıştırılmış hâli. İki grafikteki sayılar aynıdır; ortalama ve varyans değişmez. Ancak trend, mevsimsellik ve "komşu aylar birbirine benzer" bilgisi tamamen kaybolur.*
 
-**Tanım:** Klasik istatistik yöntemlerinin çoğu, gözlemlerin **bağımsız ve özdeş dağılımlı** olduğunu varsayar. Bunu art arda atılan bir zarla düşünebiliriz: Her atış bir öncekinden habersizdir (bağımsız) ve her atışta aynı zar kullanılır, yani hangi sayının hangi olasılıkla geleceği hep aynıdır (özdeş dağılımlı). Zaman serisinde ise yakın zamanlı gözlemler genellikle birbiriyle ilişkilidir:
+**Tanım:** Klasik istatistik yöntemlerinin çoğu, gözlemlerin **bağımsız ve özdeş dağılımlı** (*independent and identically distributed*, kısaca iid) olduğunu varsayar. Bunu art arda atılan bir zarla düşünebiliriz: Her atış bir öncekinden habersizdir (bağımsız) ve her atışta aynı zar kullanılır, yani hangi sayının hangi olasılıkla geleceği hep aynıdır (özdeş dağılımlı). Zaman serisinde ise yakın zamanlı gözlemler genellikle birbiriyle ilişkilidir:
 
 $$
 \mathrm{Cov}(x_t, x_{t-h}) \neq 0 \quad \text{(en azından bazı } h \text{ gecikmeleri için)}
 $$
 
-> **Simge notu:** $`\mathrm{Cov}(\cdot,\cdot)`$ *(kovaryans)*: iki değişkenin birlikte değişim ölçüsü · $`\neq`$ *(eşit değildir)* · $`h`$: iki gözlem arasındaki zaman mesafesi, yani gecikme (lag)
+> **Simge notu:** $`\mathrm{Cov}(\cdot,\cdot)`$ *(kovaryans, covariance)*: iki değişkenin birlikte değişim ölçüsü · $`\neq`$ *(eşit değildir)* · $`h`$: iki gözlem arasındaki zaman mesafesi, yani gecikme (lag)
 
-Kovaryansı şimdilik şöyle düşünebilirsiniz: İki büyüklük birlikte ortalamanın üstüne çıkıp birlikte altına iniyorsa kovaryans pozitif, biri yükselirken öteki düşüyorsa negatif, aralarında bir düzen yoksa sıfıra yakındır. Buradaki iki büyüklük aynı serinin $h$ adım uzaktaki değerleridir; $h = 1$ için "bu ay" ile "geçen ay". Formül yalnızca şunu söyler: en azından bazı gecikmelerde bu ilişki sıfır değildir. Kovaryansın küçük bir sayısal örnekle nasıl hesaplandığını Bölüm 3.2'de göreceğiz.
+Kovaryans şimdilik şöyle düşünülebilir: İki büyüklük birlikte ortalamanın üstüne çıkıp birlikte altına iniyorsa kovaryans pozitif, biri yükselirken öteki düşüyorsa negatif, aralarında bir düzen yoksa sıfıra yakındır. Buradaki iki büyüklük aynı serinin $h$ adım uzaktaki değerleridir; $h = 1$ için "bu ay" ile "geçen ay". Formül yalnızca şunu söyler: en azından bazı gecikmelerde bu ilişki sıfır değildir. Kovaryansın küçük bir sayısal örnekle nasıl hesaplandığını Bölüm 3.2'de göreceğiz.
 
 **Günlük hayattan bir örnek:** Bir otoyoldaki trafik yoğunluğunu 5 dakikada bir ölçtüğümüzü düşünelim. Şu an yoğunluk ortalamanın üstündeyse 5 dakika sonra da büyük olasılıkla üstündedir: $h = 1$ için kovaryans pozitiftir. 6 saat sonrasıyla ilişki zayıftır (sabah zirvesi geçmiştir), ama 24 saat sonrasıyla yine güçlüdür. Yani ilişki bazı $h$ değerlerinde güçlü, bazılarında zayıftır.
 
-Bu ilişkiye **otokorelasyon** (kendi geçmişiyle korelasyon) denir ve ölçülmesi Bölüm 6'da ayrıntılı olarak ele alınır. Bu basit gözlemin üç önemli sonucu vardır:
+Bu ilişkiye **otokorelasyon** (*autocorrelation*, kendi geçmişiyle korelasyon) denir ve ölçülmesi Bölüm 6'da ayrıntılı olarak ele alınır. Bu basit gözlemin üç önemli sonucu vardır:
 
 1. **Bağımlılık bir engel değil, bir fırsattır.** Geçmiş gelecek hakkında bilgi taşıdığı için tahmin yapabiliriz. ARIMA'dan LSTM'e kadar dersteki tüm modeller bu bağımlılığı farklı yollarla öğrenir.
 2. **Standart yöntemler olduğu gibi kullanılamaz.** Örneğin makine öğrenmesinde alışık olduğumuz *rastgele* eğitim-test ayrımı, gelecekteki bilgiyi modele sızdırır. Zaman serisinde test verisi her zaman eğitim verisinden **sonra** gelmelidir (Bölüm 8 ve Bölüm 16).
@@ -122,7 +122,7 @@ Bu ilişkiye **otokorelasyon** (kendi geçmişiyle korelasyon) denir ve ölçül
 >
 > **Ne göreceksiniz:** İki ortalama da `[1] 280.2986`'dır. Solda trend ve yaz tepeleri, sağda hiçbir düzeni olmayan, 104 ile 622 arasında rastgele zıplayan bir çizgi vardır. Sayılar aynı, hikâye kaybolmuştur.
 >
-> **Şimdi siz:** (1) Standart sapmaların da aynı çıkacağını tahmin edin ve `sd(AirPassengers); sd(karisik)` ile kontrol edin. (2) "Komşu aylar birbirine benzer mi?" sorusunu sayıyla ölçün: `cor(AirPassengers[-1], AirPassengers[-144])` ve aynısını `karisik` için yazın. `[-1]` ilk elemanı, `[-144]` son elemanı atar; böylece her ay bir önceki ayla eşleşir. `cor()` iki dizinin birlikte hareketini −1 ile 1 arasında bir sayıyla ölçer (korelasyon; Bölüm 6'da ayrıntılı).
+> **Şimdi siz:** (1) Standart sapmaların da aynı çıkacağını tahmin edin ve `sd(AirPassengers); sd(karisik)` ile kontrol edin. (2) "Komşu aylar birbirine benzer mi?" sorusunu sayıyla ölçün: `cor(AirPassengers[-1], AirPassengers[-144])` ve aynısını `karisik` için yazın. `[-1]` ilk elemanı, `[-144]` son elemanı atar; böylece her ay bir önceki ayla eşleşir. `cor()` iki dizinin birlikte hareketini −1 ile 1 arasında bir sayıyla ölçer (korelasyon, *correlation*; Bölüm 6'da ayrıntılı).
 >
 > <details><summary>Cevap</summary>
 >
@@ -156,11 +156,11 @@ Bu amaçlar birbirinden kopuk değildir. İyi bir tahmin için önce seriyi **ta
 
 Burada $g$, kullandığımız modeldir (ARIMA, Prophet, XGBoost, LSTM vb.). Matematikte **fonksiyon**, girdiyi alıp bir çıktı üreten kuraldır; burada girdi geçmiş gözlemler, çıktı tahmindir. $x$'in üzerindeki şapka işareti, değerin gözlenmiş değil **tahmin edilmiş** olduğunu belirtir. Örneğin `AirPassengers` serisi Aralık 1960'ta bittiği için $T = 144$'tür. $h = 1$ için $\hat{x}_ {145}$ Ocak 1961'in, $h = 12$ için $\hat{x}_ {156}$ Aralık 1961'in tahminidir.
 
-Tahmin ufku ($h$) büyüdükçe belirsizlik artar. Bu nedenle iyi bir tahmin, tek bir sayıyla birlikte bir **tahmin aralığı** da verir: "Tahmin 450; gerçek değer %95 olasılıkla 420 ile 480 arasında olacak" gibi. Aralık ne kadar genişse, model gelecek hakkında o kadar emin değildir.
+Tahmin ufku ($h$) büyüdükçe belirsizlik artar. Bu nedenle iyi bir tahmin, tek bir sayıyla birlikte bir **tahmin aralığı** (*prediction interval*) da verir: "Tahmin 450; gerçek değer %95 olasılıkla 420 ile 480 arasında olacak" gibi. Aralık ne kadar genişse, model gelecek hakkında o kadar emin değildir.
 
 **Günlük hayattan bir örnek:** Hava durumu yarın için "22–24 °C" diyebilir, ama 10 gün sonrası için ancak "15–28 °C" gibi geniş bir aralık verebilir. Ne kadar ileriye bakarsak belirsizlik o kadar birikir.
 
-> **Simge notu:** $`\hat{x}_{T+h}`$ *(x şapka, T artı h)*: T anındaki bilgiyle, h adım sonrası için yapılan tahmin · $`g(\cdot)`$ *(ge)*: geçmiş gözlemleri tahmine dönüştüren model fonksiyonu · $`h`$: tahmin ufku, yani kaç adım ileriye bakıldığı
+> **Simge notu:** $`\hat{x}_{T+h}`$ *(x şapka, T artı h)*: T anındaki bilgiyle, h adım sonrası için yapılan tahmin · $`g(\cdot)`$ *(ge)*: geçmiş gözlemleri tahmine dönüştüren model fonksiyonu · $`h`$: tahmin ufku, yani kaç adım ileriye bakıldığı. **Dikkat:** Aynı harf 1.2'de iki gözlem arasındaki gecikmeyi gösteriyordu. İki kullanım da "kaç adım uzaklık" fikrine dayanır: Gecikmede geçmişe, tahmin ufkunda geleceğe doğru sayılır. Ders boyunca $`h`$ her iki anlamda da kullanılır; hangisinin kastedildiği bağlamdan anlaşılır (gecikme: Bölüm 2.1, 6 ve 7.4; tahmin ufku: Bölüm 7.6.7 ve 8)
 
 > **Hemen deneyin 1.3 · Nil Nehri: tanımlama, anomali ve en basit tahmin** (R, ~4 dk)
 >
@@ -242,7 +242,7 @@ Hangi alanda çalışırsak çalışalım, zaman serisi analizi genellikle benze
 
 > **Hemen deneyin 1.5 · İş akışının ilk iki adımı Gretl'de** (Gretl menüleri, ~5 dk)
 >
-> İş akışının "veri" ve "görselleştirme" adımlarını kod yazmadan, Gretl ile deneyelim (Gretl'i Bölüm 11'de ayrıntılı tanıyacağız). Gretl kendi örnek veri dosyalarıyla gelir; aralarında `AirPassengers`'ın aynısı da vardır.
+> İş akışının "veri" ve "görselleştirme" adımlarını kod yazmadan, Gretl ile deneyelim (Gretl'i Bölüm 11'de ayrıntılı tanıyacağız; menülerle kısa bir giriş [Ek B: Gretl'e Giriş](../Gretl.md)'dedir). Gretl kendi örnek veri dosyalarıyla gelir; aralarında `AirPassengers`'ın aynısı da vardır.
 >
 > 1. Gretl'i açın. **File → Open data → Sample file…** seçin. Açılan pencerenin **Gretl** sekmesinde `bjg` (*Box and Jenkins Series G (airline passengers)*) satırına çift tıklayın.
 > 2. Ana pencerede iki değişken görünür: `g` (yolcu sayısı) ve `lg` (onun doğal logaritması). `g`'ye sağ tıklayıp **Time series plot** seçin (ya da **View → Graph specified vars → Time series plot…**).
@@ -270,7 +270,7 @@ Hangi alanda çalışırsak çalışalım, zaman serisi analizi genellikle benze
 
 ### 1.6. Dersin Yol Haritası
 
-Ders 17 bölümden oluşur ve beş aşamada ilerler. Her aşama bir öncekinin üzerine kurulur. Bu nedenle bölümleri sırayla okumanız önerilir.
+Ders 17 bölümden oluşur ve beş aşamada ilerler. Her aşama bir öncekinin üzerine kurulur. Bu nedenle bölümlerin sırayla okunması önerilir.
 
 ![Dersin yol haritası](../images/ch01_yol_haritasi.svg)
 

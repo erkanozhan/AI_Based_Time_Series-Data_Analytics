@@ -1,7 +1,8 @@
 # ---------------------------------------------
 # Gretl ile VAR örneği (komut dili)
 # ---------------------------------------------
-# Ders notu: Course_notes.md, Bölüm 11.6.2 (Betik ile VAR); teori Bölüm 10.
+# Ders notu: notlar/11_gretl_ekonometrik_analiz_icin_gorsel_ortam.md, Bölüm 11.6.2 (Betik ile VAR);
+# teori: notlar/10_var_cok_degiskenli_zaman_serisi_modeli.md.
 # Veri: data/macro.csv — 2015:01'den başlayan aylık inflation, interest, exchange serileri.
 #
 # ÇALIŞTIRMA

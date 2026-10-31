@@ -18,7 +18,7 @@ Bu bölüm dersin matematik açısından en yoğun bölümüdür. VAR'ı anlatma
 
 ### 10.1. AR'dan VAR'a: Temel Fikir
 
-**Açıklama:** Bölüm 7.1.1'deki AR(p) modelinde bir serinin bugünkü değeri, kendi $p$ gecikmesinin doğrusal bir fonksiyonudur:
+**Açıklama:** Bölüm 7.1.1'deki AR(p) modelinde bir serinin bugünkü değeri, kendi $p$ gecikmesinin doğrusal bir fonksiyonudur. Bölüm 3 ve 7'de $x_t$ ile gösterdiğimiz seriyi bu bölümde, VAR yazınındaki yaygın kullanıma uygun olarak $y_t$ ile gösteriyoruz; model aynıdır:
 
 $$
 y_t = c + \phi_1 y_{t-1} + \phi_2 y_{t-2} + \dots + \phi_p y_{t-p} + \varepsilon_t
@@ -233,7 +233,7 @@ Burada:
 *   $A_i$: $i$. gecikmeye ait $k \times k$ katsayı matrisi. $A_1$ bir önceki dönemin değerlerini, $A_2$ iki önceki dönemin değerlerini çarpar; VAR(1)'den farkı yalnızca bu ek terimlerdir.
 *   $\mathbf{u}_ t$: Hata (şok) vektörü. $\mathrm{E}[\mathbf{u}_ t] = \mathbf{0}$ "şokların ortalaması sıfırdır" demektir: bazen yukarı, bazen aşağı yönlü gelirler ama sistematik bir yönleri yoktur. Şoklar **zaman içinde ilişkisizdir**: bu ayın şoku, gelecek ayın şoku hakkında bilgi vermez. Ama **aynı dönemdeki** şoklar birbiriyle ilişkili olabilir; örneğin döviz kurunda beklenmedik bir sıçrama olduğu ay faizde de beklenmedik bir artış görülebilir. Bu eşanlı ilişkiyi $\Sigma_u$ tablosu taşır.
 
-$\Sigma_u$ bir **varyans-kovaryans matrisidir**. İki değişkenli modelde 2 × 2'lik bir tablodur: sol üstten sağ alta inen köşegende her şokun **varyansı** (şokun tipik olarak ne kadar büyük olduğu; karekökü standart sapmadır) yer alır, köşegen dışındaki hücrelerde ise iki şokun **kovaryansı** (aynı ay birlikte aynı yönde gelme eğilimi) bulunur. Kovaryans 0 ise iki şok birbirinden bağımsız gelir.
+$\Sigma_u$ bir **varyans-kovaryans matrisidir**. İki değişkenli modelde 2 × 2'lik bir tablodur: sol üstten sağ alta inen köşegende her şokun **varyansı** (şokun tipik olarak ne kadar büyük olduğu; karekökü standart sapmadır) yer alır, köşegen dışındaki hücrelerde ise iki şokun **kovaryansı** (aynı ay birlikte aynı yönde gelme eğilimi) bulunur. Kovaryans 0 ise iki şok birbiriyle **ilişkisizdir**: aralarında doğrusal bir birliktelik yoktur. (İlişkisizlik, bağımsızlıkla aynı şey değildir; şoklar normal dağılıyorsa ikisi örtüşür.)
 
 > **Simge notu:** $`\mathbf{y}_t`$ *(kalın y)*: değişkenler vektörü · $`A_i`$: katsayı matrisi · $`\mathrm{E}[\cdot]`$ *(beklenen değer)*: kuramsal ortalama · $`\mathrm{Cov}(\cdot)`$ *(kovaryans)*: varyans-kovaryans matrisi · $`\Sigma_u`$ *(büyük sigma u)*: hata terimlerinin varyans-kovaryans matrisi. Dikkat: burada $`\Sigma`$ bir tablonun **adıdır**, toplam sembolü değildir (toplam anlamındaki $`\sum`$ Bölüm 10.6'da gelecek) · $`\times`$ *(çarpı)*: matris boyutu (satır × sütun) · $`\vdots`$ *(dikey üç nokta)*: aradaki satırlar · $`\mathbf{0}`$: tüm elemanları sıfır olan vektör
 
@@ -324,12 +324,12 @@ VAR'ın yakaladığı dinamik ilişkilerin anlamlı olabilmesi için serilerin *
 
 Durağanlık ADF ve KPSS testleriyle sınanır (ayrıntısı Bölüm 3.2 ve 7.5'te):
 
-*   **ADF:** Sıfır hipotezi $H_0$: "seri durağan değildir (birim kök vardır)". p-değeri 0,05'ten küçükse $H_0$ reddedilir ve seri durağan kabul edilir.
+*   **ADF:** Sıfır hipotezi $H_0$: "seri durağan değildir (birim kök vardır)". p-değeri 0.05'ten küçükse $H_0$ reddedilir ve seri durağan kabul edilir.
 *   **KPSS:** Mantık terstir; $H_0$: "seri durağandır".
 
 (H₀/H₁ simgeleri ve p-değerinin anlamı: bkz. Bölüm 3.2.)
 
-Durağan olmayan serilerde en yaygın çözüm, Bölüm 2.1 ve 7.1.4'teki $\nabla$ operatörüyle **fark almaktır**: $\nabla y_t = y_t - y_{t-1}$, yani bu dönemin değeri eksi bir önceki dönemin değeri. Örneğin faiz üç ay boyunca 40, 45, 45 ise fark serisi 5, 0 olur: artık faizin düzeyini değil, her ay ne kadar değiştiğini modelleriz. Birinci fark alındığında çoğu ekonomik seri durağan hâle gelir; ikinci fark nadiren gerekir. Bir kez fark alınınca durağanlaşan seriye **birinci dereceden bütünleşik** denir ve **I(1)** diye yazılır; zaten durağan olan seri I(0)'dır.
+Durağan olmayan serilerde en yaygın çözüm, Bölüm 2.1 ve 7.1.4'teki $\nabla$ operatörüyle **fark almaktır**: $\nabla y_t = y_t - y_{t-1}$, yani bu dönemin değeri eksi bir önceki dönemin değeri. Örneğin faiz üç ay boyunca 40, 45, 45 ise fark serisi 5, 0 olur: artık faizin düzeyini değil, her ay ne kadar değiştiğini modelleriz. Birinci fark alındığında çoğu ekonomik seri durağan hâle gelir; ikinci fark nadiren gerekir. Bir kez fark alınınca durağanlaşan seriye **birinci dereceden bütünleşik** (*integrated of order one*) denir ve **I(1)** diye yazılır; zaten durağan olan seri I(0)'dır.
 
 **Not —** Seriler aynı mertebeden bütünleşikse (ör. hepsi I(1)) ve aralarında uzun dönemli bir denge ilişkisi (**eşbütünleşme**, *cointegration*) varsa, farkları alınmış bir VAR bu uzun dönem bilgisini kaybeder. Bilinen bir benzetme: tasmalı köpeğiyle yürüyen bir kişinin ve köpeğin yolları ayrı ayrı rastgele görünür, ama aralarındaki mesafe tasmanın boyunu aşamaz. Farkları alınmış VAR yalnızca adımları modeller, "tasmayı" görmez. Bu durumda VAR yerine **VECM** (Vector Error Correction Model, hata düzeltme modeli) kullanmak daha uygundur: VECM, farklar için kurulan VAR'a "tasma ne kadar gerildi?" bilgisini taşıyan bir düzeltme terimi ekler. VECM bu dersin kapsamı dışındadır; bu bölümde VAR çerçevesinde kalıyoruz.
 
@@ -356,7 +356,7 @@ Durağan olmayan serilerde en yaygın çözüm, Bölüm 2.1 ve 7.1.4'teki $\nabl
 > 4.07e-01 3.24e-24 1.69e-03 5.64e-01 
 > ```
 >
-> `e-24` "10 üzeri −24" demektir: p-değeri 0.000...0324 (virgülden sonra 23 sıfır). Düzeylerle kurulan regresyon x'in y'nin **%40.7**'sini açıkladığını ve ilişkinin "son derece anlamlı" olduğunu söyler. Oysa iki seri birbirinden habersizdir; ikisi de rastgele dolaştığı için tesadüfen benzer yönlere kaymıştır. Farkları alınınca gerçek ortaya çıkar: R² = 0.0017, p = 0.56; ilişki yoktur.
+> `e-24` "10 üzeri −24" demektir: p-değeri 0.000...0324 (ondalık ayırıcıdan sonra 23 sıfır). Düzeylerle kurulan regresyon x'in y'nin **%40.7**'sini açıkladığını ve ilişkinin "son derece anlamlı" olduğunu söyler. Oysa iki seri birbirinden habersizdir; ikisi de rastgele dolaştığı için tesadüfen benzer yönlere kaymıştır. Farkları alınınca gerçek ortaya çıkar: R² = 0.0017, p = 0.56; ilişki yoktur.
 >
 > **Şimdi siz:** Bu tek bir şanssız deneme mi? Aynı deneyi 1000 kez tekrarlayıp kaç kez "anlamlı" (p < 0.05) sonuç çıktığını sayın:
 >
@@ -414,7 +414,7 @@ Bu dengeyi kurmak için **bilgi kriterleri** kullanılır. Hepsi aynı felsefeye
 
 Örneğin iki şokun varyansları 4 ve 9, kovaryansları 1 ise $\lvert \Sigma_u \rvert = 4 \cdot 9 - 1 \cdot 1 = 35$ olur. Hata kovaryans matrisinin determinantı, tüm denklemlerin hatalarının **toplam büyüklüğünü** tek sayıyla özetler: hatalar küçüldükçe determinant da küçülür. (Determinantı 10.5'te öz değerleri bulurken yeniden kullanacağız.)
 
-**Açıklama:** Mantık, Bölüm 7.4'teki AIC ve BIC ile aynıdır: İlk terim **uyumu** ölçer (hatalar küçüldükçe küçülür), ikinci terim parametre sayısı $pk^2$ ile büyüyen **karmaşıklık cezasıdır**. Kriterler yalnızca ceza katsayısında ayrılır. $p = 1, 2, \dots, p_{max}$ için hesaplanır ve **en küçük değeri veren $`p`$ seçilir** (değerler negatif de olabilir; önemli olan hangisinin en küçük olduğudur).
+**Açıklama:** Mantık, Bölüm 7.4'teki AIC ve BIC ile aynıdır: İlk terim **uyumu** ölçer (hatalar küçüldükçe küçülür), ikinci terim parametre sayısı $pk^2$ ile büyüyen **karmaşıklık cezasıdır**. (Bölüm 7.4'te $k$ parametre sayısını gösteriyordu; burada $k$ değişken sayısıdır ve gecikme katsayılarının sayısını $pk^2$ verir.) Kriterler yalnızca ceza katsayısında ayrılır. $p = 1, 2, \dots, p_{max}$ için hesaplanır ve **en küçük değeri veren $`p`$ seçilir** (değerler negatif de olabilir; önemli olan hangisinin en küçük olduğudur).
 
 *   **AIC (Akaike):** Ceza katsayısı ($2/T$) görece hafiftir. Gerçek dinamiği kaçırmamak için biraz daha büyük modellere izin verir; öngörü odaklı çalışmalarda sık tercih edilir.
 *   **BIC (Bayesci, Schwarz):** Ceza katsayısı ($\ln T / T$), $T \geq 8$ için AIC'ninkinden büyüktür ($\ln 8 \approx 2.08 > 2$) ve gözlem sayısıyla artar. Bu yüzden daha az gecikmeli, **tutumlu** (*parsimonious*) modelleri seçer; temel yapıyı anlamaya çalışırken güvenilir bir rehberdir.
@@ -430,7 +430,7 @@ Bu dengeyi kurmak için **bilgi kriterleri** kullanılır. Hepsi aynı felsefeye
 
 VAR(2)'den VAR(7)'ye çıkmak (5 ek gecikme) uyum terimini yaklaşık 1.20 azaltır. AIC buna karşılık $5 \cdot 0.16 = 0.80$ ceza keser; net kazanç kalır ve AIC VAR(7)'yi seçer. BIC'nin cezası $5 \cdot 0.38 = 1.90$'dır; kazanç cezayı karşılamaz ve BIC VAR(2)'de kalır. Aynı veriye bakan iki kriterin farklı karar vermesinin nedeni yalnızca ceza katsayısıdır.
 
-Pratikte kriterler farklı gecikme önerebilir. Böyle durumlarda BIC'in önerdiği daha düşük gecikme genellikle güvenli bir başlangıçtır; ancak seçilen modelin artıklarında otokorelasyon kalıp kalmadığı da (Bölüm 10.9'daki artık analizi) mutlaka kontrol edilmelidir. Artıklar otokorelasyonluysa gecikme artırılır. (statsmodels tablosunda bir de **FPE**, *Final Prediction Error*, "nihai tahmin hatası" sütunu görürsünüz; çoğunlukla AIC ile aynı gecikmeyi önerir.)
+Pratikte kriterler farklı gecikme önerebilir. Böyle durumlarda BIC'nin önerdiği daha düşük gecikme genellikle güvenli bir başlangıçtır; ancak seçilen modelin artıklarında otokorelasyon kalıp kalmadığı da (Bölüm 10.9'daki artık analizi) mutlaka kontrol edilmelidir. Artıklar otokorelasyonluysa gecikme artırılır. (statsmodels tablosunda bir de **FPE**, *Final Prediction Error*, "nihai tahmin hatası" sütunu görürsünüz; çoğunlukla AIC ile aynı gecikmeyi önerir.)
 
 > **Hemen deneyin 10.4 · `maxlags` değişince seçim değişir mi?** (R ve Python, ~6 dk)
 >
@@ -505,11 +505,11 @@ A_1 \begin{bmatrix} -1 \\ 1 \end{bmatrix}
 = 0.3 \begin{bmatrix} -1 \\ 1 \end{bmatrix}
 ```
 
-"Enflasyon 2 birim, faiz 1 birim yukarı" yönündeki bir sapma, bir dönem sonra **aynı oranda** kalır ama %60'ına iner. "Enflasyon 1 birim aşağı, faiz 1 birim yukarı" yönündeki bir sapma ise her dönem %30'una iner. Bu özel yönlere **öz vektör**, her yöndeki küçülme çarpanına (0.6 ve 0.3) **öz değer** denir. Herhangi bir şok bu iki yönün bir karışımı olarak yazılabildiği için, her parça kendi hızında söner; en yavaş sönen parça en büyük öz değere (0.6) sahip olandır ve sistemin hafızasını o belirler. Kısacası öz değer, **sistemin belirli bir yöndeki bir sapmayı her adımda kaç katına çıkardığıdır**. AR(1)'deki $\phi$'nin rolünü VAR'da öz değerler üstlenir.
+"Enflasyon 2 birim, faiz 1 birim yukarı" yönündeki bir sapma, bir dönem sonra **aynı oranda** kalır ama %60'ına iner. "Enflasyon 1 birim aşağı, faiz 1 birim yukarı" yönündeki bir sapma ise her dönem %30'una iner. Bu özel yönlere **öz vektör** (*eigenvector*), her yöndeki küçülme çarpanına (0.6 ve 0.3) **öz değer** (*eigenvalue*) denir. Herhangi bir şok bu iki yönün bir karışımı olarak yazılabildiği için, her parça kendi hızında söner; en yavaş sönen parça en büyük öz değere (0.6) sahip olandır ve sistemin hafızasını o belirler. Kısacası öz değer, **sistemin belirli bir yöndeki bir sapmayı her adımda kaç katına çıkardığıdır**. AR(1)'deki $\phi$'nin rolünü VAR'da öz değerler üstlenir.
 
 **Günlük hayattan bir örnek:** Mikrofonu hoparlöre yaklaştırdığınızda ses her turda hoparlörden mikrofona geri döner. Her turda sesin %60'ı geri geliyorsa yankı birkaç turda söner (öz değer 0.6). %100'ün üstü geri geliyorsa ses tur tur büyüyüp kulak tırmalayan bir cızırtıya dönüşür (öz değer 1'den büyük). Stabilite koşulu "her turda geri dönen pay 1'den küçük olsun" demektir. Benzetmenin sınırı: VAR'da tek bir döngü değil, her öz vektör yönü için ayrı bir "geri dönme payı" vardır; uzun vadeyi en büyüğü belirler.
 
-**Öz değerler nasıl bulunur?** Aradığımız şey, $A_1 \mathbf{v} = \lambda \mathbf{v}$ eşitliğini sağlayan bir $\lambda$ sayısı ve sıfır olmayan bir $\mathbf{v}$ yönüdür. Her şeyi bir tarafa toplarsak $(A_1 - \lambda I)\mathbf{v} = \mathbf{0}$ olur. Burada $I$ **birim matristir**: köşegeninde 1, geri kalanında 0 olan ve matris dünyasında "1 sayısı" gibi davranan tablodur ($I \mathbf{v} = \mathbf{v}$). Sıfır olmayan bir yönü sıfıra götüren matrislerin determinantı sıfırdır (bunu kabul edelim). Öyleyse öz değerler şu denklemin kökleridir:
+**Öz değerler nasıl bulunur?** Aradığımız şey, $A_1 \mathbf{v} = \lambda \mathbf{v}$ eşitliğini sağlayan bir $\lambda$ sayısı ve sıfır olmayan bir $\mathbf{v}$ yönüdür. Her şeyi bir tarafa toplarsak $(A_1 - \lambda I)\mathbf{v} = \mathbf{0}$ olur. Burada $I$ **birim matristir** (*identity matrix*): köşegeninde 1, geri kalanında 0 olan ve matris dünyasında "1 sayısı" gibi davranan tablodur ($I \mathbf{v} = \mathbf{v}$). Sıfır olmayan bir yönü sıfıra götüren matrislerin determinantı sıfırdır (bunu kabul edelim). Öyleyse öz değerler şu denklemin kökleridir:
 
 $$
 \det(A_1 - \lambda I) = 0
@@ -530,7 +530,7 @@ Bu denklemi örnek matrisimiz için adım adım çözelim. Bir denklemin **kök�
 
     $\displaystyle \lambda = \frac{0.9 \pm \sqrt{0.81 - 0.72}}{2} = \frac{0.9 \pm \sqrt{0.09}}{2} = \frac{0.9 \pm 0.3}{2} \quad\Rightarrow\quad \lambda_1 = 0.6, \quad \lambda_2 = 0.3$
 
-5.  Sağlama: $(\lambda - 0.6)(\lambda - 0.3) = \lambda^2 - 0.9\lambda + 0.18$. Ayrıca öz değerlerin toplamı köşegen elemanlarının toplamına ($0.5 + 0.4 = 0.9$, buna matrisin **izi** denir), çarpımları da determinanta ($0.5 \cdot 0.4 - 0.2 \cdot 0.1 = 0.18$) eşittir: $0.6 + 0.3 = 0.9$ ve $0.6 \cdot 0.3 = 0.18$.
+5.  Sağlama: $(\lambda - 0.6)(\lambda - 0.3) = \lambda^2 - 0.9\lambda + 0.18$. Ayrıca öz değerlerin toplamı köşegen elemanlarının toplamına ($0.5 + 0.4 = 0.9$, buna matrisin **izi**, *trace*, denir), çarpımları da determinanta ($0.5 \cdot 0.4 - 0.2 \cdot 0.1 = 0.18$) eşittir: $0.6 + 0.3 = 0.9$ ve $0.6 \cdot 0.3 = 0.18$.
 
 Bulduğumuz 0.6 ve 0.3, yukarıda öz vektörlerle deneyerek gördüğümüz çarpanlarla aynıdır. İkisi de 1'den küçük olduğundan model **stabildir**. NumPy ile kontrol:
 
@@ -541,14 +541,14 @@ A1 = np.array([[0.5, 0.2],
                [0.1, 0.4]])
 ozdeger = np.linalg.eigvals(A1)   # det(A1 - λI) = 0 denkleminin kökleri
 print(ozdeger)
-#> [0.6+0.j 0.3+0.j]
+#> [0.6 0.3]
 print(1 / ozdeger)                # karakteristik denklemin kökleri z = 1/λ
-#> [1.66666667+0.j 3.33333333+0.j]
+#> [1.66666667 3.33333333]
 ```
 
-`np.linalg.eigvals()` fonksiyonu (NumPy'ın doğrusal cebir modülündeki "eigenvalues", öz değerler) yukarıdaki adımların tamamını yapar ve öz değerleri bir dizi olarak döndürür. Bölüm 10.9'daki gibi büyük modellerde elle hesap yapılmaz; ama yazılımın ne hesapladığını bilmek, çıktıyı doğru okumak için gereklidir. `1 / ozdeger` dizinin her elemanının tersini alır; bu değerlerin ne anlama geldiğini hemen aşağıda göreceğiz. NumPy'ın yeni sürümleri sonucu `0.6+0.j` biçiminde yazabilir: bu, "sanal kısmı 0 olan karmaşık sayı", yani düpedüz 0.6 demektir (karmaşık sayılar hemen aşağıda).
+`np.linalg.eigvals()` fonksiyonu (NumPy'ın doğrusal cebir modülündeki "eigenvalues", öz değerler) yukarıdaki adımların tamamını yapar ve öz değerleri bir dizi olarak döndürür. Bölüm 10.9'daki gibi büyük modellerde elle hesap yapılmaz; ama yazılımın ne hesapladığını bilmek, çıktıyı doğru okumak için gereklidir. `1 / ozdeger` dizinin her elemanının tersini alır; bu değerlerin ne anlama geldiğini hemen aşağıda göreceğiz. Öz değerlerin hepsi gerçel sayı olduğunda NumPy sonucu sıradan sayılar olarak yazar (`[0.6 0.3]`). Öz değerler karmaşık sayı çıkarsa çıktı `0.5+0.6j` biçiminde olur: `j`, sanal kısmı gösterir (karmaşık sayılar hemen aşağıda; örneği Hemen deneyin 10.5'te).
 
-**Birim çember ve karmaşık sayılar:** Dördüncü adımdaki karekökün içi ($b^2 - 4ac$) negatif çıkarsa öz değerler **karmaşık sayı** olur ($a + bi$ biçiminde, $i^2 = -1$). Bölüm 3.2'deki yan notta (Şekil 3.6) gördüğümüz gibi karmaşık sayılar bir düzlemde nokta olarak gösterilir ve **birim çember** bu düzlemde merkezi sıfır, yarıçapı 1 olan çemberdir. Karmaşık bir öz değerin büyüklüğü (**modülü**), noktanın merkeze uzaklığıdır: $\sqrt{a^2 + b^2}$. "Öz değer birim çemberin içinde" demek "modülü 1'den küçük" demektir (gerçek bir öz değer için $-1$ ile $1$ arası). Karmaşık öz değerler, şokun etkisinin sönerken bir aşağı bir yukarı **salınmasına** yol açar.
+**Birim çember ve karmaşık sayılar:** Dördüncü adımdaki karekökün içi ($b^2 - 4ac$) negatif çıkarsa öz değerler **karmaşık sayı** olur ($a + bi$ biçiminde, $i^2 = -1$). Bölüm 3.2'deki yan notta (Şekil 3.6) gördüğümüz gibi karmaşık sayılar bir düzlemde nokta olarak gösterilir ve **birim çember** bu düzlemde merkezi sıfır, yarıçapı 1 olan çemberdir. Karmaşık bir öz değerin büyüklüğü (**modülü**), noktanın merkeze uzaklığıdır: $\sqrt{a^2 + b^2}$. "Öz değer birim çemberin içinde" demek "modülü 1'den küçük" demektir (gerçel bir öz değer için $-1$ ile $1$ arası). Karmaşık öz değerler, şokun etkisinin sönerken bir aşağı bir yukarı **salınmasına** yol açar.
 
 **Tanım 1 (VAR(1) için stabilite):** $\mathbf{y}_ t = \mathbf{c} + A_1 \mathbf{y}_ {t-1} + \mathbf{u}_ t$ modeli, $A_1$ matrisinin tüm öz değerleri birim çemberin içindeyse stabildir:
 
@@ -568,9 +568,9 @@ VAR'da da aynısı geçerlidir: karakteristik denklem $\det(I - A_1 z) = 0$'ın 
 
 ![Birim çember, öz değerler ve kökler](../images/ch10_birim_cember.svg)
 
-*Şekil 10.2 — (a) Örnek matrisin öz değerleri (0.6 ve 0.3, mavi) birim çemberin içinde, kökleri ($`z = 1/\lambda`$: 1.67 ve 3.33, kırmızı) dışındadır; turuncu halka birim kökün (1) yeridir. (b) Bölüm 10.9'daki VAR(2) modelinin altı öz değeri: hepsi içeride, ama biri karmaşık sayı çifti olan ikisinin modülü 0.997 ile çembere neredeyse değmektedir.*
+*Şekil 10.2 — (a) Örnek matrisin öz değerleri (0.6 ve 0.3, mavi) birim çemberin içinde, kökleri ($`z = 1/\lambda`$: 1.67 ve 3.33, kırmızı) dışındadır; turuncu halka birim kökün (1) yeridir. (b) Bölüm 10.9'daki VAR(2) modelinin altı öz değeri: hepsi içeride; ancak karmaşık eşlenik bir çift oluşturan ikisinin modülü 0.997'dir ve bu iki öz değer çembere neredeyse değer.*
 
-**Tanım 2 (VAR(p) için stabilite):** VAR(2) ya da daha fazla gecikmeli bir modelde tek bir $A_1$ matrisi yoktur. Bu durumda bir hile yapılır: bu ayın ve geçen ayın değerleri alt alta yazılarak daha uzun bir vektör oluşturulur ve model bu uzun vektör için bir VAR(1)'e dönüştürülür. Bu VAR(1)'in katsayı matrisine **eşlik (companion) matrisi** denir ve $kp \times kp$ boyutludur:
+**Tanım 2 (VAR(p) için stabilite):** VAR(2) ya da daha fazla gecikmeli bir modelde tek bir $A_1$ matrisi yoktur. Bu durumda şu dönüşüme başvurulur: bu ayın ve geçen ayın değerleri alt alta yazılarak daha uzun bir vektör oluşturulur ve model bu uzun vektör için bir VAR(1)'e dönüştürülür. Bu VAR(1)'in katsayı matrisine **eşlik (companion) matrisi** denir ve $kp \times kp$ boyutludur:
 
 ```math
 \mathbf{F} =
@@ -587,7 +587,7 @@ I   & 0   & \cdots & 0       & 0   \\
 
 > **Simge notu:** $`\mathbf{F}`$ *(kalın F)*: eşlik matrisi · $`\cdots`$, $`\ddots`$ *(yatay / çapraz üç nokta)*: tekrarlanan bloklar · $`0`$: tüm elemanları sıfır olan blok · $`z`$: karakteristik polinomun değişkeni · **polinom**: $`x`$'in kuvvetlerinin katsayılarla toplamı, ör. $`\lambda^2 - 0.9\lambda + 0.18`$
 
-**Günlük hayattan bir örnek:** Bu hile, karneye bir "geçen dönem" sütunu eklemeye benzer. Notu hesaplamak için iki dönem öncesine bakmak gerekiyorsa, her karneye bir önceki dönemin notu da yazılır; böylece yalnızca son karneye bakmak yeter. Her dönem "bu dönem" sütunu bir sonraki karnede "geçen dönem" sütununa kayar; eşlik matrisindeki $I$ blokları tam olarak bu kaydırmayı yapar.
+**Günlük hayattan bir örnek:** Bu dönüşüm, karneye bir "geçen dönem" sütunu eklemeye benzer. Notu hesaplamak için iki dönem öncesine bakmak gerekiyorsa, her karneye bir önceki dönemin notu da yazılır; böylece yalnızca son karneye bakmak yeter. Her dönem "bu dönem" sütunu bir sonraki karnede "geçen dönem" sütununa kayar; eşlik matrisindeki $I$ blokları tam olarak bu kaydırmayı yapar.
 
 **Not —** Yazılımlar bu koşulu farklı biçimde raporlayabilir. Gretl ve pek çok ders kitabı öz değerlerin (Gretl'deki adıyla "ters köklerin", *inverse roots*) birim çemberin **içinde** olmasını ister; statsmodels'taki `results.roots` ise karakteristik polinomun köklerini verir ve bunların birim çemberin **dışında** olması gerekir. `results.is_stable()` her iki durumda da doğrudan `True`/`False` döndürür.
 
@@ -619,7 +619,7 @@ Kararsızlığın en yaygın nedenleri durağan olmayan (farkı alınmamış) se
 > **Ne göreceksiniz:**
 >
 > ```text
-> [1.061+0.j 0.339+0.j]
+> [1.061 0.339]
 > 1 [0.4 0.6]
 > 10 [1.   0.65]
 > 30 [3.24 2.11]
@@ -653,7 +653,7 @@ Kararsızlığın en yaygın nedenleri durağan olmayan (farkı alınmamış) se
 
 ### 10.6. Granger Nedenselliği
 
-**Açıklama:** VAR'da sık sorulan sorulardan biri şudur: "Faizin geçmiş değerleri, enflasyonun kendi geçmişinin ötesinde ek bir bilgi taşıyor mu?" Taşıyorsa, faizin enflasyonu **Granger-nedenselliği** vardır denir. Buradaki "nedensellik" günlük dildeki neden-sonuç ilişkisi değil, **öngörü üstünlüğüdür**: $x$'in geçmişi $y$'nin tahminini iyileştiriyorsa "$`x`$, $y$'nin Granger nedenidir".
+**Açıklama:** VAR'da sık sorulan sorulardan biri şudur: "Faizin geçmiş değerleri, enflasyonun kendi geçmişinin ötesinde ek bir bilgi taşıyor mu?" Taşıyorsa faiz, enflasyonun **Granger nedenidir** denir (bu kavrama **Granger nedenselliği**, *Granger causality*, adı verilir). Buradaki "nedensellik" günlük dildeki neden-sonuç ilişkisi değil, **öngörü üstünlüğüdür**: $x$'in geçmişi $y$'nin tahminini iyileştiriyorsa "$`x`$, $y$'nin Granger nedenidir".
 
 Bilinen bir örnek: Aralık başındaki yılbaşı süsü satışları, birkaç hafta sonra gelecek yılbaşı alışverişi yoğunluğunu iyi öngörür; ama süs satışları yılbaşına **neden olmaz**. Öngörü gücü ile neden-sonuç ilişkisi farklı şeylerdir.
 
@@ -669,11 +669,11 @@ $$
 H_0: a_{12}^{(1)} = a_{12}^{(2)} = \dots = a_{12}^{(p)} = 0
 $$
 
-**Nasıl okunur?** "y bir t eşittir, c bir artı i eşittir birden p'ye kadar a bir bir üst i çarpı y bir t eksi i toplamı artı i eşittir birden p'ye kadar a bir iki üst i çarpı y iki t eksi i toplamı artı u bir t." Sıfır hipotezi: "a bir iki üst bir eşittir a bir iki üst iki eşittir üç nokta eşittir a bir iki üst p eşittir sıfır." Bu hipotez doğruysa üstteki parantezle işaretli toplamın tamamı düşer ve geriye **kısıtlı model** kalır; tüm terimleri içeren denklem **kısıtsız modeldir**.
+**Nasıl okunur?** "y bir t eşittir, c bir artı i eşittir birden p'ye kadar a bir bir üst i çarpı y bir t eksi i toplamı artı i eşittir birden p'ye kadar a bir iki üst i çarpı y iki t eksi i toplamı artı u bir t." Sıfır hipotezi: "a bir iki üst bir eşittir a bir iki üst iki eşittir üç nokta eşittir a bir iki üst p eşittir sıfır." Bu hipotez doğruysa üstteki parantezle işaretli toplamın tamamı düşer ve geriye **kısıtlı model** (*restricted model*) kalır; tüm terimleri içeren denklem **kısıtsız modeldir** (*unrestricted model*).
 
 > **Simge notu:** $`\sum`$ *(büyük sigma = toplam)*: altındaki başlangıçtan üstündeki sona kadar terimlerin toplamı; 10.1.1'deki $`\Sigma_u`$ ile aynı harftir ama orada bir matrisin adıdır · $`a_{12}^{(i)}`$: $`A_i`$ matrisinin (1,2) elemanı, yani faizin $`i`$. gecikmesinin enflasyon denklemindeki katsayısı. Üstteki parantezli $`(i)`$ **üs değildir**, yalnızca gecikme numarasıdır ($`a^{(2)}`$ "a kare" değil, "2. gecikmenin a'sı" diye okunur)
 
-Bu $p$ kısıt birlikte bir **F-testi** (ya da onun büyük örneklem karşılığı olan Wald testi; ayrıntısı kapsam dışı) ile sınanır. Testin mantığı iki modeli karşılaştırmaktır: faizin gecikmelerini **içeren** enflasyon denklemi ile bu gecikmeler **çıkarılmış** denklem. Faizin gecikmeleri çıkarılınca hatalar belirgin biçimde büyüyorsa faiz ek bilgi taşıyordur; F istatistiği büyük, p-değeri küçük çıkar. p-değeri 0,05'ten küçükse $H_0$ reddedilir: faizin geçmişi enflasyonu öngörmeye yardımcıdır.
+Bu $p$ kısıt birlikte bir **F-testi** (ya da onun büyük örneklem karşılığı olan Wald testi; ayrıntısı kapsam dışı) ile sınanır. Testin mantığı iki modeli karşılaştırmaktır: faizin gecikmelerini **içeren** enflasyon denklemi ile bu gecikmeler **çıkarılmış** denklem. Faizin gecikmeleri çıkarılınca hatalar belirgin biçimde büyüyorsa faiz ek bilgi taşıyordur; F istatistiği büyük, p-değeri küçük çıkar. p-değeri 0.05'ten küçükse $H_0$ reddedilir: faizin geçmişi enflasyonu öngörmeye yardımcıdır.
 
 **Sayısal örnek (Bölüm 10.9'daki veri, VAR(2)):** Enflasyon denkleminin hata kareleri toplamı tüm değişkenlerle 722.3'tür.
 
@@ -718,7 +718,7 @@ Yorumlarken dikkat edilecekler:
 >
 > Faiz enflasyonu öngörmez (p = 0.84, 10.6'daki örnekle aynı), ama **ters yön** anlamlıdır: Enflasyonun geçmişi faizi öngörmeye yardım eder (p = 0.02). Kurun kendisi ise ne enflasyon ne faiz tarafından öngörülür (p = 0.50 ve 0.14). Yani bu veride bilgi kurdan enflasyon ve faize doğru akar, tersine akmaz.
 >
-> **Şimdi siz:** Serilerin birinci farkını alıp aynı testleri yapın: `df_var` satırının sonuna `.diff().dropna()` ekleyin ve `fit(2)` yerine `fit(1)` yazın (farklı seriler için BIC 1 gecikme önerir). Hangi sonuç değişti?
+> **Şimdi siz:** Serilerin birinci farkını alıp aynı testleri yapın: `df_var` satırının sonuna `.diff().dropna()` ekleyin ve `fit(2)` yerine `fit(1)` yazın (farkı alınmış seriler için BIC 1 gecikme önerir). Hangi sonuç değişti?
 >
 > <details><summary>Cevap</summary>
 >
@@ -770,11 +770,15 @@ Faiz kendi şokundan sonra hızla düşer (1 → 0.4 → 0.18 → ...). Enflasyo
 
 $\Phi_h$ matrisinin $(j, m)$ elemanı, $m$. değişkene $t$ anında gelen bir birimlik şokun $h$ dönem sonra $j$. değişkende yarattığı değişimdir. Bu değerlerin $h = 0, 1, 2, \dots$ için çizilmesi etki-tepki fonksiyonudur. VAR(1) için formül çok sadedir: $\Phi_h = A_1^h$. Örneğin $A_1^2$'nin satırları (0.27, 0.18) ve (0.09, 0.18)'dir; 2. sütunu [0.18, 0.18], yukarıda $h = 2$ için bulduğumuz tepkinin aynısıdır. Stabilite koşulu (Bölüm 10.5) tam olarak bu matris kuvvetlerinin sıfıra gitmesini, yani tepkilerin sönmesini garanti eder.
 
-> **Simge notu:** $`\boldsymbol{\mu}`$ *(kalın mü)*: sürecin ortalama vektörü · $`\infty`$ *(sonsuz)*: toplamın sonsuza kadar sürdüğü, ama terimlerin giderek küçüldüğü · $`\Phi_i`$ *(büyük fi)*: $`i`$. dönem tepki (MA katsayı) matrisi; küçük $`\phi`$ ile aynı harfin büyük yazılışıdır · $`\min(i,p)`$: iki değerden küçüğü · $`A_1^h`$: $`A_1`$'in kendisiyle $`h`$ kez çarpımı
+> **Simge notu:** $`\boldsymbol{\mu}`$ *(kalın mü)*: sürecin ortalama vektörü · $`\infty`$ *(sonsuz)*: toplamın sonsuza kadar sürdüğü, ama terimlerin giderek küçüldüğü · $`\Phi_i`$ *(büyük fi)*: $`i`$. dönem tepki (MA katsayı) matrisi; küçük $`\phi`$ ile aynı harfin büyük yazılışıdır (Bölüm 7.3 ve 11.5'te büyük $`\Phi`$ mevsimsel AR katsayısıydı; burada anlamı farklıdır) · $`\min(i,p)`$: iki değerden küçüğü · $`A_1^h`$: $`A_1`$'in kendisiyle $`h`$ kez çarpımı
+
+**Ortalama vektörü:** Stabil bir VAR(p) sürecinin uzun dönem ortalaması kapalı biçimde hesaplanabilir: $\boldsymbol{\mu} = (I - A_1 - \dots - A_p)^{-1}\mathbf{c}$. 10.1'deki örnekte $\mathbf{c} = (1,\ 0.5)$ ve $I - A_1$ matrisinin satırları $(0.5,\ -0.2)$ ile $(-0.1,\ 0.6)$'dır; determinantı $0.5 \cdot 0.6 - 0.2 \cdot 0.1 = 0.28$'dir. Ters matrisle çarpım $(0.7,\ 0.35) / 0.28 = (2.5,\ 1.25)$ verir. Bu sonuç, Hemen deneyin 10.1'de Excel tahminlerinin yerleştiği 2.5 ve 1.25 değerlerinin kapalı formdaki sağlamasıdır.
 
 **Ortogonal (Cholesky) şoklar:** Gerçek verilerde şoklar çoğu zaman birlikte gelir: $\Sigma_u$ köşegen değilse, yani aynı dönemdeki şoklar birbiriyle ilişkiliyse, "yalnızca faize şok verip diğerlerini sabit tutmak" gerçekçi değildir. Bu yüzden genellikle $\Sigma_u = P P^\top$ **Cholesky ayrıştırması** ile ilişkisiz (ortogonal) şoklar elde edilir ve tepkiler $\Theta_i = \Phi_i P$ ile hesaplanır. Sade bir dille: değişkenler bir sıraya dizilir ve listede önce gelen değişkenin şokunun, sonrakileri **aynı dönemde** etkilemesine izin verilir, tersine izin verilmez. Bu yöntemde **değişkenlerin sırası sonucu etkiler**. Bölüm 11.6'daki Gretl çıktısında enflasyon listede ilk sırada olduğu için, faiz şokuna enflasyonun ilk dönemdeki tepkisi tam olarak 0'dır. Sıralama ekonomik mantığa göre (ör. yavaş tepki verenler önce) seçilmeli ve raporlanmalıdır. Cholesky şokları genellikle "bir standart sapmalık" büyüklükte verilir: yani o değişkende tipik olarak görülen büyüklükte bir sürpriz.
 
-> **Simge notu:** $`P`$: Cholesky ayrıştırmasından gelen alt üçgen matris (köşegenin üstü sıfır) · $`P^\top`$ *(P devrik)*: $`P`$'nin satırlarıyla sütunlarının yer değiştirmiş hâli (transpoz) · $`\Theta_i`$ *(büyük teta)*: ortogonal şoklara göre tepki matrisi
+> **Simge notu:** $`P`$: Cholesky ayrıştırmasından gelen alt üçgen matris (köşegenin üstü sıfır) · $`P^\top`$ *(P devrik)*: $`P`$'nin satırlarıyla sütunlarının yer değiştirmiş hâli (transpoz) · $`\Theta_i`$ *(büyük teta)*: ortogonal şoklara göre tepki matrisi (Bölüm 7.3'teki mevsimsel MA katsayısı $`\Theta`$ ile karıştırmayın)
+
+**Elle bir Cholesky örneği:** 10.4'teki kovaryans matrisini enflasyon ve faiz şokları için kullanalım: enflasyon şokunun varyansı 4, faiz şokunun varyansı 9, kovaryansları 1. Sıra [enflasyon, faiz] ise $P$'nin elemanları adım adım bulunur: $p_{11} = \sqrt{4} = 2$, $p_{21} = 1 / 2 = 0.5$, $p_{22} = \sqrt{9 - 0.5^2} = \sqrt{8.75} \approx 2.958$; $p_{12} = 0$'dır. Sağlama: $P P^\top$'nin elemanları $2^2 = 4$, $2 \cdot 0.5 = 1$ ve $0.5^2 + 8.75 = 9$'dur. $\Theta_0 = \Phi_0 P = P$ olduğundan $P$'nin sütunları şokların **aynı dönemdeki** etkisidir: bir standart sapmalık enflasyon şoku enflasyonu 2, faizi 0.5 artırır; faiz şoku ise enflasyonu aynı dönemde hiç etkilemez (0), faizi 2.958 artırır. Sırayı [faiz, enflasyon] yaparsak hesap $p_{11} = \sqrt{9} = 3$, $p_{21} = 1/3 \approx 0.333$, $p_{22} = \sqrt{4 - 1/9} \approx 1.972$ verir: bu kez faiz şoku enflasyonu aynı dönemde 0.333 artırır, enflasyon şoku ise faizi aynı dönemde etkilemez. Veri aynıdır; değişen yalnızca iki şokun ortak kısmının hangisine yazıldığıdır.
 
 **Günlük hayattan bir örnek:** Aynı ay hem kur hem faiz beklenmedik biçimde yükseldiyse veri "hangisi diğerini tetikledi?" sorusunu cevaplayamaz. Cholesky bu soruyu "haberi ilk kim duydu?" sorusuna çevirir ve cevabı bize bırakır: Listede önce gelen değişken haberi ilk alan sayılır ve aynı ay sonrakilere iletebilir; sonrakilerin haberi ona ancak bir ay sonra ulaşır. Sırayı değiştirirsek aynı veriden farklı bir hikâye çıkar. Benzetmenin sınırı: sıralama yalnızca aynı dönemdeki etkiler için yapılan bir varsayımdır ve gerçek nedenselliği kanıtlamaz.
 
@@ -809,7 +813,7 @@ $\Phi_h$ matrisinin $(j, m)$ elemanı, $m$. değişkene $t$ anında gelen bir bi
 > ```text
 > [0.     0.2    0.18   0.126  0.081  0.0502 0.0306 0.0185 0.0112]
 > [0.9   0.7   0.643 0.62  0.61  0.605 0.602]
-> [0.6+0.j 0.3+0.j]
+> [0.6 0.3]
 > ```
 >
 > İlk satır 10.7'deki elle hesabın devamıdır. Ardışık oranlar 0.9'dan başlayıp **0.6**'ya yaklaşır; bu en büyük öz değerdir. Uzun vadede şokun her dönem kaçta kaçının kaldığını en büyük öz değer belirler.
@@ -990,7 +994,7 @@ Kütüphane satırları Bölüm 7.7'deki gibi okunur (`from statsmodels.tsa.api 
 *   `model.select_order(maxlags=8)`: VAR(0)'dan VAR(8)'e kadar tüm modelleri aynı ortak örnekle ($T = 112$) kurar ve her biri için AIC, BIC, FPE, HQIC değerlerini hesaplar. `.selected_orders` her kriterin önerdiği gecikmeyi tutan bir sözlüktür; `['bic']` BIC'nin önerisini alır. `max(1, ...)` kriterin 0 gecikme önermesi hâlinde en az 1 gecikme kullanmayı garanti eder.
 *   `model.fit(selected_lag)`: Seçilen gecikmeyle her denklemi OLS ile tahmin eder ve sonuç nesnesini (`results`) döndürür; sonraki tüm analizler bu nesnenin metotlarıyla yapılır. `results.summary()` her katsayı için `coefficient` (katsayı), `std. error` (standart hata), `t-stat` (t = katsayı / standart hata, bkz. 7.6.5) ve `prob` (bu t değerinin p-değeri) sütunlarını yazar. Aynı işi tek satırda `model.fit(maxlags=8, ic="bic")` da yapar: `ic` (*information criterion*) argümanı, gecikmeyi verilen kritere göre seçip modeli o gecikmeyle kurar (bu veride yine VAR(2)).
 *   `results.is_stable()`: Eşlik matrisinin tüm öz değerlerinin birim çemberin içinde olup olmadığını `True`/`False` olarak döndürür. `results.roots` karakteristik denklemin köklerini verir; `np.abs()` her kökün modülünü (büyüklüğünü) alır, `1 / ...` ise bunları öz değer modüllerine çevirir (Bölüm 10.5'teki $z = 1/\lambda$ ilişkisi). `np.round(..., 3)` yalnızca okunabilirlik için üç basamağa yuvarlar.
-*   `results.test_whiteness(nlags=12)`: Artıklarda 12 gecikmeye kadar otokorelasyon olup olmadığını tüm denklemler için birlikte sınar (çok değişkenli Ljung-Box tipi, *portmanteau* testi; $H_0$: otokorelasyon yok). `.pvalue` p-değerini verir.
+*   `results.test_whiteness(nlags=12)`: Artıklarda 12 gecikmeye kadar otokorelasyon olup olmadığını tüm denklemler için birlikte sınar (çok değişkenli *portmanteau* testi; statsmodels varsayılan olarak Box-Pierce tipi, yani küçük örneklem düzeltmesi yapılmamış istatistiği kullanır; $H_0$: otokorelasyon yok). `.pvalue` p-değerini verir.
 *   `results.forecast(y=df_var.values[-selected_lag:], steps=4)`: Tahmini başlatmak için modele son $p$ gözlemi vermemiz gerekir; VAR(2) bir sonraki ayı hesaplamak için son iki ayı kullanır. `df_var.values` tabloyu sayı dizisine çevirir, `[-selected_lag:]` dizinin sondan `selected_lag` satırını (burada son 2 ayı) alır. `steps=4` dört ay ileriye tahmin üretir; sonuç 4 satır × 3 sütunluk bir dizidir.
 *   `results.irf(12)`: 0'dan 12'ye kadar her ufuk için tepki matrislerini (10.7'deki $\Phi_h$ ve $\Theta_h$) hesaplar. `irf.plot(orth=False)` tüm şok-tepki çiftlerini bir birimlik şoklarla (ortogonal olmayan) çizer; `impulse=` şokun verildiği, `response=` tepkisi izlenen değişkeni seçer.
 *   `results.fevd(12)`: 12 ufuklu varyans ayrıştırmasını hesaplar; `.summary()` her değişken için dönem dönem pay tablosunu ekrana yazar.
@@ -1005,7 +1009,7 @@ Dosya bu satırlara ek olarak serilerin grafiklerini, her denklemin Durbin-Watso
 **Not —** Bu ana uygulama, düzey serilerle kurulduğu için öğretici bir örnektir; doğru kurulum farkı alınmış serilerle yapılır (aşağıdaki 2. alıştırma ve Hemen deneyin 10.6). En büyük öz değerin 1'e bu kadar yakın çıkması (0.997) tesadüf değildir: seriler durağan olmadığı için model neredeyse bir birim kök taşır. Bu durumda IRF'ler çok yavaş söner ve uzun ufuklu yorumlar dikkatle yapılmalıdır. Portmanteau testinin reddi (p ≈ 0.0000003) de aynı soruna işaret eder. Kod eğitim amaçlı olarak düzey serilerle devam eder. Alıştırma olarak:
 
 1. Kodun 4. adımında `'bic'` yerine `'aic'` yazıp VAR(7)'nin stabil çıkmadığını görün.
-2. Serilerin birinci farkını alıp (`df_var = df_var.diff().dropna()`) modeli yeniden kurun. Farkı alınmış serilerde ADF p-değerleri 0,05'in altına iner, BIC 1 gecikme önerir ve en büyük öz değer modülü 0.997'den yaklaşık 0.55'e düşer; model artık sınırda değil, rahatça stabildir. Granger sonuçlarındaki değişimi Hemen deneyin 10.6'da gördünüz: "enflasyon → faiz" ilişkisi anlamlılığını yitirir; döviz kurunun enflasyona (p < 0.001) ve faize (p ≈ 0.006) etkisi ise sürer.
+2. Serilerin birinci farkını alıp (`df_var = df_var.diff().dropna()`) modeli yeniden kurun. Farkı alınmış serilerde ADF p-değerleri 0.05'in altına iner, BIC 1 gecikme önerir ve en büyük öz değer modülü 0.997'den yaklaşık 0.55'e düşer; model artık sınırda değil, rahatça stabildir. Granger sonuçlarındaki değişimi Hemen deneyin 10.6'da gördünüz: "enflasyon → faiz" ilişkisi anlamlılığını yitirir; döviz kurunun enflasyona (p < 0.001) ve faize (p ≈ 0.006) etkisi ise sürer.
 
 > **Uygulama dosyası:** [`Codes/python/ch10_var.py`](../Codes/python/ch10_var.py) · [Notebook](../Codes/notebooks/ch10_var.ipynb) · [![Colab'da aç](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/Codes/notebooks/ch10_var.ipynb)
 >
@@ -1017,16 +1021,16 @@ Kodun ürettiği her çıktı bölümünün bu veride (`data/macro.csv`, VAR(2))
 
 | Çıktı | Bu verideki sonuç | Neye bakılır? |
 | --- | --- | --- |
-| 3) ADF: test istatistiği, p-değeri | p = 0.81, 0.13, 0.999: üç seri de durağan değil. | p < 0,05 ise seri durağan. Değilse `diff()` ile fark alınıp test tekrarlanır (Bölüm 10.3.3). |
+| 3) ADF: test istatistiği, p-değeri | p = 0.81, 0.13, 0.999: üç seri de durağan değil. | p < 0.05 ise seri durağan. Değilse `diff()` ile fark alınıp test tekrarlanır (Bölüm 10.3.3). |
 | 4) Gecikme seçimi: AIC, BIC, FPE, HQIC tablosu | AIC ve FPE 7, BIC 2, HQIC 3 gecikme önerir. | Her sütunda en küçük değer yıldızla (`*`) işaretlenir. Kriterler farklı $`p`$ önerebilir (Bölüm 10.4). |
 | 4) `results.summary()`: her denklem için katsayılar (`L1.` bir, `L2.` iki gecikme), p-değerleri (`prob`); en altta artıkların korelasyon matrisi | Enflasyon denkleminde kur katsayıları 3.67 ve −3.72, faiz katsayıları anlamsız; artıklar arası en yüksek korelasyon faiz-kur arasında 0.18. | Tek tek katsayılardan çok, çapraz katsayıların anlamlılığına ve artık korelasyonlarına bakılır. Artıklar arası yüksek korelasyon, IRF'de sıralamanın önemli olacağını gösterir. |
 | 5) Stabilite: `True`/`False`, kök modülleri | `True`; en küçük kök modülü 1.003, yani en büyük öz değer modülü 0.997 (Şekil 10.2b). Model stabil, ama sınırda: şoklar çok yavaş söner. | `True` ve tüm kök modülleri $`\lvert z \rvert > 1`$ (öz değer modülleri < 1) olmalı. Değilse fark alma, gecikme sayısı ve aykırı değerler gözden geçirilir. 1'e çok yakın değerler yavaş sönen şoklara işaret eder. |
-| 6) Durbin-Watson (her denklem için) | 2.04, 2.23, 1.83: artıklarda belirgin **birinci derece** otokorelasyon yok. | 2'ye yakın değer artıklarda birinci derece otokorelasyon olmadığını gösterir; 1,5–2,5 dışı değerler gecikme artırmayı düşündürür. |
-| 6) Portmanteau (12 gecikme): p-değeri | p < 0.001: daha uzun gecikmelerde artık otokorelasyonu kalmış; model eksik. | p > 0,05 istenir. Küçükse artıklarda uzun gecikmeli otokorelasyon vardır: gecikme artırma ya da fark alma denenir. |
-| 7) Tahmin (2025 Ocak–Nisan): tahmin tablosu ve grafiği | Enflasyon 42.2, 41.4, 41.6, 42.3; faiz 48.9 → 55.7; kur 35.5 → 37.6. Düzey VAR'ı geçmişteki ilişkileri mekanik olarak sürdürür: faiz tahmini, son aydaki indirime rağmen yükselir. | Tahminler son gözlemlerden makul biçimde devam etmeli; ufuk uzadıkça belirsizlik artar. Doğruluk ölçümü için Bölüm 8'deki eğitim-test ayrımı ve MAE/RMSE/MAPE kullanılabilir. |
+| 6) Durbin-Watson (her denklem için) | 2.04, 2.23, 1.83: artıklarda belirgin **birinci derece** otokorelasyon yok. | 2'ye yakın değer artıklarda birinci derece otokorelasyon olmadığını gösterir; 1.5–2.5 dışı değerler gecikme artırmayı düşündürür. |
+| 6) Portmanteau (12 gecikme): p-değeri | p < 0.001: daha uzun gecikmelerde artık otokorelasyonu kalmış; model eksik. | p > 0.05 istenir. Küçükse artıklarda uzun gecikmeli otokorelasyon vardır: gecikme artırma ya da fark alma denenir. |
+| 7) Tahmin (2025 Ocak–Nisan): tahmin tablosu ve grafiği | Enflasyon 42.2, 41.4, 41.6, 42.3; faiz 48.9 → 55.7; kur 35.5 → 37.6. Düzey VAR'ı geçmişteki ilişkileri mekanik olarak sürdürür: faiz tahmini, Kasım 2024'teki indirime (50'den 47.5'e) rağmen yükselir. | Tahminler son gözlemlerden makul biçimde devam etmeli; ufuk uzadıkça belirsizlik artar. Doğruluk ölçümü için Bölüm 8'deki eğitim-test ayrımı ve MAE/RMSE/MAPE kullanılabilir. |
 | 8) IRF (bir birimlik şok): şok-tepki grafikleri | Kurda 1 TL'lik artış → enflasyon 1 ay sonra +3.7, 4. ayda +9.1 puan, 12. ayda hâlâ +5.9. Faiz şokuna enflasyonun tepkisi negatif ama güven bandı her dönemde sıfırı içeriyor: kur etkisi güçlü ve kalıcı, faiz etkisi istatistiksel olarak belirsiz. | Tepkinin işareti, en güçlü olduğu dönem, güven bandının sıfırı içerip içermediği ve sönümlenme (Bölüm 10.7). |
 | 9) FEVD (12. dönem): dönemlere göre pay tablosu | Enflasyonun tahmin hatası varyansının %44'ü kendi şoklarından, %55'i döviz kuru şoklarından, %1'den azı faiz şoklarından geliyor. | Her satırın toplamı 1'dir; ufuk uzadıkça diğer değişkenlerin payının nasıl değiştiğine bakılır (Bölüm 10.8). statsmodels satırları 0'dan numaralar: 11 numaralı satır 12. dönemdir. |
-| 10) Granger: F istatistiği, p-değeri, "reject/fail to reject" | Faiz → enflasyon p = 0.84; döviz kuru → enflasyon p < 0.001; enflasyon → faiz p = 0.02; döviz kuru → faiz p < 0.001. Kurun geçmişi hem enflasyonu hem faizi öngörmeye yardım ediyor; faizin enflasyona katkısı anlamlı değil. | p < 0,05 (*reject*) ise "etkileyen" değişkenin geçmişi, "etkilenen" değişkeni öngörmeye yardımcıdır (Bölüm 10.6). |
+| 10) Granger: F istatistiği, p-değeri, "reject/fail to reject" | Faiz → enflasyon p = 0.84; döviz kuru → enflasyon p < 0.001; enflasyon → faiz p = 0.02; döviz kuru → faiz p < 0.001. Kurun geçmişi hem enflasyonu hem faizi öngörmeye yardım ediyor; faizin enflasyona katkısı anlamlı değil. | p < 0.05 (*reject*) ise "etkileyen" değişkenin geçmişi, "etkilenen" değişkeni öngörmeye yardımcıdır (Bölüm 10.6). |
 
 **Not —** Koddaki IRF grafikleri `orth=False` ile bir birimlik (ortogonal olmayan) şoklara göre çizilir. Cholesky şoklarına göre tepki için `irf.plot(orth=True)` kullanılabilir; bu durumda sonuç `df_var` sütunlarının sırasına bağlıdır (Bölüm 10.7). `fevd()` her zaman Cholesky şoklarını kullanır.
 

@@ -1,4 +1,4 @@
-[İçindekiler](../Course_notes.md) · [← 6. Veri Manipülasyonu, Görselleştirme ve ACF/PACF](06_veri_manipulasyonu_gorsellestirme_ve_acf_pacf.md) · [8. Model Değerlendirme: Hata Metrikleri ve Eğitim-Test Ayrımı →](08_model_degerlendirme_hata_metrikleri_ve_egitim_te.md)
+[İçindekiler](../Course_notes.md) · [← 6. Veri Manipülasyonu, Görselleştirme ve ACF/PACF](06_veri_manipulasyonu_gorsellestirme_ve_acf_pacf.md) · [8. Model Değerlendirme: Hata Metrikleri ve Eğitim-Test Ayrımı →](08_model_degerlendirme_hata_metrikleri_ve_egitim_test_ayrimi.md)
 
 ## 7. Klasik İstatistiksel Modeller: ARIMA ve SARIMA
 
@@ -16,7 +16,7 @@ Bölümün yol haritası şöyledir:
 6. R ile `AirPassengers` uygulaması (7.6)
 7. Aynı analizin Python ile yapılması (7.7)
 
-**Not —** Bu bölüm, Bölüm 3.2'deki temellerin üzerine kurulur: AR(1) denklemi $x_t = \phi x_{t-1} + \varepsilon_t$'nin nasıl okunduğu (alt indisler $t$ ve $t-1$, $\phi$ "fi" ve $\varepsilon$ "epsilon"), bir şokun $\phi$'nin değerine göre sönmesi ya da kalıcı olması, bir denklemin kökünün ne olduğu, gecikme operatörü $B$, birim kök kavramı, ADF testinin hipotezleri ve p-değerinin okunması. Bu konulardan emin değilseniz önce o bölüme göz atın. Burada aynı fikirleri birer adım ileri taşıyacağız.
+**Not —** Bu bölüm, Bölüm 3.2'deki temellerin üzerine kurulur: AR(1) denklemi $x_t = \phi x_{t-1} + \varepsilon_t$'nin nasıl okunduğu (alt indisler $t$ ve $t-1$, $\phi$ "fi" ve $\varepsilon$ "epsilon"), bir şokun $\phi$'nin değerine göre sönmesi ya da kalıcı olması, bir denklemin kökünün ne olduğu, gecikme operatörü $B$, birim kök kavramı, ADF testinin hipotezleri ve p-değerinin okunması. Bu konular için önce o bölüme başvurulması önerilir. Burada aynı fikirleri birer adım ileri taşıyacağız.
 
 ---
 
@@ -38,13 +38,13 @@ Zaman serisinde de benzer bir "geri adım" atarız: Bugünü anlamak için zaman
 
 **Nasıl okunur?** "x alt t eşittir, c artı fi bir çarpı x alt t eksi bir, artı fi iki çarpı x alt t eksi iki, artı üç nokta, artı fi p çarpı x alt t eksi p, artı epsilon alt t."
 
-> **Simge notu:** $`\phi_i`$ *(fi; π "pi" ile karıştırmayın)*: $`i`$ adım önceki değerin ağırlık katsayısı · $`\varepsilon_t`$ *(epsilon; kümelerdeki "elemanıdır" işareti ∈ değildir)*: $`t`$ anındaki rastgele şok (beyaz gürültü) · $`\dots`$ *(üç nokta)*: aynı kalıp $`p`$'ye kadar sürer
+> **Simge notu:** $`\phi_i`$ *(fi; π "pi" ile karıştırılmamalıdır)*: $`i`$ adım önceki değerin ağırlık katsayısı · $`\varepsilon_t`$ *(epsilon; kümelerdeki "elemanıdır" işareti ∈ değildir)*: $`t`$ anındaki rastgele şok (beyaz gürültü) · $`\dots`$ *(üç nokta)*: aynı kalıp $`p`$'ye kadar sürer
 
 Formülü kelime kelime okuyalım. Alt indisler zamanı gösterir: $x_t$ bu dönemin (örneğin bugünün) değeri, $x_{t-1}$ bir önceki dönemin, $x_{t-2}$ iki dönem öncesinin değeridir; $x_{t-p}$ ise $p$ dönem geriye kadar gidildiğini söyler. $\phi$'nin alt indisi de hangi gecikmeye ait olduğunu gösterir: $\phi_1$ dünkü değerin, $\phi_2$ evvelsi günkü değerin katsayısıdır. **Katsayı**, bir değerin önünde duran ve onu çarpan sayıdır; $0.6\thinspace  x_{t-1}$ ifadesinde katsayı 0.6'dır ve "dünkü değerin %60'ı bugüne taşınır" anlamına gelir. AR(1) denkleminin sözcük sözcük okunuşu ve $\phi$'ye göre şokların nasıl söndüğü Bölüm 3.2'de anlatılmıştı; AR(p) aynı fikri birden çok geçmiş değere genişletir.
 
 Burada:
 
-- $c$ **sabit terimdir** (*constant*): Her dönem değişmeden eklenen bir sayıdır ve serinin hangi seviye etrafında dalgalanacağını belirler. Durağan bir AR(p) sürecinin uzun dönem ortalaması $\mu = c / (1 - \phi_1 - \dots - \phi_p)$'dir. Bunu görmek için serinin hiç şok almadan hep aynı $\mu$ değerinde durduğunu düşünün: AR(2) için $\mu = c + \phi_1 \mu + \phi_2 \mu$ olur; $\mu$'lü terimleri sola toplayınca $\mu (1 - \phi_1 - \phi_2) = c$ bulunur. Yani $c$ ortalamanın kendisi değil, ortalamayı belirleyen bir sayıdır; $c = 0$ ise seri sıfır etrafında dalgalanır.
+- $c$ **sabit terimdir** (*constant*): Her dönem değişmeden eklenen bir sayıdır ve serinin hangi seviye etrafında dalgalanacağını belirler. Durağan bir AR(p) sürecinin uzun dönem ortalaması $\mu = c / (1 - \phi_1 - \dots - \phi_p)$'dir. Bunu görmek için serinin hiç şok almadan hep aynı $\mu$ değerinde durduğunu düşünelim: AR(2) için $\mu = c + \phi_1 \mu + \phi_2 \mu$ olur; $\mu$'lü terimleri sola toplayınca $\mu (1 - \phi_1 - \phi_2) = c$ bulunur. Yani $c$ ortalamanın kendisi değil, ortalamayı belirleyen bir sayıdır; $c = 0$ ise seri sıfır etrafında dalgalanır.
 - $\varepsilon_t$ modelin açıklayamadığı, öngörülemeyen rastgele şoktur: Bölüm 6.6.1'de tanımladığımız beyaz gürültü, $\varepsilon_t \sim \mathrm{WN}(0, \sigma^2)$.
 
 > **Simge notu:** $`\sim`$ *(tilda)*: "… dağılımına sahiptir" · $`\mathrm{WN}(0, \sigma^2)`$: ortalaması 0, varyansı $`\sigma^2`$ *(sigma kare)* olan beyaz gürültü (white noise) · $`\mu`$ *(mü)*: serinin uzun dönem ortalaması · $`\cdot`$: çarpma işareti
@@ -99,7 +99,7 @@ $p$ değeri modelin "hafızasının" ne kadar geriye gittiğini belirtir. Örne�
 
 **Açıklama:** Buradaki "hareketli ortalama", `decompose()`'un trendi bulmak için kullandığı düzleştirmeyle aynı şey değildir: Burada gözlemlerin değil, geçmiş şokların ağırlıklı toplamı alınır (bkz. 6.6.1). MA modeli, önceki adımlardaki öngörülemeyen "şokları" bugünkü değeri açıklamak için kullanır.
 
-**Günlük hayattan bir örnek:** Bir vadide bağırdığınızı düşünün. O an duyulan ses bağırışınızdır ($\varepsilon_t$); bir an sonra bağırışın yankısı daha zayıf olarak geri döner ($\theta_1 \varepsilon_{t-1}$), ardından sessizlik olur. Her an duyulan ses, o anki bağırış ile bir önceki bağırışın yankısının toplamıdır; MA(1) budur. MA(q)'da yankı $q$ kez döner, sonra tamamen kaybolur. Benzetmenin sınırı: $\theta$ negatif de olabilir; ters işaretli bir yankı fizikte yoktur, ama modelde şokun ertesi dönemde ters yönde iz bırakması demektir.
+**Günlük hayattan bir örnek:** Bir vadide bağıran birini düşünelim. O an duyulan ses bağırışın kendisidir ($\varepsilon_t$); bir an sonra bağırışın yankısı daha zayıf olarak geri döner ($\theta_1 \varepsilon_{t-1}$), ardından sessizlik olur. Her an duyulan ses, o anki bağırış ile bir önceki bağırışın yankısının toplamıdır; MA(1) budur. MA(q)'da yankı $q$ kez döner, sonra tamamen kaybolur. Benzetmenin sınırı: $\theta$ negatif de olabilir; ters işaretli bir yankı fizikte yoktur, ama modelde şokun ertesi dönemde ters yönde iz bırakması demektir.
 
 **Tanım:** Bir MA(q) süreci, bugünkü değerin serinin ortalaması, bugünkü şok ve geçmişteki $q$ adet şokun ağırlıklı toplamından oluştuğunu söyler:
 
@@ -113,7 +113,7 @@ $p$ değeri modelin "hafızasının" ne kadar geriye gittiğini belirtir. Örne�
 
 AR modelindeki $c$'den farklı olarak MA modelinde sabit terim doğrudan serinin ortalamasıdır ($\mu$), çünkü denklemde geçmiş değerler yoktur.
 
-**Not —** Katsayıların işaret kuralı yazılımdan yazılıma değişebilir. R (`arima`, `auto.arima`) ve Python `statsmodels`/`pmdarima`, MA kısmını yukarıdaki gibi **artı** işaretiyle ($+ \theta_1 \varepsilon_{t-1}$) yazar. Bazı ders kitapları ise eksi işareti kullanır; sonuçları karşılaştırırken buna dikkat edin.
+**Not —** Katsayıların işaret kuralı yazılımdan yazılıma değişebilir. R (`arima`, `auto.arima`) ve Python `statsmodels`/`pmdarima`, MA kısmını yukarıdaki gibi **artı** işaretiyle ($+ \theta_1 \varepsilon_{t-1}$) yazar. Bazı ders kitapları ise eksi işareti kullanır; sonuçlar karşılaştırılırken buna dikkat edilmelidir.
 
 **Sayısal örnek (MA(1)).** $\mu = 100$ ve $\theta_1 = 0.6$ olan bir MA(1) süreci düşünelim: $x_t = 100 + \varepsilon_t + 0.6\thinspace  \varepsilon_{t-1}$. Şokun nasıl girip çıktığını net görmek için yalnızca 1. dönemde $\varepsilon_1 = 10$ büyüklüğünde bir şok olduğunu, diğer bütün dönemlerde şokun 0 olduğunu varsayalım:
 
@@ -216,11 +216,11 @@ $$
 
 **Sayısal örnek.** Bir mağazanın beş aylık satışları 100, 104, 110, 113, 120 ise birinci farklar 4, 6, 3, 7'dir. Seviye 100'den 120'ye tırmanırken farklar yerinde sayar: Trend gitmiş, geriye "aylık artış" kalmıştır. İlk ayın "dünü" olmadığı için fark alınca bir gözlem kaybedilir.
 
-**Günlük hayattan bir örnek:** Banka hesabınızın bakiyesi yıllar içinde maaşlar ve harcamalarla kayar; bakiyeye bakarak "normal bir ay" nedir söylemek zordur. Hesap hareketlerine, yani bakiyenin her ay ne kadar değiştiğine bakınca benzer büyüklükte artı ve eksiler görürsünüz. Fark almak, bakiye yerine hareket dökümüne bakmaktır. Benzetmenin sınırı: Hareketlerin kendisi de büyüyebilir (örneğin her yıl artan maaş); o zaman bir fark daha, yani $d = 2$ gerekir.
+**Günlük hayattan bir örnek:** Bir banka hesabının bakiyesi yıllar içinde maaşlar ve harcamalarla kayar; bakiyeye bakarak "normal bir ay" nedir söylemek zordur. Hesap hareketlerine, yani bakiyenin her ay ne kadar değiştiğine bakıldığında benzer büyüklükte artı ve eksiler görülür. Fark almak, bakiye yerine hareket dökümüne bakmaktır. Benzetmenin sınırı: Hareketlerin kendisi de büyüyebilir (örneğin her yıl artan maaş); o zaman bir fark daha, yani $d = 2$ gerekir.
 
 Farkı alınmış seri hâlâ durağan değilse işlem bir kez daha uygulanır: $\nabla^2 x_t = y_t - y_{t-1}$. Örneğimizde ikinci farklar $6 - 4 = 2$, $3 - 6 = -3$ ve $7 - 3 = 4$ olur. Seriyi durağanlaştırmak için kaç kez fark alındığı, ARIMA(p,d,q) modelindeki **d** parametresidir. Pratikte $d$ genellikle 0, 1 ya da en fazla 2'dir.
 
-**Aşırı fark alma.** Gereğinden fazla fark almak da zararlıdır. Zaten durağan bir seriye fark alınırsa seri iyileşmez, bozulur: Varyansı 1 olan bir beyaz gürültünün farkı alınınca varyans 2'ye çıkar ve lag-1 otokorelasyonu yaklaşık −0.5 olur. Seriye aslında olmayan bir zikzak eklenmiştir. Belirtileri şunlardır: Farkı alınmış serinin ACF'sinde lag-1'de −0.5'e yakın ya da daha negatif bir çubuk ve modelde −1'e yakın bir MA katsayısı (7.2'deki tersinirlik sınırı). Banka benzetmesiyle: Hareket dökümünün bir kez daha farkını almak "bu ayki harcama eksi geçen ayki harcama"ya bakmaktır; geçen ay tatile çıktıysanız bu ay sahte bir "tasarruf" görünür.
+**Aşırı fark alma.** Gereğinden fazla fark almak da zararlıdır. Zaten durağan bir seriye fark alınırsa seri iyileşmez, bozulur: Varyansı 1 olan bir beyaz gürültünün farkı alınınca varyans 2'ye çıkar ve lag-1 otokorelasyonu yaklaşık −0.5 olur. Seriye aslında olmayan bir zikzak eklenmiştir. Belirtileri şunlardır: Farkı alınmış serinin ACF'sinde lag-1'de −0.5'e yakın ya da daha negatif bir çubuk ve modelde −1'e yakın bir MA katsayısı (7.2'deki tersinirlik sınırı). Banka benzetmesiyle: Hareket dökümünün bir kez daha farkını almak "bu ayki harcama eksi geçen ayki harcama"ya bakmaktır; geçen ay tatile çıkılmışsa bu ay sahte bir "tasarruf" görünür.
 
 Mevsimsel seriler için ayrıca **mevsimsel fark** alınır: $\nabla_s x_t = x_t - x_{t-s}$. Aylık veride ($s = 12$) bu, "bu Ocak eksi geçen Ocak" demektir ve yıllık tekrar eden deseni siler. Örneğin geçen Ocak 200, bu Ocak 230 yolcu taşındıysa $\nabla_{12} x_t = 230 - 200 = 30$'dur.
 
@@ -271,7 +271,7 @@ Mevsimsel seriler için ayrıca **mevsimsel fark** alınır: $\nabla_s x_t = x_t
 
 > **Simge notu:** $`B`$ *(be)*: gecikme operatörü, seriyi bir adım geriye kaydırır · $`B^k`$ *(be üzeri k)*: $`k`$ adım geri kaydırma
 
-Önce AR ve MA kısımlarını birer **polinom** olarak tanımlarız. Polinomu Bölüm 3.2'den hatırlayın: Örneğin $1 - 0.6z - 0.16z^2$, en büyük üssü 2 olduğu için **2. dereceden** bir polinomdur. Bilinmeyenin yerinde $B$ durduğunda ortaya bir "gecikme polinomu" çıkar:
+Önce AR ve MA kısımlarını birer **polinom** olarak tanımlarız. Polinom Bölüm 3.2'de tanımlanmıştı: Örneğin $1 - 0.6z - 0.16z^2$, en büyük üssü 2 olduğu için **2. dereceden** bir polinomdur. Bilinmeyenin yerinde $B$ durduğunda ortaya bir "gecikme polinomu" çıkar:
 
 ```math
 \begin{aligned}
@@ -334,7 +334,7 @@ x_t - x_{t-1} &= \phi_1 (x_{t-1} - x_{t-2}) + \varepsilon_t + \theta_1 \varepsil
 
 Yani bu ayki **değişim**, geçen ayki değişim, bu ayın şoku ve geçen ayın şoku ile açıklanır. Sayılarla: $\phi_1 = 0.5$, $\theta_1 = 0.3$, son iki ayın değerleri $x_{t-2} = 100$ ve $x_{t-1} = 104$, geçen ayın şoku $\varepsilon_{t-1} = 2$ ve bu ayın şoku $\varepsilon_t = 1$ olsun. Bu ayki değişim $0.5 \cdot (104 - 100) + 1 + 0.3 \cdot 2 = 2 + 1 + 0.6 = 3.6$, bu ayın değeri de $104 + 3.6 = 107.6$ olur.
 
-**Not —** R ve Python, MA polinomunu yukarıdaki gibi artı işaretiyle ($1 + \theta_1 B$) yazar; bazı ders kitaplarındaki eksi işaretli yazımla karşılaştırırken dikkat edin (7.1.2'deki not).
+**Not —** R ve Python, MA polinomunu yukarıdaki gibi artı işaretiyle ($1 + \theta_1 B$) yazar; bazı ders kitaplarındaki eksi işaretli yazımla karşılaştırılırken dikkat edilmelidir (7.1.2'deki not).
 
 **Durağanlık koşulu: karakteristik denklem ve kökler.** Bölüm 3.2'de AR(1) için şunu gördük: $B$ komutunun yerine sıradan bir bilinmeyen $z$ koyup $1 - \phi z = 0$ denklemini (**karakteristik denklem**) kurarız; kökü $z = 1/\phi$'dir ve bu kök 1'e eşitse "birim kök" vardır. Aynı yöntem her AR(p) için işler: $\phi(B)$ polinomunda $B$ yerine $z$ yazıp sıfıra eşitleriz:
 
@@ -367,7 +367,7 @@ Sol taraf iki basit parantezin çarpımı olarak yazılabilir: $(1 - 0.8z)(1 + 0
 
 Yerine koyarak doğrulayalım: $z = 1.25$ için $1 - 0.6 \cdot 1.25 - 0.16 \cdot 1.5625 = 1 - 0.75 - 0.25 = 0$; $z = -5$ için $1 + 0.6 \cdot 5 - 0.16 \cdot 25 = 1 + 3 - 4 = 0$. İki kökün de mutlak değeri 1'den büyüktür (1.25 ve 5), dolayısıyla model durağandır. 7.1.1'de serinin 50'lik ortalama çevresinde dolaştığını görmemiz bununla tutarlıdır.
 
-**Örnek 2 (birim köklü AR(2)).** Bölüm 3.2'deki $x_t = 1.5\thinspace  x_{t-1} - 0.5\thinspace  x_{t-2} + \varepsilon_t$ modelini hatırlayın: Karakteristik denklemi $1 - 1.5z + 0.5z^2 = (1 - z)(1 - 0.5z) = 0$, kökleri $z = 1$ ve $z = 2$'dir; köklerden biri tam 1 olduğu için seri birim köklüdür. Orada "bir kez farkı alındığında kalan kısım $\phi = 0.5$ olan durağan bir AR(1) gibi davranır" demiştik. Gecikme polinomlarıyla bu cümle tek satırda görülür. Aynı çarpanlara ayırmayı $z$ yerine $B$ ile yazarsak model şu hâli alır:
+**Örnek 2 (birim köklü AR(2)).** Bölüm 3.2'deki $x_t = 1.5\thinspace  x_{t-1} - 0.5\thinspace  x_{t-2} + \varepsilon_t$ modelini yeniden ele alalım: Karakteristik denklemi $1 - 1.5z + 0.5z^2 = (1 - z)(1 - 0.5z) = 0$, kökleri $z = 1$ ve $z = 2$'dir; köklerden biri tam 1 olduğu için seri birim köklüdür. Orada "bir kez farkı alındığında kalan kısım $\phi = 0.5$ olan durağan bir AR(1) gibi davranır" demiştik. Gecikme polinomlarıyla bu cümle tek satırda görülür. Aynı çarpanlara ayırmayı $z$ yerine $B$ ile yazarsak model şu hâli alır:
 
 ```math
 (1 - 0.5B)(1 - B)\, x_t = \varepsilon_t
@@ -396,7 +396,7 @@ Kodu okuyalım: `c(1, -0.6, -0.16)` katsayıları sabit terimden başlayarak sı
 
 Koşul neden gerekli? $\theta = 0.5$ ve $\theta = 2$ olan iki MA(1)'in ACF'si aynıdır: $\rho_1 = \theta / (1 + \theta^2) = 0.4$. Veri ikisini ayırt edemez; yazılım tersinir olanı (0.5) seçer.
 
-**Günlük hayattan bir örnek:** 7.1.2'deki yankı benzetmesini sürdürelim. Elinizde yalnızca duyulan sesler var ve her anki bağırışı ayırmak istiyorsunuz. Bunun için duyulan sesten bir önceki bağırışın yankısını çıkarırsınız; ama o bağırışı bulmak için de ondan öncekinin yankısını çıkarmanız gerekir. Yankı sesten zayıfsa ($\lvert \theta \rvert < 1$) eski bağırışların bu zincirdeki payı hızla küçülür ve bugünkü bağırış tek biçimde bulunur; yankı daha güçlü olsaydı hesap hiç oturmazdı.
+**Günlük hayattan bir örnek:** 7.1.2'deki yankı benzetmesini sürdürelim. Elde yalnızca duyulan sesler vardır ve her anki bağırış ayrılmak istenmektedir. Bunun için duyulan sesten bir önceki bağırışın yankısı çıkarılır; ama o bağırışı bulmak için de ondan öncekinin yankısı çıkarılmalıdır. Yankı sesten zayıfsa ($\lvert \theta \rvert < 1$) eski bağırışların bu zincirdeki payı hızla küçülür ve bugünkü bağırış tek biçimde bulunur; yankı daha güçlü olsaydı hesap hiç oturmazdı.
 
 > **Hemen deneyin 7.2 · AR(1) üret, $\phi$'yi ve kökü geri bul** (R, ~5 dk)
 >
@@ -411,7 +411,7 @@ Koşul neden gerekli? $\theta = 0.5$ ve $\theta = 2$ olan iki MA(1)'in ACF'si ay
 >
 > `Arima()` (`forecast` paketi) derecelerini bizim verdiğimiz bir ARIMA modelini kurar; `order = c(p, d, q)`. `include.mean = FALSE` sabit terim eklememesini söyler (seri sıfır çevresinde üretildi). `coef(fit)["ar1"]` modelden `ar1` adlı katsayıyı çeker.
 >
-> **Ne göreceksiniz:** Çıktıda `ARIMA(1,0,0) with zero mean`, `ar1 = 0.6907`, `s.e. 0.0419`. Ardından `[1] 1.447763+0i`: Tahmin edilen modelin karakteristik kökü $1/0.6907 \approx 1.45$'tir; 1'den büyük olduğu için model durağandır (gerçek kök $1/0.7 \approx 1.43$).
+> **Ne göreceksiniz:** Çıktıda `ARIMA(1,0,0) with zero mean`, `ar1 = 0.6907`, `s.e. 0.0419` (`s.e.`, *standard error*: standart hata, yani katsayı tahmininin belirsizliği; tanımı 7.5'te). Ardından `[1] 1.447763+0i`: Tahmin edilen modelin karakteristik kökü $1/0.6907 \approx 1.45$'tir; 1'den büyük olduğu için model durağandır (gerçek kök $1/0.7 \approx 1.43$).
 >
 > **Şimdi siz:** (1) `n = 3000` ile tekrarlayın (önce `set.seed(2024)`). Standart hata ne kadar küçülür? (2) `Mod(polyroot(c(1, -0.5, -0.5)))` ile $x_t = 0.5\thinspace x_{t-1} + 0.5\thinspace x_{t-2} + \varepsilon_t$ modelini denetleyin. Durağan mı?
 >
@@ -452,7 +452,7 @@ Formül uzun görünse de yalnızca 7.2'deki parçaların yan yana yazılmasıd�
 - **(P, D, Q):** Mevsimsel kısım. $P$ geçmiş mevsimlerin değerlerini, $D$ mevsimsel fark sayısını, $Q$ geçmiş mevsimlerin hatalarını ifade eder.
 - **[s]:** Mevsim uzunluğu. Aylık veride 12, çeyreklik veride 4, saatlik veride günlük döngü için 24.
 
-**Günlük hayattan bir örnek:** Doğalgaz faturanızı değerlendirirken bu Ocak'ın faturasını Aralık'la değil geçen Ocak'la karşılaştırırsınız; kış zaten her yıl pahalıdır. Bu mevsimsel farktır ($D = 1$, $s = 12$). Bu Ocak'ı tahmin ederken iki tür sürprize bakarsınız: geçen ayın beklenmedik sapmasına (küçük harfler, örneğin $q$) ve geçen Ocak'ın beklenmedik sapmasına (büyük harfler, örneğin $Q$). Aşağıdaki havayolu modeli (0,1,1)(0,1,1)[12] tam olarak bu iki sürprizi kullanır.
+**Günlük hayattan bir örnek:** Bir doğal gaz faturası değerlendirilirken bu Ocak'ın faturası Aralık'la değil geçen Ocak'la karşılaştırılır; kış zaten her yıl pahalıdır. Bu mevsimsel farktır ($D = 1$, $s = 12$). Bu Ocak tahmin edilirken iki tür sürprize bakılır: geçen ayın beklenmedik sapmasına (küçük harfler, örneğin $q$) ve geçen Ocak'ın beklenmedik sapmasına (büyük harfler, örneğin $Q$). Aşağıdaki havayolu modeli (0,1,1)(0,1,1)[12] tam olarak bu iki sürprizi kullanır.
 
 ![SARIMA notasyonu](../images/ch07_sarima_notasyonu.svg)
 
@@ -534,11 +534,11 @@ George Box ve Gwilym Jenkins, 1970'te ARIMA modellerinin nasıl kurulacağını 
 
 *Şekil 7.4 — Box-Jenkins yöntemi. Teşhis aşamasında artıklarda hâlâ yapı varsa model yeniden tanımlanır.*
 
-**0. Hazırlık.** Seriyi çizin; trend, mevsimsellik ve varyans değişimini gözle inceleyin. Varyans seviyeyle birlikte büyüyorsa log (ya da Box-Cox: log dönüşümünü de içeren güç dönüşümleri ailesi) dönüşümü uygulayın (Bölüm 2.4). Durağanlığı ADF ve KPSS testleriyle sınayın. Bu testlerin nasıl çalıştığını 7.5'te ayrıntılı göreceğiz; bu bölüm yöntemin yol haritasıdır.
+**0. Hazırlık.** Seri çizilir; trend, mevsimsellik ve varyans değişimi gözle incelenir. Varyans seviyeyle birlikte büyüyorsa log (ya da Box-Cox: log dönüşümünü de içeren güç dönüşümleri ailesi) dönüşümü uygulanır (Bölüm 2.4). Durağanlık ADF ve KPSS testleriyle sınanır. Bu testlerin nasıl çalıştığını 7.5'te ayrıntılı göreceğiz; bu bölüm yöntemin yol haritasıdır.
 
-**1. Tanımlama (identification).** Seriyi durağanlaştıracak fark sayılarını ($d$ ve $D$) belirleyin. Ardından durağan serinin ACF ve PACF grafiklerinden (Bölüm 6.6) $p$, $q$, $P$, $Q$ için aday değerler çıkarın. Kural olarak mevsimsel olmayan terimlere küçük gecikmelerde (1, 2, 3), mevsimsel terimlere $s$'nin katlarında (12, 24, …) bakılır.
+**1. Tanımlama (identification).** Seriyi durağanlaştıracak fark sayıları ($d$ ve $D$) belirlenir. Ardından durağan serinin ACF ve PACF grafiklerinden (Bölüm 6.6) $p$, $q$, $P$, $Q$ için aday değerler çıkarılır. Kural olarak mevsimsel olmayan terimlere küçük gecikmelerde (1, 2, 3), mevsimsel terimlere $s$'nin katlarında (12, 24, …) bakılır. Mevsimsel gecikmelerde ACF $s$'de tek bir çubuktan sonra kesiliyor ve PACF bu gecikmelerde sönüyorsa mevsimsel MA ($Q = 1$); PACF $s$'den sonra kesilip ACF sönüyorsa mevsimsel AR ($P = 1$) adayı vardır (Bölüm 6.6.5'teki mevsimsel imza tablosu).
 
-**2. Tahmin (estimation).** Aday modellerin katsayılarını ($\phi$, $\theta$, $\Phi$, $\Theta$) veriden kestirin. Yazılımlar bunu **en çok olabilirlik** (*maximum likelihood*) yöntemiyle yapar. **Olabilirlik** şu sorunun cevabıdır: "Model ve katsayıları doğru olsaydı, elimizdeki veriyi tam olarak bu hâliyle gözlemleme olasılığı ne kadar olurdu?" Yazılım katsayıları bu olasılığı en büyük yapacak şekilde ayarlar; bir dürbünün odak ayarını görüntü en net olana kadar çevirmek gibi. Bu olasılıklar çok küçük sayılar olduğu için pratikte logaritmaları ($\log L$, *log likelihood*) kullanılır. **Daha büyük $\log L$, veriye daha iyi uyum** demektir.
+**2. Kestirim (estimation).** Aday modellerin katsayıları ($\phi$, $\theta$, $\Phi$, $\Theta$) veriden kestirilir. (Bu derste *kestirim*, katsayıların veriden bulunmasını; *tahmin* ya da *öngörü* (*forecasting*) ise geleceğe ait değerlerin üretilmesini anlatır.) Yazılımlar bunu **en çok olabilirlik** (*maximum likelihood*) yöntemiyle yapar. **Olabilirlik** şu sorunun cevabıdır: "Model ve katsayıları doğru olsaydı, elimizdeki veriyi tam olarak bu hâliyle gözlemleme olasılığı ne kadar olurdu?" Yazılım katsayıları bu olasılığı en büyük yapacak şekilde ayarlar; bir dürbünün odak ayarını görüntü en net olana kadar çevirmek gibi. Bu olasılıklar çok küçük sayılar olduğu için pratikte logaritmaları ($\log L$, *log likelihood*) kullanılır. **Daha büyük $\log L$, veriye daha iyi uyum** demektir.
 
 Adaylar arasında seçim için bilgi kriterleri kullanılır. En yaygını Akaike Bilgi Kriteri'dir:
 
@@ -600,7 +600,7 @@ BIC benzer bir kriterdir ama parametre cezası daha ağırdır: $2k$ yerine $k \
 
 **Not —** AIC'nin mutlak değeri anlamsızdır; yalnızca aynı veri üzerindeki (aynı dönüşüm, aynı $d$ ve $D$) modeller karşılaştırılır. Örneğin 7.7.4'teki AIC 536 (log alınmamış eğitim verisi, $d = 0$) ile R'daki −483 (log seri, $d = 1$) karşılaştırılamaz.
 
-**3. Teşhis (diagnostic checking).** Modelin açıklayamadığı kısma, yani **artıklara** (residuals) bakılır: $e_t = x_t - \hat{x}_ t$. Kurduğumuz modeli, verideki hikâyeyi açıklamaya çalışan bir dedektif gibi düşünün. Artıklar, dedektifin açıklayamayıp geride bıraktığı kırıntılardır. Artıklarda bir desen varsa (örneğin her yaz hatalar büyüyorsa) dedektif önemli bir ipucunu kaçırmış demektir. Amacımız artıkların, boş bir radyo kanalındaki cızırtı gibi, tamamen rastgele ve öngörülemez olmasıdır (beyaz gürültü; Bölüm 2.2, 6.6.1).
+**3. Teşhis (diagnostic checking).** Modelin açıklayamadığı kısma, yani **artıklara** (residuals) bakılır: $e_t = x_t - \hat{x}_ t$. Kurulan model, verideki hikâyeyi açıklamaya çalışan bir dedektife benzetilebilir. Artıklar, dedektifin açıklayamayıp geride bıraktığı kırıntılardır. Artıklarda bir desen varsa (örneğin her yaz hatalar büyüyorsa) dedektif önemli bir ipucunu kaçırmış demektir. Amacımız artıkların, boş bir radyo kanalındaki cızırtı gibi, tamamen rastgele ve öngörülemez olmasıdır (beyaz gürültü; Bölüm 2.2, 6.6.1).
 
 İyi bir modelin artıklarının üç özelliği olmalıdır:
 
@@ -634,7 +634,7 @@ Kısacası ilk $h$ gecikmedeki otokorelasyonlar toplu olarak sıfıra yakınsa $
 
 **4. Öngörü (forecasting).** Teşhisten geçen model geleceği tahmin etmek için kullanılır. Nokta tahminlerinin yanında, belirsizliği gösteren **tahmin aralıkları** (%80, %95) da raporlanmalıdır. %95 tahmin aralığı, gerçek değerin %95 olasılıkla içine düşmesi beklenen alt ve üst sınırdır.
 
-**Not —** R'daki `auto.arima()` ve Python'daki `pmdarima.auto_arima()` fonksiyonları 1. ve 2. adımları otomatikleştirir: Fark sayılarını istatistiksel testlerle belirler (7.6.3), sonra farklı (p,q)(P,Q) kombinasyonlarını deneyip en küçük AICc/AIC değerli modeli seçer. **Teşhis adımını ise yine sizin yapmanız gerekir.** Otomatik seçilen bir model de artık testlerinden kalabilir.
+**Not —** R'daki `auto.arima()` ve Python'daki `pmdarima.auto_arima()` fonksiyonları 1. ve 2. adımları otomatikleştirir: Fark sayılarını istatistiksel testlerle belirler (7.6.3), sonra farklı (p,q)(P,Q) kombinasyonlarını deneyip en küçük AICc/AIC değerli modeli seçer. **Teşhis adımı ise yine analizi yapan kişiye kalır.** Otomatik seçilen bir model de artık testlerinden kalabilir.
 
 > **Hemen deneyin 7.4b · Ljung-Box'ı elle hesaplayın** (R, ~4 dk)
 >
@@ -695,17 +695,17 @@ Bölüm 3.2'de durağanlığı grafikle ve ACF ile nasıl sezeceğimizi, birim k
 \nabla x_t = \gamma\, x_{t-1} + \varepsilon_t, \qquad \gamma = \phi - 1
 ```
 
-> **Simge notu:** $`\gamma`$ *(gama)*: $`\phi - 1`$; ADF'nin sınadığı "birim kök katsayısı"
+> **Simge notu:** $`\gamma`$ *(gama)*: $`\phi - 1`$; ADF'nin sınadığı "birim kök katsayısı". Bölüm 3.2.1 ve 6.3.3'teki otokovaryans fonksiyonu $`\gamma(h)`$ ile karıştırılmamalıdır; burada parantez ve $`h`$ yoktur
 
 Bu denklem aynı modeli başka bir soruyla yazar: "Bugünkü değişim, dünkü seviyeye bağlı mı?" $\gamma$ ile $\phi$ arasında birebir bir ilişki vardır:
 
-| $`\phi`$ (AR katsayısı) | $`\gamma = \phi - 1`$ | Anlamı | Örnek: dün $`x_{t-1} = 100`$, bugün şok yok |
-| --- | --- | --- | --- |
-| 0.5 | −0.5 | Durağan: seri geri çekilir | Değişim $`-0.5 \cdot 100 = -50`$ → bugün 50 |
-| 1 | 0 | Birim kök (rastgele yürüyüş) | Değişim $`0 \cdot 100 = 0`$ → bugün 100 |
-| 1.2 | 0.2 | Patlayan seri | Değişim $`0.2 \cdot 100 = 20`$ → bugün 120 |
+| $`\phi`$ (AR katsayısı) | Kök $`z = 1/\phi`$ (3.2.3) | $`\gamma = \phi - 1`$ | Anlamı | Örnek: dün $`x_{t-1} = 100`$, bugün şok yok |
+| --- | --- | --- | --- | --- |
+| 0.5 | 2 | −0.5 | Durağan: seri geri çekilir | Değişim $`-0.5 \cdot 100 = -50`$ → bugün 50 |
+| 1 | 1 | 0 | Birim kök (rastgele yürüyüş) | Değişim $`0 \cdot 100 = 0`$ → bugün 100 |
+| 1.2 | ≈ 0.83 | 0.2 | Patlayan seri | Değişim $`0.2 \cdot 100 = 20`$ → bugün 120 |
 
-Bunlar Bölüm 3.2'deki 100 → 50, 100 → 100 ve 100 → 120 örnekleriyle aynı sayılardır; yalnızca "seviye" yerine "değişim" üzerinden okunurlar. Böylece $\gamma = 0$ (yani $\phi = 1$) birim kök demektir; $-2 < \gamma < 0$ (yani $-1 < \phi < 1$) ise seri durağandır. Pratikte $\phi$'nin −1'in altına indiği seriler çok nadir olduğundan test yalnızca $\gamma < 0$ yönüne bakar. Bölüm 3.2'deki lastik bant benzetmesi burada da geçerlidir: $\gamma < 0$ lastiğin seriyi ortalamaya geri çekmesi, $\gamma = 0$ lastiğin kopmuş olmasıdır; Şekil 7.5'teki eğim bu çekişin gücünü gösterir.
+Tablo, Bölüm 3.2'deki üç bakışı (katsayı, karakteristik kök ve şokun seyri) ADF'nin $\gamma$'sıyla birleştirir; 100 → 50, 100 → 100 ve 100 → 120 sayıları 3.2.2'deki örneklerle aynıdır; yalnızca "seviye" yerine "değişim" üzerinden okunurlar. Böylece $\gamma = 0$ (yani $\phi = 1$) birim kök demektir; $-2 < \gamma < 0$ (yani $-1 < \phi < 1$) ise seri durağandır. Pratikte $\phi$'nin −1'in altına indiği seriler çok nadir olduğundan test yalnızca $\gamma < 0$ yönüne bakar. Bölüm 3.2'deki lastik bant benzetmesi burada da geçerlidir: $\gamma < 0$ lastiğin seriyi ortalamaya geri çekmesi, $\gamma = 0$ lastiğin kopmuş olmasıdır; Şekil 7.5'teki eğim bu çekişin gücünü gösterir.
 
 ADF, "$`\phi`$ 1'e eşit mi?" sorusunu "**$\gamma$ sıfır mı?**" sorusuna çevirir. Bunun pratik nedeni, regresyon yazılımlarının her katsayı için "bu katsayı sıfır mı?" sorusuna hazır bir ölçü (t istatistiği) üretmesidir.
 
@@ -751,6 +751,16 @@ Sıradan bir regresyonda bu oran t-tablosuyla karşılaştırılır; tek yönlü
 
 R'daki `tseries::adf.test()` p-değerini bu tablodan **doğrusal ara değerleme** (*interpolation*) ile hesaplar: İstatistik örneğin −3.44 (%5) ile −3.14 (%10) arasında kalsaydı, p-değeri 0.05 ile 0.10 arasında, uzaklıkla orantılı bir sayı olurdu. Tablo uçlarda 0.01 ve 0.99 olasılıklarında biter; istatistik %1 kritik değerinden de negatifse p-değeri 0.01'de sabitlenir. (KPSS için `kpss.test()` aynı yöntemi 0.01–0.10 aralığında kullanır; bu yüzden 7.6.3'te `p-value = 0.1` ve "greater than" uyarısı görülür.) Çıktıdaki `p-value = 0.01` ve `p-value smaller than printed p-value` uyarısı birlikte "gerçek p-değeri 0.01'den de küçük" demektir.
 
+**Aynı test, üç yazılım.** ADF testinin varsayılan ayarları yazılıma göre değişir. Aynı seri için farklı sonuçlar görülmesinin başlıca nedeni budur (7.6.2 ve 7.7.2):
+
+| Yazılım | Deterministik terimler (varsayılan) | Gecikme sayısı $k$ (varsayılan) | p-değeri |
+| --- | --- | --- | --- |
+| R, `tseries::adf.test()` | Sabit + trend; değiştirilemez | $(n-1)^{1/3}$'ün tam sayı kısmı; `k =` ile elle verilir | Tablodan ara değerleme; 0.01–0.99 aralığına kırpılır |
+| Python, `statsmodels` `adfuller()` | Yalnızca sabit (`regression="c"`); `"ct"` ile sabit + trend | AIC ile seçilir (`autolag="AIC"`); `autolag=None` ile `maxlag` aynen kullanılır | MacKinnon yaklaşımı; kırpılmaz |
+| Gretl, `adf` | Seçenekle belirlenir: `--nc`, `--c`, `--ct`, `--ctt` | Komutta verilen gecikme; `--test-down` ile bilgi kriterine göre küçültülür | Asimptotik (MacKinnon) p-değeri |
+
+Örneğin ham `AirPassengers` serisinde sabit + trend ve 5 gecikmeyle istatistik −7.3186, sabit + trend ve 13 gecikmeyle −2.1008, yalnızca sabit ve 13 gecikmeyle 0.8154'tür (üç değer de R'da `urca::ur.df()` ile yeniden hesaplanmıştır). Ayarlar eşitlendiğinde yazılımlar aynı istatistiği verir (7.7.2'deki kutu).
+
 **Tanım 2 (KPSS testi — Kwiatkowski-Phillips-Schmidt-Shin):** KPSS bakış açısını tersine çevirir: "Seri durağandır" varsayımıyla başlar ve buna karşı kanıt arar.
 
 - $H_0$: **Seri durağandır** (seviye etrafında ya da trend etrafında).
@@ -768,16 +778,16 @@ Testin fikri şöyledir: Seriden ortalamasını (trend sürümünde trend çizgi
 
 **Nasıl okunur?** "S alt t eşittir, e bir artı e iki artı üç nokta artı e alt t." ve "KPSS eşittir, bir bölü n kare çarpı t eşittir 1'den n'ye kadar S alt t karelerin toplamı, bölü sigma şapka kare." Yani: e'ler seriden ortalama (trend sürümünde trend çizgisi) çıkarılınca kalan sapmalardır; sigma şapka kare, 7.6.2'deki `Truncation lag parameter` kadar gecikmenin otokorelasyonu hesaba katılarak bulunan oynaklıktır.
 
-İki testin sonuçları birlikte yorumlanır. Tabloyu okurken önce her testin sonucunu sade bir cümleye çevirin: ADF'de $H_0$'ın reddi "durağan", KPSS'te $H_0$'ın reddi "durağan değil" demektir.
+İki testin sonuçları birlikte yorumlanır. Tablo okunurken önce her testin sonucu sade bir cümleye çevrilir: ADF'de $H_0$'ın reddi "durağan", KPSS'te $H_0$'ın reddi "durağan değil" demektir.
 
 | ADF ($`H_0`$: birim kök) | KPSS ($`H_0`$: durağan) | İki test ne diyor? | Ne yapmalı? |
 | --- | --- | --- | --- |
 | p < 0.05: $`H_0`$ reddedildi → "durağan" | p ≥ 0.05: $`H_0`$ reddedilmedi → "durağan" | İkisi de **durağan** diyor | **Ek** fark almaya gerek yok (7.6.3'teki farkı alınmış seri) |
-| p ≥ 0.05: $`H_0`$ reddedilmedi → "durağan değil" | p < 0.05: $`H_0`$ reddedildi → "durağan değil" | İkisi de **durağan değil** diyor | Fark alın (gerekirse önce log), testleri tekrarlayın |
-| p < 0.05 → "durağan" | p < 0.05 → "durağan değil" | **Çelişki:** ADF birim kökü, KPSS de durağanlığı reddediyor | Çoğunlukla trend-durağanlık, güçlü mevsimsellik ya da ADF'ye yetersiz gecikme verilmesi (7.6.2'deki ham `AirPassengers`). Grafiğe bakın, fark alıp tekrar test edin |
-| p ≥ 0.05 → "durağan değil" | p ≥ 0.05 → "durağan" | **Kararsızlık:** İki test de kendi $`H_0`$'ını reddedecek kanıt bulamadı | Genellikle seri kısadır ya da $`\phi`$ 1'e çok yakındır; testler ayırt edemiyor. Grafiğe ve ACF'ye bakın |
+| p ≥ 0.05: $`H_0`$ reddedilmedi → "durağan değil" | p < 0.05: $`H_0`$ reddedildi → "durağan değil" | İkisi de **durağan değil** diyor | Fark alınır (gerekirse önce log), testler tekrarlanır |
+| p < 0.05 → "durağan" | p < 0.05 → "durağan değil" | **Çelişki:** ADF birim kökü, KPSS de durağanlığı reddediyor | Çoğunlukla trend-durağanlık, güçlü mevsimsellik ya da ADF'ye yetersiz gecikme verilmesi (7.6.2'deki ham `AirPassengers`). Grafiğe bakılır, fark alınıp yeniden test edilir |
+| p ≥ 0.05 → "durağan değil" | p ≥ 0.05 → "durağan" | **Kararsızlık:** İki test de kendi $`H_0`$'ını reddedecek kanıt bulamadı | Genellikle seri kısadır ya da $`\phi`$ 1'e çok yakındır; testler ayırt edemiyor. Grafiğe ve ACF'ye bakılır |
 
-**Not —** "Reddedilemedi" sonucu sıfır hipotezini kanıtlamaz (bkz. 3.2). Bu yüzden tek bir teste değil, grafik + ACF + iki testin birlikte verdiği tabloya güvenin.
+**Not —** "Reddedilemedi" sonucu sıfır hipotezini kanıtlamaz (bkz. 3.2). Bu yüzden tek bir teste değil, grafik + ACF + iki testin birlikte verdiği tabloya güvenilmelidir.
 
 > **Hemen deneyin 7.5a · Üç seri, iki test** (R, ~5 dk)
 >
@@ -857,10 +867,10 @@ Testin fikri şöyledir: Seriden ortalamasını (trend sürümünde trend çizgi
 
 > **Uygulama dosyası:** [`Codes/R/ch07_sarima_airpassengers.R`](../Codes/R/ch07_sarima_airpassengers.R)
 >
-> Bu bölümdeki R kodlarının tamamı bu dosyada. RStudio'da açıp satır satır çalıştırabilir ya da depo kök dizininde `Rscript Codes/R/ch07_sarima_airpassengers.R` komutunu kullanabilirsiniz.
+> Bu bölümdeki R kodlarının tamamı bu dosyada. Dosya RStudio'da açılıp satır satır ya da depo kök dizininde `Rscript Codes/R/ch07_sarima_airpassengers.R` komutuyla çalıştırılabilir.
 
 
-Şimdi Box-Jenkins adımlarını R üzerinde `AirPassengers` veri setiyle uygulayalım. Bu veri seti belirgin bir trend, mevsimsellik ve zamanla artan varyans içerdiği için öğretici bir örnektir. Kod bloklarındaki `#` (yorum) ve `#>` (çıktı) satırları Bölüm 2.5'daki gibi okunur.
+Şimdi Box-Jenkins adımlarını R üzerinde `AirPassengers` veri setiyle uygulayalım. Bu veri seti belirgin bir trend, mevsimsellik ve zamanla artan varyans içerdiği için öğretici bir örnektir. Kod bloklarındaki `#` (yorum) ve `#>` (çıktı) satırları Bölüm 2.5'teki gibi okunur.
 
 #### 7.6.1. Veriyi Görselleştirme
 
@@ -1000,7 +1010,7 @@ $$
 w = [\log(126) - \log(118)] - [\log(115) - \log(112)] = 0.0656 - 0.0264 = 0.0392
 $$
 
-Yani Şubat'ın yıllık büyümesi (yaklaşık %6.6), Ocak'ın yıllık büyümesinden (yaklaşık %2.6) yaklaşık 4 puan fazladır. R'da `AP_stationary[1]` yazarsanız aynı 0.0392'yi görürsünüz.
+Yani Şubat'ın yıllık büyümesi (yaklaşık %6.6), Ocak'ın yıllık büyümesinden (yaklaşık %2.6) yaklaşık 4 puan fazladır. R'da `AP_stationary[1]` de aynı 0.0392 değerini verir.
 
 Çıktıyı okuyalım:
 
@@ -1063,9 +1073,9 @@ Bu blok, durağanlaştırılmış serinin ACF ve PACF grafiklerini yan yana çiz
 3. `pacf(AP_stationary, lag.max = 36, main = "PACF")`: Aynı ayarlarla kısmi otokorelasyonları çizer (Bölüm 6.4) ve ikinci bölmeye yerleşir.
 4. `par(mfrow = c(1, 1))`: Pencereyi yeniden tek grafik düzenine döndürür; bu satır olmasaydı sonraki grafikler de yarım genişlikte çizilirdi.
 
-Bu blok ekrana sayı yazmaz; çıktısı yan yana iki grafiktir. Okurken iki ayrıntıya dikkat edin. Birincisi, R `ts` nesnelerinde yatay ekseni "yıl" cinsinden gösterir; 1.0 = 12 ay, 2.0 = 24 ay gecikme demektir. ACF'nin en soldaki 0 gecikmeli çubuğu serinin kendisiyle korelasyonudur, her zaman 1'dir ve yorumlanmaz; PACF ise 1. gecikmeden başlar. İkincisi, mavi kesikli çizgiler güven bandıdır: $\pm 1.96/\sqrt{131} \approx \pm 0.17$. Bu grafiklerde iki belirgin iz görülür:
+Bu blok ekrana sayı yazmaz; çıktısı yan yana iki grafiktir. Okurken iki ayrıntı önemlidir. Birincisi, R `ts` nesnelerinde yatay ekseni "yıl" cinsinden gösterir; 1.0 = 12 ay, 2.0 = 24 ay gecikme demektir. ACF'nin en soldaki 0 gecikmeli çubuğu serinin kendisiyle korelasyonudur, her zaman 1'dir ve yorumlanmaz; PACF ise 1. gecikmeden başlar. İkincisi, mavi kesikli çizgiler güven bandıdır: $\pm 1.96/\sqrt{131} \approx \pm 0.17$. Bu grafiklerde iki belirgin iz görülür:
 
-- **ACF'de gecikme 1'de** belirgin bir negatif çubuk (yaklaşık −0.34) vardır; 3. gecikmede bandı biraz aşan bir çubuk (yaklaşık −0.20) dışında sonrası büyük ölçüde kesilir; 9 ve 23'teki sınırı az aşan çubuklar 36 çubukta tesadüfen beklenen düzeydedir (Bölüm 6) → mevsimsel olmayan kısımda **MA(1)**, yani $q = 1$ adayı.
+- **ACF'de gecikme 1'de** belirgin bir negatif çubuk (yaklaşık −0.34) vardır; 3. gecikmede bandı biraz aşan bir çubuk (yaklaşık −0.20) dışında sonrası büyük ölçüde kesilir; 9, 23 ve 32. gecikmelerdeki sınırı az aşan çubuklar (yaklaşık 0.18, 0.22 ve 0.20) 36 çubukta tesadüfen beklenebilecek düzeydedir (Bölüm 6.3.4) → mevsimsel olmayan kısımda **MA(1)**, yani $q = 1$ adayı.
 - **ACF'de gecikme 12'de** (eksende 1.0) belirgin bir negatif çubuk (yaklaşık −0.39) vardır ve 24'te tekrarlamaz → mevsimsel kısımda **MA(1)**, yani $Q = 1$ adayı.
 - PACF'de de 1 ve 12'de anlamlı negatif çubuklar (yaklaşık −0.34) vardır, ancak PACF ACF kadar keskin kesilmez: 3. ve 13. gecikmelerde de küçük negatif çubuklar sürer. "ACF kesiliyor, PACF kesilmiyor" deseni MA yapısıyla tutarlıdır (Bölüm 6.6.2 ve 6.6.5).
 
@@ -1112,7 +1122,7 @@ print(fit)
 #> AIC=-483.4   AICc=-483.21   BIC=-474.77
 ```
 
-Bu blok, Box-Jenkins'in 1. ve 2. adımlarını (tanımlama ve tahmin) otomatik olarak yapar: Fark sayılarını belirler, aday modelleri dener, en iyisinin katsayılarını kestirir ve sonucu ekrana yazar. Kodu satır satır okuyalım:
+Bu blok, Box-Jenkins'in 1. ve 2. adımlarını (tanımlama ve kestirim) otomatik olarak yapar: Fark sayılarını belirler, aday modelleri dener, en iyisinin katsayılarını kestirir ve sonucu ekrana yazar. Kodu satır satır okuyalım:
 
 1. `fit <- auto.arima(log(AirPassengers), seasonal = TRUE)`:
    - İlk argüman modele verilecek seridir. Log dönüşümünü kendimiz yapıp modele log seriyi veriyoruz; fark alma işlemlerini ise `auto.arima()` kendisi yapar. Bu yüzden `AP_stationary`'yi değil, farkı alınmamış log seriyi veririz.
@@ -1186,7 +1196,7 @@ checkresiduals(fit)
 
 Bu tek satır, Box-Jenkins'in 3. adımını (teşhis) yapar: Modelin artıklarının 7.4'teki özellikleri taşıyıp taşımadığını hem grafiklerle hem de 7.4'teki Ljung-Box testiyle denetler. Kodu okuyalım:
 
-1. `checkresiduals(fit)`: `forecast` paketindeki bu fonksiyon, 7.6.5'te kurduğumuz `fit` model nesnesinin içinden artıkları alır ($e_t = x_t - \hat{x}_ t$; model log seriye kurulduğu için artıklar da log ölçektedir). Ardından iki iş yapar: Üç grafiği tek pencerede çizer (artıkların zaman grafiği, ACF'si ve histogramı) ve Ljung-Box testini uygulayıp sonucunu ekrana yazar. Testte kaç gecikmeye bakılacağını belirleyen `lag` argümanını vermediğimiz için onu kendisi seçer: Mevsimsel veride $2s$ ile $n/5$'ten küçük olanı alır; burada $\min(24,\ 144/5 = 28.8) = 24$'tür. Yalnızca testi görmek isterseniz `checkresiduals(fit, plot = FALSE)` grafikleri kapatır.
+1. `checkresiduals(fit)`: `forecast` paketindeki bu fonksiyon, 7.6.5'te kurduğumuz `fit` model nesnesinin içinden artıkları alır ($e_t = x_t - \hat{x}_ t$; model log seriye kurulduğu için artıklar da log ölçektedir). Ardından iki iş yapar: Üç grafiği tek pencerede çizer (artıkların zaman grafiği, ACF'si ve histogramı) ve Ljung-Box testini uygulayıp sonucunu ekrana yazar. Testte kaç gecikmeye bakılacağını belirleyen `lag` argümanını vermediğimiz için onu kendisi seçer: Mevsimsel veride $2s$ ile $n/5$'ten küçük olanı alır; burada $\min(24,\ 144/5 = 28.8) = 24$'tür. Yalnızca test sonucu isteniyorsa `checkresiduals(fit, plot = FALSE)` grafikleri kapatır.
 
 Çıktıyı satır satır okuyalım:
 
@@ -1265,6 +1275,8 @@ Ekrana yazılan `[1] 450.4 477.2 525.5`, üç elemanlı bir vektördür: Orijina
 
 Gri alanların zamanla genişlemesi dikkat çekicidir: Ne kadar uzağı tahmin edersek belirsizlik o kadar artar. Bu, modelin uzun vadeli tahminlerde daha az kesin olduğunu dürüstçe ifade etmesidir. %95 aralığı Ocak 1961 için yaklaşık 419–484 iken Aralık 1962 için 400–691'e genişler (`exp(fc$lower)` ve `exp(fc$upper)` ile hesaplanır).
 
+**Aralık nasıl hesaplanır?** Bir adım ilerisi için %95 aralığı, nokta tahmininin iki yanına 1.96 standart hata eklenerek bulunur (1.96 sayısının kaynağı Bölüm 6.3.4'tedir). Model log ölçekte kurulduğu için hesap log ölçekte yapılır. Ocak 1961 için nokta tahmini 6.1102, şokların standart sapması $\sqrt{0.001371} \approx 0.0370$'tir (7.6.5). Aralık $6.1102 \pm 1.96 \times 0.0370$, yani 6.0376 ile 6.1828 arasıdır. `exp()` ile geri çevrilince yaklaşık 418.9 ile 484.3 bin yolcu bulunur; Bölüm 1.3'teki "tahmin 450; gerçek değer %95 olasılıkla 420 ile 480 arasında" örneği bu sonuca yakındır. Ufuk uzadıkça her adımın belirsizliği bir sonrakine eklendiği için standart hata büyür: Aralık 1962 ($h = 24$) için log ölçekteki standart hata yaklaşık 0.1396'dır, yani bir adım ilerisinin yaklaşık 3.8 katıdır.
+
 **Not —** Log ölçekteki tahminin `exp()` ile geri çevrilmesi, orijinal ölçekte ortalamayı değil **ortancayı** (medyanı) verir; ortalama tahmin bundan çok az daha yüksektir. Bu ders kapsamında fark ihmal edilebilir düzeydedir.
 
 **Not —** Bu tahminleri gerçek değerlerle karşılaştırıp modelin **başarısını sayısal olarak ölçmek** için veriyi eğitim ve test kısımlarına ayırmamız gerekir. Bunu, hata metrikleriyle birlikte Bölüm 8.3'te yapacağız.
@@ -1302,7 +1314,7 @@ Gri alanların zamanla genişlemesi dikkat çekicidir: Ne kadar uzağı tahmin e
 
 > **Uygulama dosyası:** [`Codes/python/ch07_sarima_airpassengers.py`](../Codes/python/ch07_sarima_airpassengers.py) · [Notebook](../Codes/notebooks/ch07_sarima_airpassengers.ipynb) · [![Colab'da aç](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/Codes/notebooks/ch07_sarima_airpassengers.ipynb)
 >
-> Bu bölümdeki kodların tamamı bu dosyada. Bilgisayarınızda çalıştırmak için depo kök dizininde `python Codes/python/ch07_sarima_airpassengers.py` komutunu kullanın ya da dosyayı VS Code'da açıp hücre hücre çalıştırın. Kurulum yapmadan denemek için Colab bağlantısını kullanabilirsiniz.
+> Bu bölümdeki kodların tamamı bu dosyada. Dosya, depo kök dizininde `python Codes/python/ch07_sarima_airpassengers.py` komutuyla ya da VS Code'da hücre hücre çalıştırılabilir. Kurulum yapmadan denemek için Colab bağlantısı kullanılabilir.
 
 
 Aynı `AirPassengers` analizini şimdi Python ile, `statsmodels` ve `pmdarima` kütüphanelerini kullanarak yapalım. Burada tanımlayacağımız `data`, `train_data`, `test_data`, `predictions_arima` ve `rmse_arima` değişkenlerini sonraki bölümlerde, özellikle Bölüm 15'teki LSTM karşılaştırmasında, yeniden kullanacağız.
@@ -1385,7 +1397,7 @@ Durağanlaştırılmış seri -> ADF p = 0.0002, KPSS p = 0.100
 
 `np.log(data).diff(12).diff().dropna()` satırı R'daki `diff(diff(log(...), lag = 12))` ile aynı işi soldan sağa zincir hâlinde yapar: log al, 12 aylık farkı al, 1 aylık farkı al. Fark alınamayan ilk 13 ay boş değer (`NaN`) olarak kalır; `.dropna()` bunları atar.
 
-**Çıktının yorumu:** Orijinal seride ADF p ≈ 0.99, KPSS p = 0.01: İki test de **durağan değil** diyor. R'daki çelişki burada yok, çünkü `adfuller()` gecikme sayısını AIC ile seçer (`autolag='AIC'`) ve burada 13 gecikme seçerek 12 aylık hafızayı kapsar (7.6.2'deki `k = 13` sonucunun karşılığı; aşağıdaki kutuda R'ın −7.3186'sını yeniden üreteceğiz). p-değerini sürekli bir formülle (MacKinnon) hesapladığı için 0.01–0.99 aralığına sıkıştırmaz. Durağanlaştırılmış seride ADF p ≈ 0.0002, KPSS p ≥ 0.1: seri durağandır.
+**Çıktının yorumu:** Orijinal seride ADF p ≈ 0.99, KPSS p = 0.01: İki test de **durağan değil** diyor. R'daki çelişki burada görülmez; bunun iki nedeni vardır. Birincisi, `adfuller()` varsayılan olarak regresyona trend koymaz, yalnızca sabit kullanır (`regression='c'`); R'daki `adf.test()` ise her zaman sabit ve trend kullanır. İkincisi, `adfuller()` gecikme sayısını AIC ile seçer (`autolag='AIC'`) ve burada 13 gecikme seçerek 12 aylık hafızayı kapsar. Bu yüzden sonuç, 7.6.2'deki `k = 13` sonucunun (sabit + trend, −2.10) karşılığı değildir: Yalnızca sabitli ve 13 gecikmeli regresyonun istatistiği 0.815'tir (R'da `urca::ur.df(x, type = "drift", lags = 13)` de 0.8154 verir). Aşağıdaki kutuda R'ın −7.3186'sı, ayarlar eşitlenerek yeniden üretilir. p-değerini sürekli bir formülle (MacKinnon) hesapladığı için 0.01–0.99 aralığına sıkıştırmaz. Durağanlaştırılmış seride ADF p ≈ 0.0002, KPSS p ≥ 0.1: seri durağandır.
 
 **Not —** KPSS p-değeri tablo sınırlarının dışında kaldığında `statsmodels` bir `InterpolationWarning` uyarısı verir; bu, gerçek p-değerinin gösterilenden daha küçük (ya da daha büyük) olduğunu belirtir, bir hata değildir. `statsmodels`'ın yeni sürümleri (0.15 ve sonrası) `adfuller` ve `kpss` için ayrıca bir `FutureWarning` yazabilir: İleride bu fonksiyonlar demet yerine bir sonuç nesnesi döndürecektir. Bu uyarı bugünkü sonuçları değiştirmez.
 
@@ -1409,7 +1421,7 @@ plt.show()
 
 `plt.subplots(2, 1, ...)` alt alta iki grafik alanı (2 satır, 1 sütun) oluşturur ve bunları `ax1`, `ax2` adlarıyla geri verir; R'daki `par(mfrow = ...)` ile aynı amaca hizmet eder. `plot_acf(data, ax=ax1, lags=40)` ACF'yi ilk alana 40 gecikmeye kadar çizer; `ax=` argümanı grafiğin hangi alana çizileceğini söyler. `plt.tight_layout()` başlıkların ve eksen yazılarının üst üste binmemesi için boşlukları ayarlar.
 
-**Çıktının yorumu:** Orijinal verinin ACF'si çok yavaş azalır ve 12, 24, 36. gecikmelerde tümsekler yapar. Yavaş sönüm trendin (durağan olmamanın), tümsekler mevsimselliğin işaretidir. Durağanlaştırılmış seriyi (`data_stationary`) aynı fonksiyonlarla çizerseniz (uygulama dosyasında bu hücre de vardır), 7.6.4'te R'da gördüğümüz gecikme 1 ve 12'deki negatif çubukları görürsünüz.
+**Çıktının yorumu:** Orijinal verinin ACF'si çok yavaş azalır ve 12, 24, 36. gecikmelerde tümsekler yapar. Yavaş sönüm trendin (durağan olmamanın), tümsekler mevsimselliğin işaretidir. Durağanlaştırılmış seri (`data_stationary`) aynı fonksiyonlarla çizildiğinde (uygulama dosyasında bu hücre de vardır), 7.6.4'te R'da gördüğümüz gecikme 1 ve 12'deki negatif çubuklar görülür.
 
 > **Hemen deneyin 7.7.2 · R'ın ADF sonucunu Python'da yeniden üretin** (Python, ~3 dk)
 >
@@ -1455,7 +1467,7 @@ Test:   1956-01 - 1960-12 (60 ay)
 
 Köşeli parantez içindeki iki nokta (`:`) bir aralık seçer ve eksi sayılar sondan sayar: `data[:-60]` "baştan, sondan 60. elemana kadar (o hariç)", `data[-60:]` ise "sondan 60. elemandan sona kadar" demektir. `train_data.index[0]` ilk tarihi, `index[-1]` son tarihi verir; f-dizesindeki `:%Y-%m` tarihi "yıl-ay" biçiminde yazar.
 
-**Not —** R uygulamasında (Bölüm 8.3) test seti olarak yalnızca 1960 yılını (12 ay) kullanacağız. Burada 60 ay seçmemizin nedeni, Bölüm 15'teki LSTM modeliyle aynı test dönemi üzerinde karşılaştırma yapabilmektir. Test ufku uzadıkça hatanın büyüyeceğini unutmayın; iki uygulamanın hata değerleri bu yüzden doğrudan karşılaştırılamaz.
+**Not —** R uygulamasında (Bölüm 8.3) test seti olarak yalnızca 1960 yılını (12 ay) kullanacağız. Burada 60 ay seçmemizin nedeni, Bölüm 15'teki LSTM modeliyle aynı test dönemi üzerinde karşılaştırma yapabilmektir. Test ufku uzadıkça hata büyür; iki uygulamanın hata değerleri bu yüzden doğrudan karşılaştırılamaz.
 
 #### 7.7.4. `auto_arima` ile En Uygun Modeli Bulma
 
@@ -1503,7 +1515,7 @@ Prob(Q):                              0.45   Prob(JB):                         0
 
 **Çıktının yorumu:** `trace=True` sayesinde denenen modeller ve AIC değerleri satır satır listelenir (süreler bilgisayara göre değişir); en sonda seçilen model `SARIMAX(p,d,q)x(P,D,Q,12)` biçiminde raporlanır. Özet tablosundaki `ar.L1`, `ma.L1`, `ma.S.L12` gibi satırlar sırasıyla $\phi_1$, $\theta_1$, $\Theta_1$ katsayılarıdır; `intercept` sabit terim, `sigma2` beyaz gürültünün varyansıdır. `P>|z|` sütunu her katsayı için "bu katsayı aslında sıfır mı?" testinin p-değeridir; küçük değerler katsayının anlamlı olduğunu gösterir (`ma.S.L12` için 0.046, sınırda anlamlı). Tablonun altındaki `Ljung-Box (L1) (Q)` satırı, 7.6.6'daki artık testinin **yalnızca 1. gecikme** için yapılmış hâlidir (`Prob(Q)` = 0.45); R'ın 24 gecikmeye bakan testinden daha dar bir kontroldür. Yanındaki `Jarque-Bera (JB)` ise artıkların normal dağılıma uyup uymadığını çarpıklık ve basıklık üzerinden sınayan testtir; `Prob(JB)` = 0.18 olduğu için normallik reddedilmez.
 
-Bizim denememizde (pmdarima 2.1) seçilen model sabit terimli **ARIMA(1,0,0)(0,1,1)[12]** oldu. Burada $d = 0$ olmasına şaşırmayın: Mevsimsel fark ($D = 1$) trendin büyük kısmını zaten temizlemiş, kalan kayma sabit terimle karşılanmıştır. Modeli $w_t = x_t - x_{t-12}$ (bu ay eksi geçen yılın aynı ayı) cinsinden yazarsak $w_t = 6.43 + 0.753\thinspace  w_{t-1} + \varepsilon_t - 0.300\thinspace  \varepsilon_{t-12}$ olur. 7.1.1'deki ortalama formülüyle $w_t$'nin uzun dönem ortalaması $6.43 / (1 - 0.753) \approx 26.0$'dır: Model, her ayın geçen yılın aynı ayından ortalama yaklaşık 26 bin yolcu fazla olacağını öğrenmiştir (eğitim dönemindeki gerçek ortalama 26.2'dir). R'daki modelden farklı olmasının iki nedeni vardır: Burada log dönüşümü yapmadık ve model yalnızca 1956 öncesi veriyle kuruldu. Kütüphane sürümüne göre sizin sonucunuz biraz farklı olabilir.
+Bizim denememizde (pmdarima 2.1) seçilen model sabit terimli **ARIMA(1,0,0)(0,1,1)[12]** oldu. Burada $d = 0$ olması şaşırtıcı değildir: Mevsimsel fark ($D = 1$) trendin büyük kısmını zaten temizlemiş, kalan kayma sabit terimle karşılanmıştır. Modeli $w_t = x_t - x_{t-12}$ (bu ay eksi geçen yılın aynı ayı) cinsinden yazarsak $w_t = 6.43 + 0.753\thinspace  w_{t-1} + \varepsilon_t - 0.300\thinspace  \varepsilon_{t-12}$ olur. 7.1.1'deki ortalama formülüyle $w_t$'nin uzun dönem ortalaması $6.43 / (1 - 0.753) \approx 26.0$'dır: Model, her ayın geçen yılın aynı ayından ortalama yaklaşık 26 bin yolcu fazla olacağını öğrenmiştir (eğitim dönemindeki gerçek ortalama 26.2'dir). R'daki modelden farklı olmasının iki nedeni vardır: Burada log dönüşümü yapmadık ve model yalnızca 1956 öncesi veriyle kuruldu. Kütüphane sürümüne göre sonuç biraz farklı olabilir.
 
 #### 7.7.5. Tahmin ve Değerlendirme
 
@@ -1579,8 +1591,8 @@ ARIMA Modeli RMSE Değeri: 47.87
 
 **Alıştırma:** Modeli `np.log(train_data)` üzerinde kurun, tahminleri `np.exp()` ile orijinal ölçeğe döndürün ve RMSE'yi yeniden hesaplayın. Bizim denememizde `auto_arima` log seride ARIMA(2,0,0)(0,1,1)[12] modelini seçti ve RMSE yaklaşık 49.0 çıktı; yani bu bölmede toplam hata azalmadı. Hataları yıllara göre inceleyin: Log model 1956–1957'de neredeyse isabetlidir (yıllık ortalama hata 3 bin yolcunun altında), 1958'den sonra ise fazla tahmin yapar, çünkü eğitim döneminin yüksek yüzde büyümesini sürdürürken gerçek büyüme 1958'de yaklaşık %3'e düşmüştür. Bu alıştırma, kuramsal olarak doğru bir dönüşümün her test döneminde daha düşük hata garanti etmediğini ve modelleri her zaman test verisi üzerinde karşılaştırmak gerektiğini gösterir.
 
-Klasik modellerin gücü yorumlanabilirliklerindedir: Her katsayının açık bir anlamı vardır ve tahmin aralıkları kuramsal olarak hesaplanır. Ancak ARIMA ailesi doğrusal ilişkiler varsayar; karmaşık, doğrusal olmayan desenleri yakalamakta zorlanabilir. Bu tür durumlarda Bölüm 12'den itibaren ele alacağımız yapay zekâ tabanlı yöntemler daha etkili olabilir. Ama önce, farklı modelleri adil biçimde karşılaştırabilmek için **model değerlendirme** araçlarını öğrenmemiz gerekiyor.
+Klasik modellerin gücü yorumlanabilirliklerindedir: Her katsayının açık bir anlamı vardır ve tahmin aralıkları kuramsal olarak hesaplanır. Ancak ARIMA ailesi doğrusal ilişkiler varsayar; karmaşık, doğrusal olmayan desenleri yakalamakta zorlanabilir. Bu tür durumlarda Bölüm 12'den itibaren ele alacağımız yapay zeka tabanlı yöntemler daha etkili olabilir. Ama önce, farklı modelleri adil biçimde karşılaştırabilmek için **model değerlendirme** araçlarını öğrenmemiz gerekiyor.
 
 ---
 
-[İçindekiler](../Course_notes.md) · [← 6. Veri Manipülasyonu, Görselleştirme ve ACF/PACF](06_veri_manipulasyonu_gorsellestirme_ve_acf_pacf.md) · [8. Model Değerlendirme: Hata Metrikleri ve Eğitim-Test Ayrımı →](08_model_degerlendirme_hata_metrikleri_ve_egitim_te.md)
+[İçindekiler](../Course_notes.md) · [← 6. Veri Manipülasyonu, Görselleştirme ve ACF/PACF](06_veri_manipulasyonu_gorsellestirme_ve_acf_pacf.md) · [8. Model Değerlendirme: Hata Metrikleri ve Eğitim-Test Ayrımı →](08_model_degerlendirme_hata_metrikleri_ve_egitim_test_ayrimi.md)

@@ -1,6 +1,6 @@
 # %% [markdown]
 # # Bölüm 13 — XGBoost ile Zaman Serisi Tahmini
-# Ders notu: Course_notes.md, Bölüm 13 (13.4 Python ile XGBoost Uygulaması ve 13.4.2 Fark Üzerinden Tahmin).
+# Ders notu: notlar/13_xgboost_ile_zaman_serisi_tahmini.md (13.4 Python ile XGBoost Uygulaması ve 13.4.2 Fark Üzerinden Tahmin).
 # Bu dosya bölümdeki Python kodlarının tamamını içerir.
 # Çalıştırma: depo kök dizininden `python Codes/python/ch13_xgboost.py`
 # veya VS Code'da hücre hücre (# %%) ya da Colab'da notebook sürümü.
@@ -205,8 +205,8 @@ print(f"  Test: {len(X_test)} gözlem ({y_test.index.min()} - {y_test.index.max(
 params = dict(
     learning_rate=0.05,       # Öğrenme hızı (eta)
     max_depth=4,              # Ağaç derinliği
-    subsample=0.8,            # Veri örnekleme oranı
-    colsample_bytree=0.8,     # Özellik örnekleme oranı
+    # subsample ve colsample_bytree kullanılmaz: model rastgelelik içermez ve
+    # aynı xgboost sürümüyle her çalıştırmada aynı sonucu verir.
     random_state=SEED,
 )
 

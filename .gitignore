@@ -10,3 +10,7 @@ __pycache__/
 .Rhistory
 .RData
 .Rproj.user/
+
+# IDE ayar dosyaları (kişisel ortam; depoya alınmaz)
+.idea/
+.vscode/

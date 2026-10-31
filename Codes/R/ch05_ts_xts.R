@@ -1,6 +1,6 @@
 # =============================================================================
 # Bölüm 5 — R'da Zaman Serisi Nesneleri: ts ve xts
-# Ders notu: Course_notes.md, Bölüm 5 (ts oluşturma, USgas, AirPassengers,
+# Ders notu: notlar/05_rda_zaman_serisi_nesneleri_ts_ve_xts.md, Bölüm 5 (ts oluşturma, USgas, AirPassengers,
 #            xts ile düzensiz veriler, tarih bazlı filtreleme, dönem dönüştürme,
 #            window() ile alt küme)
 #

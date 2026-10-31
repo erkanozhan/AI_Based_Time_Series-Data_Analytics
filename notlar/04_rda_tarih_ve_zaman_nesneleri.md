@@ -4,25 +4,25 @@
 
 Bir zaman serisinde her gözlemin bir "ne zaman" bilgisi vardır. Bu bilgiyi yanlış okursak (ayı gün sanmak, saat dilimini karıştırmak, yaz saati geçişini unutmak) sonraki bütün analizler — grafikler, mevsimsellik, modeller — hatalı bir temel üzerine kurulur. Bu bölüm pratiğe geçmeden önce bu temeli sağlamlaştırır: tarih formatları, R'ın tarih/zaman sınıfları, saat dilimleri, `lubridate` paketi ve tarih aritmetiği.
 
-Bölüm 5'te göreceğimiz `ts` ve `xts` nesneleri, burada öğrendiğimiz tarih sınıflarının üzerine kurulur.
+Bölüm 5'te göreceğimiz `ts` ve `xts` nesneleri, burada öğrendiğimiz tarih sınıflarının üzerine kurulur. R'ın temel yapıları (atama, vektör, veri çerçevesi, paket kurma) [Ek A: R'a Giriş](../R_Giris.md)'te özetlenmiştir.
 
 ### 4.1. Tarih Formatı Sorunu ve ISO 8601
 
-Şu tarihe bir bakın: `01/02/2024`. Bu ne anlama geliyor? Cevap, metni okuyan kişinin (ya da yazılımın) hangi yazım düzenine alışkın olduğuna bağlıdır:
+Şu tarihe bakalım: `01/02/2024`. Bu ne anlama geliyor? Cevap, metni okuyan kişinin (ya da yazılımın) hangi yazım düzenine alışkın olduğuna bağlıdır:
 
 - **ABD'de (ay/gün/yıl):** ilk sayı ay, ikincisi gündür → 2 Ocak 2024.
 - **Türkiye'de ve Avrupa'nın çoğunda (gün/ay/yıl):** ilk sayı gün, ikincisi aydır → 1 Şubat 2024.
 
 Yani aynı metin, okuyanın alışkanlığına göre aralarında 30 gün olan iki farklı güne karşılık gelir. Japonya, Çin ve Kore gibi ülkelerde ise tarih büyükten küçüğe, **yıl/ay/gün** sırasıyla yazılır (`2024/02/01`). Bu sıra, aşağıda tanımlayacağımız ISO 8601 standardının sırasıyla aynıdır.
 
-Yanlış okuma ne zaman fark edilir? Gün kısmı 12'den büyük olan bir tarihte (`15/03/2024`) ay/gün okuması imkânsızdır, çünkü 15. ay yoktur. Ama bu, yazılımın size mutlaka bir hata mesajı göstereceği anlamına gelmez:
+Yanlış okuma ne zaman fark edilir? Gün kısmı 12'den büyük olan bir tarihte (`15/03/2024`) ay/gün okuması imkânsızdır, çünkü 15. ay yoktur. Ama bu, yazılımın mutlaka bir hata mesajı göstereceği anlamına gelmez:
 
-- R'da `as.Date("15/03/2024", format = "%m/%d/%Y")` (ay/gün/yıl kuralıyla okuma) hata vermez; sessizce `NA` (*Not Available*, "değer yok") döndürür. Binlerce satırlık bir sütunda bu `NA`'ları ancak özellikle ararsanız fark edersiniz (4.2.1).
+- R'da `as.Date("15/03/2024", format = "%m/%d/%Y")` (ay/gün/yıl kuralıyla okuma) hata vermez; sessizce `NA` (*Not Available*, "değer yok") döndürür. Binlerce satırlık bir sütunda bu `NA`'lar ancak özellikle aranırsa fark edilir (4.2.1).
 - Python'daki pandas kütüphanesinde `pd.to_datetime("15/03/2024")` çağrısı, ay/gün okuması tutmayınca hata vermeden gün/ay okumasına geçer ve 15 Mart 2024 döndürür; yalnızca kolayca gözden kaçan bir uyarı yazar. Değerler tek tek dönüştürülürse aynı sütunda iki kural karışabilir: `01/02/2024` 2 Ocak, `15/03/2024` ise 15 Mart olarak okunur.
 
 `01/02/2024` gibi gün ve ay kısmının ikisi de 12 ya da daha küçük olan tarihlerde durum daha da kötüdür: iki okuma da takvimde var olan bir gündür, bu yüzden ne `NA` oluşur ne de uyarı çıkar; veri sessizce yanlış okunur. Çözüm, tarihleri tek anlamlı bir düzende yazmaktır.
 
-**Tanım (ISO 8601):** Tarih ve saat yazımı için uluslararası standarttır (ISO: Uluslararası Standartlar Örgütü). Bileşenleri büyükten küçüğe sıralar: 4 haneli yıl (`Y`), 2 haneli ay (`M`), 2 haneli gün (`D`); gerekirse başa 0 eklenir (`02`, `01`). En sık yazım tireli `YYYY-MM-DD`'dir (*genişletilmiş biçim*); ayraçsız `YYYYMMDD` (*temel biçim*) da geçerlidir. Saat eklenecekse araya `T` konur (`YYYY-MM-DDTHH:MM:SS`); sondaki `Z` ya da `+03:00` saatin UTC'ye göre farkını söyler (tabloya ve 4.2.2'ye bakın).
+**Tanım (ISO 8601):** Tarih ve saat yazımı için uluslararası standarttır (ISO: Uluslararası Standartlar Örgütü). Bileşenleri büyükten küçüğe sıralar: 4 haneli yıl (`Y`), 2 haneli ay (`M`), 2 haneli gün (`D`); gerekirse başa 0 eklenir (`02`, `01`). En sık yazım tireli `YYYY-MM-DD`'dir (*genişletilmiş biçim*); ayraçsız `YYYYMMDD` (*temel biçim*) da geçerlidir. Saat eklenecekse araya `T` konur (`YYYY-MM-DDTHH:MM:SS`); sondaki `Z` ya da `+03:00` saatin UTC'ye göre farkını söyler (bkz. tablo ve 4.2.2).
 
 | Yazım | Anlamı |
 | --- | --- |
@@ -42,7 +42,7 @@ ISO 8601'in üç önemli avantajı vardır:
 2. **Sıralanabilir:** Metin olarak alfabetik (soldan sağa, karakter karakter) sıralandığında kronolojik sıra da korunur. `2023-12-31` ile `2024-01-01` karşılaştırılırken ilk farklı karakter yılın son hanesidir (`3` < `4`), dolayısıyla 2023 önce gelir. Gün/ay/yıl yazımında ise `01/02/2024` metni, ondan önceki bir gün olan `31/12/2023`'ün önüne sıralanır, çünkü `0` < `3`. Bu yüzden ISO biçimi dosya adlarında bile işe yarar (`satis_2024-02-01.csv`). Bunun için ay ve günün iki haneli yazılması (`2024-2-1` değil `2024-02-01`) ve karşılaştırılan saatlerin aynı saat diliminde olması gerekir.
 3. **Makine dostudur:** R, Python, SQL ve neredeyse tüm yazılımlar bu biçimi ek ayar gerektirmeden tanır.
 
-Kendinize bir iyilik yapın: veriyi kaydederken ve paylaşırken her zaman ISO 8601 kullanın.
+Bu nedenle veri kaydedilirken ve paylaşılırken her zaman ISO 8601 kullanılmalıdır.
 
 ![Aynı tarih metninin farklı ülke okumaları ve R'ın iç temsili](../images/ch04_tarih_formatlari.svg)
 
@@ -82,21 +82,21 @@ Kendinize bir iyilik yapın: veriyi kaydederken ve paylaşırken her zaman ISO 8
 
 > **Uygulama dosyası:** [`Codes/R/ch04_tarih_zaman.R`](../Codes/R/ch04_tarih_zaman.R)
 >
-> Bu bölümdeki R kodlarının tamamı bu dosyada. RStudio'da açıp satır satır çalıştırabilir ya da depo kök dizininde `Rscript Codes/R/ch04_tarih_zaman.R` komutunu kullanabilirsiniz.
+> Bu bölümdeki R kodlarının tamamı bu dosyada. Dosya RStudio'da açılıp satır satır ya da depo kök dizininde `Rscript Codes/R/ch04_tarih_zaman.R` komutuyla çalıştırılabilir.
 
-**Not —** Bu bölümdeki çıktılar, saat dilimi `Europe/Istanbul` ve tarih dili Türkçe olan bir bilgisayarda R 4.5 ile üretilmiştir. Kendi ayarlarınızı `Sys.timezone()` (saat dilimi) ve `Sys.getlocale("LC_TIME")` (tarih dili) ile görebilirsiniz. Saat dilimini kodda açıkça yazdığımız (`tz = ...`) satırlar her bilgisayarda aynı sonucu verir. Gün ve ay adları ise dil ayarına göre Türkçe (`Perşembe`) ya da İngilizce (`Thursday`) yazılır; Türkçe adları görmek için oturumun başında Windows'ta `Sys.setlocale("LC_TIME", "Turkish_Türkiye.utf8")` (Windows sürümüne göre adı `"Turkish_Turkey.utf8"` olabilir), Linux ve macOS'ta `Sys.setlocale("LC_TIME", "tr_TR.UTF-8")` çalıştırabilirsiniz.
+**Not —** Bu bölümdeki çıktılar, saat dilimi `Europe/Istanbul` ve tarih dili Türkçe olan bir bilgisayarda R 4.5 ile üretilmiştir. Bilgisayarın kendi ayarları `Sys.timezone()` (saat dilimi) ve `Sys.getlocale("LC_TIME")` (tarih dili) ile görülebilir. Saat dilimini kodda açıkça yazdığımız (`tz = ...`) satırlar her bilgisayarda aynı sonucu verir. Gün ve ay adları ise dil ayarına göre Türkçe (`Perşembe`) ya da İngilizce (`Thursday`) yazılır; Türkçe adları görmek için oturumun başında Windows'ta `Sys.setlocale("LC_TIME", "Turkish_Türkiye.utf8")` (Windows sürümüne göre adı `"Turkish_Turkey.utf8"` olabilir), Linux ve macOS'ta `Sys.setlocale("LC_TIME", "tr_TR.UTF-8")` çalıştırılabilir.
 
 R, bu format karmaşasını yönetmek için özel veri tipleri sunar. Temel fikir şudur: **tarih, ekranda metin gibi görünse de içeride bir sayıdır.** Sayı olduğu için tarihler sıralanabilir, birbirinden çıkarılabilir ve grafik eksenlerine yerleştirilebilir.
 
-Bir sayının tarih olarak anlam kazanması için bir başlangıç noktası (sıfır noktası) gerekir. R, birçok yazılım gibi **1970-01-01** tarihini sıfır kabul eder; buna *Unix orijini* ya da *epoch* (sayımın başladığı an) denir. Cetveldeki sıfır çizgisi gibi düşünebilirsiniz: 1970-01-02 tarihi `1`, 1969-12-31 tarihi `-1` olarak saklanır; 1970'ten önceki tarihler negatif sayılardır.
+Bir sayının tarih olarak anlam kazanması için bir başlangıç noktası (sıfır noktası) gerekir. R, birçok yazılım gibi **1970-01-01** tarihini sıfır kabul eder; buna *Unix orijini* ya da *epoch* (sayımın başladığı an) denir. Bunu cetveldeki sıfır çizgisine benzetebiliriz: 1970-01-02 tarihi `1`, 1969-12-31 tarihi `-1` olarak saklanır; 1970'ten önceki tarihler negatif sayılardır.
 
-**Tanım 1 (`Date`):** Yalnızca takvim gününü (yıl, ay, gün) tutar. İçeride, **1970-01-01'den bu yana geçen gün sayısı** olarak saklanır. Saatle işiniz yoksa (günlük, aylık, yıllık veriler) bunu kullanın.
+**Tanım 1 (`Date`):** Yalnızca takvim gününü (yıl, ay, gün) tutar. İçeride, **1970-01-01'den bu yana geçen gün sayısı** olarak saklanır. Saat bilgisi gerekmiyorsa (günlük, aylık, yıllık veriler) bu sınıf kullanılır.
 
 **Tanım 2 (`POSIXct`):** Tarih ile saati birlikte tutar. İçeride, **1970-01-01 00:00:00 UTC'den bu yana geçen saniye sayısı** olarak saklanır (POSIX: Unix türevi işletim sistemlerinin ortak standardının adı; ct: *calendar time*, takvim zamanı). Tek bir sayı olduğu için hızlıdır, az yer kaplar ve veri çerçevelerinde (tablolarda) sütun olarak kullanılmaya en uygun sınıftır.
 
 **Tanım 3 (`POSIXlt`):** Aynı anı, parçalarına ayrılmış bir **liste** olarak tutar (lt: *local time*, yerel zaman): saniye, dakika, saat, gün, ay, yıl, haftanın günü, yılın günü... Tek tek bileşenlere erişmek için kullanışlıdır, ama hesaplama ve depolama için `POSIXct` tercih edilir.
 
-**Günlük hayattan bir örnek:** `POSIXct`'yi arabanın kilometre sayacına benzetebilirsiniz: tek bir sayı gösterir (1970'ten bu yana geçen saniye) ve iki okumayı birbirinden çıkarınca aradaki mesafe hemen bulunur. `POSIXlt` ise aynı konumu "yıl: 2024, ay: Şubat, gün: 1, saat: 14, dakika: 30" diye parça parça yazan bir yol defteridir: tek bir parçaya bakmak kolaydır, ama iki kayıt arasındaki farkı bulmak için önce hepsini tek sayıya çevirmek gerekir.
+**Günlük hayattan bir örnek:** `POSIXct`'yi arabanın kilometre sayacına benzetebiliriz: tek bir sayı gösterir (1970'ten bu yana geçen saniye) ve iki okumayı birbirinden çıkarınca aradaki mesafe hemen bulunur. `POSIXlt` ise aynı konumu "yıl: 2024, ay: Şubat, gün: 1, saat: 14, dakika: 30" diye parça parça yazan bir yol defteridir: tek bir parçaya bakmak kolaydır, ama iki kayıt arasındaki farkı bulmak için önce hepsini tek sayıya çevirmek gerekir.
 
 | Sınıf | Neyi tutar? | İçeride nasıl saklanır? | Tipik kullanım |
 | --- | --- | --- | --- |
@@ -104,7 +104,7 @@ Bir sayının tarih olarak anlam kazanması için bir başlangıç noktası (sı
 | `POSIXct` | Gün + saat (+ saat dilimi) | 1970-01-01 00:00 UTC'den bu yana saniye | Saatlik, dakikalık, sensör, borsa verileri |
 | `POSIXlt` | Gün + saat (+ saat dilimi) | Bileşen listesi (`year`, `mon`, `mday`, `hour`, ...) | Bileşenlere erişim, ara işlem |
 
-Bunu doğrudan görelim. Kodu okurken 2.5'daki kuralları hatırlayın: `#` sonrası yorumdur, `#>` satırları R'ın ekrana yazdığı çıktıdır (siz yazmazsınız), baştaki `[1]` ise sıra numarasıdır.
+Bunu doğrudan görelim. Kod okunurken 2.5'teki kurallar geçerlidir: `#` sonrası yorumdur, `#>` satırları R'ın ekrana yazdığı çıktıdır (konsola yazılmaz), baştaki `[1]` ise sıra numarasıdır.
 
 ```r
 # Date: içeride gün sayısı
@@ -146,11 +146,11 @@ Bu kod, aynı tarihi önce `Date`, sonra `POSIXct`, en son `POSIXlt` olarak olu�
 3. `as.numeric(d)`: `as.numeric()` nesneyi düz sayıya çevirir; böylece sınıf etiketi kalkar ve içerideki çıplak sayı görünür: `19754`. Yani 1 Şubat 2024, 1970-01-01'den 19 754 gün sonradır.
 4. `as.Date(19754)`: Aynı fonksiyonun ters yönde kullanımıdır. Argüman metin değil sayı olduğunda `as.Date()` onu "1970-01-01'den bu yana geçen gün sayısı" olarak yorumlar ve yeniden 1 Şubat 2024'ü verir. (R 4.3'ten eski sürümlerde bu kullanımda başlangıç noktasını `origin = "1970-01-01"` diye ayrıca yazmak gerekiyordu.)
 5. `d + 1`: Bir `Date` nesnesine 1 eklemek, içerideki gün sayısına 1 eklemektir (19 755). Sonuç yine bir `Date`'tir ve bir sonraki günü gösterir.
-6. `ct <- as.POSIXct("2024-02-01 14:30:00", tz = "UTC")`: `as.POSIXct()` tarih ve saat içeren bir metni `POSIXct` nesnesine çevirir; metindeki saat `saat:dakika:saniye` düzenindedir. İkinci argüman adıyla verilmiştir (*adlandırılmış argüman*, 2.5). `tz` (*time zone*, saat dilimi) argümanı, metindeki saatin hangi saat dilimine göre okunacağını belirler. Burada saat **UTC'ye göre** 14:30'dur; bu an, Türkiye saatiyle 17:30'a karşılık gelir. UTC'yi seçmemizin nedeni, sonucun her bilgisayarda aynı çıkmasıdır (aşağıdaki nota bakın). Sonuç `ct` adıyla saklanır.
+6. `ct <- as.POSIXct("2024-02-01 14:30:00", tz = "UTC")`: `as.POSIXct()` tarih ve saat içeren bir metni `POSIXct` nesnesine çevirir; metindeki saat `saat:dakika:saniye` düzenindedir. İkinci argüman adıyla verilmiştir (*adlandırılmış argüman*, 2.5). `tz` (*time zone*, saat dilimi) argümanı, metindeki saatin hangi saat dilimine göre okunacağını belirler. Burada saat **UTC'ye göre** 14:30'dur; bu an, Türkiye saatiyle 17:30'a karşılık gelir. UTC'yi seçmemizin nedeni, sonucun her bilgisayarda aynı çıkmasıdır (bkz. aşağıdaki not). Sonuç `ct` adıyla saklanır.
 7. `class(ct)`: Bu kez iki sınıf adı yazılır: `POSIXct` ve onun ortak üst sınıfı `POSIXt`. Bir R nesnesinin birden fazla sınıfı olabilir; `POSIXt`, `POSIXct` ile `POSIXlt`'nin ortak davranışlarını (ör. iki zamanı birbirinden çıkarmayı) taşıyan sınıftır.
 8. `as.numeric(ct)`: İçerideki saniye sayısını gösterir. Bu sayı adım adım şöyle bulunur:
    - Bir gün $`24 \times 60 \times 60 = 86\,400`$ saniyedir. 1 Şubat 2024 gece yarısına kadar geçen tam günler: $`19\,754 \times 86\,400 = 1\,706\,745\,600`$ saniye.
-   - Gece yarısından 14:30'a kadar 14,5 saat geçer: $`14{,}5 \times 3\,600 = 52\,200`$ saniye.
+   - Gece yarısından 14:30'a kadar 14.5 saat geçer: $`14.5 \times 3\,600 = 52\,200`$ saniye.
    - Toplam: $`1\,706\,745\,600 + 52\,200 = 1\,706\,797\,800`$. Çıktıdaki `1706797800` tam olarak budur.
 9. `lt <- as.POSIXlt(ct)`: Aynı anı parçalarına ayrılmış bir `POSIXlt` listesine çevirir ve `lt` adıyla saklar. `ct` UTC'de olduğu için parçalar da UTC saatine göredir.
 10. `lt$hour` ve `lt$mday`: Dolar işareti (`$`), bir listenin adı verilmiş bir parçasına erişir; `lt$hour` "`lt`'nin `hour` parçası" diye okunur. `hour` saati (14), `mday` (*month day*) ayın gününü (1) verir.
@@ -175,7 +175,7 @@ Bu iki satır, bilgisayarın saatini okuyarak bugünün tarihini ve şu anki zam
 1. `Sys.Date()`: Bugünün tarihini `Date` olarak verir. Parantezler boştur, çünkü fonksiyon hiçbir argüman almaz; ama fonksiyonun çalışması için parantezleri yine de yazmak gerekir (parantezsiz `Sys.Date` yazmak fonksiyonu çalıştırmaz, onun kodunu ekrana döker).
 2. `Sys.time()`: Şu anki zamanı saniyesine kadar `POSIXct` olarak verir.
 
-Çıktıları okurken: yukarıdaki değerler yalnızca örnektir; siz çalıştırdığınızda o anın tarihi ve saati, bilgisayarınızın saat diliminde gösterilir. İkinci çıktı `YYYY-MM-DD HH:MM:SS` düzenindedir; sondaki `+03`, saatin UTC'den 3 saat ileride olduğunu söyler. Türkiye 2016'dan beri yıl boyu UTC+3 kullanır ve R'ın kullandığı saat dilimi veritabanında bu saat için harfli bir kısaltma (`EET` gibi) bulunmadığından R kısaltma yerine `+03` yazar.
+Çıktıları okurken: yukarıdaki değerler yalnızca örnektir; kod çalıştırıldığında o anın tarihi ve saati, bilgisayarın saat diliminde gösterilir. İkinci çıktı `YYYY-MM-DD HH:MM:SS` düzenindedir; sondaki `+03`, saatin UTC'den 3 saat ileride olduğunu söyler. Türkiye 2016'dan beri yıl boyu UTC+3 kullanır ve R'ın kullandığı saat dilimi veritabanında bu saat için harfli bir kısaltma (`EET` gibi) bulunmadığından R kısaltma yerine `+03` yazar.
 
 > **Hemen deneyin 4.2a · Doğum gününüz R'ın içinde hangi sayı?** (R, ~3 dk)
 >
@@ -193,7 +193,7 @@ Bu iki satır, bilgisayarın saatini okuyarak bugünün tarihini ve şu anki zam
 >
 > <details><summary>Cevap</summary>
 >
-> (1) `[1] "2024-10-04"`: 20 000 gün ≈ 20 000 / 365,25 ≈ 54,8 yıl; 1970 + 54,8 ≈ 2024'ün son çeyreği. (2) Sonuç çalıştırdığınız güne bağlıdır; örneğin 2026-10-14 için `[1] 20740`.
+> (1) `[1] "2024-10-04"`: 20 000 gün ≈ 20 000 / 365.25 ≈ 54.8 yıl; 1970 + 54.8 ≈ 2024'ün son çeyreği. (2) Sonuç çalıştırdığınız güne bağlıdır; örneğin 2026-10-14 için `[1] 20740`.
 >
 > </details>
 
@@ -218,7 +218,7 @@ Bu iki satır, bilgisayarın saatini okuyarak bugünün tarihini ve şu anki zam
 
 #### 4.2.1. Metni Tarihe Çevirmek: `as.Date()` ve Format Kodları
 
-Elimizdeki `"15/03/2024"` gibi bir metni R'ın anlayacağı bir `Date` nesnesine `as.Date()` ile çeviririz. Püf noktası şudur: **R'a metnin hangi biçimde yazıldığını `format` argümanıyla söylemeniz gerekir.** Argümanlar fonksiyona `ad = değer` biçiminde verilir; `format = "%d/%m/%Y"` gibi.
+Elimizdeki `"15/03/2024"` gibi bir metni R'ın anlayacağı bir `Date` nesnesine `as.Date()` ile çeviririz. Püf noktası şudur: **Metnin hangi biçimde yazıldığı R'a `format` argümanıyla söylenmelidir.** Argümanlar fonksiyona `ad = değer` biçiminde verilir; `format = "%d/%m/%Y"` gibi.
 
 Biçim metnindeki `%d`, `%m`, `%Y` gibi parçalar *yer tutuculardır*: `%` işareti ve ardından gelen harf, "buraya gün / ay / yıl gelecek" der. Aradaki `/`, `.`, `-` gibi karakterler ise metinde birebir aynen bulunmalıdır. Örneğin `"%d/%m/%Y"` şunu söyler: önce gün, sonra `/`, sonra ay, sonra `/`, sonra dört haneli yıl.
 
@@ -257,9 +257,9 @@ Bu kod, aynı `as.Date()` fonksiyonunun biçim verildiğinde ve verilmediğinde 
 
 Çıktıları okurken: girdi hangi düzende yazılmış olursa olsun, R okuduğu tarihi her zaman ISO 8601 (`YYYY-MM-DD`) biçiminde gösterir; bu yüzden 3. ve 5. satırların çıktıları aynıdır. Tırnaksız `[1] NA` ise "bu değer okunamadı" demektir; `NA` bir metin değil, R'ın eksik değer işaretidir.
 
-**Not —** İkinci satırdaki sonuç, bu bölümün en önemli uyarısıdır. R, `"01/02/2024"` metnini denediği ikinci biçim olan `%Y/%m/%d` ile okumuştur: `%Y` ilk parçadaki `01`'i yıl (1. yıl), `%m` ikinci parçadaki `02`'yi ay olarak almış; `%d` en fazla iki rakam okuduğu için `2024`'ün ilk iki rakamını (`20`) gün saymış ve geriye kalan `24`'ü sessizce atmıştır. Sonuç, 1. yılın 20 Şubat'ıdır ve hiçbir uyarı yoktur. (Metin iki biçimden hiçbirine uymasaydı, örneğin `as.Date("15.03.2024")`, R bu kez `character string is not in a standard unambiguous format` hatasını verirdi; yani hata almamanız, okumanın doğru olduğu anlamına gelmez.)
+**Not —** İkinci satırdaki sonuç, bu bölümün en önemli uyarısıdır. R, `"01/02/2024"` metnini denediği ikinci biçim olan `%Y/%m/%d` ile okumuştur: `%Y` ilk parçadaki `01`'i yıl (1. yıl), `%m` ikinci parçadaki `02`'yi ay olarak almış; `%d` en fazla iki rakam okuduğu için `2024`'ün ilk iki rakamını (`20`) gün saymış ve geriye kalan `24`'ü sessizce atmıştır. Sonuç, 1. yılın 20 Şubat'ıdır ve hiçbir uyarı yoktur. (Metin iki biçimden hiçbirine uymasaydı, örneğin `as.Date("15.03.2024")`, R bu kez `character string is not in a standard unambiguous format` hatasını verirdi; yani hata alınmaması, okumanın doğru olduğu anlamına gelmez.)
 
-Bu yüzden veri okurken biçimi **her zaman** açıkça belirtin ve okuduktan sonra iki basit kontrol yapın: `range(tarihler)` en küçük ve en büyük tarihi verir; `0001` gibi bir yıl ya da `NA NA` sonucu okumanın bozuk olduğunu hemen ele verir. `sum(is.na(tarihler))` ise kaç değerin okunamadığını sayar (`is.na()` her değer için "NA mı?" sorusunu `TRUE`/`FALSE` olarak cevaplar, `sum()` de `TRUE`'ları sayar).
+Bu yüzden veri okunurken biçim **her zaman** açıkça belirtilmeli ve okumadan sonra iki basit kontrol yapılmalıdır: `range(tarihler)` en küçük ve en büyük tarihi verir; `0001` gibi bir yıl ya da `NA NA` sonucu okumanın bozuk olduğunu hemen ele verir. `sum(is.na(tarihler))` ise kaç değerin okunamadığını sayar (`is.na()` her değer için "NA mı?" sorusunu `TRUE`/`FALSE` olarak cevaplar, `sum()` de `TRUE`'ları sayar).
 
 Tarih ve saati birlikte okumak için `as.POSIXct()` kullanılır; yine `format` ve saat dilimi (`tz`) verilir:
 
@@ -293,11 +293,11 @@ Bu kod, bir tarihi rapor, tablo ya da dosya adı için istediğimiz biçimde yaz
 1. `d <- as.Date("2024-02-01")`: 4.2'deki `d` nesnesini yeniden oluşturur; böylece bu parça tek başına çalıştırıldığında da çalışır.
 2. `format(d, "%d.%m.%Y")`: `format()` ilk argümandaki tarihi, ikinci argümandaki biçim metnine göre yazıya çevirir. İkinci argüman adsız verilmiştir; `format(d, format = "%d.%m.%Y")` yazmakla aynıdır. `%d`, `%m`, `%Y` yerlerine gün (`01`), ay (`02`) ve yıl (`2024`) yazılır, aradaki noktalar aynen kalır.
 3. `format(d, "%j")`: `%j` yılın kaçıncı günü olduğunu üç haneyle (başına sıfır ekleyerek) yazar: Ocak'ın 31 günü + 1 = 32. gün, yani `032`.
-4. `format(ct, "%Y-%m-%dT%H:%M:%SZ")`: 4.2'de oluşturduğumuz `ct` nesnesini ISO 8601 biçiminde yazar. `%H`, `%M`, `%S` sırasıyla saati, dakikayı ve saniyeyi (00–59) yazar. Biçimdeki `T` ve `Z` harfleri ise yer tutucu değildir (önlerinde `%` yoktur), metne aynen eklenir; bu yüzden sondaki `Z` yalnızca `ct` gerçekten UTC olduğu için doğrudur. Türkiye saatindeki bir zamanı yazarken `Z` yerine, UTC farkını `+0300` biçiminde (işaret, iki hane saat, iki hane dakika) yazan `%z` kodunu kullanın: `"%Y-%m-%dT%H:%M:%S%z"` → `2024-02-01T14:30:00+0300`.
+4. `format(ct, "%Y-%m-%dT%H:%M:%SZ")`: 4.2'de oluşturduğumuz `ct` nesnesini ISO 8601 biçiminde yazar. `%H`, `%M`, `%S` sırasıyla saati, dakikayı ve saniyeyi (00–59) yazar. Biçimdeki `T` ve `Z` harfleri ise yer tutucu değildir (önlerinde `%` yoktur), metne aynen eklenir; bu yüzden sondaki `Z` yalnızca `ct` gerçekten UTC olduğu için doğrudur. Türkiye saatindeki bir zamanı yazarken `Z` yerine, UTC farkını `+0300` biçiminde (işaret, iki hane saat, iki hane dakika) yazan `%z` kodu kullanılmalıdır: `"%Y-%m-%dT%H:%M:%S%z"` → `2024-02-01T14:30:00+0300`.
 
 Çıktıları okurken: `format()` her zaman metin (karakter dizisi) döndürür. Buradaki tırnaklar 4.2'deki `Date` çıktılarından farklı olarak gerçekten metin olduğunu gösterir: `"032"` bir sayı değil, üç karakterlik bir yazıdır; onunla toplama yapılamaz.
 
-**Ezberlemeniz gereken format kodları:** Bu kodlar, R'a metnin hangi parçasının yıl, ay, gün, saat olduğunu anlatır. Hem okurken (`as.Date`, `as.POSIXct`, `strptime`) hem yazarken (`format`) aynı kodlar kullanılır.
+**Sık kullanılan format kodları:** Bu kodlar, R'a metnin hangi parçasının yıl, ay, gün, saat olduğunu anlatır. Hem okurken (`as.Date`, `as.POSIXct`, `strptime`) hem yazarken (`format`) aynı kodlar kullanılır.
 
 | Kod | Anlamı | Örnek (1 Şubat 2024, 14:30:05) |
 | --- | --- | --- |
@@ -321,7 +321,7 @@ Bu kod, bir tarihi rapor, tablo ya da dosya adı için istediğimiz biçimde yaz
 
 Büyük-küçük harf önemlidir: `%m` ay, `%M` dakikadır; `%Y` dört haneli, `%y` iki haneli yıldır.
 
-**Not —** `%B`, `%b`, `%A`, `%a`, `%p` kodları bilgisayarın dil (*locale*) ayarına bağlıdır. Türkçe ayarlı bir sistemde `as.Date("15 Mart 2024", format = "%d %B %Y")` çalışır; İngilizce ayarlı bir sistemde `NA` döner. Taşınabilir kod yazmak için ay adları yerine ay numaralarını tercih edin.
+**Not —** `%B`, `%b`, `%A`, `%a`, `%p` kodları bilgisayarın dil (*locale*) ayarına bağlıdır. Türkçe ayarlı bir sistemde `as.Date("15 Mart 2024", format = "%d %B %Y")` çalışır; İngilizce ayarlı bir sistemde `NA` döner. Taşınabilir kod yazmak için ay adları yerine ay numaraları tercih edilmelidir.
 
 > **Hemen deneyin 4.2.1 · Doğum tarihinizi format kodlarıyla yazdırın** (R, ~4 dk)
 >
@@ -353,7 +353,7 @@ Aynı "14:30" (*duvar saati*: o şehirde saatin gösterdiği yerel saat), İstan
 
 **Tanım (yaz saati):** Bazı ülkeler ilkbaharda saatleri bir saat ileri, sonbaharda bir saat geri alır (*yaz saati uygulaması*, İngilizce *daylight saving time*, DST). Bu ülkelerde UTC farkı yıl içinde değişir: Berlin kışın UTC+1 (CET), yazın UTC+2'dir (CEST); New York kışın UTC−5 (EST), yazın UTC−4'tür (EDT). Türkiye 2016'dan beri yaz saati uygulamaz ve yıl boyu UTC+3'tür.
 
-R'da saat dilimleri `"Europe/Istanbul"`, `"America/New_York"`, `"UTC"` gibi "Kıta/Şehir" biçimindeki IANA (Olson) adlarıyla verilir. Bu adlar, bölgenin yaz saati kurallarını ve geçmişteki değişiklikleri de içerdiği için "UTC+3" gibi sabit bir farktan daha güvenlidir. Tam liste için `OlsonNames()`, sisteminizin saat dilimi için `Sys.timezone()` kullanılır.
+R'da saat dilimleri `"Europe/Istanbul"`, `"America/New_York"`, `"UTC"` gibi "Kıta/Şehir" biçimindeki IANA (Olson) adlarıyla verilir. Bu adlar, bölgenin yaz saati kurallarını ve geçmişteki değişiklikleri de içerdiği için "UTC+3" gibi sabit bir farktan daha güvenlidir. Tam liste için `OlsonNames()`, sistemin saat dilimi için `Sys.timezone()` kullanılır.
 
 ```r
 ist <- as.POSIXct("2024-02-01 14:30:00", tz = "Europe/Istanbul")
@@ -398,11 +398,11 @@ Son çıktı, `ist` anının UTC'de 11:30 olduğunu doğrular; sondaki `UTC` yaz
 
 Zaman serisi çalışmalarında pratik kurallar:
 
-- Farklı kaynaklardan gelen zaman damgalarını birleştirmeden önce **aynı saat dilimine** getirin; mümkünse içeride UTC ile çalışıp yalnızca raporlarken yerel saate çevirin.
-- `tz` vermezseniz R bilgisayarınızın saat dilimini varsayar; kod başka bir makinede farklı sonuç verebilir. `tz`'yi her zaman açıkça yazın.
+- Farklı kaynaklardan gelen zaman damgaları birleştirilmeden önce **aynı saat dilimine** getirilmelidir; mümkünse içeride UTC ile çalışılmalı, yerel saate yalnızca raporlarken çevrilmelidir.
+- `tz` verilmezse R bilgisayarın saat dilimini varsayar; kod başka bir makinede farklı sonuç verebilir. Bu nedenle `tz` her zaman açıkça yazılmalıdır.
 - Yaz saati uygulanan bölgelerde (ör. Avrupa, ABD) yılda bir gün 23, bir gün 25 saat sürer. Saatlik verilerde bu, ilkbaharda bir saatin "kaybolması", sonbaharda ise bir saatin "iki kez görünmesi" demektir (ayrıntısı 4.4.2'de).
 
-**Günlük hayattan bir örnek:** Hastanedeki gece nöbet çizelgesini düşünün: nöbet her gece 00:00–08:00, yani çizelgede 8 saat. Saatlerin ileri alındığı gece aynı nöbet gerçekte 7 saat, geri alındığı gece 9 saat sürer, ama çizelgede hiçbir şey değişmez. Saatlik bir veri setinde de ilkbahar gecesinde bir saatin satırı hiç yoktur, sonbahar gecesinde bir saat iki kez görünür.
+**Günlük hayattan bir örnek:** Hastanedeki gece nöbet çizelgesini düşünelim: nöbet her gece 00:00–08:00, yani çizelgede 8 saat. Saatlerin ileri alındığı gece aynı nöbet gerçekte 7 saat, geri alındığı gece 9 saat sürer, ama çizelgede hiçbir şey değişmez. Saatlik bir veri setinde de ilkbahar gecesinde bir saatin satırı hiç yoktur, sonbahar gecesinde bir saat iki kez görünür.
 
 ### 4.3. `lubridate` Paketi: Tarihlerle Rahat Çalışmak
 
@@ -444,12 +444,12 @@ Bu kod, `lubridate`'in okuma fonksiyonlarını tanıtır: aynı günü farklı y
 4. `dmy("15.03.2024")` ve `mdy("03/15/2024")`: Aynı işi gün-ay-yıl (Türkçe yazım, noktalı) ve ay-gün-yıl (ABD yazımı, eğik çizgili) sırası için yapar. Ayraçların farklı olması sorun değildir.
 5. `ymd("20240315")`: Ayraçsız ISO 8601 temel biçimini de okur; dört haneli yıl, iki haneli ay ve iki haneli gün sırasıyla ayrılır.
 6. `ymd("01/02/2024")`: Metin yıl-ay-gün sırasına uymaz (son parçadaki `2024` bir gün olamaz). `ymd()`, `as.Date()`'in aksine `0001-02-20` gibi uydurma bir tarih üretmez; `NA` döndürür ve uyarı yazar.
-7. `ymd_hms("2024-03-15 14:30:00")`: Alt çizgiden sonraki `hms` saat (*hour*), dakika (*minute*), saniye (*second*) sırasını söyler. Sonuç bir `POSIXct` nesnesidir (saat dilimi için aşağıdaki nota bakın).
+7. `ymd_hms("2024-03-15 14:30:00")`: Alt çizgiden sonraki `hms` saat (*hour*), dakika (*minute*), saniye (*second*) sırasını söyler. Sonuç bir `POSIXct` nesnesidir (saat dilimi için bkz. aşağıdaki not).
 8. `ymd_hms("2024-03-15T14:30:00+03:00")`: ISO 8601'in tam yazımını okur: tarih ile saat arasındaki `T` harfini ve sondaki `+03:00` UTC farkını tanır. Saat, Türkiye saati olarak yorumlanıp UTC'ye çevrilir: 14:30 − 3 = 11:30.
 
-Çıktıları okurken: ilk dört satırın çıktısı aynıdır (`"2024-03-15"`): dört farklı yazım aynı günü verir; hangi fonksiyonu seçeceğiniz yalnızca metindeki sıraya bağlıdır. Beşinci satırda `[1] NA`'nın altında bir uyarı (*warning*) vardır. Uyarı, hatadan farklı olarak kodu durdurmaz, yalnızca dikkat çeker. `All formats failed to parse. No formats found.` "Hiçbir biçimle okunamadı; uyan biçim bulunamadı" demektir. Son iki satırdaki `UTC` eki sonucun hangi saat diliminde gösterildiğini söyler.
+Çıktıları okurken: ilk dört satırın çıktısı aynıdır (`"2024-03-15"`): dört farklı yazım aynı günü verir; hangi fonksiyonun seçileceği yalnızca metindeki sıraya bağlıdır. Beşinci satırda `[1] NA`'nın altında bir uyarı (*warning*) vardır. Uyarı, hatadan farklı olarak kodu durdurmaz, yalnızca dikkat çeker. `All formats failed to parse. No formats found.` "Hiçbir biçimle okunamadı; uyan biçim bulunamadı" demektir. Son iki satırdaki `UTC` eki sonucun hangi saat diliminde gösterildiğini söyler.
 
-**Not —** 6. satırdaki gibi `NA` ile birlikte gelen "failed to parse" (okunamadı) uyarısını ciddiye alın. Ancak sırayı yanlış seçerseniz (Türkçe yazılmış `01.02.2024` için `mdy()`) iki okuma da geçerli bir tarih olduğundan uyarı çıkmaz; sırayı veriye bakarak doğru seçmek yine sizin işinizdir. Ayrıca `ymd_hms()` saat dilimi verilmezse **UTC** varsayar (base R'daki `as.POSIXct()` ise sistemin saat dilimini varsayar); yerel saatle çalışıyorsanız `tz = "Europe/Istanbul"` yazmayı unutmayın.
+**Not —** 6. satırdaki gibi `NA` ile birlikte gelen "failed to parse" (okunamadı) uyarısı ciddiye alınmalıdır. Ancak sıra yanlış seçilirse (Türkçe yazılmış `01.02.2024` için `mdy()`) iki okuma da geçerli bir tarih olduğundan uyarı çıkmaz; sıranın veriye bakılarak doğru seçilmesi yine kullanıcının sorumluluğundadır. Ayrıca `ymd_hms()` saat dilimi verilmezse **UTC** varsayar (base R'daki `as.POSIXct()` ise sistemin saat dilimini varsayar); yerel saatle çalışılıyorsa `tz = "Europe/Istanbul"` mutlaka yazılmalıdır.
 
 **Bileşen çekme fonksiyonları:** Zaman serilerinde mevsimsellik analizi için tarihin ayını, haftanın gününü, çeyreğini ayrı bir değişken olarak çıkarmak çok sık yapılır; örneğin "satışlar cuma günleri daha mı yüksek?" sorusu için önce her tarihin haftanın hangi günü olduğunu bilmek gerekir.
 
@@ -480,9 +480,9 @@ Bu blokta çıktılar, kısalık için satır sonundaki yorumlarda verilmiştir;
 
 Kodu çalıştırdığınızda ilk yedi satırın her biri `[1] 2024`, `[1] 3` gibi tek bir sayı yazar. Son satır ise iki satırlık bir çıktı verir: `[1] Cum` ve altında `Levels: Paz < Pzt < Sal < Çar < Per < Cum < Cmt` (İngilizce sistemde `Sun < Mon < ...`). Bunun nedeni, sonucun bir *faktör* olmasıdır: R'da sınırlı sayıda kategoriden birini tutan veri tipi. `Levels` satırı olası bütün kategorileri, aradaki `<` işaretleri de bunların sırasını gösterir (pazar, pazartesiden önce gelir). Sıralı olması, gün adlarına göre gruplanmış sonuçların alfabetik değil haftanın sırasıyla dizilmesini sağlar.
 
-**Tanım (artık yıl):** Dünya'nın Güneş etrafındaki bir turu yaklaşık 365,25 gün sürer. Aradaki çeyrek günler birikmesin diye 4'e bölünebilen yıllara 29 Şubat eklenir ve yıl 366 gün olur (2024 gibi). İstisna: 100'e bölünüp 400'e bölünemeyen yıllar artık yıl değildir (1900 değil, 2000 artık yıldır). `lubridate::leap_year(2024)` bunu sizin yerinize kontrol eder.
+**Tanım (artık yıl):** Dünya'nın Güneş etrafındaki bir turu yaklaşık 365.25 gün sürer. Aradaki çeyrek günler birikmesin diye 4'e bölünebilen yıllara 29 Şubat eklenir ve yıl 366 gün olur (2024 gibi). İstisna: 100'e bölünüp 400'e bölünemeyen yıllar artık yıl değildir (1900 değil, 2000 artık yıldır). `lubridate::leap_year(2024)` bunu otomatik olarak kontrol eder.
 
-**Yuvarlama fonksiyonları:** Günlük veriyi aylık ya da haftalık gruplara toplamak için tarihleri dönem başına yuvarlamak işe yarar. Mantık, sayılardaki aşağı ve yukarı yuvarlamayla aynıdır: 3,7 aşağı yuvarlanınca 3, yukarı yuvarlanınca 4 olur; bir tarih de içinde bulunduğu ayın başına (aşağı) ya da sonraki ayın başına (yukarı) yuvarlanır.
+**Yuvarlama fonksiyonları:** Günlük veriyi aylık ya da haftalık gruplara toplamak için tarihleri dönem başına yuvarlamak işe yarar. Mantık, sayılardaki aşağı ve yukarı yuvarlamayla aynıdır: 3.7 aşağı yuvarlanınca 3, yukarı yuvarlanınca 4 olur; bir tarih de içinde bulunduğu ayın başına (aşağı) ya da sonraki ayın başına (yukarı) yuvarlanır.
 
 ```r
 floor_date(t1, "month")                  # Ayın ilk günü
@@ -496,10 +496,10 @@ ceiling_date(t1, "month")                # Sonraki ayın ilk günü
 Kodu satır satır okuyalım (`t1`, önceki bloktaki 15 Mart 2024'tür):
 
 1. `floor_date(t1, "month")`: `floor_date()` (*floor*: taban) tarihi aşağı, yani dönemin başına yuvarlar. İkinci argüman (adı `unit`) dönemin birimidir ve tırnak içinde metin olarak verilir: `"day"`, `"week"`, `"month"`, `"quarter"`, `"year"` gibi. Sonuç ayın ilk günüdür.
-2. `floor_date(t1, "week", week_start = 1)`: Bu kez birim haftadır; `week_start = 1` haftanın pazartesi başladığını söyler (önceki bloktaki `wday()` ile aynı argüman). Sonuç, 15 Mart'ın içinde bulunduğu haftanın pazartesisidir: 11 Mart. `week_start = 1` vermezseniz hafta pazar başlar ve sonuç `2024-03-10` olur.
+2. `floor_date(t1, "week", week_start = 1)`: Bu kez birim haftadır; `week_start = 1` haftanın pazartesi başladığını söyler (önceki bloktaki `wday()` ile aynı argüman). Sonuç, 15 Mart'ın içinde bulunduğu haftanın pazartesisidir: 11 Mart. `week_start = 1` verilmezse hafta pazar başlar ve sonuç `2024-03-10` olur.
 3. `ceiling_date(t1, "month")`: `ceiling_date()` (*ceiling*: tavan) yukarı yuvarlar; sonuç sonraki dönemin başıdır, yani 1 Nisan.
 
-Üç çıktı da `Date` nesnesidir. Bir ayın bütün günlerini `floor_date(..., "month")` ile aynı tarihe (ayın 1'ine) çevirirseniz, aylık toplam ya da ortalama almak için bir gruplama anahtarı elde etmiş olursunuz: Mart'ın 31 gününün hepsi `2024-03-01` olur.
+Üç çıktı da `Date` nesnesidir. Bir ayın bütün günlerini `floor_date(..., "month")` ile aynı tarihe (ayın 1'ine) çevrilirse, aylık toplam ya da ortalama almak için bir gruplama anahtarı elde edilmiş olur: Mart'ın 31 gününün hepsi `2024-03-01` olur.
 
 > **Hemen deneyin 4.3a · Doğum gününüz her yıl haftanın hangi gününe düşüyor?** (R ve Python, ~4 dk)
 >
@@ -552,7 +552,7 @@ Bu kod, bir zamanın saat dilimini değiştirmenin iki farklı anlamını karş�
 
 Çıktıları okurken: iki satırda da `UTC` yazar, ama ilki `x` ile aynı anı, ikincisi 3 saat sonraki başka bir anı gösterir (Şekil 4.2: mavi çizgi hem `x`'i hem `with_tz()` sonucunu, mor çizgi `force_tz()` sonucunu gösterir).
 
-**Günlük hayattan bir örnek:** Bir uçak biletini düşünün: "İstanbul 10:00 kalkış → Londra 11:00 varış" (Ocak). Biletteki iki saat farklı şehirlerin duvar saatidir; uçak havada 1 değil 4 saat kalır, çünkü İstanbul UTC+3, Londra kışın UTC+0'dır. `with_tz()` aynı bileti başka bir şehrin saatiyle yeniden yazdırmaktır: iniş anı değişmez, Londra'daki 11:00 İstanbul saatiyle 14:00 görünür. `force_tz()` ise "11:00" rakamına dokunmadan yanındaki şehir adını değiştirmektir: "Londra 11:00" yerine "İstanbul 11:00" yazarsanız uçak kâğıt üzerinde 3 saat erken inmiş olur. Şehir adı yanlış basılmışsa bu bir düzeltmedir, doğru basılmışsa veriyi bozar.
+**Günlük hayattan bir örnek:** Bir uçak biletini ele alalım: "İstanbul 10:00 kalkış → Londra 11:00 varış" (Ocak). Biletteki iki saat farklı şehirlerin duvar saatidir; uçak havada 1 değil 4 saat kalır, çünkü İstanbul UTC+3, Londra kışın UTC+0'dır. `with_tz()` aynı bileti başka bir şehrin saatiyle yeniden yazdırmaktır: iniş anı değişmez, Londra'daki 11:00 İstanbul saatiyle 14:00 görünür. `force_tz()` ise "11:00" rakamına dokunmadan yanındaki şehir adını değiştirmektir: "Londra 11:00" yerine "İstanbul 11:00" yazılırsa uçak kâğıt üzerinde 3 saat erken inmiş olur. Şehir adı yanlış basılmışsa bu bir düzeltmedir, doğru basılmışsa veriyi bozar.
 
 > **Hemen deneyin 4.3b · İstanbul–New York toplantısı kaçta?** (R ve Python, ~6 dk)
 >
@@ -627,7 +627,7 @@ Kodu satır satır okuyalım:
 8. `as.numeric(fark)`: Birimi atıp çıplak sayıyı (365) verir; sayıyla başka hesaplara devam etmek için gerekir.
 9. `difftime(bitis, baslangic, units = "weeks")`: `difftime()` iki zamanın farkını, ilk argümandan ikinciyi çıkararak hesaplar (sıra önemlidir; ters yazılırsa sonuç eksi olur). `units` argümanı sonucun birimini seçer: `"secs"`, `"mins"`, `"hours"`, `"days"` ya da `"weeks"`. Burada hafta istedik.
 
-Çıktıları okurken: ilk beş çıktı yeni tarihlerdir (hepsi `Date`). `Time difference of 365 days`, "zaman farkı: 365 gün" demektir. Neden 366 değil? İki tarihi çıkarmak, aradaki gün *adımlarının* sayısını verir: 1 Ocak'tan 2 Ocak'a 1 adım, ..., 31 Aralık'a 365 adım vardır. 2024 artık yıldır, yani 366 gün sürer; 366. adım bizi 2025'in 1 Ocak'ına götürürdü. Son çıktı aynı farkın hafta cinsinden değeridir: $365 / 7 \approx 52{,}14286$ (R ondalık ayırıcı olarak nokta kullanır: `52.14286`).
+Çıktıları okurken: ilk beş çıktı yeni tarihlerdir (hepsi `Date`). `Time difference of 365 days`, "zaman farkı: 365 gün" demektir. Neden 366 değil? İki tarihi çıkarmak, aradaki gün *adımlarının* sayısını verir: 1 Ocak'tan 2 Ocak'a 1 adım, ..., 31 Aralık'a 365 adım vardır. 2024 artık yıldır, yani 366 gün sürer; 366. adım bizi 2025'in 1 Ocak'ına götürürdü. Son çıktı aynı farkın hafta cinsinden değeridir: $365 / 7 \approx 52.14286$.
 
 > **Hemen deneyin 4.4a · Tarih farkı ve iş günü sayısı Excel'de** (Excel / LibreOffice Calc, ~5 dk)
 >
@@ -671,7 +671,7 @@ Kodu satır satır okuyalım; dizi iki yoldan üretilir: başlangıç ve bitiş 
 2. `aylik_dizi`: Diziyi ekrana yazdırır.
 3. `seq(as.Date("2024-01-01"), by = "week", length.out = 4)`: İlk argüman adsızdır; `seq()`'in ilk argümanı `from` olduğu için başlangıç tarihi olarak anlaşılır. Bu kez bitiş tarihi yerine `length.out = 4` (çıktının uzunluğu) verilmiştir: haftalık adımlarla 4 tarih üretilir. Tahmin dönemi için "bundan sonraki 12 ay" gibi tarihler üretirken bu biçim kullanışlıdır.
 
-Çıktıları okurken: ilk sonuç 12 tarihlik bir *vektördür*, yani aynı türden değerlerin sıralı bir listesidir (4.2'deki tek değerli sonuçlar da aslında bir elemanlı vektörlerdir). Çıktı ekrana sığmadığı için alt satırlara bölünmüştür; satır başlarındaki `[1]`, `[6]` ve `[11]`, o satırın vektörün 1., 6. ve 11. elemanıyla başladığını gösterir. İkinci çıktı 7'şer gün arayla 4 pazartesidir. Bir veri setindeki tarihleri böyle bir tam diziyle karşılaştırarak (`setdiff(tam_dizi, tarihler)`: ilk vektörde olup ikincide olmayan değerler) eksik dönemleri bulabilirsiniz.
+Çıktıları okurken: ilk sonuç 12 tarihlik bir *vektördür*, yani aynı türden değerlerin sıralı bir listesidir (4.2'deki tek değerli sonuçlar da aslında bir elemanlı vektörlerdir). Çıktı ekrana sığmadığı için alt satırlara bölünmüştür; satır başlarındaki `[1]`, `[6]` ve `[11]`, o satırın vektörün 1., 6. ve 11. elemanıyla başladığını gösterir. İkinci çıktı 7'şer gün arayla 4 pazartesidir. Bir veri setindeki tarihler böyle bir tam diziyle karşılaştırılarak (`setdiff(tam_dizi, tarihler)`: ilk vektörde olup ikincide olmayan değerler) eksik dönemler bulunabilir.
 
 > **Hemen deneyin 4.4b · 2026'da kaç tane "13'ü Cuma" var?** (R, ~4 dk)
 >
@@ -719,7 +719,7 @@ Kodu satır satır okuyalım; üç farklı sonuç göreceğiz: `NA`, ay sonuna y
 3. `ymd("2024-01-31") %m+% months(0:3)`: `0:3` yazımı 0'dan 3'e kadar tam sayıları içeren bir vektör (`0, 1, 2, 3`) üretir. `months(0:3)` böylece dört ayrı süre (0, 1, 2 ve 3 ay) olur ve `%m+%` her birini başlangıç tarihine ayrı ayrı ekler. Tek satırda, her ayın son gününden oluşan 4 elemanlı bir tarih vektörü elde edilir. Çıkarma için `%m-%` kullanılır.
 4. `seq(as.Date("2024-01-31"), by = "month", length.out = 4)`: Base R'ın `seq()` fonksiyonuyla (4.4'te anlatıldı) aynı ay sonu dizisini üretmeyi dener.
 
-Çıktıları okurken: ilk satırdaki `NA`, sonucun okunamadığını değil, böyle bir günün takvimde olmadığını söyler. Üçüncü satır 31 Ocak, 29 Şubat, 31 Mart ve 30 Nisan'ı verir; hepsi ay sonudur. Son satırda ise base R'ın `seq()` fonksiyonu olmayan günü sayıp taşırır: "31 Şubat", 29 Şubat'tan 2 gün sonrası olarak 2 Mart'a; "31 Nisan", 30 Nisan'dan 1 gün sonrası olarak 1 Mayıs'a kayar. Ay sonu verileriyle (ör. aylık finansal kapanışlar) çalışırken `%m+%` kullanın; `"2024-03-02"` gibi kaymalar hata mesajı üretmediği için fark edilmesi zor hatalara yol açar.
+Çıktıları okurken: ilk satırdaki `NA`, sonucun okunamadığını değil, böyle bir günün takvimde olmadığını söyler. Üçüncü satır 31 Ocak, 29 Şubat, 31 Mart ve 30 Nisan'ı verir; hepsi ay sonudur. Son satırda ise base R'ın `seq()` fonksiyonu olmayan günü sayıp taşırır: "31 Şubat", 29 Şubat'tan 2 gün sonrası olarak 2 Mart'a; "31 Nisan", 30 Nisan'dan 1 gün sonrası olarak 1 Mayıs'a kayar. Ay sonu verileriyle (ör. aylık finansal kapanışlar) çalışırken `%m+%` kullanılmalıdır; `"2024-03-02"` gibi kaymalar hata mesajı üretmediği için fark edilmesi zor hatalara yol açar.
 
 > **Hemen deneyin 4.4.1 · Ay sonu tuzağı geriye doğru ve pandas'ta** (R ve Python, ~4 dk)
 >
@@ -751,11 +751,11 @@ Kodu satır satır okuyalım; üç farklı sonuç göreceğiz: `NA`, ay sonuna y
 
 #### 4.4.2. Period ve Duration: İki Farklı "Süre" Kavramı
 
-`lubridate`, süreyi iki farklı şekilde ifade eder ve bu ayrım özellikle saatlik verilerde önemlidir. Gündelik bir benzetme: *period* duvar takvimine bakarak "yarın aynı saatte" demektir; *duration* ise bir kronometreyi başlatıp "tam 24 saat sonra" demektir. Gün düzeyinde çoğu zaman aynı yere varırlar, yaz saati geçişlerinde ayrışırlar; yıl düzeyinde ise `dyears(1)` 365,25 gün olduğu için `years(1)`'den her zaman birkaç saat sapar.
+`lubridate`, süreyi iki farklı şekilde ifade eder ve bu ayrım özellikle saatlik verilerde önemlidir. Gündelik bir benzetme: *period* duvar takvimine bakarak "yarın aynı saatte" demektir; *duration* ise bir kronometreyi başlatıp "tam 24 saat sonra" demektir. Gün düzeyinde çoğu zaman aynı yere varırlar, yaz saati geçişlerinde ayrışırlar; yıl düzeyinde ise `dyears(1)` 365.25 gün olduğu için `years(1)`'den her zaman birkaç saat sapar.
 
 **Tanım 1 (Period):** İnsanların takvimde kullandığı süredir: "1 gün", "1 ay", "1 yıl". Uzunluğu sabit değildir; 1 ay 28–31 gün, 1 gün (yaz saati geçişinde) 23 ya da 25 saat olabilir. `days()`, `months()`, `years()` gibi **çoğul adlı** fonksiyonlarla oluşturulur. Period eklemek duvar saatini (takvimi) korur.
 
-**Tanım 2 (Duration):** Fiziksel olarak geçen süredir ve her zaman **saniye** cinsinden sabittir: 1 gün = 86 400 saniye, 1 yıl = 365,25 gün. Başında `d` olan `ddays()`, `dweeks()`, `dyears()` gibi fonksiyonlarla oluşturulur. Duration eklemek kronometreyi korur. Bir yılın 365,25 gün sayılması, dört yıllık döngünün ortalamasından gelir: $(365 + 365 + 365 + 366) / 4 = 1461 / 4 = 365{,}25$ gün; yani `dyears(1)` $365{,}25 \times 86\thinspace 400 = 31\thinspace 557\thinspace 600$ saniyedir.
+**Tanım 2 (Duration):** Fiziksel olarak geçen süredir ve her zaman **saniye** cinsinden sabittir: 1 gün = 86 400 saniye, 1 yıl = 365.25 gün. Başında `d` olan `ddays()`, `dweeks()`, `dyears()` gibi fonksiyonlarla oluşturulur. Duration eklemek kronometreyi korur. Bir yılın 365.25 gün sayılması, dört yıllık döngünün ortalamasından gelir: $(365 + 365 + 365 + 366) / 4 = 1461 / 4 = 365.25$ gün; yani `dyears(1)` $365.25 \times 86\thinspace 400 = 31\thinspace 557\thinspace 600$ saniyedir.
 
 ```r
 days(1)       # period
@@ -784,7 +784,7 @@ Bu kod, period ile duration'ın önce nasıl yazıldığını, sonra iki kritik 
 3. `x + days(1)` (period): "ertesi gün, yine 12:00". Duvar saati korunur ama gerçekte 12 + 11 = 23 saat geçmiştir (30 Mart 12:00'den gece yarısına 12 saat, gece yarısından 31 Mart 12:00'ye kaybolan saat yüzünden 11 saat).
 4. `x + ddays(1)` (duration): tam 24 saat = 86 400 saniye ekler. Kaybolan saat yüzünden duvar saati 13:00'ü gösterir.
 5. `ymd("2024-02-29") + years(1)`: `years(1)` "gelecek yıl aynı gün" der ama 29 Şubat 2025 olmadığı için `NA` döner (4.4.1'deki `+ months(1)` ile aynı durum).
-6. `ymd("2024-02-29") + dyears(1)`: `dyears(1)` 365,25 gün ekler: 2024-02-29'dan 365 gün sonrası 2025-02-28'dir, kalan 0,25 gün de $`0{,}25 \times 24 = 6`$ saattir; sonuç 2025-02-28 06:00'dır.
+6. `ymd("2024-02-29") + dyears(1)`: `dyears(1)` 365.25 gün ekler: 2024-02-29'dan 365 gün sonrası 2025-02-28'dir, kalan 0.25 gün de $`0.25 \times 24 = 6`$ saattir; sonuç 2025-02-28 06:00'dır.
 
 Çıktıları okurken: period gün-saat-dakika-saniye parçalarıyla yazılır (`1d 0H 0M 0S`: 1 gün, 0 saat, 0 dakika, 0 saniye); duration ise saniye olarak yazılır (`86400s`), parantez içindeki `~1 days` de "yaklaşık 1 gün" diye okunur ve yalnızca kolay okuma içindir. Berlin çıktılarındaki `CEST`, sonucun yaz saatinde olduğunu gösterir. Son satırda saat içeren bir süre eklendiği için sonuç `Date` olmaktan çıkıp `POSIXct` olmuştur; `ymd()` saat dilimi bilgisi taşımadığından UTC ile gösterilir.
 
@@ -833,7 +833,7 @@ Hangisini ne zaman kullanmalı?
 
 Bölümde öğrendiklerimizi birkaç kısa örnekle pekiştirelim.
 
-#### 4.5.1. Örnek 1: Kaç Gündür Hayattasınız?
+#### 4.5.1. Örnek 1: Doğumdan Bu Yana Geçen Gün Sayısı
 
 Sembolik bir doğum tarihi olarak `2021-06-29` alalım. Bu tarih ile bugün arasındaki farkı hesaplayarak kaç gün geçtiğini ve kaç tam yıl (kaç kış) görüldüğünü bulalım.
 
@@ -856,7 +856,7 @@ gorulen_kis_sayisi <- yas_araligi %/% years(1)
 cat("Ben", gorulen_kis_sayisi, "kış gördüm.\n")
 ```
 
-Kod 2026-09-29 tarihinde çalıştırıldığında çıktı şöyledir (siz çalıştırdığınızda `today()` değiştiği için sayılar farklı olacaktır):
+Kod 2026-09-29 tarihinde çalıştırıldığında çıktı şöyledir (başka bir gün çalıştırıldığında `today()` değiştiği için sayılar farklı olur):
 
 ```text
 Ben 1918 gündür hayattayım.
@@ -867,7 +867,7 @@ Bu kod, bir doğum tarihi ile bugün arasındaki süreyi iki farklı biçimde ö
 
 1. `library(lubridate)`: Paketi yükler (4.3).
 2. `dogum <- ymd("2021-06-29")`: Tırnak içindeki metni yıl-ay-gün sırasıyla okuyup bir `Date` nesnesine çevirir (4.3) ve `dogum` adıyla saklar.
-3. `bugun <- today()`: Bilgisayarın saatine bakarak bugünün tarihini `Date` olarak verir (base R'daki `Sys.Date()` gibi). Parantez içi boştur; isteğe bağlı `tzone` argümanı verilmediği için "bugün" bilgisayarın saat dilimine göre belirlenir. Bu yüzden çıktı, kodu çalıştırdığınız güne göre değişir.
+3. `bugun <- today()`: Bilgisayarın saatine bakarak bugünün tarihini `Date` olarak verir (base R'daki `Sys.Date()` gibi). Parantez içi boştur; isteğe bağlı `tzone` argümanı verilmediği için "bugün" bilgisayarın saat dilimine göre belirlenir. Bu yüzden çıktı, kodun çalıştırıldığı güne göre değişir.
 4. `yasanan_gun_sayisi <- bugun - dogum`: İki `Date` nesnesinin farkı, aradaki gün sayısını tutan bir `difftime` nesnesidir (ekrana yazdırılsaydı `Time difference of 1918 days` gibi görünürdü).
 5. `cat("Ben", as.numeric(yasanan_gun_sayisi), "gündür hayattayım.\n")`: `as.numeric()` farkı birimsiz düz sayıya (1918) çevirir. `cat()` (*concatenate*, birleştir) kendisine virgülle verilen parçaları aralarına birer boşluk koyarak ekrana yazar; `print()`'ten farkı, başa `[1]` ve metinlerin etrafına tırnak koymamasıdır. Sondaki `"\n"` "yeni satıra geç" anlamına gelen özel karakterdir.
 6. `yas_araligi <- interval(dogum, bugun)`: Başlangıcı ve bitişi ayrı ayrı hatırlayan bir *aralık* (`Interval`) nesnesi oluşturur. Gün farkından farkı, hangi takvim günleri arasında olduğunu bilmesidir; artık yıllar ancak böyle doğru sayılabilir.
@@ -895,7 +895,7 @@ Bu kod, bir doğum tarihi ile bugün arasındaki süreyi iki farklı biçimde ö
 >
 > <details><summary>Cevap</summary>
 >
-> (1) Sonuç çalıştırdığınız güne bağlıdır. (2) Örnek tarihlerle `as.numeric(bitis - dogum)` = `9116`; 9116 / 7 = 1302,29 → `floor()` ile `1302`. Hafta her zaman 7 gün olduğu için burada düz bölme de doğru sonucu verir; ay ve yıl için ise `interval` gerekir.
+> (1) Sonuç çalıştırdığınız güne bağlıdır. (2) Örnek tarihlerle `as.numeric(bitis - dogum)` = `9116`; 9116 / 7 = 1302.29 → `floor()` ile `1302`. Hafta her zaman 7 gün olduğu için burada düz bölme de doğru sonucu verir; ay ve yıl için ise `interval` gerekir.
 >
 > </details>
 
@@ -935,7 +935,7 @@ Bu kod, iki tarihî tarih arasındaki süreyi önce gün, sonra yıl-ay-gün ola
 6. `vefat_gunu <- wday(ataturk_vefat, label = TRUE, abbr = FALSE)`: `wday()` (4.3) haftanın gününü verir; `label = TRUE` sayı yerine ad ister, `abbr = FALSE` (*abbreviate*, kısalt; varsayılanı `TRUE`) da adın kısaltılmamasını sağlar: `Per` değil `Perşembe`. Sonuç bir faktördür (4.3) ve `vefat_gunu` adıyla saklanır.
 7. `cat("Vefat ettiği gün:", as.character(vefat_gunu), "\n")`: `as.character()` faktörü düz metne çevirir ki `cat()` gün adını yazsın (`cat()` bir faktörü doğrudan alırsa adı değil, içerideki sıra numarasını yazar).
 
-Çıktıları okurken: ilk satırdaki 20 993 gün içerideki sayılardan da doğrulanabilir: 10 Kasım 1938'in sayısı `-11375`'tir ve $`-11\,375 - (-32\,368) = 20\,993`$. İkinci satırdaki `"57y 5m 22d 0H 0M 0S"` bir period yazımıdır: `y` yıl, `m` ay, `d` gün, `H` saat, `M` dakika, `S` saniye. Elle kontrol: 19 Mayıs 1881 + 57 yıl = 19 Mayıs 1938; + 5 ay = 19 Ekim 1938; Ekim 31 gün çektiği için 19 Ekim'den 10 Kasım'a 22 gün vardır. Sonuç: 57 yıl 5 ay 22 gün. Saat, dakika ve saniye 0'dır, çünkü `Date` nesneleri saat bilgisi taşımaz. Üçüncü satırdaki gün adı Türkçe dil ayarına aittir; İngilizce ayarlı bir sistemde `Thursday` yazılır (4.2'deki nota bakın). Atatürk 10 Kasım 1938 Perşembe günü vefat etmiştir.
+Çıktıları okurken: ilk satırdaki 20 993 gün içerideki sayılardan da doğrulanabilir: 10 Kasım 1938'in sayısı `-11375`'tir ve $`-11\,375 - (-32\,368) = 20\,993`$. İkinci satırdaki `"57y 5m 22d 0H 0M 0S"` bir period yazımıdır: `y` yıl, `m` ay, `d` gün, `H` saat, `M` dakika, `S` saniye. Elle kontrol: 19 Mayıs 1881 + 57 yıl = 19 Mayıs 1938; + 5 ay = 19 Ekim 1938; Ekim 31 gün çektiği için 19 Ekim'den 10 Kasım'a 22 gün vardır. Sonuç: 57 yıl 5 ay 22 gün. Saat, dakika ve saniye 0'dır, çünkü `Date` nesneleri saat bilgisi taşımaz. Üçüncü satırdaki gün adı Türkçe dil ayarına aittir; İngilizce ayarlı bir sistemde `Thursday` yazılır (bkz. 4.2'deki not). Atatürk 10 Kasım 1938 Perşembe günü vefat etmiştir.
 
 > **Hemen deneyin 4.5.2 · Cumhuriyet hangi gün ilan edildi?** (R, ~3 dk)
 >
@@ -959,7 +959,7 @@ Bu kod, iki tarihî tarih arasındaki süreyi önce gün, sonra yıl-ay-gün ola
 >
 > </details>
 
-#### 4.5.3. Örnek 3: Toplam Kaç Saat Yaşadınız?
+#### 4.5.3. Örnek 3: Doğumdan Bu Yana Geçen Saat Sayısı
 
 Daha hassas hesaplamalar için tarihle birlikte saati de kullanmamız gerekir. `ymd_hms()` ile bir `POSIXct` nesnesi oluşturup şimdiki zamandan çıkararak toplam yaşanan saati bulabiliriz.
 
@@ -983,11 +983,11 @@ Kodu satır satır okuyalım:
 
 1. `library(lubridate)`: Paketi yükler (4.3).
 2. `dogum_zamani <- ymd_hms("1995-04-23 14:30:00", tz = "Europe/Istanbul")`: Doğum anını Türkiye saatiyle `POSIXct` olarak oluşturur (4.3).
-3. `simdi <- now(tzone = "Europe/Istanbul")`: `now()` şu anı, verilen saat diliminde bir `POSIXct` olarak döndürür (`Sys.time()`'ın `lubridate` karşılığı). Argümanın adı burada `tz` değil `tzone`'dur; aynı paketin fonksiyonlarında bile argüman adları farklı olabilir, bu yüzden emin olmadığınızda `args(now)` ile fonksiyonun argümanlarını görebilirsiniz.
+3. `simdi <- now(tzone = "Europe/Istanbul")`: `now()` şu anı, verilen saat diliminde bir `POSIXct` olarak döndürür (`Sys.time()`'ın `lubridate` karşılığı). Argümanın adı burada `tz` değil `tzone`'dur; aynı paketin fonksiyonlarında bile argüman adları farklı olabilir, bu yüzden emin olunmadığında fonksiyonun argümanları `args(now)` ile görülebilir.
 4. `yasanan_saat <- as.numeric(difftime(simdi, dogum_zamani, units = "hours"))`: İçten dışa okunur: `difftime()` (4.4) `simdi`'den `dogum_zamani`'nı çıkarır ve `units = "hours"` sayesinde sonucu doğrudan saat biriminde verir; dıştaki `as.numeric()` birimi atıp düz sayı bırakır. Sonuç genellikle ondalıklı bir sayıdır, çünkü dakika ve saniyeler de saatin kesirleri olarak hesaba girer.
 5. `cat("1995-04-23 14:30'da doğan bir kişi, yaklaşık olarak", round(yasanan_saat), "saattir hayattadır.\n")`: Çağrı iki satıra yayılmıştır (4.4). `round()` sayıyı en yakın tam sayıya yuvarlar (kaç ondalık kalacağını söyleyen `digits` argümanının varsayılanı 0'dır); cümledeki "yaklaşık olarak" ifadesi bu yüzdendir.
 
-Çıktı, `1995-04-23 14:30'da doğan bir kişi, yaklaşık olarak ... saattir hayattadır.` biçiminde tek satırlık bir cümledir; noktaların yerindeki sayı çalıştırdığınız ana göre değişir. Örneğin kod 2026-09-29 saat 14:30'da çalıştırılsaydı aradaki 11 482 gün için $11\thinspace 482 \times 24 = 275\thinspace 568$ saat yazılırdı.
+Çıktı, `1995-04-23 14:30'da doğan bir kişi, yaklaşık olarak ... saattir hayattadır.` biçiminde tek satırlık bir cümledir; noktaların yerindeki sayı kodun çalıştırıldığı ana göre değişir. Örneğin kod 2026-09-29 saat 14:30'da çalıştırılsaydı aradaki 11 482 gün için $11\thinspace 482 \times 24 = 275\thinspace 568$ saat yazılırdı.
 
 İki zaman damgası da `POSIXct` olduğu için fark, içerideki UTC saniyeleri üzerinden hesaplanır; yani aradaki yaz saati geçişleri ve saat dilimi değişiklikleri (Türkiye 2016'ya kadar yaz saati uyguluyordu; 23 Nisan 1995'te saatler yaz saatindeydi, UTC+3) otomatik olarak doğru hesaba katılır. `tz` belirtilmeseydi `ymd_hms()` doğum saatini UTC kabul edecek ve sonuç 3 saat kayacaktı.
 
@@ -1018,13 +1018,13 @@ Bu bölümde tarihlerin içeride nasıl saklandığını, nasıl okunup yazıld�
 <details>
 <summary><b>Kendinizi test edin (cevaplar için tıklayın)</b></summary>
 
-1. **Bir CSV dosyasındaki tarihler `03/04/2024` biçiminde. `as.Date(x)` hata vermedi. Veriyi doğru okuduğunuzdan emin olabilir misiniz?**
-   → Hayır. Biçim verilmezse R metni `%Y/%m/%d` ile okumayı dener ve `0003-04-20` gibi anlamsız bir tarih üretir. Önce verinin gün/ay mı ay/gün mü yazıldığını öğrenin (gün kısmı 12'den büyük bir satır arayın), sonra `format = "%d/%m/%Y"` ya da `"%m/%d/%Y"` verin ve `range()` ile `sum(is.na())` kontrollerini yapın.
+1. **Bir CSV dosyasındaki tarihler `03/04/2024` biçiminde. `as.Date(x)` hata vermedi. Verinin doğru okunduğundan emin olunabilir mi?**
+   → Hayır. Biçim verilmezse R metni `%Y/%m/%d` ile okumayı dener ve `0003-04-20` gibi anlamsız bir tarih üretir. Önce verinin gün/ay mı ay/gün mü yazıldığı belirlenmeli (gün kısmı 12'den büyük bir satır aranır), sonra `format = "%d/%m/%Y"` ya da `"%m/%d/%Y"` verilmeli ve `range()` ile `sum(is.na())` kontrolleri yapılmalıdır.
 
 2. **`as.POSIXct("2024-06-01 09:00", tz = "Europe/Istanbul")` ile `as.POSIXct("2024-06-01 09:00", tz = "UTC")` aynı anı mı gösterir?**
    → Hayır. İstanbul'daki 09:00, UTC'de 06:00'dır; ikinci nesne ise UTC'de 09:00'dır. Aralarında 3 saat (10 800 saniye) fark vardır. Duvar saati aynı, an farklıdır.
 
-3. **Her ayın son gününe denk gelen aylık bir rapor tarih dizisi üretmek istiyorsunuz. `ymd("2024-01-31") + months(1:11)` neden uygun değildir?**
+3. **Her ayın son gününe denk gelen aylık bir rapor tarih dizisi üretilmek isteniyor. `ymd("2024-01-31") + months(1:11)` neden uygun değildir?**
    → 30 günlük aylarda ve Şubat'ta "31." gün olmadığı için bu aylar `NA` olur. `%m+%` kullanılmalıdır: `ymd("2024-01-31") %m+% months(1:11)` her ayın son gününü verir.
 
 </details>

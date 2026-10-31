@@ -1,6 +1,6 @@
 # %% [markdown]
 # # Bölüm 10 — VAR: Çok Değişkenli Zaman Serisi Modeli (statsmodels)
-# Ders notu: Course_notes.md, Bölüm 10.9. Bu dosya bölümdeki Python VAR uygulamasının tamamını içerir.
+# Ders notu: notlar/10_var_cok_degiskenli_zaman_serisi_modeli.md, Bölüm 10.9. Bu dosya bölümdeki Python VAR uygulamasının tamamını içerir.
 # Çalıştırma: depo kök dizininden `python Codes/python/ch10_var.py`
 # veya VS Code'da hücre hücre (# %%) ya da Colab'da notebook sürümü.
 #
@@ -73,7 +73,7 @@ plt.show()
 # %% [markdown]
 # ## 3) Durağanlık testi — ADF (Bölüm 10.3.3)
 # Durağan olmayan serilerle sahte (spurious) ilişkiler bulunabilir.
-# ADF testinde H0: seri durağan değildir (birim kök vardır); p < 0,05 ise H0 reddedilir.
+# ADF testinde H0: seri durağan değildir (birim kök vardır); p < 0.05 ise H0 reddedilir.
 
 # %%
 def adf_test(series, name):
@@ -132,7 +132,7 @@ for col in vars_selected:
 # %%
 model = VAR(df_var)
 
-# maxlags=8: 1'den 8'e kadar tüm gecikmeler için AIC, BIC, FPE, HQIC hesaplanır.
+# maxlags=8: 0'dan 8'e kadar tüm gecikmeler için AIC, BIC, FPE, HQIC hesaplanır.
 lag_order_results = model.select_order(maxlags=8)
 
 print("\n" + "=" * 55)
@@ -195,10 +195,10 @@ else:
 # Alıştırma: 4. adımda AIC'nin önerdiği gecikmeyi kullanın
 #   selected_lag = lag_order_results.selected_orders['aic']
 # ve stabilite sonucunu karşılaştırın. Bu veride VAR(7) stabil çıkmaz: seriler durağan
-# olmadığı için bir öz değerin modülü 1'i aşar (yaklaşık 1,024).
+# olmadığı için bir öz değerin modülü 1'i aşar (yaklaşık 1.024).
 # Serilerin farkını alarak da deneyin (1. adımdan sonra):
 #   df_var = df_var.diff().dropna()
-# Farkı alınmış serilerde BIC 1 gecikme önerir, en büyük |öz değer| yaklaşık 0,55'e iner.
+# Farkı alınmış serilerde BIC 1 gecikme önerir, en büyük |öz değer| yaklaşık 0.55'e iner.
 
 # DİKKAT: statsmodels'ta results.roots, karakteristik polinomun
 # köklerini verir; bunlar eşlik (companion) matrisinin öz değerlerinin
@@ -213,7 +213,7 @@ print("(Tüm |kök| değerleri 1'den büyük, yani tüm |öz değer| değerleri 
 # %% [markdown]
 # ## 6) Artık (residual) analizi
 # İyi bir modelde artıkların ortalaması sıfır, otokorelasyonu yok ve varyansı sabittir.
-# Durbin-Watson (DW) birinci derece otokorelasyonu ölçer: DW ≈ 2 ideal, 1,5–2,5 arası genellikle kabul edilebilir.
+# Durbin-Watson (DW) birinci derece otokorelasyonu ölçer: DW ≈ 2 ideal, 1.5–2.5 arası genellikle kabul edilebilir.
 
 # %%
 print("\n" + "=" * 55)
@@ -236,8 +236,9 @@ for i, col in enumerate(vars_selected):
 
 print("\n  Not: 2'ye yakın değerler otokorelasyon olmadığını gösterir.")
 
-# DW yalnızca bir önceki ayla ilişkiye bakar. Portmanteau (Ljung-Box tipi) testi ise
-# 12 gecikmeye kadar tüm denklemlerin artıklarını birlikte sınar. H0: otokorelasyon yok.
+# DW yalnızca bir önceki ayla ilişkiye bakar. Çok değişkenli portmanteau testi ise
+# 12 gecikmeye kadar tüm denklemlerin artıklarını birlikte sınar (statsmodels varsayılan
+# olarak Box-Pierce tipi istatistiği kullanır). H0: otokorelasyon yok.
 whiteness = results.test_whiteness(nlags=12)
 print(f"\nPortmanteau testi (12 gecikme): p-değeri = {whiteness.pvalue:.4f}")
 if whiteness.pvalue < 0.05:
@@ -341,7 +342,7 @@ plt.show()
 
 # Döviz kuru şoku enflasyonu nasıl etkiler? TL'nin değer kaybı ithal malları
 # pahalılaştırarak enflasyonu artırmalı ("exchange rate pass-through").
-# Bu veride kurdaki 1 birimlik artış enflasyonu bir ay sonra yaklaşık 3,7 puan, 4. ayda
+# Bu veride kurdaki 1 birimlik artış enflasyonu bir ay sonra yaklaşık 3.7 puan, 4. ayda
 # yaklaşık 9 puan artırır; tepki sonra yavaşça azalır ve bant sıfırın üstünde kalır.
 fig_irf_exc = irf.plot(impulse="exchange", response="inflation")
 plt.suptitle("Döviz Kuru Şokuna Enflasyonun Tepkisi")
@@ -374,7 +375,7 @@ plt.show()
 # ## 10) Granger nedensellik testleri (Bölüm 10.6)
 # "X, Y'nin Granger nedenidir" = X'in geçmiş değerleri Y'nin tahminini iyileştirir
 # (gerçek neden-sonuç ilişkisi olduğu anlamına gelmez).
-# H0: X'in geçmiş değerleri Y denklemine ek bilgi katmıyor; p < 0,05 ise H0 reddedilir.
+# H0: X'in geçmiş değerleri Y denklemine ek bilgi katmıyor; p < 0.05 ise H0 reddedilir.
 
 # %%
 print("\n" + "=" * 55)

@@ -1,6 +1,6 @@
 # =============================================================================
 # Bölüm 2 — Zaman Serisinin Temel Kavramları ve Bileşenleri
-# Ders notu: Course_notes.md, Bölüm 2 (2.5 Mini Uygulama: AirPassengers ayrıştırma)
+# Ders notu: notlar/02_zaman_serisinin_temel_kavramlari_ve_bilesenleri.md, Bölüm 2 (2.5 Mini Uygulama: AirPassengers ayrıştırma)
 #
 # Çalıştırma: depo kök dizininden  Rscript Codes/R/ch02_ayristirma.R
 #             ya da RStudio'da dosyayı açıp satır satır (Ctrl+Enter) çalıştırın.
