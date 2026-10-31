@@ -51,7 +51,7 @@ R içeride zamanı ondalıklı bir yıl sayısı olarak tutar. `c(yıl, p)` biç
 \underbrace{t_k}_{\substack{\text{k'inci gözlemin}\\\text{zamanı}}} = \underbrace{t_1}_{\text{başlangıç}} + \frac{\overbrace{k-1}^{\substack{\text{başlangıçtan bu yana}\\\text{atılan adım sayısı}}}}{\underbrace{f}_{\text{frekans}}}, \qquad \underbrace{\Delta t = \frac{1}{f}}_{\substack{\text{ardışık iki gözlem}\\\text{arasındaki adım}}}
 ```
 
-**Nasıl okunur?** "t alt k eşittir t alt 1 artı k eksi 1 bölü f; delta t eşittir 1 bölü f." Yani: k'inci gözleme varmak için başlangıçtan k − 1 adım atılır ve her adım 1/f yıl sürer.
+**Ne anlatıyor?** $k$'inci gözlemin zamanı, başlangıç zamanına $k - 1$ adımın eklenmesiyle bulunur. Her adım $1/f$ yıl sürer; bu nedenle ardışık iki gözlem arasındaki fark her zaman $1/f$'dir.
 
 > **Simge notu:** $`t_k`$ *(t alt k)*: k'inci gözlemin zamanı; alt indis $`k`$ gözlemin sıra numarasıdır ($`k = 1, 2, 3, \dots`$) · $`t_1`$: ilk gözlemin zamanı (başlangıç) · $`f`$: frekans · $`\Delta t`$ *(delta t; Δ büyük Yunan harfi "delta", "fark/adım" anlamında kullanılır)*: ardışık iki gözlem arasındaki sabit zaman adımı (aylık veride 1/12 yıl)
 

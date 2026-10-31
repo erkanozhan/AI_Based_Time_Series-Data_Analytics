@@ -331,7 +331,7 @@ Kodun önemli satırları şunlardır:
 \text{LSTM parametre sayısı} = \underbrace{4}_{\substack{\text{ağırlık seti}\\(f,\ i,\ o,\ \tilde{C})}} \cdot \big[\underbrace{h \cdot (h + x)}_{\substack{\text{W ve U}\\\text{ağırlıkları}}} + \underbrace{h}_{\text{yanlılıklar}}\big]
 ```
 
-**Nasıl okunur?** "Dört çarpı, köşeli parantez içinde h çarpı parantez içinde h artı x, artı h." Burada h birim sayısı (bizde 50), x her zaman adımındaki özellik sayısıdır (bizde 1). Yani: $h \cdot (h + x) = h \cdot x + h \cdot h$; ilk terim girdiyi çarpan $W$ tablosunun, ikincisi önceki gizli durumu çarpan $U$ tablosunun eleman sayısıdır.
+**Ne anlatıyor?** LSTM'deki dört ağırlık setinin her biri, girdi ve önceki gizli durum için ağırlıklar ile birim başına bir yanlılık içerir; toplam parametre sayısı bir setin dört katıdır. Burada $h$ birim sayısı (bizde 50), $x$ her zaman adımındaki özellik sayısıdır (bizde 1). $h \cdot (h + x) = h \cdot x + h \cdot h$ eşitliğinde ilk terim girdiyi çarpan $W$ tablosunun, ikincisi önceki gizli durumu çarpan $U$ tablosunun eleman sayısıdır.
 
 > **Hemen deneyin 15.2 · Parametre sayısını formülle doğrulayın** (Python, ~4 dk)
 >
@@ -379,7 +379,7 @@ h_t &= \underbrace{\left(1 - z_t\right) \odot h_{t-1}}_{\substack{\text{eski dur
 \end{aligned}
 ```
 
-**Nasıl okunur?** "z alt t eşittir sigma, parantez içinde W alt z çarpı x alt t artı U alt z çarpı h alt t eksi bir artı b alt z; r alt t de aynı biçimde, kendi W, U ve b'siyle okunur. h tilda alt t eşittir tanh, parantez içinde W alt h çarpı x alt t artı U alt h çarpı r alt t eleman eleman çarpı h alt t eksi bir, artı b alt h. h alt t eşittir, bir eksi z alt t eleman eleman çarpı h alt t eksi bir, artı z alt t eleman eleman çarpı h tilda alt t."
+**Ne anlatıyor?** Güncelleme ve sıfırlama kapıları, bugünkü girdi ile önceki gizli durumdan aynı kalıpla, kendi ağırlıklarıyla hesaplanır. Aday durum, sıfırlama kapısından geçen geçmiş ile bugünkü girdiden üretilir; yeni durum ise eski durum ile aday durumun güncelleme kapısının belirlediği oranlarda karıştırılmasıdır.
 
 > **Simge notu:** $`z_t`$ *(z t)*: güncelleme kapısının çıktısı (0–1 arası) · $`r_t`$ *(r t)*: sıfırlama kapısının çıktısı (0–1 arası) · $`\tilde{h}_t`$ *(h tilda t)*: aday gizli durum, yani bu ayın girdisinden ve sıfırlama kapısından geçen geçmişten hesaplanan "yeni durum önerisi" · $`1 - z_t`$: kapının "kapalı" kalan payı; $`z_t = 0.3`$ ise $`1 - z_t = 0.7`$ · Diğer harfler ($`\sigma`$, $`\tanh`$, $`W`$, $`U`$, $`b`$, $`\odot`$) 12.2.2 ve 15.2'dekiyle aynı anlamdadır.
 
@@ -519,7 +519,7 @@ Evrişimin fikri basittir: Birkaç sayıdan oluşan küçük bir **filtre** (ağ
 \underbrace{y_t}_{\substack{\text{t konumundaki}\\\text{çıktı}}} = \underbrace{g}_{\text{aktivasyon}}\Big(\overbrace{\sum_{k=0}^{K-1} w_k x_{t+k}}^{\substack{\text{filtre altındaki K değerin}\\\text{ağırlıklı toplamı}}} + \underbrace{b}_{\text{yanlılık}}\Big)
 ```
 
-**Nasıl okunur?** "y alt t eşittir g, parantez içinde: k eşittir sıfırdan K eksi bire kadar w alt k çarpı x alt t artı k'ların toplamı, artı b."
+**Ne anlatıyor?** Filtre, serinin $t$ konumundan başlayan $K$ değerinin üzerine konur; her değer filtrenin karşılık gelen ağırlığıyla çarpılır, çarpımlar toplanır, yanlılık eklenir ve sonuç aktivasyon fonksiyonundan geçirilir. Elde edilen sayı, filtrenin aradığı desenin o konumda ne kadar güçlü olduğunu gösterir.
 
 > **Simge notu:** $`\sum`$ *(büyük sigma, "toplam")*: altındaki $`k=0`$ ile üstündeki $`K-1`$ arasındaki her $`k`$ için yanındaki terimi yazıp hepsini toplamak demektir. $`K = 3`$ için $`\sum_{k=0}^{2} w_k x_{t+k} = w_0 x_t + w_1 x_{t+1} + w_2 x_{t+2}`$ olur. LSTM'deki küçük $`\sigma`$ (sigmoid) ile karıştırmayın · $`K`$: filtre uzunluğu (Keras'ta `kernel_size`) · $`k`$: filtre içindeki sıra numarası (0, 1, …, K−1) · $`w_k`$ *(dabılyu k)*: filtrenin $`k`$. ağırlığı, eğitimle öğrenilir · $`x_{t+k}`$: serinin $`t+k`$. değeri; $`t`$ filtrenin o anda başladığı konumdur · $`b`$: yanlılık · $`y_t`$: filtrenin $`t`$ konumundaki çıktısı · $`g`$: aktivasyon fonksiyonu (burada ReLU; tanımı 12.2'nin başındaki tabloda)
 

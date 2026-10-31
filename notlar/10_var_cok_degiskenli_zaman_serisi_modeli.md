@@ -38,7 +38,7 @@ y_{2,t} &= c_2 + \underbrace{a_{21} y_{1,t-1}}_{\substack{\text{enflasyonun geci
 \end{aligned}
 ```
 
-**Nasıl okunur?** "y bir t eşittir, c bir artı a bir bir çarpı y bir t eksi bir artı a bir iki çarpı y iki t eksi bir artı u bir t. y iki t eşittir, c iki artı a iki bir çarpı y bir t eksi bir artı a iki iki çarpı y iki t eksi bir artı u iki t."
+**Ne anlatıyor?** Her değişkenin bugünkü değeri, hem kendi bir önceki değerine hem de diğer değişkenin bir önceki değerine bağlıdır. Çapraz katsayılar, bir değişkenin geçmişinin diğer değişkeni ne ölçüde etkilediğini gösterir.
 
 Bu yazımda alt indisler iki bilgi taşır. $y_{2,t-1}$ ifadesinde virgülden önceki sayı **hangi değişken** olduğunu (1 = enflasyon, 2 = faiz), virgülden sonraki kısım **hangi dönem** olduğunu söyler; yani $y_{2,t-1}$ "faizin bir önceki dönemdeki değeri" diye okunur. Katsayılarda da iki sayı vardır: $a_{12}$ ("a bir iki" diye okunur) birinci denklemdeki (enflasyon denklemi) ikinci değişkenin (faiz) katsayısıdır. Akılda tutmak için: **ilk sayı etkilenen, ikinci sayı etkileyen** değişkendir.
 
@@ -196,6 +196,12 @@ $$
 \mathbf{y}_t = \mathbf{c} + A_1 \mathbf{y}_{t-1} + \mathbf{u}_t
 $$
 
+```math
+\underbrace{\mathbf{y}_t}_{\substack{\text{bugünkü değerler}\\\text{vektörü}}} = \overbrace{\mathbf{c}}^{\text{sabitler}} + \underbrace{A_1}_{\substack{\text{katsayı}\\\text{matrisi}}} \overbrace{\mathbf{y}_{t-1}}^{\text{geçen dönem}} + \underbrace{\mathbf{u}_t}_{\text{şoklar}}
+```
+
+**Ne anlatıyor?** İki değişkenin bugünkü değerleri; sabitler, geçen dönemin değerlerinin katsayı matrisiyle çarpımı ve şokların toplamı olarak tek satırda yazılır. Değişken sayısı artsa da denklemin biçimi değişmez.
+
 Bu satırı açık hâliyle yazıp satır satır okursak, 10.1'deki iki denklemi aynen geri elde ederiz:
 
 ```math
@@ -209,7 +215,7 @@ Bu satırı açık hâliyle yazıp satır satır okursak, 10.1'deki iki denklemi
 \underbrace{\begin{bmatrix} u_{1,t} \\ u_{2,t} \end{bmatrix}}_{\substack{\mathbf{u}_t\\\text{şoklar}}}
 ```
 
-**Nasıl okunur?** Kısa yazım: "Kalın y alt t eşittir, kalın c artı A bir çarpı kalın y alt t eksi bir artı kalın u alt t." Matris ile vektörün yan yana yazılması, 10.1.1'deki "satırla çarp ve topla" işlemi demektir.
+**Ne anlatıyor?** İki denklem tek bir matris denklemiyle yazılır: Katsayı matrisinin geçen dönemin değer vektörüyle yan yana yazılması, 10.1.1'deki "satırla çarp ve topla" işlemi demektir.
 
 Yani matris biçimi yeni bir model değildir; aynı iki denklemin kısaltılmış yazımıdır. Avantajı, 3, 5 ya da 10 değişkenli modellerde de aynı tek satırın kullanılabilmesidir.
 
@@ -224,7 +230,7 @@ Yani matris biçimi yeni bir model değildir; aynı iki denklemin kısaltılmı�
 \overbrace{\mathrm{Cov}(\mathbf{u}_t) = \Sigma_u}^{\substack{\text{aynı dönemdeki şoklar}\\\text{ilişkili olabilir}}}
 ```
 
-**Nasıl okunur?** "Kalın y alt t eşittir, kalın c artı A bir çarpı kalın y alt t eksi bir artı A iki çarpı kalın y alt t eksi iki artı üç nokta artı A p çarpı kalın y alt t eksi p artı kalın u alt t; kalın u alt t'nin beklenen değeri sıfır vektörü, kovaryansı büyük sigma alt u."
+**Ne anlatıyor?** $k$ değişkenin bugünkü değerleri; bir sabit vektörü, bütün değişkenlerin son $p$ dönemdeki değerlerinin katsayı matrisleriyle çarpımları ve bir şok vektörünün toplamıdır. Şokların ortalaması sıfırdır; aynı dönemdeki şoklar ise kovaryans matrisi aracılığıyla birbiriyle ilişkili olabilir.
 
 Burada:
 
@@ -402,7 +408,7 @@ Bu dengeyi kurmak için **bilgi kriterleri** kullanılır. Hepsi aynı felsefeye
 \end{aligned}
 ```
 
-**Nasıl okunur?** "A I C p eşittir, sigma u şapka p'nin determinantının doğal logaritması artı iki bölü T çarpı p k kare." BIC'de ceza katsayısı "el en T bölü T", HQ'da "iki çarpı el en el en T bölü T" diye okunur; ilk terim üçünde de aynıdır.
+**Ne anlatıyor?** Üç kriterde de ilk terim, hata kovaryans matrisinin determinantı üzerinden modelin uyumunu ölçer ve hatalar küçüldükçe küçülür. İkinci terim parametre sayısıyla ($p k^2$) orantılı bir karmaşıklık cezasıdır; kriterler yalnızca bu cezanın katsayısında ayrılır ve BIC'nin katsayısı daha ağırdır.
 
 > **Simge notu:** $`\hat{\Sigma}_u`$ *(sigma u şapka)*: veriden tahmin edilen hata kovaryans matrisi; şapka (^) "tahmin edilen" demektir · $`\lvert \cdot \rvert`$: **burada mutlak değer değil, determinant** anlamındadır (aşağıda) · $`\ln`$ *(doğal logaritma, "el en")*: büyüdükçe yavaş artan bir fonksiyon; burada yalnızca "küçük değer, küçük sonuç" sırasını korumak için kullanılır
 
@@ -411,6 +417,12 @@ Bu dengeyi kurmak için **bilgi kriterleri** kullanılır. Hepsi aynı felsefeye
 ```math
 \det \begin{bmatrix} a & b \\ c & d \end{bmatrix} = a \cdot d - b \cdot c
 ```
+
+```math
+\det \begin{bmatrix} a & b \\ c & d \end{bmatrix} = \underbrace{a \cdot d}_{\substack{\text{ana köşegenin}\\\text{çarpımı}}} - \underbrace{b \cdot c}_{\substack{\text{öteki köşegenin}\\\text{çarpımı}}}
+```
+
+**Ne anlatıyor?** 2 × 2'lik bir matrisin determinantı, sol üstten sağ alta uzanan köşegendeki elemanların çarpımından öteki köşegendeki elemanların çarpımı çıkarılarak bulunur.
 
 Örneğin iki şokun varyansları 4 ve 9, kovaryansları 1 ise $\lvert \Sigma_u \rvert = 4 \cdot 9 - 1 \cdot 1 = 35$ olur. Hata kovaryans matrisinin determinantı, tüm denklemlerin hatalarının **toplam büyüklüğünü** tek sayıyla özetler: hatalar küçüldükçe determinant da küçülür. (Determinantı 10.5'te öz değerleri bulurken yeniden kullanacağız.)
 
@@ -515,6 +527,12 @@ $$
 \det(A_1 - \lambda I) = 0
 $$
 
+```math
+\underbrace{\det}_{\text{determinant}}\big(\underbrace{A_1}_{\substack{\text{katsayı}\\\text{matrisi}}} - \overbrace{\lambda}^{\text{öz değer}} \underbrace{I}_{\text{birim matris}}\big) = 0
+```
+
+**Ne anlatıyor?** Öz değerler, katsayı matrisinden $\lambda$ kez birim matris çıkarıldığında determinantı sıfır yapan $\lambda$ sayılarıdır. Bu sayılar, sistemin belirli yönlerdeki sapmaları her adımda kaç katına çıkardığını gösterir.
+
 Bu denklemi örnek matrisimiz için adım adım çözelim. Bir denklemin **kökü**, denklemi sağlayan sayıdır ($2x - 6 = 0$ denkleminin kökü $x = 3$'tür).
 
 1.  $A_1 - \lambda I$ matrisini yazalım: köşegendeki elemanlardan $\lambda$ çıkarılır, diğerleri aynen kalır:
@@ -556,7 +574,7 @@ print(1 / ozdeger)                # karakteristik denklemin kökleri z = 1/λ
 \underbrace{\lvert \lambda_i \rvert}_{\substack{\text{i. öz değerin}\\\text{büyüklüğü (modülü)}}} < \overbrace{1}^{\substack{\text{birim çemberin}\\\text{yarıçapı}}} \quad (i = 1, \dots, k), \qquad \underbrace{\det(A_1 - \lambda I) = 0}_{\substack{\text{öz değerleri}\\\text{veren denklem}}}
 ```
 
-**Nasıl okunur?** "Lambda alt i'nin mutlak değeri birden küçüktür, i eşittir birden k'ye kadar; burada lambdalar, A bir eksi lambda çarpı I'nın determinantını sıfır yapan sayılardır."
+**Ne anlatıyor?** VAR(1) modelinin stabil olması için katsayı matrisinin bütün öz değerlerinin büyüklüğü 1'den küçük, yani birim çemberin içinde olmalıdır. Öz değerler, sağdaki determinant denklemini sağlayan sayılardır.
 
 > **Simge notu:** $`\lambda_i`$ *(lambda)*: $`i`$. öz değer (karmaşık sayı olabilir) · $`\det`$ *(determinant)* · $`I`$: birim matris · $`\lvert \lambda \rvert`$ *(mutlak değer / modül)*: sayının işaretten bağımsız büyüklüğü; karmaşık sayıda merkeze uzaklık · $`\mathbf{v}`$ *(kalın v)*: öz vektör (yön)
 
@@ -582,6 +600,26 @@ I   & 0   & \cdots & 0       & 0   \\
 0   & 0   & \cdots & I       & 0
 \end{bmatrix}
 ```
+
+```math
+\underbrace{\mathbf{F}}_{\substack{\text{eşlik matrisi}\\kp \times kp}} =
+\begin{bmatrix}
+A_1 & A_2 & \cdots & A_{p-1} & A_p \\
+I   & 0   & \cdots & 0       & 0   \\
+0   & I   & \cdots & 0       & 0   \\
+\vdots & & \ddots & & \vdots \\
+0   & 0   & \cdots & I       & 0
+\end{bmatrix}
+\begin{matrix}
+\leftarrow \text{modelin katsayıları} \\
+\leftarrow \text{bir dönem kaydırma} \\
+\leftarrow \text{bir dönem kaydırma} \\
+\vdots \\
+\leftarrow \text{bir dönem kaydırma}
+\end{matrix}
+```
+
+**Ne anlatıyor?** Eşlik matrisi, VAR(p) modelini daha uzun bir vektör için VAR(1) biçimine getirir: İlk satır bloğu modelin katsayılarını taşır, alttaki birim matrisler ise her dönemin değerini bir dönem geriye kaydırır. Stabilite, bu matrisin öz değerlerine bakılarak sınanır.
 
 İlk satır bloğu modelin kendisidir; alttaki $I$ blokları yalnızca "geçen ayın değeri, bir ay sonra iki ay önceki değer olur" bilgisini taşır. Model, $\mathbf{F}$ matrisinin tüm öz değerlerinin modülü 1'den küçükse (ya da karakteristik polinom $\det(I - A_1 z - \dots - A_p z^p) = 0$ denkleminin kökleri birim çemberin dışındaysa) stabildir. 3 değişkenli bir VAR(2)'de $\mathbf{F}$ 6 × 6 boyutludur ve 6 öz değer vardır; Bölüm 10.9'da Python'un altı kök yazdırmasının nedeni budur.
 
@@ -669,7 +707,11 @@ $$
 H_0: a_{12}^{(1)} = a_{12}^{(2)} = \dots = a_{12}^{(p)} = 0
 $$
 
-**Nasıl okunur?** "y bir t eşittir, c bir artı i eşittir birden p'ye kadar a bir bir üst i çarpı y bir t eksi i toplamı artı i eşittir birden p'ye kadar a bir iki üst i çarpı y iki t eksi i toplamı artı u bir t." Sıfır hipotezi: "a bir iki üst bir eşittir a bir iki üst iki eşittir üç nokta eşittir a bir iki üst p eşittir sıfır." Bu hipotez doğruysa üstteki parantezle işaretli toplamın tamamı düşer ve geriye **kısıtlı model** (*restricted model*) kalır; tüm terimleri içeren denklem **kısıtsız modeldir** (*unrestricted model*).
+```math
+H_0: \underbrace{a_{12}^{(1)} = a_{12}^{(2)} = \dots = a_{12}^{(p)}}_{\substack{\text{faizin enflasyon denklemindeki}\\\text{bütün gecikme katsayıları}}} = \overbrace{0}^{\substack{\text{faizin geçmişi}\\\text{katkı yapmaz}}}
+```
+
+**Ne anlatıyor?** Enflasyon denklemi, enflasyonun kendi $p$ gecikmesi ile faizin $p$ gecikmesinin ağırlıklı toplamlarını içerir. Sıfır hipotezi, faizin bütün gecikme katsayılarının sıfır olduğunu, yani faizin geçmişinin enflasyonu açıklamaya katkı yapmadığını söyler. Bu hipotez doğruysa üstteki parantezle işaretli toplamın tamamı düşer ve geriye **kısıtlı model** (*restricted model*) kalır; tüm terimleri içeren denklem **kısıtsız modeldir** (*unrestricted model*).
 
 > **Simge notu:** $`\sum`$ *(büyük sigma = toplam)*: altındaki başlangıçtan üstündeki sona kadar terimlerin toplamı; 10.1.1'deki $`\Sigma_u`$ ile aynı harftir ama orada bir matrisin adıdır · $`a_{12}^{(i)}`$: $`A_i`$ matrisinin (1,2) elemanı, yani faizin $`i`$. gecikmesinin enflasyon denklemindeki katsayısı. Üstteki parantezli $`(i)`$ **üs değildir**, yalnızca gecikme numarasıdır ($`a^{(2)}`$ "a kare" değil, "2. gecikmenin a'sı" diye okunur)
 
@@ -766,7 +808,7 @@ Faiz kendi şokundan sonra hızla düşer (1 → 0.4 → 0.18 → ...). Enflasyo
 \mathbf{y}_t = \underbrace{\boldsymbol{\mu}}_{\text{ortalama}} + \sum_{i=0}^{\infty} \underbrace{\Phi_i}_{\substack{\text{i dönem sonraki}\\\text{tepki matrisi}}} \overbrace{\mathbf{u}_{t-i}}^{\substack{\text{i dönem}\\\text{önceki şok}}}, \qquad \Phi_0 = I, \quad \underbrace{\Phi_i = \sum_{j=1}^{\min(i,p)} \Phi_{i-j} A_j}_{\substack{\text{tepkiler, önceki tepkilerden}\\\text{adım adım hesaplanır}}}
 ```
 
-**Nasıl okunur?** "Kalın y alt t eşittir, kalın mü artı i eşittir sıfırdan sonsuza kadar büyük fi alt i çarpı kalın u alt t eksi i toplamı; büyük fi sıfır eşittir I, büyük fi alt i eşittir j eşittir birden i ile p'nin küçüğüne kadar büyük fi alt i eksi j çarpı A alt j toplamı."
+**Ne anlatıyor?** Stabil bir VAR modelinde bugünkü değer, ortalama ile bugünkü ve geçmiş bütün şokların tepki matrisleriyle ağırlıklandırılmış toplamıdır. Tepki matrisleri birim matristen başlar ve her biri, önceki tepkilerin katsayı matrisleriyle çarpılmasıyla adım adım hesaplanır.
 
 $\Phi_h$ matrisinin $(j, m)$ elemanı, $m$. değişkene $t$ anında gelen bir birimlik şokun $h$ dönem sonra $j$. değişkende yarattığı değişimdir. Bu değerlerin $h = 0, 1, 2, \dots$ için çizilmesi etki-tepki fonksiyonudur. VAR(1) için formül çok sadedir: $\Phi_h = A_1^h$. Örneğin $A_1^2$'nin satırları (0.27, 0.18) ve (0.09, 0.18)'dir; 2. sütunu [0.18, 0.18], yukarıda $h = 2$ için bulduğumuz tepkinin aynısıdır. Stabilite koşulu (Bölüm 10.5) tam olarak bu matris kuvvetlerinin sıfıra gitmesini, yani tepkilerin sönmesini garanti eder.
 
@@ -838,7 +880,7 @@ $\Phi_h$ matrisinin $(j, m)$ elemanı, $m$. değişkene $t$ anında gelen bir bi
 \underbrace{\omega_{jm}(h)}_{\substack{\text{m. şokun j. değişkenin}\\\text{hata varyansındaki payı}}} = \frac{\overbrace{\sum_{i=0}^{h-1} \theta_{jm,i}^2}^{\substack{\text{yalnızca m. şokun}\\\text{katkısı}}}}{\underbrace{\sum_{i=0}^{h-1} \sum_{l=1}^{k} \theta_{jl,i}^2}_{\text{tüm şokların katkısı}}}
 ```
 
-**Nasıl okunur?** "Omega j m h eşittir, i eşittir sıfırdan h eksi bire kadar teta j m i karelerinin toplamı bölü, i eşittir sıfırdan h eksi bire ve l eşittir birden k'ye kadar teta j l i karelerinin toplamı."
+**Ne anlatıyor?** $j$. değişkenin $h$ adımlı tahmin hatası varyansındaki $m$. şokun payı, bu şokun ilk $h$ adımdaki tepkilerinin kareleri toplamının, bütün şokların tepkilerinin kareleri toplamına oranıdır. Böylece her değişkenin tahmin belirsizliği, şokların kaynağına göre dilimlere ayrılır.
 
 Payda tüm şokların katkılarının toplamı, pay ise yalnızca $m$. şokun katkısıdır. Tepkilerin karesi alınır, çünkü varyans (belirsizlik) şokun yönüne değil büyüklüğüne bağlıdır.
 

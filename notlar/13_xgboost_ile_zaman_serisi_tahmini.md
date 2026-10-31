@@ -107,7 +107,7 @@ Ağaç 1'in {B, C} yaprağı, iki artığın ortalamasıdır: $(0 + 30) / 2 = 15
 \underbrace{r_i^{(m)}}_{\substack{\text{m. ağacın}\\\text{öğreneceği hedef}}} = \underbrace{y_i}_{\text{gerçek değer}} - \underbrace{\hat{y}_i^{(m-1)}}_{\substack{\text{önceki adımların}\\\text{toplam tahmini}}}
 ```
 
-**Nasıl okunur?** "r alt i, üstte parantez içinde m, eşittir y alt i eksi y şapka alt i, üstte parantez içinde m eksi bir." Yani: Tablodaki Artık 1 satırı (−30, 0, 30) bu formülle bulunur.
+**Ne anlatıyor?** $m$. ağacın öğreneceği hedef, her gözlemin gerçek değeri ile önceki adımların toplam tahmini arasındaki farktır, yani artıktır. Tablodaki Artık 1 satırı (−30, 0, 30) bu formülle bulunur.
 
 Ardından bu artıklara yeni bir ağaç $f_m$ uydurulur ve model küçük bir adımla güncellenir:
 
@@ -115,7 +115,7 @@ Ardından bu artıklara yeni bir ağaç $f_m$ uydurulur ve model küçük bir ad
 \underbrace{\hat{y}_i^{(m)}}_{\text{yeni tahmin}} = \underbrace{\hat{y}_i^{(m-1)}}_{\text{önceki tahmin}} + \overbrace{\eta}^{\text{öğrenme oranı}} \underbrace{f_m(x_i)}_{\substack{\text{m. ağacın}\\\text{düzeltmesi}}}
 ```
 
-**Nasıl okunur?** "y şapka alt i üst m eşittir, y şapka alt i üst m eksi bir, artı eta çarpı f alt m, x alt i." Yani: Tablodaki "Tahmin 1 = önceki + 0.5 × ağaç 1" satırının formül hâlidir.
+**Ne anlatıyor?** Yeni tahmin, önceki tahmine $m$. ağacın düzeltmesinin öğrenme oranıyla küçültülmüş hâlinin eklenmesiyle elde edilir. Tablodaki "Tahmin 1 = önceki + 0.5 × ağaç 1" satırının formül hâlidir.
 
 $M$ ağaç kurulduktan sonra nihai tahmin, tüm ağaçların katkılarının toplamıdır:
 
@@ -123,7 +123,7 @@ $M$ ağaç kurulduktan sonra nihai tahmin, tüm ağaçların katkılarının top
 \underbrace{\hat{y}_i}_{\text{nihai tahmin}} = \underbrace{f_0}_{\substack{\text{başlangıç}\\\text{(ortalama)}}} + \eta \overbrace{\sum_{m=1}^{M} f_m(x_i)}^{\text{M ağacın katkılarının toplamı}}
 ```
 
-**Nasıl okunur?** "y şapka alt i eşittir, f sıfır artı eta çarpı, m eşittir 1'den M'ye kadar f alt m x alt i'lerin toplamı."
+**Ne anlatıyor?** Nihai tahmin, başlangıç tahmini ile $M$ ağacın öğrenme oranıyla küçültülmüş katkılarının toplamıdır. Her ağaç, kendinden öncekilerin bıraktığı hatanın bir bölümünü düzeltir.
 
 > **Simge notu:** $`i`$ (alt indis): kaçıncı gözlem olduğu (yukarıdaki örnekte A, B, C) · $`(m)`$ (parantez içindeki üst simge): kaçıncı adım olduğu; **bir üs değildir**, "m'nin kuvveti" diye okunmaz · $`r_i^{(m)}`$ *(r i, m. adım)*: m. ağacın öğrendiği artık · $`\hat{y}_i^{(m-1)}`$: bir önceki adımdaki tahmin · $`\eta`$ *(eta)*: öğrenme oranı (learning rate), her ağacın katkısını küçülten katsayı; Latin n harfine benzer ama Yunanca eta harfidir · $`f_m(x_i)`$ *(f m, x i)*: m. ağacın i. gözlem için verdiği değer · $`\sum_{m=1}^{M}`$ *(büyük sigma, toplam)*: m'yi 1'den M'ye kadar değiştirip terimleri topla; yani $`f_1(x_i) + f_2(x_i) + \dots + f_M(x_i)`$ · $`M`$: toplam ağaç sayısı
 
@@ -177,7 +177,7 @@ Yönteme "gradient" (gradyan) denmesinin nedeni şudur. **Kayıp** (loss), bir t
 \underbrace{-\frac{\partial L}{\partial \hat{y}}}_{\substack{\text{kaybın eğiminin}\\\text{ters işaretlisi}}} = \underbrace{y - \hat{y}}_{\text{artık}}
 ```
 
-**Nasıl okunur?** "Eksi del L bölü del y şapka eşittir y eksi y şapka."
+**Ne anlatıyor?** Kare hata kaybının tahmine göre eğiminin ters işaretlisi, artığın kendisidir. Yöntemin adındaki "gradyan" bu eşitlikten gelir.
 
 Sayılarla deneyelim: $y = 100$ ve $\hat{y} = 90$ iken kayıp $\frac{1}{2} \cdot 10^2 = 50$'dir. Tahmini 1 artırıp 91 yaparsak kayıp $\frac{1}{2} \cdot 9^2 = 40.5$ olur; yani tahmindeki 1 birimlik artış kaybı yaklaşık 10 birim azaltır. Eğim yaklaşık −10'dur, ters işaretlisi +10'dur ve bu da artığın kendisidir ($100 - 90 = 10$). Yani artıklara ağaç uydurmak, kaybı en hızlı azaltan yönde (gradyanın tersi yönünde) adım atmakla, yani **gradyan inişiyle** aynı şeydir (gradyan inişi: Bölüm 12.1.4 ve 12.2; sisli dağ örneği). Başka kayıp fonksiyonları (ör. mutlak hata) kullanıldığında ağaçlar artık yerine bu negatif gradyana uydurulur.
 
@@ -195,7 +195,7 @@ XGBoost, gradient boosting'in hızlı ve düzenlileştirilmiş (regularized) bir
 \Omega(f) = \underbrace{\gamma T}_{\substack{\text{yaprak başına}\\\text{sabit ceza}}} + \underbrace{\frac{1}{2} \lambda \sum_{j=1}^{T} w_j^2}_{\substack{\text{büyük yaprak değerlerine}\\\text{ceza}}}
 ```
 
-**Nasıl okunur?** "Kaligrafik L eşittir, i eşittir 1'den n'ye kadar küçük l, y alt i virgül y şapka alt i'lerin toplamı, artı m eşittir 1'den M'ye kadar omega f alt m'lerin toplamı. Omega f eşittir gama çarpı T, artı yarım çarpı lambda çarpı, j eşittir 1'den T'ye kadar w alt j karelerinin toplamı."
+**Ne anlatıyor?** XGBoost'un küçülttüğü toplam puan, bütün gözlemlerin tahmin hatalarının toplamı ile bütün ağaçların karmaşıklık cezalarının toplamıdır. Bir ağacın cezası, yaprak sayısıyla orantılı sabit bir ceza ile yaprak değerlerinin kareleriyle büyüyen bir cezadan oluşur.
 
 Burada ilk terim tahmin hatasını (ör. kare hata), ikinci terim ise her ağacın karmaşıklığını ölçer. $T$ ağaçtaki yaprak sayısıdır.
 
@@ -209,7 +209,7 @@ Burada ilk terim tahmin hatasını (ör. kare hata), ikinci terim ise her ağac�
 \underbrace{w_j}_{\text{yaprak değeri}} = \frac{\overbrace{\textstyle\sum_{x_i \in R_j} r_i}^{\text{yapraktaki artıkların toplamı}}}{\underbrace{n_j}_{\substack{\text{yapraktaki}\\\text{gözlem sayısı}}} + \underbrace{\lambda}_{\text{L2 cezası}}}
 ```
 
-**Nasıl okunur?** "w alt j eşittir, x alt i R alt j'nin elemanı olan gözlemlerin r alt i değerlerinin toplamı, bölü n alt j artı lambda." Yani: $\lambda = 0$ iken bu, 13.1.1'deki yaprak ortalamasıdır.
+**Ne anlatıyor?** Yaprağın değeri, yapraktaki artıkların toplamının gözlem sayısı ile $\lambda$'nın toplamına bölünmesiyle bulunur; $\lambda$ paydayı büyüterek yaprak değerini sıfıra doğru çeker. $\lambda = 0$ iken bu, 13.1.1'deki yaprak ortalamasıdır.
 
 **Günlük hayattan bir örnek:** Her yeni yaprak açmak bir şube açmaya benzer. Şubenin sabit bir kirası ($\gamma$) vardır ve şube ancak getireceği ek kazanç (hatadaki azalma) kirayı aşıyorsa açılır. $\lambda$ ise her şubenin vaat ettiği kârı temkinle aşağı çeken bir denetçidir: Az müşterisi (az gözlemi) olan şubenin iddiasını daha çok kırpar. Yukarıdaki formülde de öyledir: 3 gözlemli yaprakta $\lambda = 1$ değeri 20'yi 15'e indirirken, aynı ortalamaya sahip 30 gözlemli bir yaprakta $600 / 31 \approx 19.4$ olur ve değer neredeyse hiç kırpılmaz.
 

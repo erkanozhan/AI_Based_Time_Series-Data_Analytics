@@ -23,6 +23,12 @@ $$
 \lbrace x_t : t \in \mathcal{T} \rbrace
 $$
 
+```math
+\lbrace \underbrace{x_t}_{\substack{\text{t anındaki}\\\text{gözlem}}} : \overbrace{t \in \mathcal{T}}^{\substack{\text{t, gözlem anları}\\\text{kümesinin elemanı}}} \rbrace
+```
+
+**Ne anlatıyor?** Zaman serisi, her gözlem anına bir değer karşılık getiren ve zaman sırasına göre dizilmiş gözlemlerden oluşur. Değerlerin hangi anda gözlendiği, değerlerin kendisi kadar önemlidir.
+
 Burada $\mathcal{T}$, gözlem anlarının kümesidir. Bu derste çoğunlukla $\mathcal{T} = \lbrace 1, 2, \dots, T \rbrace$ biçiminde, eşit aralıklı ve sonlu sayıda gözlem içeren serilerle çalışacağız. Büyük $T$ toplam gözlem sayısıdır: `AirPassengers` serisinde 12 yıl × 12 ay = 144 gözlem olduğu için $T = 144$'tür. İstatistiksel bakış açısıyla elimizdeki seri, rastgele bir sürecin (stokastik süreç, *stochastic process*) gözlenmiş **tek bir gerçekleşmesi** olarak düşünülür. Bu fikre Bölüm 3.4'te yeniden döneceğiz.
 
 Bu gösterimi bir kez okumayı öğrenmek dersin geri kalanını çok kolaylaştırır. $x$, ölçtüğümüz büyüklüğün adıdır (örneğin yolcu sayısı). Harfin sağ altına küçük yazılan $t$ ise **alt indis**tir ve "kaçıncı zaman noktası?" sorusunun cevabını taşır; harf, İngilizce *time* (zaman) kelimesinden gelir. `AirPassengers` serisinde $x_1 = 112$ (Ocak 1949), $x_2 = 118$ (Şubat 1949) ve $x_7 = 148$'dir (Temmuz 1949). Alt indiste işlem de yapılabilir: $t$ "bugün" ise $x_{t-1}$ "dün", yani bir önceki dönemin değeri, $x_{t+1}$ ise "yarın" demektir. Örneğin $t = 7$ için $x_{t-1} = x_6 = 135$, yani Haziran 1949 değeridir.
@@ -92,6 +98,12 @@ $$
 \mathrm{Cov}(x_t, x_{t-h}) \neq 0 \quad \text{(en azından bazı } h \text{ gecikmeleri için)}
 $$
 
+```math
+\underbrace{\mathrm{Cov}(x_t, x_{t-h})}_{\substack{\text{bugün ile h adım önceki}\\\text{gözlemin kovaryansı}}} \overbrace{\neq 0}^{\substack{\text{sıfır değil:}\\\text{ilişkili}}} \quad \text{(en azından bazı } h \text{ gecikmeleri için)}
+```
+
+**Ne anlatıyor?** Zaman serisinde bir gözlem, kendisinden $h$ adım önceki gözlemle en azından bazı gecikmelerde ilişkilidir. Bu nedenle gözlemlerin bağımsız olduğunu varsayan klasik yöntemler zaman serilerine olduğu gibi uygulanamaz.
+
 > **Simge notu:** $`\mathrm{Cov}(\cdot,\cdot)`$ *(kovaryans, covariance)*: iki değişkenin birlikte değişim ölçüsü · $`\neq`$ *(eşit değildir)* · $`h`$: iki gözlem arasındaki zaman mesafesi, yani gecikme (lag)
 
 Kovaryans şimdilik şöyle düşünülebilir: İki büyüklük birlikte ortalamanın üstüne çıkıp birlikte altına iniyorsa kovaryans pozitif, biri yükselirken öteki düşüyorsa negatif, aralarında bir düzen yoksa sıfıra yakındır. Buradaki iki büyüklük aynı serinin $h$ adım uzaktaki değerleridir; $h = 1$ için "bu ay" ile "geçen ay". Formül yalnızca şunu söyler: en azından bazı gecikmelerde bu ilişki sıfır değildir. Kovaryansın küçük bir sayısal örnekle nasıl hesaplandığını Bölüm 3.2'de göreceğiz.
@@ -152,7 +164,7 @@ Bu amaçlar birbirinden kopuk değildir. İyi bir tahmin için önce seriyi **ta
 \underbrace{\hat{x}_{T+h}}_{\substack{\text{h adım sonrası}\\\text{için tahmin}}} = \overbrace{g}^{\text{model}}\big(\underbrace{x_T, x_{T-1}, \dots, x_1}_{\substack{\text{T anına kadarki}\\\text{bütün gözlemler}}}\big)
 ```
 
-**Nasıl okunur?** "x şapka alt T artı h eşittir, g parantez içinde x alt T, x alt T eksi bir, üç nokta, x alt bir." Yani: Tahmin, yalnızca T anına kadar gözlenmiş değerlerden model aracılığıyla üretilir.
+**Ne anlatıyor?** $h$ adım sonrası için yapılan tahmin, modelin yalnızca $T$ anına kadar gözlenmiş değerlere uygulanmasıyla üretilir. Tahmin anında geleceğe ait hiçbir gözlem kullanılamaz; formül bu kısıtı açıkça gösterir.
 
 Burada $g$, kullandığımız modeldir (ARIMA, Prophet, XGBoost, LSTM vb.). Matematikte **fonksiyon**, girdiyi alıp bir çıktı üreten kuraldır; burada girdi geçmiş gözlemler, çıktı tahmindir. $x$'in üzerindeki şapka işareti, değerin gözlenmiş değil **tahmin edilmiş** olduğunu belirtir. Örneğin `AirPassengers` serisi Aralık 1960'ta bittiği için $T = 144$'tür. $h = 1$ için $\hat{x}_ {145}$ Ocak 1961'in, $h = 12$ için $\hat{x}_ {156}$ Aralık 1961'in tahminidir.
 

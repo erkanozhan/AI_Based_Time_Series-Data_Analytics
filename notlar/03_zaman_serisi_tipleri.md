@@ -33,6 +33,12 @@ $$
 \lbrace x_t\rbrace _{t=1}^{T}, \qquad x_t \in \mathbb{R}
 $$
 
+```math
+\underbrace{\lbrace x_t\rbrace_{t=1}^{T}}_{\substack{\text{T gözlemlik}\\\text{seri}}}, \qquad \underbrace{x_t \in \mathbb{R}}_{\substack{\text{her anda tek bir}\\\text{gerçel sayı}}}
+```
+
+**Ne anlatıyor?** Tek değişkenli bir seride her zaman noktasında yalnızca bir sayı gözlenir.
+
 > **Simge notu:** $`\in`$ *(elemanıdır)*: soldaki öğe sağdaki kümeye aittir · $`\mathbb{R}`$ *(reel sayılar)*: tüm gerçel sayıların kümesi, yani sayı doğrusundaki eksi, kesirli ve ondalıklı sayılar dahil bütün sayılar
 
 $x_t \in \mathbb{R}$ ifadesi yalnızca "her an elimizde tek bir gerçel sayı vardır" demektir (örneğin $x_t = 432$ yolcu).
@@ -42,6 +48,12 @@ $x_t \in \mathbb{R}$ ifadesi yalnızca "her an elimizde tek bir gerçel sayı va
 $$
 \mathbf{x}_t = (x_{1,t}, x_{2,t}, \dots, x_{k,t})^\top \in \mathbb{R}^k
 $$
+
+```math
+\underbrace{\mathbf{x}_t}_{\substack{\text{t anındaki}\\\text{gözlem vektörü}}} = (\overbrace{x_{1,t}}^{\text{1. değişken}}, x_{2,t}, \dots, \overbrace{x_{k,t}}^{\text{k. değişken}})^\top \in \underbrace{\mathbb{R}^k}_{\substack{\text{k gerçel sayıdan}\\\text{oluşan vektörler}}}
+```
+
+**Ne anlatıyor?** Çok değişkenli bir seride her zaman noktasında $k$ değişkenin değeri birlikte gözlenir ve tek bir vektörde toplanır; böylece değişkenler arasındaki etkileşim incelenebilir.
 
 > **Simge notu:** $`\mathbf{x}_t`$ *(kalın x t)*: t anındaki gözlem vektörü · $`x_{1,t}`$ *(x bir t)*: 1. değişkenin t anındaki değeri; virgülden önceki alt indis değişkenin numarası, sonraki zaman · $`^\top`$ *(transpoz)*: satır vektörünü sütun vektörüne çevirir · $`\mathbb{R}^k`$ *(R üzeri k)*: k bileşenli gerçel sayı vektörlerinin kümesi
 
@@ -143,7 +155,7 @@ Tanımda üç istatistiksel kavram kullanılır. Üçünü de basit örneklerle 
 \end{aligned}
 ```
 
-**Nasıl okunur?** "Bir: E köşeli parantez x alt t eşittir mü. İki: varyans x alt t eşittir sigma kare, sigma kare sonsuzdan küçük. Üç: kovaryans x alt t, x alt t artı h eşittir gama h." Yani: Üç ölçü de takvimde nerede durduğumuza, yani t'ye bağlı değildir.
+**Ne anlatıyor?** Zayıf durağan bir süreçte ortalama sabittir, varyans sabit ve sonludur, iki değer arasındaki kovaryans ise yalnızca aralarındaki gecikmeye ($h$) bağlıdır. Üç ölçünün hiçbiri takvimde hangi anda bulunulduğuna, yani $t$'ye bağlı değildir.
 
 > **Simge notu:** $`E[\cdot]`$ *(e, beklenen değer)*: rastgele değişkenin kuramsal ortalaması · $`\mu`$ *(mü)*: ortalama · $`\mathrm{Var}(\cdot)`$ *(varyans)*: ortalama etrafındaki yayılım · $`\sigma^2`$ *(sigma kare)*: varyansın değeri · $`\infty`$ *(sonsuz)*: $`\sigma^2 < \infty`$ varyansın sonlu olduğunu belirtir · $`\gamma(h)`$ *(gama h)*: h gecikmeli otokovaryans (*autocovariance*) fonksiyonu, yani kovaryansın yalnızca h'ye bağlı bir kural olarak yazılmış hâli
 
@@ -178,6 +190,12 @@ Tablonun son satırındaki **birim kök**, ADF testinin sınadığı ve ders boy
 x_t = \phi \, x_{t-1} + \varepsilon_t
 ```
 
+```math
+\underbrace{x_t}_{\text{bugünkü değer}} = \underbrace{\phi}_{\substack{\text{katsayı:}\\\text{serinin hafızası}}} \, \overbrace{x_{t-1}}^{\text{dünkü değer}} + \underbrace{\varepsilon_t}_{\substack{\text{bugüne özgü}\\\text{şok (sürpriz)}}}
+```
+
+**Ne anlatıyor?** Bugünkü değer, dünkü değerin bugüne taşınan kısmı ile geçmişten tahmin edilemeyen bugünkü şokun toplamıdır; $\phi$, dünün ne kadarının bugüne taşındığını belirler.
+
 Denklemi parça parça okuyalım:
 
 - $x_t$: **bugünkü** değer (bugünkü satış). Alt indisteki $t$ zamanı gösterir; $t$ "bugün" ise $t - 1$ "dün"dür (Bölüm 1.1).
@@ -209,7 +227,7 @@ Tüm denklem şu cümlenin kısaltmasıdır: **Bugünkü satış = (dünkü sat�
 \underbrace{x_t}_{\text{bugün}} = \underbrace{x_{t-1}}_{\substack{\text{dün, olduğu gibi}\\\text{taşınır } (\phi = 1)}} + \overbrace{\varepsilon_t}^{\text{bugünün yeni şoku}}
 ```
 
-**Nasıl okunur?** "x alt t eşittir, x alt t eksi bir artı epsilon alt t." Yani: Dünün tamamı bugüne geçer, üstüne yeni şok eklenir; bu yüzden şoklar birikir.
+**Ne anlatıyor?** Dünün değeri bugüne olduğu gibi taşınır ve üzerine yeni şok eklenir. Hiçbir şok sönmediği için şoklar birikir ve seri başıboş dolaşır.
 
 **Günlük hayattan bir örnek:** Bayramda alınan 2 kilo, düzenli spor yapan biri için birkaç haftada erir ($\phi < 1$, şok söner). Hiç dikkat etmeyen biri için ise her bayramın kilosu bir öncekinin üstüne eklenir ($\phi = 1$, şoklar birikir).
 
@@ -289,11 +307,23 @@ Grafik üzerinde kök, ifadenin grafiğinin yatay ekseni (sıfır çizgisini) ke
 (1 - \phi B)\, x_t = \varepsilon_t
 ```
 
+```math
+\underbrace{(1 - \phi B)}_{\substack{\text{modelin iskeleti: bugün}\\\text{eksi dünün }\phi\text{ katı}}}\, \overbrace{x_t}^{\text{seri}} = \underbrace{\varepsilon_t}_{\text{bugünün şoku}}
+```
+
+**Ne anlatıyor?** AR(1) modeli gecikme operatörüyle tek bir parantez hâline getirilir; modelin bütün yapısı, seriye uygulanan bu parantezde toplanır.
+
 Parantezin içi, modelin iskeletidir: "Bugünkü değerden, dünkü değerin $\phi$ katını çıkar; geriye yalnızca bugünün şoku kalır." Ancak $B$ bir sayı değil, "bir adım geri git" **komutudur**. "$`1 - \phi B = 0`$ olsun, $B$'yi çözelim" diyemeyiz; bir komutun sayısal değeri olmaz. Matematikçiler bu tür zaman içinde ilerleyen sistemleri (*fark denklemlerini*) incelerken şu yolu izler: Komut olan $B$'nin yerine geçici olarak sıradan bir bilinmeyen koyarlar, genellikle $z$ harfini. Bu $z$ gökten inmemiştir; $B$'nin yerine konmuş bir **kukla değişkendir**. Böylece iskelet, kökü bulunabilen sıradan bir denkleme dönüşür. Bu denkleme modelin **karakteristik denklemi** denir:
 
 $$
 1 - \phi z = 0
 $$
+
+```math
+\underbrace{1 - \phi z}_{\substack{\text{B yerine kukla}\\\text{değişken z konmuş iskelet}}} = 0
+```
+
+**Ne anlatıyor?** Gecikme operatörünün yerine sıradan bir bilinmeyen konularak modelin karakteristik denklemi kurulur. Bu denklemin kökü, serinin durağan olup olmadığını belirler.
 
 Bu birinci dereceden denklemi $2x - 6 = 0$ gibi çözeriz: $\phi z = 1$, buradan $z = 1/\phi$. Sayılarla:
 
@@ -376,13 +406,13 @@ Durağan olmayan serilerin hepsi aynı türden değildir. İki tür özellikle �
 \underbrace{x_t}_{\text{gözlem}} = \underbrace{\beta_0 + \beta_1 t}_{\substack{\text{deterministik trend}\\\text{(düz çizgi)}}} + \overbrace{\varepsilon_t}^{\substack{\text{geçici şok}\\\text{(trende geri döner)}}}
 ```
 
-**Nasıl okunur?** "x alt t eşittir, beta sıfır artı beta bir çarpı t, artı epsilon alt t."
+**Ne anlatıyor?** Gözlem, düz bir trend çizgisi ile geçici bir şokun toplamıdır. Şok bir sonraki döneme taşınmadığı için seri her sapmadan sonra trend çizgisine geri döner.
 
 ```math
 \underbrace{\nabla x_t}_{\text{birinci fark}} = \overbrace{x_t - x_{t-1}}^{\text{bugün eksi dün}} = \underbrace{\varepsilon_t}_{\substack{\text{yalnızca şok:}\\\text{durağan}}}
 ```
 
-**Nasıl okunur?** "Nabla x alt t eşittir, x alt t eksi x alt t eksi bir; bu da epsilon alt t'ye eşittir." Yani: Rastgele yürüyüşün farkı alınınca birikmiş şoklar gider, geriye yalnızca beyaz gürültü kalır.
+**Ne anlatıyor?** Bugünkü değerden dünkü değer çıkarıldığında rastgele yürüyüşte birikmiş şoklar ortadan kalkar ve geriye yalnızca bugünün şoku, yani beyaz gürültü kalır. Bu nedenle fark-durağan bir seri, farkı alınarak durağanlaştırılır.
 
 Örneğin $\beta_0 = 100$ ve $\beta_1 = 2$ ise trend çizgisi 100'den başlar ve her dönem 2 birim yükselir; seri bu çizginin çevresinde dalgalanır ve bir şoktan sonra yine çizgiye döner. Rastgele yürüyüşte ise dönülecek bir çizgi yoktur. Bu ayrım önemlidir çünkü yanlış dönüşüm (trend-durağan seriden fark almak ya da birim köklü seriden sadece trend çıkarmak) hatalı modellere yol açar. ARIMA'daki "I" (Integrated) harfi tam olarak bu fark alma işlemini temsil eder.
 
@@ -408,13 +438,19 @@ Karar için önceden bir eşik seçilir, genellikle **0.05** (yüzde 5). Bu eşi
 
 İkinci durumdaki ince nokta özellikle önemlidir: **"Reddedilemedi", "kanıtlandı" demek değildir.** Mahkemede beraat eden sanık için "masum olduğu kanıtlandı" denmez, "suçu kanıtlanamadı" denir. p = 0.40 sonucu "birim kök olduğu kanıtlandı" anlamına gelmez; yalnızca durağanlığı gösterecek kadar güçlü delil yoktur. Kısa serilerde ADF'nin $H_0$'ı reddetmesi zordur. Bu yüzden ADF, hipotezleri tam ters kuran **KPSS** testiyle ($H_0$: seri durağandır) ve grafikle birlikte kullanılır.
 
-ADF, $\phi = 1$ olup olmadığını küçük bir cebir hilesiyle sınar. AR(1) denkleminin iki tarafından $x_{t-1}$ çıkarılırsa
+ADF, $\phi = 1$ olup olmadığını küçük bir cebir hilesiyle sınar. AR(1) denkleminin iki tarafından $x_{t-1}$ çıkarıldığında şu eşitlik elde edilir:
 
 ```math
 x_t - x_{t-1} = (\phi - 1)\, x_{t-1} + \varepsilon_t, \qquad \text{yani} \qquad \nabla x_t = (\phi - 1)\, x_{t-1} + \varepsilon_t
 ```
 
-elde edilir. $\phi = 1$ ise sağdaki katsayı $\phi - 1 = 0$ olur; $\phi = 0.5$ ise $-0.5$ olur. Böylece "$`\phi = 1`$ mi?" sorusu "farkı alınmış seriyi önceki seviyeye bağlayan katsayı sıfır mı?" sorusuna dönüşür. Bu katsayı veriden **regresyonla** (*regression*; Latince *regressus*, "geri dönüş"; adın öyküsü Bölüm 7.1.1'de), yani verideki ilişkiyi en iyi açıklayan katsayıyı bulan yöntemle kestirilir. ADF'deki "genişletilmiş" (*augmented*) kelimesi, denkleme gecikmeli fark terimleri de eklendiğini anlatır. Regresyonun tam biçimi (orada bu katsayı $\gamma$ ile gösterilir; 3.2.1'deki otokovaryans fonksiyonu $\gamma(h)$ ile karıştırılmamalıdır), KPSS testi ve iki testin birlikte yorumlanması Bölüm 7.5'tedir.
+```math
+\underbrace{x_t - x_{t-1}}_{\substack{\text{bugünkü}\\\text{değişim}}} = \overbrace{(\phi - 1)}^{\substack{\text{sınanan}\\\text{katsayı}}}\, \underbrace{x_{t-1}}_{\substack{\text{dünkü}\\\text{seviye}}} + \overbrace{\varepsilon_t}^{\text{şok}}, \qquad \text{yani} \qquad \underbrace{\nabla x_t}_{\text{birinci fark}} = (\phi - 1)\, x_{t-1} + \varepsilon_t
+```
+
+**Ne anlatıyor?** AR(1) denklemi seviye yerine değişim üzerinden yeniden yazılır: Bugünkü değişim, dünkü seviyenin $(\phi - 1)$ katı ile şokun toplamıdır.
+
+$\phi = 1$ ise sağdaki katsayı $\phi - 1 = 0$ olur; $\phi = 0.5$ ise $-0.5$ olur. Böylece "$`\phi = 1`$ mi?" sorusu "farkı alınmış seriyi önceki seviyeye bağlayan katsayı sıfır mı?" sorusuna dönüşür. Bu katsayı veriden **regresyonla** (*regression*; Latince *regressus*, "geri dönüş"; adın öyküsü Bölüm 7.1.1'de), yani verideki ilişkiyi en iyi açıklayan katsayıyı bulan yöntemle kestirilir. ADF'deki "genişletilmiş" (*augmented*) kelimesi, denkleme gecikmeli fark terimleri de eklendiğini anlatır. Regresyonun tam biçimi (orada bu katsayı $\gamma$ ile gösterilir; 3.2.1'deki otokovaryans fonksiyonu $\gamma(h)$ ile karıştırılmamalıdır), KPSS testi ve iki testin birlikte yorumlanması Bölüm 7.5'tedir.
 
 **Günlük hayattan bir örnek:** Gerilmiş bir lastik ne kadar çekilirse o kadar güçlü geri döner: Seviye ortalamadan uzaklaştıkça bir sonraki değişim onu geri çeker ($\phi - 1 < 0$). Birim kökte lastik kopmuştur: Seri itildiği yerde kalır ($\phi - 1 = 0$). ADF, "Lastik kopmuş mu?" sorusunu sorar. Benzetmenin sınırı: Seriye her dönem yeni şoklar da gelir; lastik geri çekerken onu yeniden iten küçük darbeler hiç bitmez.
 
@@ -544,6 +580,12 @@ $$
 x_t = x(t \cdot \Delta t), \qquad t = 0, 1, 2, \dots
 $$
 
+```math
+\underbrace{x_t}_{\substack{\text{t'nci}\\\text{gözlem}}} = \overbrace{x(t \cdot \Delta t)}^{\substack{\text{sürekli sürecin}\\t \cdot \Delta t\text{ anındaki değeri}}}, \qquad \underbrace{t = 0, 1, 2, \dots}_{\text{örnek numarası}}
+```
+
+**Ne anlatıyor?** Kesikli seri, sürekli bir süreçten eşit aralıklarla alınan ölçümlerden oluşur: $t$'nci gözlem, sürecin $t \cdot \Delta t$ anındaki değeridir.
+
 > **Simge notu:** $`x(t)`$ *(x parantez t)*: sürekli zamanda t anındaki değer · $`\mathbb{Z}`$ *(tam sayılar)*: …, −1, 0, 1, 2, … kümesi · $`\Delta t`$ *(delta t)*: örnekleme aralığı · $`\cdot`$ *(çarpı)*: çarpma
 
 İki gösterim arasındaki fark önemlidir: Parantezli $x(t)$ zamanın her anında tanımlıdır ($t = 2.37$ saat bile olabilir), alt indisli $x_t$ ise yalnızca tam sayı sıra numaralarında vardır. Formül, kesikli serinin $t$. gözleminin sürekli süreçte hangi ana karşılık geldiğini söyler. Örneğin her 15 dakikada bir ölçüm yapılıyorsa ($\Delta t = 0.25$ saat), $x_8 = x(8 \cdot 0.25) = x(2)$, yani ölçüm başladıktan 2 saat sonraki değerdir.
@@ -617,7 +659,7 @@ Bu dersteki ve gerçek dünyadaki analizlerin **büyük çoğunluğu kesikli zam
 x_t = \underbrace{f(t)}_{\substack{\text{zamanın bilinen}\\\text{fonksiyonu}}}, \qquad \text{örneğin} \quad x_t = \underbrace{A}_{\text{genlik}} \underbrace{\sin\left(\frac{2\pi t}{P}\right)}_{\substack{\text{her P adımda}\\\text{tekrar eden dalga}}} + \overbrace{\beta t}^{\substack{\text{doğrusal}\\\text{trend}}}
 ```
 
-**Nasıl okunur?** "x alt t eşittir f t; örneğin x alt t eşittir, A çarpı sinüs iki pi t bölü P, artı beta t."
+**Ne anlatıyor?** Deterministik bir seride her değer, zamanın bilinen bir fonksiyonundan hatasız hesaplanır. Örnekteki seri, her $P$ adımda kendini tekrarlayan bir dalga ile doğrusal bir trendin toplamıdır.
 
 > **Simge notu:** $`f(t)`$ *(ef t)*: zamanın bilinen bir fonksiyonu · $`A`$: dalganın genliği · $`\pi`$ *(pi)*: ≈ 3.14159 sabiti. Bölüm 3.2'deki $`\phi`$ (fi) bir katsayıdır, buradaki $`\pi`$ ise değişmeyen bir sayıdır · $`P`$: dalganın periyodu · $`\beta`$ *(beta)*: doğrusal trendin eğimi
 
@@ -636,7 +678,7 @@ Dalga 12 ayda bir tam tur atar ve 13. aydan itibaren aynı değerleri tekrarlar.
 x_t = \underbrace{f(t)}_{\text{sistematik kısım}} + \overbrace{\varepsilon_t}^{\text{rastgele kısım}}, \qquad \varepsilon_t \sim \text{iid}(0, \sigma^2)
 ```
 
-**Nasıl okunur?** "x alt t eşittir, f t artı epsilon alt t; epsilon alt t, iid sıfır, sigma kare dağılımına sahiptir." Yani: Rastgele kısım, Bölüm 2.2'deki beyaz gürültüdür.
+**Ne anlatıyor?** Stokastik seri, zamanın bilinen bir fonksiyonu olan sistematik kısım ile önceden bilinemeyen rastgele kısmın toplamıdır. Rastgele kısım, Bölüm 2.2'deki beyaz gürültüdür: ortalaması 0, varyansı $\sigma^2$ olan bağımsız ve özdeş dağılımlı şoklardan oluşur.
 
 > **Simge notu:** $`\lbrace X_t \rbrace`$ *(büyük X t)*: stokastik süreç, yani her t için bir rastgele değişken · $`\sim`$ *(tilda)*: "… dağılımına sahiptir" · $`\text{iid}(0, \sigma^2)`$ *(ay-ay-di sıfır, sigma kare)*: ortalaması 0, varyansı σ² olan bağımsız ve özdeş dağılımlı değişkenler
 
