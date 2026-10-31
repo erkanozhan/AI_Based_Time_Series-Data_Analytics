@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="470" viewBox="0 0 900 470">
+<title>PACF dolaylı yol ve doğrudan etki</title>
+<defs><marker id="ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#16a34a"/></marker><marker id="ok2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/></marker></defs>
+<rect x="0.5" y="0.5" width="899" height="469" rx="10" fill="#ffffff" stroke="#d1d5db"/>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">PACF'in Ölçtüğü Şey: Dolaylı Yol ile Doğrudan Etki</text>
+<text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">AR(1), φ = 0.5: Evvelsi gün gelen 100 birimlik şok dün 50, bugün 25 olarak hissedilir.</text>
+<rect x="65" y="110" width="170" height="64" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+<text x="150.0" y="135.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">x(t−2) · evvelsi gün</text>
+<text x="150.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="normal">şokun etkisi: 100</text>
+<rect x="365" y="110" width="170" height="64" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+<text x="450.0" y="135.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">x(t−1) · dün</text>
+<text x="450.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="normal">şokun etkisi: 50</text>
+<rect x="665" y="110" width="170" height="64" rx="8" fill="#eff6ff" stroke="#2563eb" stroke-width="1.5"/>
+<text x="750.0" y="135.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2937" text-anchor="middle" font-weight="bold">x(t) · bugün</text>
+<text x="750.0" y="160.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#1f2937" text-anchor="middle" font-weight="normal">şokun etkisi: 25</text>
+<line x1="235" y1="142" x2="365" y2="142" stroke="#16a34a" stroke-width="2.2" marker-end="url(#ok)"/>
+<text x="300.0" y="133.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#16a34a" text-anchor="middle" font-weight="bold">× 0.5</text>
+<line x1="535" y1="142" x2="665" y2="142" stroke="#16a34a" stroke-width="2.2" marker-end="url(#ok)"/>
+<text x="600.0" y="133.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#16a34a" text-anchor="middle" font-weight="bold">× 0.5</text>
+<text x="450.0" y="196.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#16a34a" text-anchor="middle" font-weight="normal">Dolaylı yol (zincir): evvelsi günün etkisi bugüne yalnızca dün üzerinden ulaşır.</text>
+<path d="M150,108 C240,84 660,84 750,108" fill="none" stroke="#dc2626" stroke-width="1.8" stroke-dasharray="6 5" marker-end="url(#ok2)"/>
+<text x="450.0" y="78.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12" fill="#dc2626" text-anchor="middle" font-weight="bold">Doğrudan etki var mı? PACF bunu ölçer: dün bilindiğinde ek katkı yok → 0</text>
+<text x="240.0" y="238.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="middle" font-weight="bold">ACF: toplam ilişki</text>
+<rect x="60" y="255" width="360" height="150" fill="#f9fafb" stroke="#e5e7eb"/>
+<line x1="60" y1="385" x2="420" y2="385" stroke="#6b7280" stroke-width="1"/>
+<rect x="79" y="275.0" width="22" height="110.0" fill="#2563eb"/>
+<text x="90.0" y="269.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">0.5</text>
+<text x="90.0" y="400.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">lag 1</text>
+<rect x="149" y="330.0" width="22" height="55.0" fill="#2563eb"/>
+<text x="160.0" y="324.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">0.25</text>
+<text x="160.0" y="400.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">lag 2</text>
+<rect x="219" y="357.5" width="22" height="27.5" fill="#2563eb"/>
+<text x="230.0" y="351.5" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">0.125</text>
+<text x="230.0" y="400.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">lag 3</text>
+<rect x="289" y="371.2" width="22" height="13.8" fill="#2563eb"/>
+<text x="300.0" y="365.2" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">0.06</text>
+<text x="300.0" y="400.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">lag 4</text>
+<rect x="359" y="378.1" width="22" height="6.9" fill="#2563eb"/>
+<text x="370.0" y="372.1" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">0.03</text>
+<text x="370.0" y="400.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">lag 5</text>
+<text x="240.0" y="427.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic">lag-2: 0.25 = 0.5 × 0.5 (tamamı zincirden gelir)</text>
+<text x="660.0" y="238.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14" fill="#1f2937" text-anchor="middle" font-weight="bold">PACF: doğrudan ilişki</text>
+<rect x="480" y="255" width="360" height="150" fill="#f9fafb" stroke="#e5e7eb"/>
+<line x1="480" y1="385" x2="840" y2="385" stroke="#6b7280" stroke-width="1"/>
+<rect x="499" y="275.0" width="22" height="110.0" fill="#16a34a"/>
+<text x="510.0" y="269.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">0.5</text>
+<text x="510.0" y="400.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">lag 1</text>
+<text x="580.0" y="379.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">0</text>
+<text x="580.0" y="400.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">lag 2</text>
+<text x="650.0" y="379.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">0</text>
+<text x="650.0" y="400.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">lag 3</text>
+<text x="720.0" y="379.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">0</text>
+<text x="720.0" y="400.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">lag 4</text>
+<text x="790.0" y="379.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11" fill="#1f2937" text-anchor="middle" font-weight="normal">0</text>
+<text x="790.0" y="400.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="10.5" fill="#6b7280" text-anchor="middle" font-weight="normal">lag 5</text>
+<text x="660.0" y="427.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="11.5" fill="#6b7280" text-anchor="middle" font-weight="normal" font-style="italic">lag-2: 0 (dün bilindiğinde evvelsi gün yeni bilgi taşımaz)</text>
+</svg>

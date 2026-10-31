@@ -675,7 +675,7 @@ Seri uzadıkça şans dalgalanması küçülür ve bant daralır: 100 gözlemde 
 
 > **Not —** Sınırlar %95 düzeyinde olduğu için, gerçekten beyaz gürültü olan bir seride bile 20 çubuktan yaklaşık 1'inin bandı az farkla aşması beklenir (Şekil 6.5'teki turuncu uçlar). Tek başına, sınırı hafifçe geçen uzak bir çubuğa fazla anlam yüklenmemelidir.
 
-Grafiğin nasıl okunacağı Bölüm 6.3.5 ve 6.3.6'da ayrıntılı olarak ele alınıyor.
+Grafiğin nasıl yorumlanacağı Bölüm 6.3.5 ve 6.3.6'da ayrıntılı olarak ele alınmaktadır.
 
 > **Hemen deneyin 6.3.4b · Tesadüf bandını sınayın** (R, ~4 dk)
 >
@@ -731,7 +731,7 @@ R ya da Python'un çizdiği bir ACF grafiğinde altı öğe vardır. Şekil 6.6 
 
 > **Not —** R'da `ts` nesnelerinin ACF grafiğinde yatay eksen gecikme sayısıyla değil, **yıl** cinsinden etiketlenir: Aylık veride 1.0 işareti $`h = 12`$'yi gösterir (Bölüm 6.5). Şekil 6.6 gecikme sayısını kullanır.
 
-#### 6.3.6. ACF Grafiği Nasıl Okunur? Tipik Desenler
+#### 6.3.6. ACF Grafiğinin Yorumlanması: Tipik Desenler
 
 Tek tek çubuklardan çok, çubukların oluşturduğu **desen** önemlidir. Pratikte karşılaşılan ACF grafiklerinin çoğu aşağıdaki beş desenden birine ya da birkaçının karışımına benzer. Bir grafiğe bakıldığında ilk soru şu olmalıdır: *"Bu, hangisine benziyor?"*
 
@@ -923,14 +923,13 @@ ACF bize **toplam** ilişkiyi gösterir. Ancak bu ilişkinin bir kısmı dolayl�
 
 Şöyle bir zincir düşünelim: Bir bahçenin toprak nemini her gün ölçüyoruz. Islak toprak bir günde kurumadığı için evvelsi günkü toprak nemi ($x_{t-2}$) dünkü toprak nemini ($x_{t-1}$), dünkü nem de bugünkü toprak nemini ($x_t$) etkiler. Yağmur bu zincirin dışından gelen bir şoktur: Yağdığı gün nemi yükseltir, sonra etkisi zincir boyunca taşınır. ACF, evvelsi günkü nem ile bugünkü nem arasında güçlü bir ilişki bulur, çünkü aralarında bir zincir vardır. PACF ise aradaki "dünkü nem" etkisini devreden çıkarır ve şunu sorar: *Dünü zaten bildiğimize göre, evvelsi günün bugüne ek, doğrudan bir katkısı var mı?*
 
-```mermaid
-graph LR
-    X2["x(t-2): evvelsi günkü toprak nemi"] -.->|"dolaylı yol (PACF bunu arındırır)"| X1["x(t-1): dünkü toprak nemi"]
-    X1 -.->|"dolaylı yol"| X0["x(t): bugünkü toprak nemi"]
-    X2 ==>|"doğrudan etki (PACF'in ölçtüğü)"| X0
-```
-
 Bunu bir AR(1) süreciyle (Bölüm 3.2) sayılarla görelim: $\phi = 0.5$ (okunuşu "fi") iken her gün, bir önceki günün değerinin yarısını taşır: Evvelsi gün gelen 100 birimlik bir şok dün 50, bugün 25 olarak hissedilir. Bu yüzden evvelsi gün ile bugün arasında da bir ilişki görünür: Lag-1 korelasyonu 0.5 ise lag-2 korelasyonu $0.5 \times 0.5 = 0.25$'tir (ACF). Ama bu ilişkinin tamamı dün üzerinden geçer: Dünün değeri (50) biliniyorsa, bugünü tahmin etmek için evvelsi güne (100) bakmak yeni bir bilgi vermez. ACF lag-2'de 0.25 gösterirken PACF lag-2'de 0 gösterir.
+
+![PACF: dolaylı yol ve doğrudan etki](../images/ch06_pacf_dolayli_dogrudan.svg)
+
+*Şekil 6.8 — PACF'in ölçtüğü şey. AR(1) ($`\phi = 0.5`$) sürecinde evvelsi günün etkisi bugüne yalnızca dün üzerinden ulaşır (yeşil zincir). ACF bu dolaylı ilişkiyi de sayar ve lag-2'de $`0.5 \times 0.5 = 0.25`$ gösterir. PACF ise dünün etkisini arındırır; evvelsi günden bugüne doğrudan bir yol (kırmızı kesikli ok) olmadığı için lag-2'den itibaren 0 gösterir.*
+
+**Günlük hayattan bir örnek:** Kulaktan kulağa oyunu düşünülsün. Birinci kişi bir cümleyi ikinci kişinin kulağına fısıldar, ikinci kişi de duyduğunu üçüncü kişiye iletir. Üçüncü kişinin duyduğu cümle birinci kişininkine benzer; ACF bu benzerliği ölçer. Ancak üçüncü kişi cümleyi yalnızca ikinci kişiden duymuştur. PACF şu soruyu sorar: İkinci kişinin ne söylediği bilindiğinde, birinci kişinin üçüncü kişiye ulaştırdığı **ek** bir bilgi var mıdır? Birinci kişi üçüncü kişiye zincirin dışından ayrıca bir not uzatmışsa, yani doğrudan bir yol varsa, lag-2 PACF sıfırdan farklı çıkar. Benzetmenin sınırı: Gerçek serilerde aktarılan bilgi rastgele şoklarla bozulur ve ilişkiler kesin değil olasılıksaldır.
 
 #### 6.4.2. Formel Tanım
 
@@ -1105,9 +1104,9 @@ Kod ekrana sayı yazmaz; iki panelli bir grafik açar. Her panelde dikey çubukl
 
 ![USgas ACF ve PACF](../images/ch06_usgas_acf_pacf.svg)
 
-*Şekil 6.8 — `USgas` serisinin ilk 36 gecikmedeki ACF (üstte) ve PACF (altta) değerleri. Mavi kesikli çizgiler $`\pm 1.96/\sqrt{T} \approx \pm 0.127`$ sınırlarıdır; gri çubuklar bu sınırların içinde kalır. Turuncu çubuklar mevsimsel gecikmelerdir (12, 24, 36).*
+*Şekil 6.9 — `USgas` serisinin ilk 36 gecikmedeki ACF (üstte) ve PACF (altta) değerleri. Mavi kesikli çizgiler $`\pm 1.96/\sqrt{T} \approx \pm 0.127`$ sınırlarıdır; gri çubuklar bu sınırların içinde kalır. Turuncu çubuklar mevsimsel gecikmelerdir (12, 24, 36).*
 
-> **Not —** Eksenin gecikme sayısıyla gösterilmesi için `acf(as.numeric(USgas))` yazılır; Şekil 6.6 ve 6.8 bu gösterimi kullanır.
+> **Not —** Eksenin gecikme sayısıyla gösterilmesi için `acf(as.numeric(USgas))` yazılır; Şekil 6.6 ve 6.9 bu gösterimi kullanır.
 
 **Yorum:**
 
@@ -1193,15 +1192,15 @@ $$
 
 Sezgi: "Bugün, son $q$ dönemde yaşanan sürprizlerin yankısıdır." Bir şok tam $q$ dönem boyunca etkisini sürdürür, sonra tamamen kaybolur: MA(1) ve $\theta = 0.8$ için 100 birimlik bir şok seriyi geldiği gün 100, ertesi gün 80 birim etkiler, sonraki günlerde hiç etkilemez. (Buradaki "hareketli ortalama", `decompose()`'daki trend yumuşatması ile karıştırılmamalıdır; burada ortalaması alınan şeyler gözlemler değil, geçmiş şoklardır.)
 
-Şekil 6.9 bu iki farklı yankıyı ve bunların ACF/PACF'e nasıl yansıdığını yan yana gösteriyor. Aşağıdaki iki alt bölüm, şekildeki çubukların nedenini açıklar.
+Şekil 6.10 bu iki farklı yankıyı ve bunların ACF/PACF'e nasıl yansıdığını yan yana gösteriyor. Aşağıdaki iki alt bölüm, şekildeki çubukların nedenini açıklar.
 
 ![AR ve MA süreçlerinde şokun yankısı](../images/ch06_sok_yankisi.svg)
 
-*Şekil 6.9 — Bir şokun yankısı ve teorik korelogramlar. Üstte AR(1) ($`\phi = 0.5`$): Şokun etkisi her gün yarıya iner ama hiç sıfırlanmaz; ACF $`0.5^h`$ olarak söner, PACF 1. gecikmeden sonra sıfırdır. Altta MA(1) ($`\theta = 0.8`$): Şok yalnızca bir gün sonraya taşınır; ACF 1. gecikmeden sonra sıfırdır, PACF işaret değiştirerek söner.*
+*Şekil 6.10 — Bir şokun yankısı ve teorik korelogramlar. Üstte AR(1) ($`\phi = 0.5`$): Şokun etkisi her gün yarıya iner ama hiç sıfırlanmaz; ACF $`0.5^h`$ olarak söner, PACF 1. gecikmeden sonra sıfırdır. Altta MA(1) ($`\theta = 0.8`$): Şok yalnızca bir gün sonraya taşınır; ACF 1. gecikmeden sonra sıfırdır, PACF işaret değiştirerek söner.*
 
 > **Hemen deneyin 6.6.1 · MA yankısını tabloda izleyin** (Excel / LibreOffice Calc, ~4 dk)
 >
-> Şekil 6.9'un alt kısmındaki MA(1) yankısını kendiniz üretin (AR yankısı için bkz. Hemen deneyin 3.2a).
+> Şekil 6.10'un alt kısmındaki MA(1) yankısını kendiniz üretin (AR yankısı için bkz. Hemen deneyin 3.2a).
 >
 > 1. A1:C1'e `t`, `şok`, `MA(1)`; F1 ve G1'e `teta1` ve `teta2` yazın. F2'ye `0,8`, G2'ye `0` girin (Türkçe Excel'de ondalık ayırıcı virgüldür; İngilizce Excel'de `0.8`).
 > 2. A2:A12'ye 0'dan 10'a kadar sayıları yazın. B2'ye `100`, B3:B12'ye `0` girin (yalnızca t = 0'da şok var).
@@ -1252,7 +1251,7 @@ PACF ise sıfıra hemen inmez; genellikle işaret değiştirerek (ya da geometri
 \varepsilon_{t-1} = x_{t-1} - 0.8\,x_{t-2} + 0.64\,x_{t-3} - 0.512\,x_{t-4} + \dots
 ```
 
-Her eski değer, giderek küçülen ve işaret değiştiren bir **ek** bilgi taşır. PACF tam da bu ek bilgiyi ölçtüğü için $0.49, -0.31, 0.22, -0.17, \dots$ şeklinde işaret değiştirerek söner (Şekil 6.9, sağ alt).
+Her eski değer, giderek küçülen ve işaret değiştiren bir **ek** bilgi taşır. PACF tam da bu ek bilgiyi ölçtüğü için $0.49, -0.31, 0.22, -0.17, \dots$ şeklinde işaret değiştirerek söner (Şekil 6.10, sağ alt).
 
 **Günlük hayattan bir örnek:** Her sabah okunan eski, ibreli bir termometre düşünelim. Bir sabahki küçük okuma hatası, ibre biraz takıldığı için ertesi sabaha da kısmen taşınır, iki gün sonra ise tamamen kaybolur. Ardışık iki okuma aynı hatayı paylaştığı için ilişkilidir; iki gün arayla yapılan okumalar hiç ortak hata paylaşmaz (ACF lag-1'den sonra kesilir). Ama dünkü hatayı doğrudan göremeyiz; onu dünkü okumadan çıkarmaya çalışırız ve dünkü okuma da evvelsi günün takılmasını içerir. Bu yüzden PACF azalarak sürer. Benzetmenin sınırı: Benzetme gerçek sıcaklığı sabit varsayar; okumalardaki bütün oynama hatadan gelir.
 
@@ -1295,7 +1294,7 @@ AR(p) sürecinde bir şokun etkisi, geri besleme yoluyla sonsuza kadar (azalarak
 
 **Ne anlatıyor?** AR(1) sürecinde $h$ gecikmedeki otokorelasyon, $\phi$ katsayısının $h$ kez kendisiyle çarpılmasıyla bulunur. Her ek gecikmede korelasyon aynı oranda küçüldüğü için ACF geometrik olarak söner.
 
-$\phi^h$, "$`\phi`$'yi $h$ kez kendisiyle çarp" demektir. $\phi = 0.5$ için (Şekil 6.9) $\rho_1 = 0.5$, $\rho_2 = 0.25$, $\rho_3 = 0.125$; $\phi = 0.7$ için $\rho_1 = 0.7$, $\rho_2 = 0.7 \times 0.7 = 0.49$, $\rho_3 = 0.49 \times 0.7 \approx 0.34$, … şeklinde geometrik olarak azalır. $\phi$ negatifse ACF işaret değiştirerek söner (ör. $\phi = -0.5$ için $-0.5, 0.25, -0.125, \dots$).
+$\phi^h$, "$`\phi`$'yi $h$ kez kendisiyle çarp" demektir. $\phi = 0.5$ için (Şekil 6.10) $\rho_1 = 0.5$, $\rho_2 = 0.25$, $\rho_3 = 0.125$; $\phi = 0.7$ için $\rho_1 = 0.7$, $\rho_2 = 0.7 \times 0.7 = 0.49$, $\rho_3 = 0.49 \times 0.7 \approx 0.34$, … şeklinde geometrik olarak azalır. $\phi$ negatifse ACF işaret değiştirerek söner (ör. $\phi = -0.5$ için $-0.5, 0.25, -0.125, \dots$).
 
 PACF ise tam burada net bir cevap verir: AR(p) sürecinde $x_t$ yalnızca son $p$ değere doğrudan bağlı olduğu için, $x_{t-p-1}$ ve daha eski değerlerin **ek** katkısı sıfırdır. Bölüm 6.4.1'deki örnekte olduğu gibi, dünü bilen biri evvelsi günden yeni bir şey öğrenmez. Dolayısıyla $\phi_{hh} = 0$ ($h > p$) olur ve PACF $p$ gecikmeden sonra kesilir.
 
@@ -1326,11 +1325,11 @@ PACF ise tam burada net bir cevap verir: AR(p) sürecinde $x_t$ yalnızca son $p
 
 #### 6.6.4. İmzaları Yan Yana Görmek
 
-Şekil 6.9 teorik, yani sonsuz uzunlukta bir veride ortaya çıkacak değerleri gösteriyordu. Gerçekte elimizde sonlu bir örneklem vardır. Aşağıdaki şekil, beyaz gürültü, AR(1) ve MA(1) süreçlerinden simüle edilmiş 400'er gözlemin ACF ve PACF grafiklerini göstermektedir.
+Şekil 6.10 teorik, yani sonsuz uzunlukta bir veride ortaya çıkacak değerleri gösteriyordu. Gerçekte elimizde sonlu bir örneklem vardır. Aşağıdaki şekil, beyaz gürültü, AR(1) ve MA(1) süreçlerinden simüle edilmiş 400'er gözlemin ACF ve PACF grafiklerini göstermektedir.
 
 ![AR, MA ve beyaz gürültü için ACF/PACF imzaları](../images/ch06_acf_pacf_imzalari.svg)
 
-*Şekil 6.10 — Üç temel sürecin korelogram imzaları. Beyaz gürültüde hiçbir çubuk anlamlı değildir. AR(1) sürecinde ($`\phi = 0.7`$) ACF geometrik olarak söner, PACF 1. gecikmeden sonra kesilir. MA(1) sürecinde ($`\theta = 0.8`$) ACF 1. gecikmeden sonra kesilir, PACF işaret değiştirerek söner.*
+*Şekil 6.11 — Üç temel sürecin korelogram imzaları. Beyaz gürültüde hiçbir çubuk anlamlı değildir. AR(1) sürecinde ($`\phi = 0.7`$) ACF geometrik olarak söner, PACF 1. gecikmeden sonra kesilir. MA(1) sürecinde ($`\theta = 0.8`$) ACF 1. gecikmeden sonra kesilir, PACF işaret değiştirerek söner.*
 
 Şekildeki örneklem değerleri teorik değerlerle uyumludur: AR(1) için $\hat{\rho}_ 1 \approx 0.65$ (teorik 0.7), MA(1) için $\hat{\rho}_ 1 \approx 0.46$ (teorik 0.49). Örneklem değerlerinin teorik değerlerden biraz sapması, sonlu örneklemin doğal sonucudur. Aynı nedenle AR(1) ACF'sinin 12–15. gecikmelerinde bandı az farkla aşan küçük negatif çubuklar görülür; bunlar gerçek bir yapı değil, örneklem dalgalanmasıdır (bkz. Bölüm 6.3.4'teki "20 çubukta 1" uyarısı). Aynı deney R'da da yapılabilir (şekil Python ile üretildiği için R'da sayılar biraz farklı çıkar, imzalar aynıdır):
 

@@ -254,7 +254,7 @@ Menülerle yapılan her işlem Gretl'in komut dilinde de yazılabilir. Betik kul
 
 Betiği çalıştırmak için **File → Script files → New script** ile açılan pencereye yapıştırıp **Run** (dişli simgesi) düğmesine basabilir ya da `.inp` dosyası olarak kaydedip komut satırından `gretlcli -b betik.inp` ile çalıştırabilirsiniz (`gretlcli` Gretl'in komut satırı sürümüdür, `-b` "batch", yani betiği baştan sona soru sormadan çalıştır demektir).
 
-Tam betik yaklaşık 160 satır olduğu için ayrı bir dosyaya taşındı. Aşağıda her adımın kilit komutları yer alıyor; adım numaraları (1–8), dosyadaki bölüm başlıklarıyla ve aşağıdaki "Betiğin çıktıları nasıl okunur?" listesiyle aynıdır.
+Tam betik yaklaşık 160 satır olduğu için ayrı bir dosyaya taşındı. Aşağıda her adımın kilit komutları yer alıyor; adım numaraları (1–8), dosyadaki bölüm başlıklarıyla ve aşağıdaki "Betik çıktılarının yorumlanması" listesiyle aynıdır.
 
 ```gretl
 # ARIMA betiğinin kilit satırları (tam betik: Codes/gretl/ch11_arima_airpassengers.inp)
@@ -303,7 +303,7 @@ Komutların ne yaptığı:
 >
 > Betiğin tamamı bu dosyada. Gretl'de **File → Script files → Open user file…** ile açıp **Run** (dişli simgesi) düğmesiyle çalıştırabilir ya da depo kök dizininde `gretlcli -b Codes/gretl/ch11_arima_airpassengers.inp` komutunu kullanabilirsiniz. Betik veriyi `data/AirPassengers.csv` yolundan açar (depo kök dizininden çalıştırıldığı varsayılır); Gretl dosyayı bulamazsa `open` satırına dosyanın tam yolunu yazın. Betik nerede çalıştığını `$sysinfo.gui_mode` ile kendisi anlar: Gretl arayüzünde grafikler ayrı pencerelerde açılır; `gretlcli` ile çalıştırıldığında ise ekran penceresi betiği bekletmesin diye altı grafik `Codes/gretl/` klasörüne PNG dosyası olarak yazılır (`ch11_grafik1_yolcu.png` … `ch11_grafik6_tahmin_1961.png`). Bunu her grafikten önceki `string G = EKRAN ? "display" : "...png"` satırı sağlar; `--output="@G"` bu satırdaki metni kullanır.
 
-**Betiğin çıktıları nasıl okunur?**
+**Betik çıktılarının yorumlanması**
 
 *   **Adım 2–4:** Betik seriyi çizip özet istatistiklerini aldıktan sonra, büyüyen dalgalanmalar nedeniyle log alır (`lnpass`); 4. adımdaki 36 gecikmelik korelogramda mevsimsel örüntü (12, 24, 36. gecikmeler) incelenir. Adım 3'te `lnpass` için ADF p-değeri yüksektir (sabitli 0.31, sabit+trendli 0.82: durağan değil), `ddlnpass` için düşüktür (yaklaşık 0.0002: durağan). KPSS'de ise tersi beklenir: `ddlnpass` için test istatistiği 0.103, %5 kritik değerin (0.462) altında kalır ve p > 0.10 olur; "seri durağandır" hipotezi reddedilmez. Bu, Bölüm 7'deki $d = 1$, $D = 1$ seçimini destekler.
 *   **Adım 5:** Betik beş aday modeli `--quiet` ile kurar, AIC'lerini `$aic` ile saklar ve `printf` (biçimlendirilmiş yazdırma) ile tablo hâlinde yazdırır; en küçük AIC değerine sahip model seçilir. AIC'ler ancak aynı seri üzerinde kurulan modeller arasında karşılaştırılabilir: $d = 1$, $D = 1$ olan dört mevsimsel model aynı fark serisini modellediği için karşılaştırılabilir. Bunlar arasında airline model en iyisidir (AIC −483.39; diğerleri −481.89, −481.48, −477.40). ARIMA(1,1,1) mevsimsel fark içermez; AIC'si (−242.63) farklı bir seri üzerinden hesaplandığı için diğerleriyle doğrudan karşılaştırılamaz. Bu model ancak mevsimsel yapıyı hiç modellemediği için kötü bir seçimdir ve artıklarında 12. gecikmede güçlü korelasyon kalır.

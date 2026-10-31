@@ -363,7 +363,7 @@ plt.show()
 
 `forecast` veri çerçevesi, `future` içindeki **her tarih** için (geçmiş 144 ay + gelecek 12 ay) bir satır içerir. Yani geçmiş dönem için de modelin uydurduğu değerleri verir. `tail(12)` ile yalnızca gelecek 12 ayı (1961) görürüz. Başlıca sütunlar:
 
-| Sütun | Anlamı | Nasıl okunur? |
+| Sütun | Anlamı | Yorumu |
 | --- | --- | --- |
 | `ds` | Tahmin edilen tarih | 1961-01-01, 1961-02-01, ... |
 | `yhat` | Nokta tahmini; toplamsal modelde $`\hat{y}(t) = g(t) + s(t) + h(t)`$ | "Bu ay için en olası yolcu sayısı" |

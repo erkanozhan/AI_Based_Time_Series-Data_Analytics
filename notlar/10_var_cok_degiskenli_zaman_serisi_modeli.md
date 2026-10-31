@@ -824,13 +824,15 @@ $\Phi_h$ matrisinin $(j, m)$ elemanı, $m$. değişkene $t$ anında gelen bir bi
 
 **Günlük hayattan bir örnek:** Aynı ay hem kur hem faiz beklenmedik biçimde yükseldiyse veri "hangisi diğerini tetikledi?" sorusunu cevaplayamaz. Cholesky bu soruyu "haberi ilk kim duydu?" sorusuna çevirir ve cevabı bize bırakır: Listede önce gelen değişken haberi ilk alan sayılır ve aynı ay sonrakilere iletebilir; sonrakilerin haberi ona ancak bir ay sonra ulaşır. Sırayı değiştirirsek aynı veriden farklı bir hikâye çıkar. Benzetmenin sınırı: sıralama yalnızca aynı dönemdeki etkiler için yapılan bir varsayımdır ve gerçek nedenselliği kanıtlamaz.
 
-**IRF grafikleri nasıl okunur?**
+**IRF grafiklerinin yorumlanması**
 
 *   Yatay eksen: şoktan sonra geçen dönem sayısı ($h$).
 *   Dikey eksen: tepkinin büyüklüğü (değişkenin kendi biriminde).
 *   Çizgi sıfırın üstündeyse pozitif, altındaysa negatif tepki vardır.
 *   Grafikteki **güven bandı** (genellikle %95), tahmin edilen tepkinin belirsizliğini gösterir. Bant sıfırı içeriyorsa o dönemdeki tepki istatistiksel olarak sıfırdan ayırt edilemez.
 *   Stabil bir modelde tüm tepkiler zamanla sıfıra yaklaşmalıdır.
+
+**Günlük hayattan bir örnek:** Durgun bir göle atılan taş düşünülsün. Taşın düştüğü yerde dalgalar oluşur, halkalar genişledikçe küçülür ve göl bir süre sonra yeniden durulur. IRF de bir değişkene verilen tek seferlik şokun öteki değişkenlere dönem dönem nasıl yayıldığını ve nasıl söndüğünü gösterir; güven bandı, dalgaların yüksekliğine ilişkin belirsizliği yansıtır. Halkalar sönmek yerine büyüyorsa model stabil değildir (Bölüm 10.5). Benzetmenin sınırı: Göldeki dalga taşın düştüğü anda en yüksektir; IRF'de ise tepki şoktan birkaç dönem sonra en güçlü hâline ulaşabilir (Şekil 10.3).
 
 > **Hemen deneyin 10.7 · Etki-tepkiyi matris kuvvetleriyle hesaplayın** (Python, ~4 dk)
 >
