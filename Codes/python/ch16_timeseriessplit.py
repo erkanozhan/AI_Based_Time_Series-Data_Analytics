@@ -295,8 +295,8 @@ df_features['seasonal_diff'] = past - past.shift(12)
 df_features['month'] = df_features.index.month
 df_features['quarter'] = df_features.index.quarter
 df_features['year'] = df_features.index.year
-# Yılı tüm seri üzerinden min–max ile ölçeklemek, doğrulama yıllarını eğitime sızdırırdı;
-# bu yüzden ölçeklenmiş yıl sütunu kullanılmaz (ağaç modelleri ham yılla da çalışır).
+# Yılın ölçeklenmiş bir kopyası kullanılmaz: ham 'year' aynı bilgiyi taşır ve
+# ölçekleyiciyi tüm seriyle fit etmek 16.4'teki ilkeye aykırı bir alışkanlıktır.
 
 # Gecikmeler nedeniyle ilk satırlarda oluşan eksik değerleri at
 df_features = df_features.dropna()
