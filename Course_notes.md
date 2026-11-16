@@ -2,6 +2,8 @@
 
 ### Ders Notları
 
+> **Web sürümü ve PDF:** Notun web sürümü [erkanozhan.github.io/AI_Based_Time_Series-Data_Analytics](https://erkanozhan.github.io/AI_Based_Time_Series-Data_Analytics/) adresindedir; soldaki listeden bölümler arasında geçilir ve tüm notta arama yapılabilir. Notun tamamını yazdırmak veya PDF olarak kaydetmek için [tek sayfalık sürüm](https://erkanozhan.github.io/AI_Based_Time_Series-Data_Analytics/yazdir.html) açılıp Ctrl+P ile "PDF olarak kaydet" seçilir. Aynı PDF, [`araclar/pdf_olustur.py`](https://github.com/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/araclar/pdf_olustur.py) betiğiyle de üretilebilir.
+
 ## İçindekiler
 
 1. [Zaman Serisi Analizine Giriş](notlar/01_zaman_serisi_analizine_giris.md)

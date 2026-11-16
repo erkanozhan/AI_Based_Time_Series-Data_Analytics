@@ -9,6 +9,9 @@ Bölümlerin listesi ve bağlantıları için **[İçindekiler (Course_notes.md)
 - [Ek A: R'a Giriş](R_Giris.md)
 - [Ek B: Gretl'e Giriş](Gretl.md)
 
+- **Web sürümü:** [erkanozhan.github.io/AI_Based_Time_Series-Data_Analytics](https://erkanozhan.github.io/AI_Based_Time_Series-Data_Analytics/). Aynı not; bölüm listesi, tüm notta arama ve formüllerle birlikte.
+- **PDF / yazdırma:** [Notun tamamı tek sayfada](https://erkanozhan.github.io/AI_Based_Time_Series-Data_Analytics/yazdir.html) açılıp Ctrl+P ile "PDF olarak kaydet" seçilebilir. Aynı PDF `python araclar/pdf_olustur.py` komutuyla da üretilir (Chrome veya Edge gerekir).
+
 ## Klasör yapısı
 
 | Klasör / dosya | İçerik |
@@ -19,6 +22,8 @@ Bölümlerin listesi ve bağlantıları için **[İçindekiler (Course_notes.md)
 | [`data/`](data) | Uygulamalarda kullanılan veri setleri (`AirPassengers.csv`, `macro.csv`) |
 | [`images/`](images) | Ders notlarındaki şekiller |
 | `R_Giris.md`, `Gretl.md` | Ek A ve Ek B |
+| [`index.html`](index.html), [`_sidebar.md`](_sidebar.md), [`docsify-ayar.js`](docsify-ayar.js), [`docsify-stil.css`](docsify-stil.css) | Web sürümünü oluşturan docsify sayfası, bölüm listesi, ayarları ve stilleri |
+| [`yazdir.html`](yazdir.html), [`araclar/pdf_olustur.py`](araclar/pdf_olustur.py) | Notun tamamını tek sayfada gösteren yazdırma sayfası ve PDF üreten betik |
 
 ## Kurulum ve çalıştırma
 

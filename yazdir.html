@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Zaman Serisi Analizi Ders Notu (Tamamı)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <link rel="stylesheet" href="docsify-stil.css">
+</head>
+<body class="yazdir">
+  <!--
+    Notun tüm bölümlerini tek sayfada gösterir. Tarayıcıda açılıp Ctrl+P → "PDF olarak kaydet"
+    ile PDF alınabilir. araclar/pdf_olustur.py bu sayfayı kullanarak PDF'i otomatik üretir.
+  -->
+  <div id="app">Yükleniyor... (notun tüm bölümleri birleştiriliyor)</div>
+
+  <script>window.NOT_YAZDIR = true;</script>
+  <script src="docsify-ayar.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-katex@1.4.4/dist/docsify-katex.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-python.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-r.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+
+  <script>
+    // Ana sayfa yerine _sidebar.md'deki sırayla tüm bölümleri getirip tek metin olarak gösterir.
+    // Formül eklentisinden ÖNCE çalışması için eklenti listesinin başına konur.
+    function tumNotuBirlestir(hook) {
+      var araclar = window.NOT_ARACLARI;
+      hook.beforeEach(function (icerik, next) {
+        var dosyalar = [];
+        fetch('_sidebar.md').then(function (r) { return r.text(); }).then(function (kenar) {
+          kenar.replace(/\]\(\/([^)]+\.md)\)/g, function (_, f) { dosyalar.push(f); });
+          return Promise.all(dosyalar.map(function (f) {
+            return fetch(f).then(function (r) { return r.text(); });
+          }));
+        }).then(function (parcalar) {
+          var md = parcalar.map(function (t, i) {
+            t = t.replace(/\r\n/g, '\n');
+            t = t.replace(/^\[İçindekiler\]\([^\n]*\n?/gm, '');                           // bölüm başı ve sonundaki gezinme satırları
+            t = t.replace(/\n---\s*$/, '\n');                                               // gezinme satırının üstündeki çizgi
+            t = araclar.notuDuzenle(t, dosyalar[i]);                                        // başlıklar, kod dosyası bağlantıları, formül yazımı
+            t = t.replace(/\[([^\]\n]+)\]\((?!https?:)[^)\s]*\.md(#[^)\s]*)?\)/g, '$1');  // bölümler arası bağlantılar düz metin
+            t = t.replace(/\]\(\.\.\/images\//g, '](images/');                            // görsel yolları
+            return t;
+          }).join('\n\n<div class="sayfa-sonu"></div>\n\n');
+          next(md);
+        }).catch(function (e) { next('Bölümler yüklenemedi: ' + e); });
+      });
+      hook.doneEach(function () {
+        // Tıklayınca açılan kutuları (cevaplar) baskıda açık göster
+        Array.prototype.forEach.call(document.querySelectorAll('details'), function (d) { d.open = true; });
+        document.body.setAttribute('data-hazir', '1');
+      });
+    }
+    window.$docsify.plugins.unshift(tumNotuBirlestir);
+  </script>
+</body>
+</html>
