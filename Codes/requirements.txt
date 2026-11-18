@@ -17,7 +17,7 @@ scikit-learn~=1.8.0
 # İstatistiksel modeller
 # statsmodels: Bölüm 2, 6, 7, 9, 10, 15 (pmdarima da arka planda statsmodels kullanır)
 # pmdarima:    Bölüm 7, 8, 15
-statsmodels>=0.14,<0.16
+statsmodels~=0.15.0
 pmdarima~=2.1.0
 
 # Prophet (Bölüm 9; ders notundaki çıktılar Prophet 1.5 ile alınmıştır)

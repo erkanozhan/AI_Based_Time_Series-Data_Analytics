@@ -568,13 +568,13 @@ Bu model 7.6'daki R uygulamasında `auto.arima()` tarafından da seçilecektir.
 >
 > `seasonal_order=(P, D, Q, s)` mevsimsel kısmı verir; `(0, 1, 1, 12)` = (0,1,1)[12]. `.asfreq("MS")` serinin aylık olduğunu `statsmodels`'a bildirir.
 >
-> **Ne göreceksiniz:** `ma.L1 -0.4017`, `ma.S.L12 -0.5567`, `sigma2 0.0013`. Katsayılar R'ın sonuçlarıyla (−0.4018, −0.5569) üçüncü ondalığa kadar örtüşür; `ma.S.L12` R'daki `sma1`'in, yani $\Theta_1$'in karşılığıdır.
+> **Ne göreceksiniz:** `ma.L1 -0.4017`, `ma.S.L12 -0.5571`, `sigma2 0.0013`. Katsayılar R'ın sonuçlarıyla (−0.4018, −0.5569) üçüncü ondalığa kadar örtüşür; `ma.S.L12` R'daki `sma1`'in, yani $\Theta_1$'in karşılığıdır.
 >
 > **Şimdi siz:** Python'un katsayılarıyla 13. gecikmedeki çapraz terimin katsayısını ($\theta_1 \Theta_1$) hesaplayın: `model.params["ma.L1"] * model.params["ma.S.L12"]`. Metindeki değerle aynı mı?
 >
 > <details><summary>Cevap</summary>
 >
-> Yaklaşık 0.224: $(-0.4017) \cdot (-0.5567) \approx 0.2236$. Metinde R'ın katsayılarıyla bulunan 0.224 ile aynıdır. Model bu terimi ayrıca kestirmez; iki katsayının çarpımından kendiliğinden doğar.
+> Yaklaşık 0.224: $(-0.4017) \cdot (-0.5571) \approx 0.2238$. Metinde R'ın katsayılarıyla bulunan 0.224 ile aynıdır. Model bu terimi ayrıca kestirmez; iki katsayının çarpımından kendiliğinden doğar.
 >
 > </details>
 
@@ -640,7 +640,7 @@ Adaylar arasında seçim için bilgi kriterleri kullanılır. En yaygını Akaik
 >
 > <details><summary>Cevap</summary>
 >
-> `ar.L1 0.1972`, `ma.L1 -0.5796`, `ma.S.L12 -0.5644`; log olabilirlik 244.95, AIC −481.89. Tablonun ikinci satırıyla aynıdır: Ek AR katsayısı AIC'yi iyileştirmez, sade model tercih edilir.
+> `ar.L1 0.1968`, `ma.L1 -0.5790`, `ma.S.L12 -0.5642`; log olabilirlik 244.95, AIC −481.89. Tablonun ikinci satırıyla aynıdır: Ek AR katsayısı AIC'yi iyileştirmez, sade model tercih edilir.
 >
 > </details>
 
