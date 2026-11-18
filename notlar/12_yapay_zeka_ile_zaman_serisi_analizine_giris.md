@@ -211,10 +211,10 @@ print(X_train.shape, X_test.shape)
 
 Kod üç bölümden oluşur. Önce satırlara yakından bakalım:
 
-1. **Kütüphaneler ve veri:** Kütüphaneleri kısa adlarla (`np`, `pd`) yüklemek (bkz. 6.3.7) ve `pd.read_csv(..., parse_dates=['Month'], index_col='Month')` ile tarihleri satır etiketi (indeks) yaparak okumak önceki bölümlerdekiyle aynıdır (bkz. 10.9). Tarih indeksi sayesinde 6. maddedeki takvim özelliklerini çıkarabiliriz. `df['Passengers']` köşeli parantezle tek bir sütunu seçer; sonuç, tarih etiketli tek sütunluk bir *Series*'tir.
+1. **Kütüphaneler ve veri:** Kütüphaneleri kısa adlarla (`np`, `pd`) yüklemek (bkz. 6.4.3) ve `pd.read_csv(..., parse_dates=['Month'], index_col='Month')` ile tarihleri satır etiketi (indeks) yaparak okumak önceki bölümlerdekiyle aynıdır (bkz. 10.9). Tarih indeksi sayesinde 6. maddedeki takvim özelliklerini çıkarabiliriz. `df['Passengers']` köşeli parantezle tek bir sütunu seçer; sonuç, tarih etiketli tek sütunluk bir *Series*'tir.
 2. **`kayan_pencere` fonksiyonu:** `def` ile kendi fonksiyonumuzu tanımlarız. `seri.values`, tarih etiketlerini bırakıp yalnızca 144 sayıyı düz bir NumPy dizisi olarak verir; böylece `dizi[i]` ile sıra numarasına göre erişebiliriz. Python'da sayma 0'dan başlar: `dizi[0]` Ocak 1949'dur (112). `range(len(dizi) - p)` döngüyü $i = 0, 1, \dots, 140$ için çalıştırır (141 tur). `dizi[i:i + p]` bir *dilimdir*: $i$. elemandan başlar, $i + p$. elemanı **dahil etmez**. Örneğin $i = 0$ iken `dizi[0:3]` = 112, 118, 132 (Ocak–Mart) ve hedef `dizi[3]` = 129 (Nisan) olur. `append` her turda listeye bir satır ekler, `np.array` de bu listeyi bir diziye çevirir.
 3. **Boyutlar (`shape`):** `X.shape` = `(141, 3)`, "141 satır, 3 sütun" demektir. `y.shape` = `(141,)` ise 141 elemanlı **tek boyutlu** bir dizidir; parantezin içindeki tek sayı ve virgül, tek boyut olduğunu gösterir. `X[:3]` dizinin ilk üç satırını seçer.
-4. **`shift(k)` ile gecikmeler:** `pd.DataFrame({'y': seri})` hedef sütunu `y` olan yeni bir tablo kurar. `for k in [1, 2, 3, 12]` döngüsü listedeki her sayı için bir sütun ekler. `f'lag_{k}'` (f-string, bkz. 6.3.7) `'lag_1'`, `'lag_2'` gibi sütun adları üretir. `seri.shift(k)` bütün değerleri $k$ satır aşağı kaydırır. Örneğin 112, 118, 132 dizisi `shift(1)` ile NaN, 112, 118 olur; yani her satırın yanına bir önceki ayın değeri gelir. Önünde geçmişi olmayan hücreler **NaN** (*Not a Number*, bilinmeyen değer) olur; NaN içeren sütunlar ondalık türde tutulduğu için çıktıda `118.0` gibi görünür.
+4. **`shift(k)` ile gecikmeler:** `pd.DataFrame({'y': seri})` hedef sütunu `y` olan yeni bir tablo kurar. `for k in [1, 2, 3, 12]` döngüsü listedeki her sayı için bir sütun ekler. `f'lag_{k}'` (f-string, bkz. 6.4.3) `'lag_1'`, `'lag_2'` gibi sütun adları üretir. `seri.shift(k)` bütün değerleri $k$ satır aşağı kaydırır. Örneğin 112, 118, 132 dizisi `shift(1)` ile NaN, 112, 118 olur; yani her satırın yanına bir önceki ayın değeri gelir. Önünde geçmişi olmayan hücreler **NaN** (*Not a Number*, bilinmeyen değer) olur; NaN içeren sütunlar ondalık türde tutulduğu için çıktıda `118.0` gibi görünür.
 5. **`rolling` ile hareketli ortalama:** `seri.shift(1).rolling(window=3).mean()` önce seriyi bir ay kaydırır, ardından her satırda 3 satırlık bir pencerenin ortalamasını alır. Sonuçta her ayın yanına "kendisinden önceki üç ayın ortalaması" yazılır; `shift(1)` sızıntıyı önler (bkz. 12.1.5).
 6. **Takvim özellikleri:** `tablo.index.month` tarih indeksinden ay numarasını (1–12), `tablo.index.quarter` çeyreği (1–4) çıkarır. Ağaç gibi modeller bu sayılar sayesinde "ay 7 ise değer yüksektir" türünden kurallar öğrenebilir. Takvim bilgisi geleceğin her ayı için önceden bilindiği için sızıntı riski taşımaz.
 7. **`dropna()`:** NaN içeren her satırı atar. En uzun gecikme `lag_12` olduğu için ilk 12 satır silinir; tablo 1950-01'den başlar ve $144 - 12 = 132$ satır kalır.
@@ -388,7 +388,7 @@ Yukarıdaki tablo **tek adımlı (one-step-ahead)** bir tahmin kurar: Bilinen ge
 
 Farklı algoritmaların verinin ölçeğine (sayıların büyüklüğüne) duyarlılığı farklıdır:
 
-- **Sinir ağları (Bölüm 12.2 ve 15):** Ağırlıklarını küçük adımlarla öğrenir (ağırlık ve gradyan inişi kavramları 12.2'nin başında anlatılıyor). İçlerindeki `sigmoid` ve `tanh` gibi sıkıştırma fonksiyonları (12.2.1, Şekil 12.3) yalnızca sıfıra yakın girdilerde ayırt edilebilir çıktılar üretir: $\tanh(1) \approx 0.76$ ile $\tanh(2) \approx 0.96$ farklıdır, ama $\tanh(400)$ ile $\tanh(500)$ ikisi de 1'e eşit çıkar; 400 ile 500 yolcu ağ için aynı görünür. Bu yüzden veri 0–1 aralığına ölçeklenir.
+- **Sinir ağları (Bölüm 12.2 ve 15):** Ağırlıklarını küçük adımlarla öğrenir (ağırlık ve gradyan inişi kavramları 12.2.1'de anlatılıyor). İçlerindeki `sigmoid` ve `tanh` gibi sıkıştırma fonksiyonları (12.2.2, Şekil 12.3) yalnızca sıfıra yakın girdilerde ayırt edilebilir çıktılar üretir: $\tanh(1) \approx 0.76$ ile $\tanh(2) \approx 0.96$ farklıdır, ama $\tanh(400)$ ile $\tanh(500)$ ikisi de 1'e eşit çıkar; 400 ile 500 yolcu ağ için aynı görünür. Bu yüzden veri 0–1 aralığına ölçeklenir.
 - **Ağaç tabanlı modeller (XGBoost, Random Forest):** Veriyi "değer 300'den büyük mü?" gibi eşik sorularıyla böldükleri için ölçeklemeye ihtiyaç duymazlar, ama eğitimde görmedikleri düzeyin üstüne çıkamazlar (13.3; çözümü fark üzerinden tahmin, 13.4.2).
 
 **Günlük hayattan bir örnek:** En fazla 120 km/s gösterebilen bir hız ibresi düşünün: Araç 150 ile de 200 ile de gitse ibre 120'ye dayanır ve aradaki fark okunamaz. tanh ve sigmoid de büyük girdilerde böyle dayanır. MinMax ölçekleme, değerleri ibrenin okunabildiği aralığa taşımaktır. Benzetmenin sınırı: İbre sınıra birden dayanır, tanh ise sınıra yumuşakça yaklaşır; yine de 3'ün üstündeki girdilerde fark pratikte okunamaz.
@@ -512,7 +512,7 @@ Makine öğrenmesi yaklaşımında geçmişi elle hazırladığımız sütunlarl
 
 Girdi yine kayan pencereyle hazırlanır (12.1.1), ancak her örnek artık düz bir satır değil, bir **dizidir**. Bu yüzden LSTM, GRU ve 1D-CNN gibi mimariler veriyi üç boyutlu biçimde bekler: `(örnek sayısı, zaman adımı sayısı, özellik sayısı)`. Örneğin yukarıdaki `X` dizisi `X.reshape(141, 3, 1)` ile "141 örnek, her biri 3 zaman adımı, her adımda 1 değer" biçimine getirilir; `reshape` sayıları değiştirmez, yalnızca yeniden yerleştirir. Bu adımı Bölüm 15.1.3'te ayrıntılı olarak uygulayacağız.
 
-#### Sinir ağının yapı taşları
+#### 12.2.1. Sinir Ağının Yapı Taşları
 
 Bu mimarilere geçmeden önce bir sinir ağının ne hesapladığını görelim. Bu bölümdeki ve Bölüm 15'teki bütün modeller aynı küçük yapı taşından, **nörondan** kurulur. Bir nöron üç şey yapar: (1) Gelen her sayıyı kendine ait bir **ağırlıkla** (katsayıyla) çarpar, (2) bu çarpımları toplayıp üzerine **yanlılık (bias)** adı verilen sabit bir sayı ekler, (3) sonucu bir **aktivasyon fonksiyonundan** geçirir. Örneğin girdiler 0.2 ve 0.5, ağırlıklar 0.4 ve −0.1, yanlılık 0.05 ise toplam $0.2 \cdot 0.4 + 0.5 \cdot (-0.1) + 0.05 = 0.08 - 0.05 + 0.05 = 0.08$ olur. Aktivasyon fonksiyonu bu ara sonucu belirli bir biçime sokar. Bölüm 12 ve 15'te üç tanesini kullanacağız (sigmoid ve tanh'in grafikleri: Şekil 12.3):
 
@@ -552,7 +552,7 @@ Düzeltme **gradyan inişiyle** (gradient descent) yapılır: Ağ bir tahmin yap
 
 **Günlük hayattan bir örnek:** Sisli bir dağda vadiye inmeye çalışan bir yürüyüşçü uzağı göremez. Yalnızca ayağının altındaki eğime bakıp en dik inen yöne küçük bir adım atar ve bunu tekrarlar. Gradyan bu eğimdir, öğrenme oranı adımın boyudur: Adım çok büyükse karşı yamaca sıçrar, çok küçükse iniş çok uzun sürer. Benzetmenin sınırı: Yürüyüşçü en derin vadiye değil, yakındaki bir çukura inebilir; gradyan inişi de en iyi ağırlıkları bulmayı garanti etmez.
 
-> **Hemen deneyin 12.2 · Tek bir nöronu elle hesaplayın** (Python, ~3 dk)
+> **Hemen deneyin 12.2.1 · Tek bir nöronu elle hesaplayın** (Python, ~3 dk)
 >
 > Yukarıdaki nöron örneğini (girdiler 0.2 ve 0.5, ağırlıklar 0.4 ve −0.1, yanlılık 0.05) NumPy ile hesaplayın ve sonucu üç aktivasyondan geçirin. VS Code, Jupyter ya da Colab'da yeni bir hücreye yazın:
 >
@@ -587,7 +587,7 @@ Düzeltme **gradyan inişiyle** (gradient descent) yapılır: Ağ bir tahmin yap
 >
 > </details>
 
-#### 12.2.1. Tekrarlayan Sinir Ağları (RNN) ve Kaybolan Gradyan Sorunu
+#### 12.2.2. Tekrarlayan Sinir Ağları (RNN) ve Kaybolan Gradyan Sorunu
 
 **Açıklama:** Tekrarlayan Sinir Ağları (Recurrent Neural Network, RNN), en temel hâliyle bir "hafızaya" sahip ağlardır. Diziyi her seferinde bir zaman adımı okur ve o ana kadar gördüklerinin bir özetini **gizli durum (hidden state)** adı verilen bir **vektörde** (sıralı bir sayı listesinde, ör. `[0.2, -0.5, 0.7]`) taşır. Her adımda bu özet, yeni gelen gözlemle birleştirilerek güncellenir: Ağ eski özeti bir ağırlıkla, yeni gözlemi başka bir ağırlıkla çarpar, ikisini toplayıp bir sabit ekler ve sonucu `tanh` fonksiyonuyla belirli bir aralığa sıkıştırır. Ardından bu yeni özetten bir tahmin üretir.
 
@@ -601,7 +601,7 @@ Düzeltme **gradyan inişiyle** (gradient descent) yapılır: Ağ bir tahmin yap
 
 > **Simge notu:** $`h_t`$ *(h t)*: t anındaki gizli durum (ağın "hafızası"); $`h_{t-1}`$: bir önceki adımdaki gizli durum · $`x_t`$: t anındaki girdi (ör. bu ayın ölçeklenmiş yolcu sayısı) · $`W_h, W_x, W_y`$ *(W h, W x, W y)*: öğrenilen ağırlıklar; buradaki alt indis zaman değil, ağırlığın neyle çarpıldığını gösteren bir etikettir · $`b, c`$: sabit (bias) terimleri · $`\tanh`$ *(tanjant hiperbolik, "tanh" diye okunur)*: girdisini −1 ile 1 arasına sıkıştıran aktivasyon fonksiyonu (Şekil 12.3) · $`\hat{y}_t`$ *(y şapka t)*: t anındaki tahmin
 
-**Günlük hayattan bir örnek:** Bir diziyi bölüm bölüm izlerken her bölümün sonunda aklınızda "şimdiye kadar neler oldu?" diye kısa bir özet tutarsınız; yeni bölümü bu özetle birleştirip özeti güncellersiniz. Gizli durum $h_t$ bu özettir; $W_h$ ağırlığı eski özete ne kadar tutunduğunuzu belirler. Benzetmenin sınırı: Basit RNN'de neyin özette kalıp neyin silineceğini seçen bir kapı yoktur; bu seçiciliği LSTM getirir (12.2.2).
+**Günlük hayattan bir örnek:** Bir diziyi bölüm bölüm izlerken her bölümün sonunda aklınızda "şimdiye kadar neler oldu?" diye kısa bir özet tutarsınız; yeni bölümü bu özetle birleştirip özeti güncellersiniz. Gizli durum $h_t$ bu özettir; $W_h$ ağırlığı eski özete ne kadar tutunduğunuzu belirler. Benzetmenin sınırı: Basit RNN'de neyin özette kalıp neyin silineceğini seçen bir kapı yoktur; bu seçiciliği LSTM getirir (12.2.3).
 
 Gerçek bir ağda $h_t$ onlarca sayıdan oluşan bir vektör, $W_h$ gibi ağırlıklar ise **matrislerdir** (sayılardan oluşan tablolar); $W_h h_{t-1}$ çarpımı, vektörün her elemanını tablodaki ağırlıklarla çarpıp toplamak demektir. Mantığı görmek için her şeyi tek bir sayı olarak düşünebiliriz. $W_h = 0.5$, $W_x = 1$, $b = 0$ ve başlangıç hafızası $h_0 = 0$ olsun; ağa sırayla $x_1 = 1$ ve $x_2 = 2$ gelsin:
 
@@ -610,7 +610,7 @@ Gerçek bir ağda $h_t$ onlarca sayıdan oluşan bir vektör, $W_h$ gibi ağırl
 
 $h_2$ hem $x_2$'yi hem de $h_1$ üzerinden $x_1$'i içerir: Hafıza, geçmişi bu zincirleme toplamla taşır.
 
-> **Hemen deneyin 12.2.1a · Bir RNN'in hafızasını adım adım izleyin** (Python, ~4 dk)
+> **Hemen deneyin 12.2.2a · Bir RNN'in hafızasını adım adım izleyin** (Python, ~4 dk)
 >
 > Notteki iki adımlık örneği numpy ile hesaplayıp üç adım daha sürdürelim; bu üç adımda girdi 0'dır, yani ağa yeni bilgi gelmez.
 >
@@ -678,7 +678,7 @@ Günlük hayattan bir benzetme: Kulaktan kulağa oyununda mesaj her kişide bira
 
 Zaman serisinde bunun anlamı şudur: Basit bir RNN, geçen ayın etkisini öğrenebilir ama 12 ay önceki mevsimsel etkiyi öğrenmekte zorlanır ($0.5^{12} \approx 0.00024$).
 
-> **Hemen deneyin 12.2.1b · tanh, sigmoid ve çarpan tablosunu Excel'de üretin** (Excel / LibreOffice Calc, ~5 dk)
+> **Hemen deneyin 12.2.2b · tanh, sigmoid ve çarpan tablosunu Excel'de üretin** (Excel / LibreOffice Calc, ~5 dk)
 >
 > 1. `A1`'e `x`, `B1`'e `tanh`, `C1`'e `sigmoid` yazın. `A2:A8` hücrelerine −4, −2, −1, 0, 1, 2, 4 yazın.
 > 2. `B2` hücresine `=TANH(A2)` (İngilizce de `=TANH(A2)`), `C2` hücresine `=1/(1+ÜS(-A2))` (İngilizce: `=1/(1+EXP(-A2))`) yazın ve ikisini 8. satıra kadar sürükleyin.
@@ -701,7 +701,7 @@ Zaman serisinde bunun anlamı şudur: Basit bir RNN, geçen ayın etkisini öğr
 >
 > </details>
 
-#### 12.2.2. LSTM Hücresi
+#### 12.2.3. LSTM Hücresi
 
 **LSTM (Long Short-Term Memory, Uzun Kısa-Süreli Bellek)** mimarisi bu sorunu çözmek için geliştirilmiştir. LSTM'in sırrı, **kapı (gate)** adını verdiğimiz kontrol mekanizmalarıdır. Kapılar, hücrenin hafızasına hangi bilginin gireceğine, hangisinin kalacağına ve hangisinin çıkacağına karar verir. Böylece ağ, hangi bilgiyi uzun süre saklayacağını ve hangisini unutacağını veriden öğrenir.
 
@@ -751,12 +751,12 @@ Unutma kapısı $f_t = 0$ üretseydi $C_t = 0 + 0.1 = 0.1$ olurdu, yani eski bil
 
 - $f_t$, $i_t$ ve $o_t$ kapılarının her elemanı 0 ile 1 arasındadır. 0 "tamamen kapalı", 1 "tamamen açık" demektir.
 - Dördüncü satır LSTM'in kalbidir: Yeni hafıza $C_t$, eski hafızanın unutma kapısından geçen kısmı ($f_t \odot C_{t-1}$) ile yeni aday bilginin giriş kapısından geçen kısmının ($i_t \odot \tilde{C}_ t$) **toplamıdır**.
-- Bu toplama yolu kaybolan gradyan sorununun çaresidir. Unutma kapısı 1'e yakın tutulduğunda bilgi (ve hata sinyali) hücre durumu boyunca neredeyse hiç zayıflamadan birçok adım taşınabilir (12.2.1'deki tablonun 0.99 sütunu). RNN'deki gibi her adımda bir `tanh` ile yeniden sıkıştırılmaz.
+- Bu toplama yolu kaybolan gradyan sorununun çaresidir. Unutma kapısı 1'e yakın tutulduğunda bilgi (ve hata sinyali) hücre durumu boyunca neredeyse hiç zayıflamadan birçok adım taşınabilir (12.2.2'deki tablonun 0.99 sütunu). RNN'deki gibi her adımda bir `tanh` ile yeniden sıkıştırılmaz.
 - Son satırda çıkış kapısı, hafızanın ne kadarının bu adımın çıktısı $h_t$ olarak dışarı verileceğini belirler.
 
 LSTM'in daha sade bir akrabası olan **GRU** (Gated Recurrent Unit), unutma ve giriş kapılarını tek bir "güncelleme kapısı"nda birleştirir ve ayrı bir hücre durumu tutmaz. GRU, LSTM ve 1D-CNN'in Python uygulamaları Bölüm 15'te ele alınmaktadır.
 
-> **Hemen deneyin 12.2.2 · Bir unutma kapısını numpy ile hesaplayın** (Python, ~5 dk)
+> **Hemen deneyin 12.2.3 · Bir unutma kapısını numpy ile hesaplayın** (Python, ~5 dk)
 >
 > Notteki örnek girdiler ($h_{t-1} = [0.2, -0.1]$, $x_t = [0.5]$, $W_f = [0.4, 0.6, 1.0]$) ile önce unutma kapısını, sonra yeni hafızayı hesaplayalım. Notun sayısal örneğindeki $f_t = 0.9$ yerine bu kez kapıyı gerçekten sigmoid'den hesaplıyoruz.
 >
@@ -792,7 +792,7 @@ LSTM'in daha sade bir akrabası olan **GRU** (Gated Recurrent Unit), unutma ve g
 >
 > </details>
 
-#### 12.2.3. Transformer Modelleri ve Dikkat Mekanizması
+#### 12.2.4. Transformer Modelleri ve Dikkat Mekanizması
 
 Başlangıçta doğal dil işleme (NLP) için geliştirilen **Transformer** mimarisi, zaman serisi tahmininde de kullanılmaktadır. RNN ve LSTM'in aksine diziyi adım adım işlemez. Bunun yerine **dikkat mekanizması (attention mechanism)** sayesinde dizinin tüm adımlarına aynı anda bakar ve her adım için "geçmişteki hangi zaman noktaları şu an benim için önemli?" sorusunu yanıtlayan ağırlıklar öğrenir.
 
@@ -816,7 +816,7 @@ Fikri bir kütüphane benzetmesiyle anlatabiliriz: Aradığınız konuyu bir fi�
 
 En benzer adım (geçen yılın Temmuz'u) sonuca en çok katkıyı yapar, ama diğer adımlar da tamamen yok sayılmaz.
 
-> **Hemen deneyin 12.2.3 · Softmax ve dikkat ağırlıklarını hesaplayın** (Python, ~3 dk)
+> **Hemen deneyin 12.2.4 · Softmax ve dikkat ağırlıklarını hesaplayın** (Python, ~3 dk)
 >
 > ```python
 > import numpy as np

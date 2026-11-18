@@ -109,13 +109,13 @@ print(acf(c(10, 12, 15, 11, 17), plot = FALSE)$acf[2])
 # Aynı dört çiftin sıradan Pearson korelasyonu (farklı ortalama ve payda kullanır): -0.448
 print(cor(c(12, 15, 11, 17), c(10, 12, 15, 11)))
 
-# ---- Güven bandı (6.3.4'ün ardından): rastgele serilerde lag-1 otokorelasyonu ----
+# ---- 6.3.5 Güven Bandı: rastgele serilerde lag-1 otokorelasyonu ----
 set.seed(1)
 r1 <- replicate(5000, acf(rnorm(238), lag.max = 1, plot = FALSE)$acf[2])
 cat("Standart sapma:", round(sd(r1), 3), " 1/sqrt(T):", round(1 / sqrt(238), 3), "\n")
 cat("Bant içindeki oran:", mean(abs(r1) <= 1.96 / sqrt(238)), "\n")  # yaklaşık 0.95
 
-# ---- 6.3.7 Python ve R ile ACF ----
+# ---- 6.4.3 Python ve R ile ACF ----
 data <- c(20, 22, 21, 23, 24)          # Örnek bir zaman serisi vektörü oluştur
 acf_result <- acf(data, plot = FALSE)  # Grafik çizmeden ACF değerlerini hesapla
 # R'da acf() çıktısının ilk elemanı lag-0'dır (her zaman 1), bu yüzden lag-1 için 2. elemanı alırız.
@@ -124,13 +124,13 @@ cat("Lag-1 ACF:", round(acf_result$acf[2], 3), "\n")
 # ACF grafiğini çizmek: acf() grafiği varsayılan olarak çizer
 acf(AirPassengers, lag.max = 36, main = "AirPassengers ACF")
 
-# ---- 6.4.3 Python ve R ile PACF ----
+# ---- 6.5.3 Python ve R ile PACF ----
 data <- c(20, 22, 21, 23, 24)
 pacf_result <- pacf(data, plot = FALSE)
 # Dikkat: pacf() çıktısı lag-1'den başlar (lag-0 yoktur), bu yüzden lag-2 için 2. elemanı alırız.
 cat("Lag-2 PACF:", round(pacf_result$acf[2], 3), "\n")
 
-# ---- 6.5 Uygulama: USgas Serisinin ACF ve PACF Grafikleri ----
+# ---- 6.6 Uygulama: USgas Serisinin ACF ve PACF Grafikleri ----
 # USgas verisinin ACF ve PACF grafiklerini alt alta çizelim
 par(mfrow = c(2, 1))  # 2 satır, 1 sütunluk grafik düzeni
 acf(USgas,  lag.max = 36, main = "Otokorelasyon Fonksiyonu (ACF)")
@@ -146,18 +146,18 @@ pacf_us <- pacf(as.numeric(USgas), lag.max = 36, plot = FALSE)
 print(round(acf_us$acf[c(1, 2, 12, 24, 36) + 1], 2))   # lag 1, 2, 12, 24, 36
 print(round(pacf_us$acf[c(1, 2, 6, 9, 10, 13)], 2))     # lag 1, 2, 6, 9, 10, 13
 
-# ---- 6.4.2 phi_22 formülü: (rho_2 - rho_1^2) / (1 - rho_1^2) ----
+# ---- 6.5.2 phi_22 formülü: (rho_2 - rho_1^2) / (1 - rho_1^2) ----
 phi22 <- function(r1, r2) (r2 - r1^2) / (1 - r1^2)
 print(phi22(0.5, 0.25))  # AR(1), phi = 0.5: 0 (zincirden fazlası yok)
 print(phi22(0.5, 0.60))  # 0.47 (lag-2'nin kendine ait katkısı var)
 
-# ---- 6.6.2-6.6.3 Teorik ACF ve PACF (Şekil 6.10) ----
+# ---- 6.7.2-6.7.3 Teorik ACF ve PACF (Şekil 6.10) ----
 print(round(ARMAacf(ar = 0.5, lag.max = 6), 4))               # 0.5^h
 print(round(ARMAacf(ar = 0.5, lag.max = 6, pacf = TRUE), 4))  # 0.5, sonra 0
 print(round(ARMAacf(ma = 0.8, lag.max = 6), 4))               # 0.4878, sonra 0
 print(round(ARMAacf(ma = 0.8, lag.max = 6, pacf = TRUE), 4))  # 0.49, -0.31, 0.22, -0.17, ...
 
-# ---- 6.6.4 İmzaları Yan Yana Görmek ----
+# ---- 6.7.4 İmzaları Yan Yana Görmek ----
 set.seed(42)
 wn  <- rnorm(400)                                       # Beyaz gürültü
 ar1 <- arima.sim(model = list(ar = 0.7), n = 400)       # AR(1), phi = 0.7

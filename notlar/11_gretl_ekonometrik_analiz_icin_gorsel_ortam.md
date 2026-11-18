@@ -39,15 +39,15 @@ Bir veri kümesini zaman serisi olarak kullanmak için frekansını (aylık, çe
 
 > **Hemen deneyin 11.1 · AirPassengers Gretl'in içinde zaten var** (Gretl menüleri ve konsol, ~3 dk)
 >
-> Gretl'i açın ve **File → Open data → Sample file…** seçin. Açılan pencerenin **Gretl** sekmesinde `bjg` satırını ("Box and Jenkins Series G (airline passengers)") bulup çift tıklayın. Ana penceredeki değişken listesine ve alttaki durum satırına bakın. Ardından **Tools → Gretl console** ile konsolu açın ve aşağıdaki satırı yazıp Enter'a basın:
+> Gretl'in `bjg` örnek dosyasını açın (menü adımları: Ek B.2). Ana penceredeki değişken listesine ve alttaki durum satırına bakın. Ardından **Tools → Gretl console** ile konsolu açın ve aşağıdaki satırı yazıp Enter'a basın:
 >
 > ```gretl
 > labels          # değişkenlerin açıklamalarını yazar
 > ```
 >
-> **Ne göreceksiniz:** Veri aylıktır ve 1949:01–1960:12 aralığını kapsar (144 gözlem). Listede `const` dışında iki değişken vardır: `g` ve `lg`. `labels` çıktısı `g: international airline passengers` ve `lg: natural logarithm of g` yazar. `bjg`, AirPassengers'ın Gretl ile birlikte gelen kopyasıdır (özet istatistiklerini Hemen deneyin 1.5'te almıştık; ortalama 280.299, en küçük 104, en büyük 622) ve zaman serisi yapısı (aylık, 1949:01'den başlayan) önceden tanımlanmıştır. Bu yüzden 11.2.2'deki adıma gerek kalmaz.
+> **Ne göreceksiniz:** Durum satırı ve değişken listesi Ek B.2'de anlatıldığı gibidir (`const` dışında `g` ve `lg`). `labels` çıktısı `g: international airline passengers` ve `lg: natural logarithm of g` yazar. `bjg`, AirPassengers'ın Gretl ile birlikte gelen kopyasıdır (özet istatistiklerini Hemen deneyin 1.5'te almıştık; ortalama 280.299, en küçük 104, en büyük 622) ve zaman serisi yapısı (aylık, 1949:01'den başlayan) önceden tanımlanmıştır. Bu yüzden 11.2.2'deki adıma gerek kalmaz.
 >
-> **Şimdi siz:** Aynı pencerenin **Gretl** sekmesinden `nile` dosyasını açın (Gretl açık olan veriyi kapatmak isteyip istemediğinizi sorarsa **Yes** deyin). Verinin frekansı, tarih aralığı ve gözlem sayısı nedir? Konsolda `labels` yazarak değişkenin ne ölçtüğünü öğrenin.
+> **Şimdi siz:** Aynı yoldan (**Sample file…** penceresinin **Gretl** sekmesi) `nile` dosyasını açın (Gretl açık olan veriyi kapatmak isteyip istemediğinizi sorarsa **Yes** deyin). Verinin frekansı, tarih aralığı ve gözlem sayısı nedir? Konsolda `labels` yazarak değişkenin ne ölçtüğünü öğrenin.
 >
 > <details><summary>Cevap</summary>
 >
@@ -181,20 +181,11 @@ Model penceresinde **Graphs → Residual plot → Against time** ile artıkları
 
 Model kurmadan önce serinin durağanlığını sınamak gerekir (Box-Jenkins adım 0, Bölüm 7.4); Gretl'de bunun nasıl yapıldığını 11.4'te göreceğiz. Burada log ve farkı alınmış serinin durağan olduğunu biliyoruz (Bölüm 7.6).
 
-ARIMA ve SARIMA'nın teorisi Bölüm 7'de anlatılmıştır; burada yalnızca Gretl'deki kurulumu ele alıyoruz:
-
-1.  **Model → Univariate time series → ARIMA…** seçilir.
-2.  **Dependent variable** olarak ör. `l_Passengers` (log alınmış seri) seçilir.
-3.  Model dereceleri girilir:
-    *   **AR order** ($p$), **Difference** ($d$), **MA order** ($q$),
-    *   Mevsimsel kısım için **Seasonal AR** ($P$), **Seasonal difference** ($D$), **Seasonal MA** ($Q$); periyot ($s = 12$) veri frekansından otomatik alınır.
-    *   Gretl varsayılan olarak modele bir sabit terim ekler. $d = 1$ ve $D = 1$ olan bir modelde sabit gereksizdir (iki kez fark alınmış seride sabit, giderek hızlanan bir trend anlamına gelir); R'daki `Arima()` ile aynı sonucu almak için **Include a constant** kutusunun işaretini kaldırın.
-4.  **OK** dendiğinde parametre kestirimleri, standart hatalar, log-olabilirlik ve bilgi kriterleri (AIC, BIC, HQ) listelenir.
-5.  Model penceresinden **Graphs → Residual correlogram** ile artıkların ACF/PACF grafikleri, **Analysis → Forecasts…** ile tahminler ve güven aralıkları elde edilir.
+ARIMA ve SARIMA'nın teorisi Bölüm 7'de anlatılmıştır. Gretl menüsünden adım adım kurulum (**Model → Univariate time series → ARIMA…**, derecelerin girilmesi, çıktının okunması, artık korelogramı) Ek B.3'te, tahmin ve güven aralıkları (**Analysis → Forecasts…**) Ek B.4'te anlatılır; `l_Passengers` için adımlar `l_g` ile aynıdır. Burada yalnızca sabit terim konusuna değiniyoruz: Gretl varsayılan olarak modele bir sabit terim ekler. $d = 1$ ve $D = 1$ olan bir modelde sabit gereksizdir (iki kez fark alınmış seride sabit, giderek hızlanan bir trend anlamına gelir); R'daki `Arima()` ile aynı sonucu almak için **Include a constant** kutusunun işareti kaldırılır (betikte `--nc`, 11.5). Sabitin etkisi aşağıdaki kutuda sayılarla görülür.
 
 > **Hemen deneyin 11.3.3 · Sabit kutusunu işaretleyip kaldırın: AIC ne kadar değişir?** (Gretl menüleri, ~4 dk)
 >
-> `bjg` açık ve `l_g` listede olsun (yoksa **Add → Logs of selected variables**). **Model → Univariate time series → ARIMA…** açın; **Dependent variable** olarak `l_g` seçin; **AR order** 0, **Difference** 1, **MA order** 1; **Seasonal AR** 0, **Seasonal difference** 1, **Seasonal MA** 1 girin. **Include a constant** kutusunu bu kez **işaretli bırakın** ve **OK** deyin. Sonra aynı pencereyi açıp kutunun işaretini kaldırarak modeli yeniden kurun.
+> `bjg` açıkken Ek B.3'teki adımlarla `l_g` için airline modeli, ARIMA(0,1,1)(0,1,1), kurun; ancak **Include a constant** kutusunu bu kez **işaretli bırakın** ve **OK** deyin. Sonra aynı pencereyi açıp kutunun işaretini kaldırarak modeli yeniden kurun.
 >
 > **Ne göreceksiniz:** Sabitli modelde `const = −0.000162569`, p-değeri **0.8675**'tir (anlamsız) ve `Akaike criterion` **−481.4207**'dir. Sabitsiz modelde AIC **−483.3930**, `theta_1 = −0.401823`, `Theta_1 = −0.556937`'dir (11.5'teki airline model). Log-olabilirlikler neredeyse aynıdır (244.7104 ve 244.6965); AIC her ek parametre için 2 birim ceza eklediğinden (Bölüm 7.4) işe yaramayan sabit, AIC'yi yaklaşık 2 birim kötüleştirir.
 >
@@ -311,7 +302,7 @@ Komutların ne yaptığı:
 *   **Adım 5:** Betik beş aday modeli `--quiet` ile kurar, AIC'lerini `$aic` ile saklar ve `printf` (biçimlendirilmiş yazdırma) ile tablo hâlinde yazdırır; en küçük AIC değerine sahip model seçilir. AIC'ler ancak aynı seri üzerinde kurulan modeller arasında karşılaştırılabilir: $d = 1$, $D = 1$ olan dört mevsimsel model aynı fark serisini modellediği için karşılaştırılabilir. Bunlar arasında airline model en iyisidir (AIC −483.39; diğerleri −481.89, −481.48, −477.40). ARIMA(1,1,1) mevsimsel fark içermez; AIC'si (−242.63) farklı bir seri üzerinden hesaplandığı için diğerleriyle doğrudan karşılaştırılamaz. Bu model ancak mevsimsel yapıyı hiç modellemediği için kötü bir seçimdir ve artıklarında 12. gecikmede güçlü korelasyon kalır.
 *   **Adım 6:** Airline modelin katsayıları $\theta_1 \approx -0.40$ ve $\Theta_1 \approx -0.56$'dır (Gretl çıktısında `theta_1` ve `Theta_1`); ikisi de çok anlamlıdır (p < 0.001). Betik artıkları çizer, korelogramlarını alır ve Ljung-Box ile normallik testlerini yapar: `modtest --autocorr` Ljung-Box p-değeri 0.57'dir (0.05'ten büyük) ve artık korelogramında anlamlı çubuk neredeyse kalmaz: model serideki yapıyı yakalamıştır. Normallik testi p-değeri 0.17'dir; artıkların normal olduğu hipotezi reddedilmez.
 *   **Adım 7:** 1960 tahminleri `exp()` ile yolcu sayısına çevrildikten sonra RMSE = 18.59, MAE = 13.26 (yolcu sayısı biriminde, bin kişi) ve MAPE = %2.90 çıkar. Bunlar, aynı modelin aynı eğitim-test ayrımıyla R'da elde edilen sonuçlarla (Bölüm 8.3) birebir aynıdır. `--nc` seçeneği kullanılmazsa Gretl'in eklediği sabit terim yüzünden değerler biraz farklı çıkar (18.68, 13.37, %2.93).
-*   **Adım 8:** `fcast` tablosu her ay için log ölçeğinde tahmin, standart hata ve %95 aralığı verir. `exp(lnpass_f)` ile yolcu sayısına çevrilen `pass_f` değerleri 1961 Ocak için yaklaşık 450, Temmuz için 670 bin yolcudur; betik bunları gerçek seriyle birlikte çizer ve grafik trendin ve mevsimsel örüntünün 1961'e taşındığını göstermelidir.
+*   **Adım 8:** `fcast` tablosu her ay için log ölçeğinde tahmin, standart hata ve %95 aralığı verir. `exp(lnpass_f)` ile yolcu sayısına çevrilen `pass_f` değerleri, menüyle elde edilen ve Ek B.4'te ayrıntılı yorumlanan 1961 öngörüleriyle aynıdır; betik bunları gerçek seriyle birlikte çizer ve grafik trendin ve mevsimsel örüntünün 1961'e taşındığını göstermelidir.
 
 > **Simge notu:** $`\theta_1`$ *(teta 1)*: normal MA(1) katsayısı · $`\Theta_1`$ *(büyük teta 1)*: mevsimsel MA(1) katsayısı (Bölüm 7.3)
 
@@ -530,11 +521,11 @@ Gretl bu resmin içinde, özellikle zaman serisi ve ekonometrik modellerin temel
 >
 > **Ne göreceksiniz:** `ma1 = -0.4018`, `sma1 = -0.5569`, `log likelihood = 244.7`, `AIC=-483.4`. Sonuçlar Gretl'inkilerle aynıdır; yalnızca adlar farklıdır (Gretl'in `theta_1` / `Theta_1`'i, R'da `ma1` / `sma1`). R çıktıyı daha az basamakla yazar; Gretl'in değerleri aynı basamağa yuvarlandığında aynı sayılar çıkar.
 >
-> **Şimdi siz:** R'da `exp(forecast(m, h = 12)$mean)` yazarak 1961 tahminlerini yolcu sayısına çevirin. Ocak ve Temmuz 1961 değerlerini 11.5'teki Gretl sonuçlarıyla (yaklaşık 450 ve 670) karşılaştırın.
+> **Şimdi siz:** R'da `exp(forecast(m, h = 12)$mean)` yazarak 1961 tahminlerini yolcu sayısına çevirin. Ocak ve Temmuz 1961 değerlerini Ek B.4'teki Gretl öngörüleriyle karşılaştırın.
 >
 > <details><summary>Cevap</summary>
 >
-> R'da Ocak 1961 için **450.4**, Temmuz 1961 için **670.0** çıkar; Gretl betiğinin `pass_f` değerleriyle aynıdır. Aynı modeli iki programda çalıştırıp sonuçların tutmasını görmek, hem kendi kodunuzu hem de programların ayarlarını (ör. Gretl'de `--nc`) kontrol etmenin iyi bir yoludur.
+> R'da Ocak 1961 için **450.4**, Temmuz 1961 için **670.0** çıkar; Ek B.4'teki Gretl öngörüleriyle (ve 11.5'teki betiğin `pass_f` değerleriyle) aynıdır. Aynı modeli iki programda çalıştırıp sonuçların tutmasını görmek, hem kendi kodunuzu hem de programların ayarlarını (ör. Gretl'de `--nc`) kontrol etmenin iyi bir yoludur.
 >
 > </details>
 

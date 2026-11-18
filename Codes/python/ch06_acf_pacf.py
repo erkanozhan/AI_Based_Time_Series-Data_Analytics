@@ -1,6 +1,6 @@
 # %% [markdown]
 # # Bölüm 6 — ACF ve PACF (Python)
-# Ders notu: notlar/06_veri_manipulasyonu_gorsellestirme_ve_acf_pacf.md, Bölüm 6.3.7 (ACF) ve 6.4.3 (PACF). Bu dosya iki alt bölümdeki Python kodlarının tamamını içerir;
+# Ders notu: notlar/06_veri_manipulasyonu_gorsellestirme_ve_acf_pacf.md, Bölüm 6.4.3 (ACF) ve 6.5.3 (PACF). Bu dosya iki alt bölümdeki Python kodlarının tamamını içerir;
 # R karşılıkları `Codes/R/ch06_manipulasyon_acf.R` dosyasındadır.
 # Çalıştırma: depo kök dizininden `python Codes/python/ch06_acf_pacf.py`
 # veya VS Code'da hücre hücre (# %%) ya da Colab'da notebook sürümü.
@@ -23,7 +23,7 @@ def veri_yolu(dosya):
     return DATA_URL + dosya
 
 # %% [markdown]
-# ## 6.3.7 Python ile ACF
+# ## 6.4.3 Python ile ACF
 # `[20, 22, 21, 23, 24]` serisi için lag-1 otokorelasyonu. Elle hesap: 1 / 10 = 0.1.
 
 # %%
@@ -44,7 +44,7 @@ plot_acf(seri, lags=36, bartlett_confint=False,
 plt.show()
 
 # %% [markdown]
-# ## 6.4.3 Python ile PACF
+# ## 6.5.3 Python ile PACF
 # Aynı seri için lag-2 kısmi otokorelasyonu. Elle hesap (R ile aynı): (0 − 0.1²) / (1 − 0.1²) ≈ −0.0101.
 
 # %%

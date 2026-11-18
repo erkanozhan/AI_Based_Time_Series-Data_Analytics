@@ -12,7 +12,7 @@ Bölüm 12'de yapay zekanın zaman serisine nasıl uygulandığını kavramsal o
 
 Üç modelin adil karşılaştırılabilmesi için hepsi **aynı veri hazırlığını** (15.1) ve Bölüm 7'deki ARIMA uygulamasıyla **aynı test dönemini** (son 60 ay) kullanacak. Bölümün sonunda (15.5) ARIMA, XGBoost, LSTM, GRU ve 1D-CNN'i aynı ölçütle, RMSE ile karşılaştıracağız.
 
-Nöron, ağırlık, yanlılık, aktivasyon (ReLU, sigmoid, tanh), katman ve gradyan inişi kavramları 12.2'nin başında anlatıldı; bu bölüm onları doğrudan kullanır.
+Nöron, ağırlık, yanlılık, aktivasyon (ReLU, sigmoid, tanh), katman ve gradyan inişi kavramları 12.2.1'de anlatıldı; bu bölüm onları doğrudan kullanır.
 
 ### 15.1. Ortak Veri Hazırlığı
 
@@ -252,20 +252,20 @@ Sayılar ve sıraları değişmez; değişen yalnızca kabın düzenidir. Sağda
 
 ### 15.2. LSTM ile Tahmin
 
-LSTM'in iç yapısını Bölüm 12.2.2'de kavramsal olarak gördük: Hücre, uzun süreli bilgiyi taşıyan bir **hücre durumu** $C_t$ (defter) ve her adımda dışarıya verilen bir **gizli durum** $h_t$ tutar; 0 ile 1 arasında değer alan üç **kapı** (vana) bu iki durum arasındaki bilgi akışını denetler.
+LSTM'in iç yapısını Bölüm 12.2.3'te kavramsal olarak gördük: Hücre, uzun süreli bilgiyi taşıyan bir **hücre durumu** $C_t$ (defter) ve her adımda dışarıya verilen bir **gizli durum** $h_t$ tutar; 0 ile 1 arasında değer alan üç **kapı** (vana) bu iki durum arasındaki bilgi akışını denetler.
 
-LSTM hücresinin denklemleri ve sayısal örneği 12.2.2'dedir. Orada her kapı birleşik yazımla, örneğin $f_t = \sigma(W_f [h_{t-1}, x_t] + b_f)$ biçiminde verildi ve bu yazımın $W_{f,h} h_{t-1} + W_{f,x} x_t$ ile aynı olduğu gösterildi. Keras ağırlıkları bu ayrık biçimde, girdi ve gizli durum için iki ayrı tablo olarak saklar. Bu bölümde yaygın kaynaklardaki kısa gösterimi kullanıyoruz:
+LSTM hücresinin denklemleri ve sayısal örneği 12.2.3'tedir. Orada her kapı birleşik yazımla, örneğin $f_t = \sigma(W_f [h_{t-1}, x_t] + b_f)$ biçiminde verildi ve bu yazımın $W_{f,h} h_{t-1} + W_{f,x} x_t$ ile aynı olduğu gösterildi. Keras ağırlıkları bu ayrık biçimde, girdi ve gizli durum için iki ayrı tablo olarak saklar. Bu bölümde yaygın kaynaklardaki kısa gösterimi kullanıyoruz:
 
-| 12.2.2'deki yazım | Bu bölümdeki yazım | Neyi çarpar? |
+| 12.2.3'teki yazım | Bu bölümdeki yazım | Neyi çarpar? |
 | --- | --- | --- |
 | $`W_{f,x}`$ | $`W_f`$ | bugünkü girdi $`x_t`$ |
 | $`W_{f,h}`$ | $`U_f`$ | önceki gizli durum $`h_{t-1}`$ |
 
 Böylece unutma kapısı $f_t = \sigma(W_f x_t + U_f h_{t-1} + b_f)$ biçiminde yazılır. Bu yazım, aşağıdaki parametre sayımını (dört ağırlık seti, her birinde $W$, $U$ ve $b$) ve 15.3'teki GRU denklemlerini okumayı kolaylaştırır. 50 birimli bir katmanda her harf 50 sayılık bir listeyi, $W$ ve $U$ de ağırlık tablolarını temsil eder.
 
-**Dikkat:** 12.2.1'deki basit RNN'de $W_h$ önceki gizli durumu çarpan tabloydu. Bu bölümde ise $W$ her zaman girdiyi, $U$ önceki gizli durumu çarpar; 15.3'teki $W_h$ ve $U_h$'nin alt indisindeki $h$, bu tabloların aday durum $\tilde{h}_t$'ye ait olduğunu gösterir.
+**Dikkat:** 12.2.2'deki basit RNN'de $W_h$ önceki gizli durumu çarpan tabloydu. Bu bölümde ise $W$ her zaman girdiyi, $U$ önceki gizli durumu çarpar; 15.3'teki $W_h$ ve $U_h$'nin alt indisindeki $h$, bu tabloların aday durum $\tilde{h}_t$'ye ait olduğunu gösterir.
 
-Diğer kapılar ($i_t$, $o_t$) ve aday bilgi $\tilde{C}_t$ aynı kalıpla, kendi $W$, $U$ ve $b$'leriyle yazılır; açıklamalı gösterimi ve okunuşu 12.2.2'dedir. Aşağıdaki "dört ağırlık seti" bu dört satırın ağırlıklarıdır.
+Diğer kapılar ($i_t$, $o_t$) ve aday bilgi $\tilde{C}_t$ aynı kalıpla, kendi $W$, $U$ ve $b$'leriyle yazılır; açıklamalı gösterimi ve okunuşu 12.2.3'tedir. Aşağıdaki "dört ağırlık seti" bu dört satırın ağırlıklarıdır.
 
 Modelimiz tek bir LSTM katmanı (50 birim) ve tek nöronlu bir çıktı katmanından (`Dense(1)`) oluşuyor. Keras'ta bir model dört adımda hazırlanır: (1) katmanlar sırayla dizilir, (2) `compile` ile hatanın nasıl ölçüleceği ve ağırlıkların nasıl düzeltileceği seçilir, (3) `fit` ile model eğitilir, (4) `predict` ile tahmin üretilir.
 
@@ -316,9 +316,9 @@ Kodun önemli satırları şunlardır:
 
 1. **`Sequential()`** boş bir model açar; `add(...)` ile eklenen katmanlar verinin içinden sırayla geçeceği bir hat oluşturur: girdi → LSTM → Dense → tahmin.
 2. **`Input(shape=(look_back, 1))`** modele her örneğin şeklini bildirir: 12 zaman adımı, her adımda 1 özellik. Örnek sayısı (72) yazılmaz, çünkü model aynı şekildeki istediği sayıda örneği işleyebilir. (Eski Keras sürümlerinde bu bilgi `LSTM(50, input_shape=(12, 1))` biçiminde katmanın içine yazılırdı. Keras 3 bu yazımda uyarı verir ve ayrı bir `Input` satırını önerir.)
-3. **`LSTM(50)`** 50 birimli bir LSTM katmanıdır. Katman, penceredeki 12 değeri Ocak'tan Aralık'a sırayla okur ve her adımda 12.2.2'deki denklemleri işletir. Okuma bitince son adımın gizli durumunu, yani 50 sayılık bir özeti verir. 50, bu özetin ne kadar "geniş" olduğunu belirleyen bir tasarım seçimidir; daha büyük sayı daha fazla öğrenme kapasitesi, ama aynı zamanda daha fazla ezberleme riski demektir.
+3. **`LSTM(50)`** 50 birimli bir LSTM katmanıdır. Katman, penceredeki 12 değeri Ocak'tan Aralık'a sırayla okur ve her adımda 12.2.3'teki denklemleri işletir. Okuma bitince son adımın gizli durumunu, yani 50 sayılık bir özeti verir. 50, bu özetin ne kadar "geniş" olduğunu belirleyen bir tasarım seçimidir; daha büyük sayı daha fazla öğrenme kapasitesi, ama aynı zamanda daha fazla ezberleme riski demektir.
 4. **`Dense(1)`** 50 sayılık özeti tek bir sayıya, bir sonraki ayın ölçeklenmiş tahminine çevirir. Aktivasyon verilmediği için çıktı herhangi bir değeri alabilir; regresyon problemleri (sayı tahmini) için doğru seçim budur.
-5. **`compile(loss='mean_squared_error', optimizer='adam')`** eğitimin kurallarını belirler. **Kayıp fonksiyonu** olarak ortalama kare hata (MSE) kullanılır: Gerçek değerler 0.2 ve 0.4, tahminler 0.1 ve 0.5 ise hatalar 0.1 ve −0.1, kareleri 0.01 ve 0.01, ortalamaları 0.01 olur. **Optimizasyon algoritması** Adam ise her güncellemede her ağırlığı, kaybı azaltan yöne doğru küçük bir adım kaydırır (gradyan inişi, 12.2'nin başı). Adımın büyüklüğünü **öğrenme oranı** (Adam'da varsayılan 0.001) belirler. Adam, her ağırlık için adımı geçmiş güncellemelere bakarak kendisi ayarladığı için çoğu problemde iyi bir varsayılan seçimdir.
+5. **`compile(loss='mean_squared_error', optimizer='adam')`** eğitimin kurallarını belirler. **Kayıp fonksiyonu** olarak ortalama kare hata (MSE) kullanılır: Gerçek değerler 0.2 ve 0.4, tahminler 0.1 ve 0.5 ise hatalar 0.1 ve −0.1, kareleri 0.01 ve 0.01, ortalamaları 0.01 olur. **Optimizasyon algoritması** Adam ise her güncellemede her ağırlığı, kaybı azaltan yöne doğru küçük bir adım kaydırır (gradyan inişi, 12.2.1). Adımın büyüklüğünü **öğrenme oranı** (Adam'da varsayılan 0.001) belirler. Adam, her ağırlık için adımı geçmiş güncellemelere bakarak kendisi ayarladığı için çoğu problemde iyi bir varsayılan seçimdir.
 6. **`summary()`** katmanları, çıktı şekillerini ve öğrenilecek **parametre** (ağırlık ve yanlılık) sayısını tablo olarak yazdırır.
 7. **`fit(trainX, trainY, epochs=100, batch_size=1, verbose=2)`** eğitimi başlatır. **Batch** (yığın), ağırlıklar bir kez güncellenmeden önce birlikte işlenen örnek sayısıdır. **Epoch** ise eğitim verisinin tamamının modelden bir kez geçmesidir. `batch_size=1` ile 72 örneğin her birinden sonra güncelleme yapılır: bir epoch'ta 72 güncelleme, 100 epoch'ta $72 \cdot 100 = 7200$ güncelleme. `batch_size=16` seçilseydi bir epoch $72 / 16 = 4.5$, yani 5 yığın (dört tane 16'lık, bir tane 8'lik) ve 5 güncelleme olurdu. Küçük yığın daha çok ve daha "gürültülü" adım, büyük yığın daha az ve daha düzgün adım demektir. `verbose=2` her epoch için kaybı tek satırda yazdırır; bu satırlarda kaybın giderek küçüldüğünü görmeniz beklenir.
 
@@ -390,11 +390,11 @@ h_t &= \underbrace{\left(1 - z_t\right) \odot h_{t-1}}_{\substack{\text{eski dur
 
 **Ne anlatıyor?** Güncelleme ve sıfırlama kapıları, bugünkü girdi ile önceki gizli durumdan aynı kalıpla, kendi ağırlıklarıyla hesaplanır. Aday durum, sıfırlama kapısından geçen geçmiş ile bugünkü girdiden üretilir; yeni durum ise eski durum ile aday durumun güncelleme kapısının belirlediği oranlarda karıştırılmasıdır.
 
-> **Simge notu:** $`z_t`$ *(z t)*: güncelleme kapısının çıktısı (0–1 arası) · $`r_t`$ *(r t)*: sıfırlama kapısının çıktısı (0–1 arası) · $`\tilde{h}_t`$ *(h tilda t)*: aday gizli durum, yani bu ayın girdisinden ve sıfırlama kapısından geçen geçmişten hesaplanan "yeni durum önerisi" · $`1 - z_t`$: kapının "kapalı" kalan payı; $`z_t = 0.3`$ ise $`1 - z_t = 0.7`$ · Diğer harfler ($`\sigma`$, $`\tanh`$, $`W`$, $`U`$, $`b`$, $`\odot`$) 12.2.2 ve 15.2'dekiyle aynı anlamdadır.
+> **Simge notu:** $`z_t`$ *(z t)*: güncelleme kapısının çıktısı (0–1 arası) · $`r_t`$ *(r t)*: sıfırlama kapısının çıktısı (0–1 arası) · $`\tilde{h}_t`$ *(h tilda t)*: aday gizli durum, yani bu ayın girdisinden ve sıfırlama kapısından geçen geçmişten hesaplanan "yeni durum önerisi" · $`1 - z_t`$: kapının "kapalı" kalan payı; $`z_t = 0.3`$ ise $`1 - z_t = 0.7`$ · Diğer harfler ($`\sigma`$, $`\tanh`$, $`W`$, $`U`$, $`b`$, $`\odot`$) 12.2.3 ve 15.2'dekiyle aynı anlamdadır.
 
 **Açıklama:** Son denklem bir **ağırlıklı ortalamadır**: Eski durumdan $1 - z_t$ kadar, yeni adaydan $z_t$ kadar alınır ve iki pay her zaman 1'e tamamlanır. $z_t$ sıfıra yakınsa model eski durumu olduğu gibi korur, yani "bu ay önemli bir şey olmadı" der. Bire yakınsa durumu büyük ölçüde yeni adayla değiştirir. $r_t$ sıfıra yakınsa aday durum geçmişi neredeyse yok sayar ve yalnızca yeni girdiye bakar. Bu, serideki ani bir kırılmadan sonra "baştan başlamak" için kullanışlıdır.
 
-**Günlük hayattan bir örnek:** LSTM'in unutma ve giriş kapıları iki ayrı musluk gibiyse (12.2.2'deki vana benzetmesi), GRU'nun güncelleme kapısı tek kollu bir mutfak bataryasıdır. Kolu bir yöne çevirdikçe yeni adaydan gelen pay artarken eski durumdan gelen pay aynı oranda azalır; iki payın toplamı hep 1'dir. Sıfırlama kapısı ise yeni karışımı hazırlarken eski suyu hesaba katıp katmayacağınızı belirler. Benzetmenin sınırı: Bu "kol" her birim için ayrıdır ve her adımda girdiye bakılarak yeniden hesaplanır.
+**Günlük hayattan bir örnek:** LSTM'in unutma ve giriş kapıları iki ayrı musluk gibiyse (12.2.3'teki vana benzetmesi), GRU'nun güncelleme kapısı tek kollu bir mutfak bataryasıdır. Kolu bir yöne çevirdikçe yeni adaydan gelen pay artarken eski durumdan gelen pay aynı oranda azalır; iki payın toplamı hep 1'dir. Sıfırlama kapısı ise yeni karışımı hazırlarken eski suyu hesaba katıp katmayacağınızı belirler. Benzetmenin sınırı: Bu "kol" her birim için ayrıdır ve her adımda girdiye bakılarak yeniden hesaplanır.
 
 **Sayısal örnek (tek birim):** Eski durum $h_{t-1} = 0.8$, aday durum $\tilde{h}_ t = 0.2$ olsun.
 
@@ -530,7 +530,7 @@ Evrişimin fikri basittir: Birkaç sayıdan oluşan küçük bir **filtre** (ağ
 
 **Ne anlatıyor?** Filtre, serinin $t$ konumundan başlayan $K$ değerinin üzerine konur; her değer filtrenin karşılık gelen ağırlığıyla çarpılır, çarpımlar toplanır, yanlılık eklenir ve sonuç aktivasyon fonksiyonundan geçirilir. Elde edilen sayı, filtrenin aradığı desenin o konumda ne kadar güçlü olduğunu gösterir.
 
-> **Simge notu:** $`\sum`$ *(büyük sigma, "toplam")*: altındaki $`k=0`$ ile üstündeki $`K-1`$ arasındaki her $`k`$ için yanındaki terimi yazıp hepsini toplamak demektir. $`K = 3`$ için $`\sum_{k=0}^{2} w_k x_{t+k} = w_0 x_t + w_1 x_{t+1} + w_2 x_{t+2}`$ olur. LSTM'deki küçük $`\sigma`$ (sigmoid) ile karıştırmayın · $`K`$: filtre uzunluğu (Keras'ta `kernel_size`) · $`k`$: filtre içindeki sıra numarası (0, 1, …, K−1) · $`w_k`$ *(dabılyu k)*: filtrenin $`k`$. ağırlığı, eğitimle öğrenilir · $`x_{t+k}`$: serinin $`t+k`$. değeri; $`t`$ filtrenin o anda başladığı konumdur · $`b`$: yanlılık · $`a_t`$: filtrenin $`t`$ konumundaki çıktısı · $`g`$: aktivasyon fonksiyonu (burada ReLU; tanımı 12.2'nin başındaki tabloda)
+> **Simge notu:** $`\sum`$ *(büyük sigma, "toplam")*: altındaki $`k=0`$ ile üstündeki $`K-1`$ arasındaki her $`k`$ için yanındaki terimi yazıp hepsini toplamak demektir. $`K = 3`$ için $`\sum_{k=0}^{2} w_k x_{t+k} = w_0 x_t + w_1 x_{t+1} + w_2 x_{t+2}`$ olur. LSTM'deki küçük $`\sigma`$ (sigmoid) ile karıştırmayın · $`K`$: filtre uzunluğu (Keras'ta `kernel_size`) · $`k`$: filtre içindeki sıra numarası (0, 1, …, K−1) · $`w_k`$ *(dabılyu k)*: filtrenin $`k`$. ağırlığı, eğitimle öğrenilir · $`x_{t+k}`$: serinin $`t+k`$. değeri; $`t`$ filtrenin o anda başladığı konumdur · $`b`$: yanlılık · $`a_t`$: filtrenin $`t`$ konumundaki çıktısı · $`g`$: aktivasyon fonksiyonu (burada ReLU; tanımı 12.2.1'deki tabloda)
 
 **Sayısal örnek:** Şekil 15.4'teki elle seçilmiş filtrenin ağırlıkları $w_0 = -1$, $w_1 = 0$, $w_2 = +1$, yanlılığı $b = 0$ olsun. Seri 1949'un ilk ayları: 112, 118, 132, 129, 121, 135, … Filtre ilk üç aya oturduğunda:
 
@@ -1031,7 +1031,7 @@ Son olarak, buradaki bütün sonuçlar **tek bir** eğitim-test ayrımına dayan
 >
 > </details>
 
-#### Hangi bölüm hangi test dönemini kullandı?
+#### 15.5.1. Hangi bölüm hangi test dönemini kullandı?
 
 Notlar boyunca `AirPassengers` farklı test dönemleriyle değerlendirildi. Başlıca uygulamalar:
 

@@ -51,14 +51,14 @@ Ana pencerede iki değişken görünür: `g` (aylık uluslararası havayolu yolc
 - $D = 1$: yıllık deseni gidermek için mevsimsel fark, $x_t - x_{t-12}$.
 - $q = 1$ ve $Q = 1$: geçen ayın ve geçen yılın aynı ayının sürprizleriyle düzeltme yapan birer MA terimi.
 
-Modelin seçimi normalde farkı alınmış serinin ACF ve PACF grafiklerinden yapılır (Bölüm 6.6 ve 7.6.4); bu seri için korelogramlar da aynı adayı gösterir.
+Modelin seçimi normalde farkı alınmış serinin ACF ve PACF grafiklerinden yapılır (Bölüm 6.7 ve 7.6.4); bu seri için korelogramlar da aynı adayı gösterir.
 
 **Menüden model kurma:**
 
 1. **Model → Univariate time series → ARIMA…** seçilir (Gretl'in eski sürümlerinde alt menünün adı "Time series" idi).
 2. **Dependent variable** olarak `l_g` seçilir; orijinal `g` değil, log serisi kullanılır.
-3. Mevsimsel olmayan kısım: AR 0, Difference 1, MA 1. Mevsimsel kısım: AR 0, Difference 1, MA 1. Mevsim uzunluğu 12'dir; Gretl bunu verinin frekansından kendisi önerir.
-4. **Include a constant** kutusunun işareti kaldırılır. Bir normal ve bir mevsimsel farkı alınmış seride sabit terim, giderek hızlanan bir trend anlamına gelir ve gereksizdir. Model kutu işaretliyken kurulduğunda `const` katsayısının p-değeri 0.8675'tir (anlamsız) ve AIC −483.39'dan −481.42'ye kötüleşir.
+3. Mevsimsel olmayan kısım: AR ($p$) 0, Difference ($d$) 1, MA ($q$) 1. Mevsimsel kısım: AR ($P$) 0, Difference ($D$) 1, MA ($Q$) 1. Mevsim uzunluğu 12'dir; Gretl bunu verinin frekansından kendisi önerir.
+4. **Include a constant** kutusunun işareti kaldırılır. Bu modelde sabitin neden gereksiz olduğu ve kutu işaretli bırakılınca sonuçların nasıl değiştiği Bölüm 11.3.3'te (Hemen deneyin 11.3.3) gösterilir.
 5. **OK** ile model kestirilir.
 
 Komut karşılığı:
@@ -76,7 +76,7 @@ arima 0 1 1 ; 0 1 1 ; l_g --nc    # (p d q) ; (P D Q) ; bağımlı değişken; -
 | `theta_1` ($\theta_1$) | −0.4018 | 0.0896 | 7.38e-06 |
 | `Theta_1` ($\Theta_1$) | −0.5569 | 0.0731 | 2.57e-14 |
 
-İki MA katsayısı da %1 düzeyinde anlamlıdır (`***`). Pencerenin alt kısmında log olabilirlik 244.6965, Akaike ölçütü (AIC) −483.3930 ve Schwarz ölçütü (BIC) −474.7674'tür. Bu değerler R'ın `auto.arima()` sonucuyla aynıdır (Bölüm 7.6.5). Bilgi kriterleri yalnızca aynı veri ve aynı fark sayılarıyla kurulmuş modelleri karşılaştırmak için kullanılır; küçük değer daha iyi uyumu gösterir (Bölüm 7.4).
+İki MA katsayısı da %1 düzeyinde anlamlıdır (`***`). Pencerenin alt kısmında log olabilirlik 244.6965, Akaike ölçütü (AIC) −483.3930, Schwarz ölçütü (BIC) −474.7674 ve Hannan-Quinn ölçütü (HQ) −479.8880'dir. Bu değerler R'ın `auto.arima()` sonucuyla aynıdır (Bölüm 7.6.5). Bilgi kriterleri yalnızca aynı veri ve aynı fark sayılarıyla kurulmuş modelleri karşılaştırmak için kullanılır; küçük değer daha iyi uyumu gösterir (Bölüm 7.4). Model penceresinde **Graphs → Residual correlogram** artıkların ACF/PACF grafiklerini verir (artıklara uygulanan testler: Bölüm 11.4).
 
 ---
 
@@ -96,7 +96,7 @@ dataset addobs 12
 fcast 1961:01 1961:12 --plot=display
 ```
 
-Log ölçekte Ocak 1961 öngörüsü 6.11019, %95 aralığı 6.03822–6.18215'tir. Geri çevrildiğinde nokta öngörüsü $e^{6.11019} \approx 450.4$, aralık yaklaşık 419.1–484.0 bin yolcudur; Bölüm 7.6.7'deki R sonucuyla aynıdır. Temmuz 1961 öngörüsü $e^{6.50729} \approx 670.0$ bin yolcudur. Log ölçekteki öngörüler 6.05 ile 6.51 arasında değişir.
+Log ölçekte Ocak 1961 öngörüsü 6.11019, %95 aralığı 6.03822–6.18215'tir. Geri çevrildiğinde nokta öngörüsü $e^{6.11019} \approx 450.4$, aralık yaklaşık 419.1–484.0 bin yolcudur; Bölüm 7.6.7'deki R sonucuyla ve Bölüm 11.5'teki betiğin `pass_f` değerleriyle aynıdır. Temmuz 1961 öngörüsü $e^{6.50729} \approx 670.0$ bin yolcudur. Log ölçekteki öngörüler 6.05 ile 6.51 arasında değişir.
 
 Grafikte ortadaki çizgi nokta öngörüleridir ve geçmiş yıllardaki mevsimsel deseni sürdürür. Gölgeli bant ufuk uzadıkça genişler: Aralık 1961 için %95 aralığı yaklaşık 406.7–560.0 bin yolcudur. Bu görünüme literatürde **yelpaze grafiği** (*fan chart*) denir. Bant, "gerçek değerin %95 olasılıkla bu sınırlar arasında kalması beklenir" biçiminde okunur.
 
@@ -155,6 +155,8 @@ print getiri u --byobs
 | Öngörü | Analysis → Forecasts | `fcast` | Örneklem dışı öngörü |
 | Artık kaydetme | Save → Residuals | `series u = $uhat` | Artık analizi |
 | Yeni değişken | Add → Define new variable | `series x = ...` | Dönüşüm, kukla değişken |
+
+Durağanlık ve artık testlerinin (korelogram, ADF, KPSS, otokorelasyon, normallik) menü yolları ve komutları Bölüm 11.4'teki tabloda toplanmıştır.
 
 Son olarak model seçiminde **tutumluluk ilkesi** (*principle of parsimony*) hatırlanmalıdır: Veriyi yeterince iyi açıklayan modeller arasında en az parametreli olan tercih edilir (Bölüm 7.4'teki AIC karşılaştırması).
 

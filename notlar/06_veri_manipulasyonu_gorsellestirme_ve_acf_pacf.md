@@ -16,7 +16,7 @@ Elimizde artık bir `ts` nesnesi var (Bölüm 5). Bu bölümde üç soruyu yanı
 
 > **Uygulama dosyası:** [`Codes/R/ch06_manipulasyon_acf.R`](../Codes/R/ch06_manipulasyon_acf.R)
 >
-> Bu bölümdeki R kodlarının tamamı bu dosyada. Dosya RStudio'da açılıp satır satır ya da depo kök dizininde `Rscript Codes/R/ch06_manipulasyon_acf.R` komutuyla çalıştırılabilir. Bölüm 6.3.7 ve 6.4.3'teki Python kodları [`Codes/python/ch06_acf_pacf.py`](../Codes/python/ch06_acf_pacf.py) dosyasındadır; *Hemen deneyin* kutularındaki kodlar doğrudan konsolda çalıştırılır.
+> Bu bölümdeki R kodlarının tamamı bu dosyada. Dosya RStudio'da açılıp satır satır ya da depo kök dizininde `Rscript Codes/R/ch06_manipulasyon_acf.R` komutuyla çalıştırılabilir. Bölüm 6.4.3 ve 6.5.3'teki Python kodları [`Codes/python/ch06_acf_pacf.py`](../Codes/python/ch06_acf_pacf.py) dosyasındadır; *Hemen deneyin* kutularındaki kodlar doğrudan konsolda çalıştırılır.
 
 
 İlk kural: **Veri her zaman çizilir.** Grafiğe bakmadan analize başlamak, gözü kapalı araba kullanmaya benzer. Bir zaman serisi grafiğinde şu dört soruya cevap ararız:
@@ -506,8 +506,8 @@ Ardından aynı dört adım $h = 2, 3, \dots$ için tekrarlanır. Her gecikme bi
 Grafik okunurken bilinmesi gereken üç ayrıntı:
 
 - **$`h = 0`$ çubuğu her zaman 1'dir.** Bu gecikmede seri, kaydırılmamış kendisiyle karşılaştırılır ve bir şey kendisiyle her zaman tam uyumludur. R ve Python bu çubuğu varsayılan olarak çizer; bilgi taşımadığı için okumaya $h = 1$'den başlanır.
-- **Uzak gecikmeler daha az güvenilirdir.** $h$ büyüdükçe eşleşen çift sayısı ($T - h$) azalır ve kestirim zayıflar. Bu yüzden genellikle en fazla $T/4$ gecikmeye bakılır; aylık veride 24–36 gecikme yaygındır. R ve Python, gecikme sayısı belirtilmezse yaklaşık $10 \log_{10} T$ gecikme çizer: `USgas` için $10 \times \log_{10} 238 = 10 \times 2.377 = 23.77$, aşağı yuvarlanınca R'da 23 (Python grafiğinde sürüme göre 23–24). `ts` nesnesinde R'ın ekseni yıl cinsindendir: 23 gecikme ≈ 1.9 (bkz. 6.3.5'teki not).
-- **Bu hesap elle yapılmaz.** Grafiği yazılım tek komutla çizer (Bölüm 6.3.7); adımları bilmek, grafikte görüleni anlamayı sağlar.
+- **Uzak gecikmeler daha az güvenilirdir.** $h$ büyüdükçe eşleşen çift sayısı ($T - h$) azalır ve kestirim zayıflar. Bu yüzden genellikle en fazla $T/4$ gecikmeye bakılır; aylık veride 24–36 gecikme yaygındır. R ve Python, gecikme sayısı belirtilmezse yaklaşık $10 \log_{10} T$ gecikme çizer: `USgas` için $10 \times \log_{10} 238 = 10 \times 2.377 = 23.77$, aşağı yuvarlanınca R'da 23 (Python grafiğinde sürüme göre 23–24). `ts` nesnesinde R'ın ekseni yıl cinsindendir: 23 gecikme ≈ 1.9 (bkz. 6.4.1'deki not).
+- **Bu hesap elle yapılmaz.** Grafiği yazılım tek komutla çizer (Bölüm 6.4.3); adımları bilmek, grafikte görüleni anlamayı sağlar.
 
 > **Simge notu:** $`T`$: serideki gözlem sayısı · $`\log_{10}`$ *(on tabanında logaritma)*: bir sayının 10'un kaçıncı kuvveti olduğu; $`\log_{10} 100 = 2`$ çünkü $`10^2 = 100`$, $`\log_{10} 238 \approx 2.377`$ çünkü 238, 100 ile 1000 arasındadır
 
@@ -604,7 +604,7 @@ Pay: $3 + (-2) + (-4) + (-8) = -11$. Payda: $9 + 1 + 4 + 4 + 16 = 34$.
 \end{aligned}
 ```
 
-Pay 4 terimden ($t = 2, \dots, 5$), payda 5 terimden oluşur; bu, Tanım 2'deki toplam sınırlarının doğrudan uygulamasıdır. R'da `acf(c(10, 12, 15, 11, 17), plot = FALSE)$acf[2]` aynı sonucu (−0.3235) verir; bu yazımın parçaları (`plot = FALSE`, `$acf`, neden `[2]`) Bölüm 6.3.7'de satır satır açıklanır.
+Pay 4 terimden ($t = 2, \dots, 5$), payda 5 terimden oluşur; bu, Tanım 2'deki toplam sınırlarının doğrudan uygulamasıdır. R'da `acf(c(10, 12, 15, 11, 17), plot = FALSE)$acf[2]` aynı sonucu (−0.3235) verir; bu yazımın parçaları (`plot = FALSE`, `$acf`, neden `[2]`) Bölüm 6.4.3'te satır satır açıklanır.
 
 Aynı dört çiftin (12, 10), (15, 12), (11, 15), (17, 11) sıradan Pearson korelasyonu ise −0.448'dir (R'da `cor(c(12, 15, 11, 17), c(10, 12, 15, 11))`). Fark, Bölüm 6.3.3'teki notta anlatılan iki ayrıntıdan gelir: ACF formülü her iki sütun için de beş günün ortalamasını (13) kullanır ve paydada beş terim toplar. Bu kadar kısa bir seride fark büyüktür; yüzlerce gözlemde önemsizleşir.
 
@@ -612,7 +612,7 @@ Aynı dört çiftin (12, 10), (15, 12), (11, 15), (17, 11) sıradan Pearson kore
 
 Ancak bu sonuç yalnızca 5 gözleme dayanıyor. Bu örnek hesaplamanın mekanizmasını göstermek içindir; gerçek analizlerde güvenilir bir ACF için en az 50 gözlem önerilir. −0.324'ün şans eseri çıkıp çıkmadığını aşağıdaki güven bandıyla sınayacağız.
 
-> **Hemen deneyin 6.3.4a · Formülü kendiniz yazın** (Python, ~5 dk)
+> **Hemen deneyin 6.3.4 · Formülü kendiniz yazın** (Python, ~5 dk)
 >
 > Tanım 2'deki formülü dört satırlık bir Python fonksiyonuna çevirip `statsmodels` ile karşılaştıralım:
 >
@@ -644,9 +644,9 @@ Ancak bu sonuç yalnızca 5 gözleme dayanıyor. Bu örnek hesaplamanın mekaniz
 >
 > </details>
 
-#### Güven bandı
+#### 6.3.5. Güven Bandı
 
-**Mavi bant nereden gelir?** ACF grafiklerinde sıfırın altında ve üstünde iki kesikli çizgi bulunur. Bu bandı anlamak için şu deneyi ele alalım. Elimizde tamamen rastgele bir seri olsun: Her değer yazı-tura gibi diğerlerinden bağımsız üretilmiş (bu, Bölüm 2.2 ve 3.2'deki **beyaz gürültüdür**; formel tanımı 6.6.1'de). Böyle bir seride gerçek otokorelasyon sıfırdır. Ama sonlu bir veriden hesaplanan $\hat{\rho}_ h$, şans eseri tam sıfır çıkmaz; tıpkı on kez yazı-tura atınca tam beş yazı gelmemesi gibi. Şekil 6.5 bu deneyi bilgisayarda yapıyor: 238 gözlemlik 5000 rastgele seri üretip her birinin lag-1 otokorelasyonunu hesapladık. Sonuçlar sıfırın çevresinde, çan biçiminde bir yığın oluşturur.
+**Mavi bant nereden gelir?** ACF grafiklerinde sıfırın altında ve üstünde iki kesikli çizgi bulunur. Bu bandı anlamak için şu deneyi ele alalım. Elimizde tamamen rastgele bir seri olsun: Her değer yazı-tura gibi diğerlerinden bağımsız üretilmiş (bu, Bölüm 2.2 ve 3.2'deki **beyaz gürültüdür**; formel tanımı 6.7.1'de). Böyle bir seride gerçek otokorelasyon sıfırdır. Ama sonlu bir veriden hesaplanan $\hat{\rho}_ h$, şans eseri tam sıfır çıkmaz; tıpkı on kez yazı-tura atınca tam beş yazı gelmemesi gibi. Şekil 6.5 bu deneyi bilgisayarda yapıyor: 238 gözlemlik 5000 rastgele seri üretip her birinin lag-1 otokorelasyonunu hesapladık. Sonuçlar sıfırın çevresinde, çan biçiminde bir yığın oluşturur.
 
 ![Güven bandının kaynağı](../images/ch06_guven_bandi.svg)
 
@@ -675,9 +675,9 @@ Seri uzadıkça şans dalgalanması küçülür ve bant daralır: 100 gözlemde 
 
 > **Not —** Sınırlar %95 düzeyinde olduğu için, gerçekten beyaz gürültü olan bir seride bile 20 çubuktan yaklaşık 1'inin bandı az farkla aşması beklenir (Şekil 6.5'teki turuncu uçlar). Tek başına, sınırı hafifçe geçen uzak bir çubuğa fazla anlam yüklenmemelidir.
 
-Grafiğin nasıl yorumlanacağı Bölüm 6.3.5 ve 6.3.6'da ayrıntılı olarak ele alınmaktadır.
+Grafiğin nasıl yorumlanacağı Bölüm 6.4.1 ve 6.4.2'de ayrıntılı olarak ele alınmaktadır.
 
-> **Hemen deneyin 6.3.4b · Tesadüf bandını sınayın** (R, ~4 dk)
+> **Hemen deneyin 6.3.5 · Tesadüf bandını sınayın** (R, ~4 dk)
 >
 > Tamamen rastgele bir seri üretip kaç çubuğun bandı şans eseri aştığını sayalım:
 >
@@ -703,7 +703,11 @@ Grafiğin nasıl yorumlanacağı Bölüm 6.3.5 ve 6.3.6'da ayrıntılı olarak e
 >
 > </details>
 
-#### 6.3.5. ACF Grafiğinin Anatomisi
+### 6.4. ACF Grafiğini Okumak
+
+ACF'nin nasıl hesaplandığını ve bir çubuğun ne zaman anlamlı sayıldığını gördük. Bu bölümde yazılımların çizdiği korelogramı okumayı ele alacağız: grafiğin öğeleri, tipik desenler ve grafiğin R ile Python'da çizilmesi.
+
+#### 6.4.1. ACF Grafiğinin Anatomisi
 
 R ya da Python'un çizdiği bir ACF grafiğinde altı öğe vardır. Şekil 6.6 bunları `USgas` serisinin gerçek grafiği üzerinde numaralarla gösteriyor.
 
@@ -719,7 +723,7 @@ R ya da Python'un çizdiği bir ACF grafiğinde altı öğe vardır. Şekil 6.6 
 | ② | Bandın dışındaki çubuk | Anlamlı bir ilişki. Çubuk ne kadar uzunsa ilişki o kadar güçlü. |
 | ③ | Düzenli aralıklı tepeler | Mevsimsellik. İki tepe arasındaki mesafe, mevsimin uzunluğudur (burada 12 ay). |
 | ④ | Sıfırın altındaki çubuk | Negatif ilişki: $`h`$ adım önce değer ortalamanın üstündeyse bugün altında olma eğilimi. `USgas`'ta 6 ay önce kışsa bugün yazdır. |
-| ⑤ | Mavi bant | Tesadüf bölgesi, $`\pm 1.96/\sqrt{T}`$ (Bölüm 6.3.4). |
+| ⑤ | Mavi bant | Tesadüf bölgesi, $`\pm 1.96/\sqrt{T}`$ (Bölüm 6.3.5). |
 | ⑥ | Bandın içindeki (gri) çubuk | Şansla açıklanabilir; yorumlanmaz. |
 
 **Okuma sırası:** Bir ACF grafiği şu dört adımla okunur:
@@ -727,11 +731,11 @@ R ya da Python'un çizdiği bir ACF grafiğinde altı öğe vardır. Şekil 6.6 
 1. $h = 0$ çubuğu atlanır.
 2. Mavi bant bulunur.
 3. Hangi çubukların bandın dışında kaldığına bakılır ve yalnızca onlar yorumlanır.
-4. Genel desene bakılır: Çubuklar hızlı mı, yavaş mı azalıyor? Düzenli aralıklarla tekrar eden tepeler var mı? Bu sorunun cevabı serinin türünü söyler (Bölüm 6.3.6).
+4. Genel desene bakılır: Çubuklar hızlı mı, yavaş mı azalıyor? Düzenli aralıklarla tekrar eden tepeler var mı? Bu sorunun cevabı serinin türünü söyler (Bölüm 6.4.2).
 
-> **Not —** R'da `ts` nesnelerinin ACF grafiğinde yatay eksen gecikme sayısıyla değil, **yıl** cinsinden etiketlenir: Aylık veride 1.0 işareti $`h = 12`$'yi gösterir (Bölüm 6.5). Şekil 6.6 gecikme sayısını kullanır.
+> **Not —** R'da `ts` nesnelerinin ACF grafiğinde yatay eksen gecikme sayısıyla değil, **yıl** cinsinden etiketlenir: Aylık veride 1.0 işareti $`h = 12`$'yi gösterir (Bölüm 6.6). Şekil 6.6 gecikme sayısını kullanır.
 
-#### 6.3.6. ACF Grafiğinin Yorumlanması: Tipik Desenler
+#### 6.4.2. ACF Grafiğinin Yorumlanması: Tipik Desenler
 
 Tek tek çubuklardan çok, çubukların oluşturduğu **desen** önemlidir. Pratikte karşılaşılan ACF grafiklerinin çoğu aşağıdaki beş desenden birine ya da birkaçının karışımına benzer. Bir grafiğe bakıldığında ilk soru şu olmalıdır: *"Bu, hangisine benziyor?"*
 
@@ -744,7 +748,7 @@ Tek tek çubuklardan çok, çubukların oluşturduğu **desen** önemlidir. Prat
 | **Beyaz gürültü** | Çubukların hepsi bandın içinde (ya da en fazla 20'de 1'i, az farkla dışında) | Seri geçmişini hatırlamıyor; bugünü geçmişten tahmin edemeyiz | Modellenecek doğrusal yapı yok. Bir modelin **artıklarında** görmek istediğimiz desen budur (Bölüm 7.4, 7.6.6). |
 | **Trend** | Çubuklar 1'e yakın başlar ve çok yavaş azalır | Seri durağan değil; yüksek değerleri yine yüksek değerler izliyor | Fark alınır, sonra ACF yeniden çizilir (Bölüm 3.2, 7.1.4) |
 | **Mevsimsellik** | Dalgalı: mevsim uzunluğunun katlarında (12, 24, …) tepe, yarım mevsimin tek katlarında (6, 18, 30, …) dip | Takvime bağlı, tekrar eden bir desen | Mevsim uzunluğu tepelerin aralığından okunur; mevsimsel fark ya da SARIMA (Bölüm 7.3) |
-| **Kısa hafıza (AR tipi)** | İlk birkaç çubuk büyük, sonra hızla ve düzgünce sönüp bandın içine iner | Bugün yakın geçmişe bağlı, ama etki çabuk kayboluyor | AR modeli adayı; derecesini PACF söyler (Bölüm 6.4, 6.6) |
+| **Kısa hafıza (AR tipi)** | İlk birkaç çubuk büyük, sonra hızla ve düzgünce sönüp bandın içine iner | Bugün yakın geçmişe bağlı, ama etki çabuk kayboluyor | AR modeli adayı; derecesini PACF söyler (Bölüm 6.5, 6.7) |
 | **Trend + mevsimsellik** | Yavaş sönme ve mevsim uzunluğunun katlarında çıkıntılar | Gerçek verilerde en sık karşılaşılan durum | Önce trend ve mevsimsellik giderilir (log, fark, mevsimsel fark), sonra yeniden bakılır |
 
 **Günlük hayattan bir örnek:** Bahar boyunca kar suyuyla dolan bir baraj gölünün her sabah ölçülen su seviyesini düşünelim. Bugünkü seviye dünküne, geçen haftakine, hatta geçen ayınkine de benzer, çünkü hepsi aynı uzun yükselişin üzerindedir; ACF bu yüzden 1'e yakın başlar ve çok yavaş azalır (tablodaki trend satırı). "Dünden bugüne kaç santim yükseldi?" diye sorduğumuzda (birinci fark) ortak yükseliş silinir, geriye günlük yağış etkisi kalır ve ACF hızla söner. Yavaş sönme "hafıza çok güçlü" demek değil, "sökülmesi gereken bir trend var" demektir.
@@ -752,11 +756,11 @@ Tek tek çubuklardan çok, çubukların oluşturduğu **desen** önemlidir. Prat
 > **Not — Sık yapılan hatalar:**
 >
 > - $`h = 0`$ çubuğunu "çok güçlü bir ilişki" sanmak. Bu çubuk her zaman 1'dir.
-> - Bandı az farkla aşan uzak, tek bir çubuğa anlam yüklemek. %95'lik bantta 20 çubuktan biri şans eseri dışarı taşabilir (Bölüm 6.3.4).
+> - Bandı az farkla aşan uzak, tek bir çubuğa anlam yüklemek. %95'lik bantta 20 çubuktan biri şans eseri dışarı taşabilir (Bölüm 6.3.5).
 > - Trendli bir serinin ACF'sinden model derecesi okumaya çalışmak. Yavaş sönme diğer bütün yapıları örter; önce seri durağanlaştırılmalıdır.
 > - Korelasyonu nedensellik sanmak. ACF yalnızca "birlikte hareket ediyor mu?" sorusunu yanıtlar, "biri ötekine mi yol açıyor?" sorusunu değil.
 
-> **Hemen deneyin 6.3.6 · Dört korelogram, dört desen** (R, ~5 dk)
+> **Hemen deneyin 6.4.2 · Dört korelogram, dört desen** (R, ~5 dk)
 >
 > Aşağıdaki kod dört serinin ACF grafiğini 2 × 2 düzende çizer. Çalıştırın ve her grafiği tablodaki desenlerden biriyle eşleştirin.
 >
@@ -786,11 +790,11 @@ Tek tek çubuklardan çok, çubukların oluşturduğu **desen** önemlidir. Prat
 >
 > </details>
 
-#### 6.3.7. Python ve R ile ACF
+#### 6.4.3. Python ve R ile ACF
 
 > **Uygulama dosyası:** [`Codes/python/ch06_acf_pacf.py`](../Codes/python/ch06_acf_pacf.py) · [Notebook](../Codes/notebooks/ch06_acf_pacf.ipynb) · [![Colab'da aç](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/Codes/notebooks/ch06_acf_pacf.ipynb) (Python kodları) ve [`Codes/R/ch06_manipulasyon_acf.R`](../Codes/R/ch06_manipulasyon_acf.R) (R kodları)
 >
-> Python dosyası 6.3.7 ve 6.4.3'teki Python kodlarının tamamını içerir. Dosya, depo kök dizininde `python Codes/python/ch06_acf_pacf.py` komutuyla ya da VS Code'da hücre hücre çalıştırılabilir; kurulum yapmadan denemek için Colab bağlantısı kullanılabilir. Dosyadaki `veri_yolu()` yardımcı fonksiyonu, `data/` klasörü bulunamazsa (ör. Colab'da) veriyi doğrudan GitHub'dan okur. Dosya, aşağıdaki kodlara ek olarak notta yalnızca sözü geçen iki seçeneği de çalıştırır: sabit bantlı ACF grafiği (`bartlett_confint=False`) ve R ile aynı PACF sonucunu veren `method="ywm"`.
+> Python dosyası 6.4.3 ve 6.5.3'teki Python kodlarının tamamını içerir. Dosya, depo kök dizininde `python Codes/python/ch06_acf_pacf.py` komutuyla ya da VS Code'da hücre hücre çalıştırılabilir; kurulum yapmadan denemek için Colab bağlantısı kullanılabilir. Dosyadaki `veri_yolu()` yardımcı fonksiyonu, `data/` klasörü bulunamazsa (ör. Colab'da) veriyi doğrudan GitHub'dan okur. Dosya, aşağıdaki kodlara ek olarak notta yalnızca sözü geçen iki seçeneği de çalıştırır: sabit bantlı ACF grafiği (`bartlett_confint=False`) ve R ile aynı PACF sonucunu veren `method="ywm"`.
 
 Aşağıda `[20, 22, 21, 23, 24]` serisi için lag-1 otokorelasyonunu iki dilde hesaplıyoruz.
 
@@ -862,7 +866,7 @@ Bu tek satır, R ile birlikte gelen aylık `AirPassengers` serisinin (Bölüm 5.
 3. `main = "AirPassengers ACF"`: Grafiğin başlığı.
 4. `plot` (yazılmamış): Varsayılanı `TRUE` olduğu için grafik çizilir. Bu durumda `acf()` hesapladığı değerleri ekrana yazmaz; değerler `a <- acf(...)` ile bir ada kaydedilip sonra `a` yazılarak görülebilir.
 
-Ekranda sayı çıkmaz, yalnızca grafik açılır. Her gecikme için dikey bir çubuk, yatay eksende gecikme, dikey eksende (`ACF` etiketiyle) korelasyon vardır; mavi kesikli çizgiler $\pm 1.96/\sqrt{T}$ güven sınırlarıdır (Bölüm 6.3.4). Seri `ts` olduğu için yatay eksen yıl cinsindendir (1.0 = lag-12; 6.3.5'teki not). Grafikte bütün çubukların bandın çok üstünde başlayıp yavaş azaldığı (lag-1 0.95) ve 1.0, 2.0, 3.0 konumlarında yeniden yükseldiği (lag-12 0.76) görülür: Bu, Bölüm 6.3.6'daki "trend + mevsimsellik" desenidir.
+Ekranda sayı çıkmaz, yalnızca grafik açılır. Her gecikme için dikey bir çubuk, yatay eksende gecikme, dikey eksende (`ACF` etiketiyle) korelasyon vardır; mavi kesikli çizgiler $\pm 1.96/\sqrt{T}$ güven sınırlarıdır (Bölüm 6.3.5). Seri `ts` olduğu için yatay eksen yıl cinsindendir (1.0 = lag-12; 6.4.1'deki not). Grafikte bütün çubukların bandın çok üstünde başlayıp yavaş azaldığı (lag-1 0.95) ve 1.0, 2.0, 3.0 konumlarında yeniden yükseldiği (lag-12 0.76) görülür: Bu, Bölüm 6.4.2'deki "trend + mevsimsellik" desenidir.
 
 Python'da `statsmodels` kütüphanesinin `plot_acf()` fonksiyonu kullanılır:
 
@@ -878,9 +882,9 @@ plt.show()
 
 `pd.read_csv("data/AirPassengers.csv", index_col=0)` CSV dosyasını bir tabloya (pandas *DataFrame*) okur ve ilk sütunu (`Month`) satır etiketi (indeks) yapar; sonundaki `["Passengers"]` tablodan yolcu sayısı sütununu tek bir seri olarak seçer. `plot_acf()` korelogramı çizer; `lags=36` R'daki `lag.max` argümanının karşılığıdır. `plt.show()` (`matplotlib` kütüphanesinin çizim modülü `pyplot`, kısa adıyla `plt`) çizilen grafiği ekranda gösterir.
 
-> **Not —** İki dilin çizdiği bantlar farklı görünür. R, Bölüm 6.3.4'teki sabit $`\pm 1.96/\sqrt{T}`$ bandını çizer. Python'daki `plot_acf()` ise varsayılan olarak **Bartlett formülünü** kullanır: Bu formül, $`h`$. gecikmedeki bandı hesaplarken ondan önceki gecikmelerde bulunan korelasyonları da hesaba katar (önceki korelasyonlar ne kadar büyükse bant o kadar geniş olur). Önceki gecikmelerde güçlü korelasyon varsa ardışık gözlemler birbirinin tekrarı gibidir; 144 gözlem 144 bağımsız bilgi taşımaz, şans dalgalanması büyür ve bant genişler. Bu yüzden bant gecikme arttıkça genişler ve açık mavi bir huni gibi görünür. `AirPassengers` için ($`T = 144`$) bant, 1. gecikmede ±0.16 iken 12. gecikmede ±0.60'a çıkar. R ile aynı sabit bant `plot_acf(seri, lags=36, bartlett_confint=False)` ile çizilir. Bu fark bilinmezse aynı seri için iki dilde farklı sonuçlar okunduğu sanılabilir.
+> **Not —** İki dilin çizdiği bantlar farklı görünür. R, Bölüm 6.3.5'teki sabit $`\pm 1.96/\sqrt{T}`$ bandını çizer. Python'daki `plot_acf()` ise varsayılan olarak **Bartlett formülünü** kullanır: Bu formül, $`h`$. gecikmedeki bandı hesaplarken ondan önceki gecikmelerde bulunan korelasyonları da hesaba katar (önceki korelasyonlar ne kadar büyükse bant o kadar geniş olur). Önceki gecikmelerde güçlü korelasyon varsa ardışık gözlemler birbirinin tekrarı gibidir; 144 gözlem 144 bağımsız bilgi taşımaz, şans dalgalanması büyür ve bant genişler. Bu yüzden bant gecikme arttıkça genişler ve açık mavi bir huni gibi görünür. `AirPassengers` için ($`T = 144`$) bant, 1. gecikmede ±0.16 iken 12. gecikmede ±0.60'a çıkar. R ile aynı sabit bant `plot_acf(seri, lags=36, bartlett_confint=False)` ile çizilir. Bu fark bilinmezse aynı seri için iki dilde farklı sonuçlar okunduğu sanılabilir.
 
-> **Hemen deneyin 6.3.7 · Gretl'de korelogram** (Gretl menüleri, ~4 dk)
+> **Hemen deneyin 6.4.3 · Gretl'de korelogram** (Gretl menüleri, ~4 dk)
 >
 > Gretl, `AirPassengers` verisini `bjg` adıyla hazır getirir (`g` yolcu sayısı, `lg` onun logaritması).
 >
@@ -895,7 +899,7 @@ plt.show()
 > corrgm g 24
 > ```
 >
-> **Ne göreceksiniz:** ACF ve PACF grafiği ile birlikte 24 satırlık bir tablo (PACF sütununu 6.4'te öğreneceğiz; başlığında değişkenin etiketi olan `passengers` yazar). Seçilmiş satırlar:
+> **Ne göreceksiniz:** ACF ve PACF grafiği ile birlikte 24 satırlık bir tablo (PACF sütununu 6.5'te öğreneceğiz; başlığında değişkenin etiketi olan `passengers` yazar). Seçilmiş satırlar:
 >
 > ```text
 >   LAG      ACF          PACF         Q-stat. [p-value]
@@ -915,9 +919,9 @@ plt.show()
 >
 > </details>
 
-### 6.4. PACF: Kısmi Otokorelasyon Fonksiyonu
+### 6.5. PACF: Kısmi Otokorelasyon Fonksiyonu
 
-#### 6.4.1. Sezgi: Doğrudan Etki
+#### 6.5.1. Sezgi: Doğrudan Etki
 
 ACF bize **toplam** ilişkiyi gösterir. Ancak bu ilişkinin bir kısmı dolaylı olabilir. PACF (*Partial Autocorrelation Function*, kısmi otokorelasyon fonksiyonu) ise **aradaki gecikmelerin etkisi arındırılmış** korelasyonu, yani **doğrudan** etkiyi ölçer.
 
@@ -931,7 +935,7 @@ Bunu bir AR(1) süreciyle (Bölüm 3.2) sayılarla görelim: $\phi = 0.5$ (okunu
 
 **Günlük hayattan bir örnek:** Kulaktan kulağa oyununu düşünelim. Birinci kişi bir cümleyi ikinci kişinin kulağına fısıldar, ikinci kişi de duyduğunu üçüncü kişiye iletir. Üçüncü kişinin duyduğu cümle birinci kişininkine benzer; ACF bu benzerliği ölçer. Ancak üçüncü kişi cümleyi yalnızca ikinci kişiden duymuştur. PACF şu soruyu sorar: İkinci kişinin ne söylediği bilindiğinde, birinci kişinin üçüncü kişiye ulaştırdığı **ek** bir bilgi var mıdır? Birinci kişi üçüncü kişiye zincirin dışından ayrıca bir not uzatmışsa, yani doğrudan bir yol varsa, lag-2 PACF sıfırdan farklı çıkar. Benzetmenin sınırı: Gerçek serilerde aktarılan bilgi rastgele şoklarla bozulur ve ilişkiler kesin değil olasılıksaldır.
 
-#### 6.4.2. Formel Tanım
+#### 6.5.2. Formel Tanım
 
 PACF'in birinci tanımı **regresyon** kavramını kullanır. Regresyon, bir değişkeni başka değişkenlerin ağırlıklı toplamıyla açıklamaya çalışmaktır; bu ağırlıklara **katsayı** denir. Örneğin $x_t = 0.6\thinspace x_{t-1} + 0.2\thinspace x_{t-2}$ eşitliği "bugün = dünün 0.6'sı + evvelsi günün 0.2'si" demektir. Katsayılar, açıklamanın veriye en iyi uyduğu değerler seçilerek bulunur.
 
@@ -962,7 +966,7 @@ Formülün sezgisi: $\rho_1^2 = \rho_1 \times \rho_1$ ("ro bir kare"), "$`x_{t-2
 
 Daha büyük $h$ değerleri için PACF, Yule-Walker denklemleri ya da Durbin-Levinson özyinelemesi ile ACF değerlerinden hesaplanır. Bu adlar, yukarıdaki "zincirin açıkladığını çıkar" fikrini $h = 3, 4, \dots$ için de uygulayan hesap tarifleridir; R ve Python bunu otomatik yapar. Güven sınırları ACF'deki gibi yaklaşık $\pm 1.96/\sqrt{T}$'dir.
 
-> **Hemen deneyin 6.4.2 · $\phi_{22}$ formülünü gerçek veride deneyin** (R, ~3 dk)
+> **Hemen deneyin 6.5.2 · $\phi_{22}$ formülünü gerçek veride deneyin** (R, ~3 dk)
 >
 > `LakeHuron`, Huron Gölü'nün 1875–1972 arasındaki yıllık su seviyesidir (98 gözlem).
 >
@@ -982,7 +986,7 @@ Daha büyük $h$ değerleri için PACF, Yule-Walker denklemleri ya da Durbin-Lev
 >
 > </details>
 
-#### 6.4.3. Python ve R ile PACF
+#### 6.5.3. Python ve R ile PACF
 
 Aynı `[20, 22, 21, 23, 24]` serisi için lag-2 PACF değerini hesaplayalım.
 
@@ -1020,9 +1024,9 @@ cat("Lag-2 PACF:", round(pacf_result$acf[2], 3))
 Lag-2 PACF: -0.01
 ```
 
-Kod 6.3.7'deki ACF koduyla aynı yapıdadır. `pacf()` kısmi otokorelasyonları ACF değerlerinden (Durbin-Levinson) hesaplar ve sonucu yine `$acf` adlı parçada saklar (ad yanıltıcıdır, içindekiler kısmi otokorelasyonlardır). Tek fark: `pacf()` sonucunda lag-0 yoktur, bu yüzden lag-2 değeri `[2]`'dedir (aşağıdaki **İndeks tuzağı** notu). Lag-1…4 değerleri 0.100, −0.010, −0.201, −0.379'dur. R sondaki sıfırı yazmadığı için −0.010, −0.01 görünür. Python'un −0.016 vermesinin nedeni aşağıda.
+Kod 6.4.3'teki ACF koduyla aynı yapıdadır. `pacf()` kısmi otokorelasyonları ACF değerlerinden (Durbin-Levinson) hesaplar ve sonucu yine `$acf` adlı parçada saklar (ad yanıltıcıdır, içindekiler kısmi otokorelasyonlardır). Tek fark: `pacf()` sonucunda lag-0 yoktur, bu yüzden lag-2 değeri `[2]`'dedir (aşağıdaki **İndeks tuzağı** notu). Lag-1…4 değerleri 0.100, −0.010, −0.201, −0.379'dur. R sondaki sıfırı yazmadığı için −0.010, −0.01 görünür. Python'un −0.016 vermesinin nedeni aşağıda.
 
-**Yorum:** Önce elle hesaplayalım. Bu seride $\hat{\rho}_ 1 = 0.1$ (Bölüm 6.3.7) ve $\hat{\rho}_ 2 = 0$'dır: Sapmalar $[-2, 0, -1, 1, 2]$ için iki adım arayla eşleşen çarpımlar $(-1)(-2) + (1)(0) + (2)(-1) = 2 + 0 - 2 = 0$'dır. Formülden:
+**Yorum:** Önce elle hesaplayalım. Bu seride $\hat{\rho}_ 1 = 0.1$ (Bölüm 6.4.3) ve $\hat{\rho}_ 2 = 0$'dır: Sapmalar $[-2, 0, -1, 1, 2]$ için iki adım arayla eşleşen çarpımlar $(-1)(-2) + (1)(0) + (2)(-1) = 2 + 0 - 2 = 0$'dır. Formülden:
 
 $$
 \hat{\phi}_{22} = \frac{0 - 0.1^2}{1 - 0.1^2} = \frac{-0.01}{0.99} \approx -0.0101
@@ -1051,7 +1055,7 @@ PACF grafiği, ACF grafiğiyle aynı biçimde çizilir: R'da `pacf(AirPassengers
 >
 > R'da `acf_result$acf[2]` lag-1'i, `pacf_result$acf[2]` ise lag-2'yi verir. Bu indeks farkı sık yapılan bir hatadır.
 
-> **Hemen deneyin 6.4.3 · PACF = regresyondaki son katsayı** (Python, ~5 dk)
+> **Hemen deneyin 6.5.3 · PACF = regresyondaki son katsayı** (Python, ~5 dk)
 >
 > Tanım 1'i doğrudan sınayalım: $x_t$'yi $x_{t-1}$ ve $x_{t-2}$ üzerine regresyonla açıklayıp son katsayıyı `pacf()` ile karşılaştıracağız. Seri olarak `AirPassengers`'ın yıllık değişimini (bu ay − geçen yılın aynı ayı) kullanıyoruz.
 >
@@ -1081,7 +1085,7 @@ PACF grafiği, ACF grafiğiyle aynı biçimde çizilir: R'da `pacf(AirPassengers
 >
 > </details>
 
-### 6.5. Uygulama: `USgas` Serisinin ACF ve PACF Grafikleri
+### 6.6. Uygulama: `USgas` Serisinin ACF ve PACF Grafikleri
 
 Şimdi iki aracı gerçek veride birlikte kullanalım.
 
@@ -1093,11 +1097,11 @@ pacf(USgas, lag.max = 36, main = "Kısmi Otokorelasyon Fonksiyonu (PACF)")
 par(mfrow = c(1, 1))  # Grafik düzenini eski hâline getir
 ```
 
-Bu kod `USgas` serisinin ACF ve PACF grafiklerini aynı pencerede alt alta çizer; iki grafiği birlikte okumak, Bölüm 6.6'da göreceğimiz model imzalarını tanımanın temelidir. Kodu satır satır okuyalım:
+Bu kod `USgas` serisinin ACF ve PACF grafiklerini aynı pencerede alt alta çizer; iki grafiği birlikte okumak, Bölüm 6.7'de göreceğimiz model imzalarını tanımanın temelidir. Kodu satır satır okuyalım:
 
 1. `par(mfrow = c(2, 1))`: Çizim alanını 2 satır × 1 sütuna böler; sonraki iki grafik alt alta yerleşir (Bölüm 3.2).
-2. `acf(USgas, lag.max = 36, main = "Otokorelasyon Fonksiyonu (ACF)")`: Üst kutuya ACF grafiğini çizer (Bölüm 6.3.7). `lag.max = 36` üç yıllık gecikmeye kadar bakmamızı sağlar; böylece 12, 24 ve 36. gecikmelerdeki mevsimsel tepeler görünür. `main` başlığı belirler. `USgas,` sonrasındaki fazladan boşluk yalnızca alt satırla hizalama içindir.
-3. `pacf(USgas, lag.max = 36, main = "Kısmi Otokorelasyon Fonksiyonu (PACF)")`: Aynı ayarlarla alt kutuya PACF grafiğini çizer. PACF lag-0 içermediği için (Bölüm 6.4.3) bu grafikte $h = 0$ çubuğu yoktur; çubuklar lag-1'den başlar.
+2. `acf(USgas, lag.max = 36, main = "Otokorelasyon Fonksiyonu (ACF)")`: Üst kutuya ACF grafiğini çizer (Bölüm 6.4.3). `lag.max = 36` üç yıllık gecikmeye kadar bakmamızı sağlar; böylece 12, 24 ve 36. gecikmelerdeki mevsimsel tepeler görünür. `main` başlığı belirler. `USgas,` sonrasındaki fazladan boşluk yalnızca alt satırla hizalama içindir.
+3. `pacf(USgas, lag.max = 36, main = "Kısmi Otokorelasyon Fonksiyonu (PACF)")`: Aynı ayarlarla alt kutuya PACF grafiğini çizer. PACF lag-0 içermediği için (Bölüm 6.5.3) bu grafikte $h = 0$ çubuğu yoktur; çubuklar lag-1'den başlar.
 4. `par(mfrow = c(1, 1))`: Düzeni tek grafiğe geri döndürür (Bölüm 3.2).
 
 Kod ekrana sayı yazmaz; iki panelli bir grafik açar. Her panelde dikey çubuklar korelasyonları, mavi kesikli çizgiler $\pm 1.96/\sqrt{238} \approx \pm 0.127$ güven sınırlarını gösterir; dikey eksen üstte `ACF`, altta `Partial ACF` diye etiketlenir. Uygulama dosyası ayrıca yorumda geçen sayıları `acf(as.numeric(USgas), lag.max = 36, plot = FALSE)` ve aynı biçimde `pacf(...)` ile yazdırır.
@@ -1114,7 +1118,7 @@ Kod ekrana sayı yazmaz; iki panelli bir grafik açar. Her panelde dikey çubukl
 - **PACF:** Lag-1 (0.78) ve lag-2 (−0.51) çok büyüktür. Lag-2'nin negatif olması, lag-1 bilindikten sonra iki ay önceki değerin ters yönde bir düzeltme etkisi taşıdığını gösterir. Lag-6 (−0.19) bandı az farkla aşar; 9–13. gecikmelerde ise belirgin çubuklar vardır (lag-9 0.44, lag-10 0.48, lag-13 −0.41). Bunlar mevsimsel yapının PACF'e yansımasıdır.
 - **Sonuç:** Bu seri olduğu hâliyle basit bir AR ya da MA modeline uymaz. Önce mevsimsel ve/veya birinci (mevsimsel olmayan) **fark alma** ile durağan hâle getirilmesi (durağanlık kavramı için Bölüm 3.2, durağanlık testleri için Bölüm 7.5), ardından farkı alınmış serinin ACF/PACF grafiklerine bakılması gerekir. Bu süreç, Bölüm 7'deki SARIMA modellemesinin konusudur.
 
-> **Hemen deneyin 6.5 · Mevsimsel fark ACF'yi nasıl değiştirir?** (R, ~4 dk)
+> **Hemen deneyin 6.6 · Mevsimsel fark ACF'yi nasıl değiştirir?** (R, ~4 dk)
 >
 > Bölüm 7.1.4'e küçük bir ön bakış: Her aydan geçen yılın aynı ayını çıkarıp ACF'ye yeniden bakalım.
 >
@@ -1138,11 +1142,11 @@ Kod ekrana sayı yazmaz; iki panelli bir grafik açar. Her panelde dikey çubukl
 
 **Günlük hayattan bir örnek:** Bir sınıfın günlük devamsızlık sayısında pazartesi ve cuma hep yüksek, çarşamba düşüktür. "Bu pazartesi devamsızlık arttı mı?" sorusunu bir önceki okul günüyle (cuma) kıyaslayarak yanıtlamak anlamsızdır; doğru kıyas geçen pazartesidir. Mevsimsel fark bunu yapar. Tek seferlik bir olay (ör. grip haftası) ise farkı alınmış seride iki kez görünür: O hafta artı, bir hafta sonra eksi işaretle. Yukarıdaki kutuda lag-12'deki negatif çubuğun kaynağı budur: Sıra dışı bir ay, ertesi yılın farkında ters işaretle geri gelir.
 
-### 6.6. AR ve MA Modelleri için ACF ve PACF İmzaları
+### 6.7. AR ve MA Modelleri için ACF ve PACF İmzaları
 
 ACF ve PACF grafiklerinin asıl gücü, **durağan** bir seri için uygun model tipini ve derecesini önermeleridir. Bunun için önce iki temel model ailesini kısaca tanıyalım; tam teori ve kestirim yöntemleri Bölüm 7.1'dedir.
 
-#### 6.6.1. Beyaz Gürültü, AR ve MA Modelleri: Kısa Tanımlar
+#### 6.7.1. Beyaz Gürültü, AR ve MA Modelleri: Kısa Tanımlar
 
 **Tanım 1 (Beyaz gürültü):** Ortalaması sıfır, varyansı sabit ve farklı zamanlardaki değerleri birbiriyle ilişkisiz olan seriye beyaz gürültü denir:
 
@@ -1198,7 +1202,7 @@ Sezgi: "Bugün, son $q$ dönemde yaşanan sürprizlerin yankısıdır." Bir şok
 
 *Şekil 6.10 — Bir şokun yankısı ve teorik korelogramlar. Üstte AR(1) ($`\phi = 0.5`$): Şokun etkisi her gün yarıya iner ama hiç sıfırlanmaz; ACF $`0.5^h`$ olarak söner, PACF 1. gecikmeden sonra sıfırdır. Altta MA(1) ($`\theta = 0.8`$): Şok yalnızca bir gün sonraya taşınır; ACF 1. gecikmeden sonra sıfırdır, PACF işaret değiştirerek söner.*
 
-> **Hemen deneyin 6.6.1 · MA yankısını tabloda izleyin** (Excel / LibreOffice Calc, ~4 dk)
+> **Hemen deneyin 6.7.1 · MA yankısını tabloda izleyin** (Excel / LibreOffice Calc, ~4 dk)
 >
 > Şekil 6.10'un alt kısmındaki MA(1) yankısını kendiniz üretin (AR yankısı için bkz. Hemen deneyin 3.2a).
 >
@@ -1221,7 +1225,7 @@ Sezgi: "Bugün, son $q$ dönemde yaşanan sürprizlerin yankısıdır." Bir şok
 
 AR ve MA terimlerini birlikte içeren modele ARMA(p, q) denir (Bölüm 7.1.3).
 
-#### 6.6.2. MA(q) Süreci: ACF Kesilir
+#### 6.7.2. MA(q) Süreci: ACF Kesilir
 
 MA(q) sürecinin hafızası kısadır: $x_t$ ile $x_{t-h}$, ancak ortak bir şok paylaşıyorlarsa ilişkilidir. MA(1) için ardışık üç günü alt alta yazalım:
 
@@ -1257,7 +1261,7 @@ Her eski değer, giderek küçülen ve işaret değiştiren bir **ek** bilgi ta�
 
 - **Kural:** ACF $q$ gecikmeden sonra aniden **kesiliyor** (çubuklar güven bandının içine düşüyor) ve PACF yavaşça sönümleniyorsa, bu bir **MA(q)** modeline işaret eder.
 
-> **Hemen deneyin 6.6.2 · Teorik korelogramı R'a çizdirin** (R, ~3 dk)
+> **Hemen deneyin 6.7.2 · Teorik korelogramı R'a çizdirin** (R, ~3 dk)
 >
 > `ARMAacf()` bir modelin **teorik** (sonsuz veride ortaya çıkacak) ACF ve PACF değerlerini hesaplar; simülasyona gerek kalmaz.
 >
@@ -1284,7 +1288,7 @@ Her eski değer, giderek küçülen ve işaret değiştiren bir **ek** bilgi ta�
 >
 > </details>
 
-#### 6.6.3. AR(p) Süreci: PACF Kesilir
+#### 6.7.3. AR(p) Süreci: PACF Kesilir
 
 AR(p) sürecinde bir şokun etkisi, geri besleme yoluyla sonsuza kadar (azalarak) aktarılır: Bugünün bir kısmı yarına, yarının bir kısmı öbür güne geçer. Bu yüzden ACF sıfıra aniden inmez, **kuyruk** yaparak söner. AR(1) için teorik ACF:
 
@@ -1296,7 +1300,7 @@ AR(p) sürecinde bir şokun etkisi, geri besleme yoluyla sonsuza kadar (azalarak
 
 $\phi^h$, "$`\phi`$'yi $h$ kez kendisiyle çarp" demektir. $\phi = 0.5$ için (Şekil 6.10) $\rho_1 = 0.5$, $\rho_2 = 0.25$, $\rho_3 = 0.125$; $\phi = 0.7$ için $\rho_1 = 0.7$, $\rho_2 = 0.7 \times 0.7 = 0.49$, $\rho_3 = 0.49 \times 0.7 \approx 0.34$, … şeklinde geometrik olarak azalır. $\phi$ negatifse ACF işaret değiştirerek söner (ör. $\phi = -0.5$ için $-0.5, 0.25, -0.125, \dots$).
 
-PACF ise tam burada net bir cevap verir: AR(p) sürecinde $x_t$ yalnızca son $p$ değere doğrudan bağlı olduğu için, $x_{t-p-1}$ ve daha eski değerlerin **ek** katkısı sıfırdır. Bölüm 6.4.1'deki örnekte olduğu gibi, dünü bilen biri evvelsi günden yeni bir şey öğrenmez. Dolayısıyla $\phi_{hh} = 0$ ($h > p$) olur ve PACF $p$ gecikmeden sonra kesilir.
+PACF ise tam burada net bir cevap verir: AR(p) sürecinde $x_t$ yalnızca son $p$ değere doğrudan bağlı olduğu için, $x_{t-p-1}$ ve daha eski değerlerin **ek** katkısı sıfırdır. Bölüm 6.5.1'deki örnekte olduğu gibi, dünü bilen biri evvelsi günden yeni bir şey öğrenmez. Dolayısıyla $\phi_{hh} = 0$ ($h > p$) olur ve PACF $p$ gecikmeden sonra kesilir.
 
 **Günlük hayattan bir örnek:** Kampüste yayılan bir söylentiyi düşünelim: Her gün, dün konuşanların yaklaşık yarısı konuyu yeniden açar ($\phi = 0.5$). Pazartesi patlayan dedikodu salı yarı, çarşamba çeyrek şiddette konuşulur; etki azalır ama hemen sıfırlanmaz (ACF kuyruk yapar). Yine de bugün ne kadar konuşulacağını tahmin etmek için dünkü düzeyi bilmek yeter; evvelsi günün etkisi zaten dünkü düzeyin içindedir (PACF lag-1'den sonra kesilir).
 
@@ -1304,7 +1308,7 @@ PACF ise tam burada net bir cevap verir: AR(p) sürecinde $x_t$ yalnızca son $p
 
 - **Kural:** PACF $p$ gecikmeden sonra aniden **kesiliyor** ve ACF yavaşça sönümleniyorsa (ya da sinüs dalgası gibi salınarak sönüyorsa), bu bir **AR(p)** modeline işaret eder.
 
-> **Hemen deneyin 6.6.3 · Negatif $\phi$ ile AR(1)** (R, ~4 dk)
+> **Hemen deneyin 6.7.3 · Negatif $\phi$ ile AR(1)** (R, ~4 dk)
 >
 > ```r
 > set.seed(3)
@@ -1323,7 +1327,7 @@ PACF ise tam burada net bir cevap verir: AR(p) sürecinde $x_t$ yalnızca son $p
 >
 > </details>
 
-#### 6.6.4. İmzaları Yan Yana Görmek
+#### 6.7.4. İmzaları Yan Yana Görmek
 
 Şekil 6.10 teorik, yani sonsuz uzunlukta bir veride ortaya çıkacak değerleri gösteriyordu. Gerçekte elimizde sonlu bir örneklem vardır. Aşağıdaki şekil, beyaz gürültü, AR(1) ve MA(1) süreçlerinden simüle edilmiş 400'er gözlemin ACF ve PACF grafiklerini göstermektedir.
 
@@ -1331,7 +1335,7 @@ PACF ise tam burada net bir cevap verir: AR(p) sürecinde $x_t$ yalnızca son $p
 
 *Şekil 6.11 — Üç temel sürecin korelogram imzaları. Beyaz gürültüde hiçbir çubuk anlamlı değildir. AR(1) sürecinde ($`\phi = 0.7`$) ACF geometrik olarak söner, PACF 1. gecikmeden sonra kesilir. MA(1) sürecinde ($`\theta = 0.8`$) ACF 1. gecikmeden sonra kesilir, PACF işaret değiştirerek söner.*
 
-Şekildeki örneklem değerleri teorik değerlerle uyumludur: AR(1) için $\hat{\rho}_ 1 \approx 0.65$ (teorik 0.7), MA(1) için $\hat{\rho}_ 1 \approx 0.46$ (teorik 0.49). Örneklem değerlerinin teorik değerlerden biraz sapması, sonlu örneklemin doğal sonucudur. Aynı nedenle AR(1) ACF'sinin 12–15. gecikmelerinde bandı az farkla aşan küçük negatif çubuklar görülür; bunlar gerçek bir yapı değil, örneklem dalgalanmasıdır (bkz. Bölüm 6.3.4'teki "20 çubukta 1" uyarısı). Aynı deney R'da da yapılabilir (şekil Python ile üretildiği için R'da sayılar biraz farklı çıkar, imzalar aynıdır):
+Şekildeki örneklem değerleri teorik değerlerle uyumludur: AR(1) için $\hat{\rho}_ 1 \approx 0.65$ (teorik 0.7), MA(1) için $\hat{\rho}_ 1 \approx 0.46$ (teorik 0.49). Örneklem değerlerinin teorik değerlerden biraz sapması, sonlu örneklemin doğal sonucudur. Aynı nedenle AR(1) ACF'sinin 12–15. gecikmelerinde bandı az farkla aşan küçük negatif çubuklar görülür; bunlar gerçek bir yapı değil, örneklem dalgalanmasıdır (bkz. Bölüm 6.3.5'teki "20 çubukta 1" uyarısı). Aynı deney R'da da yapılabilir (şekil Python ile üretildiği için R'da sayılar biraz farklı çıkar, imzalar aynıdır):
 
 ```r
 set.seed(42)
@@ -1346,31 +1350,31 @@ acf(ma1, lag.max = 15, main = "MA(1): ACF");          pacf(ma1, lag.max = 15, ma
 par(mfrow = c(1, 1))
 ```
 
-Bu kod üç yapay seri üretir (beyaz gürültü, AR(1) ve MA(1)) ve her birinin ACF ve PACF grafiğini tek bir pencerede, altı panel hâlinde yan yana çizer. Modeli bildiğimiz serilerle çalıştığımız için, Bölüm 6.6.2 ve 6.6.3'teki kuralların sonlu bir örneklemde nasıl göründüğünü doğrudan kontrol edebiliriz. Kodu satır satır okuyalım:
+Bu kod üç yapay seri üretir (beyaz gürültü, AR(1) ve MA(1)) ve her birinin ACF ve PACF grafiğini tek bir pencerede, altı panel hâlinde yan yana çizer. Modeli bildiğimiz serilerle çalıştığımız için, Bölüm 6.7.2 ve 6.7.3'teki kuralların sonlu bir örneklemde nasıl göründüğünü doğrudan kontrol edebiliriz. Kodu satır satır okuyalım:
 
 1. `set.seed(42)`: Rastgele sayı üretecini sabitler (Bölüm 3.2); tohum sonraki üç seriyi birlikte belirlediği için satırların sırası değişirse seriler de değişir.
-2. `wn <- rnorm(400)`: `rnorm()` (*random normal*) ortalaması 0, standart sapması 1 olan normal dağılımdan 400 bağımsız rastgele sayı çeker (3.2). Sonuç `wn` (*white noise*, beyaz gürültü) adına kaydedilir; sayılar birbirinden bağımsız olduğu için bu seri tanım gereği beyaz gürültüdür (Bölüm 6.6.1).
+2. `wn <- rnorm(400)`: `rnorm()` (*random normal*) ortalaması 0, standart sapması 1 olan normal dağılımdan 400 bağımsız rastgele sayı çeker (3.2). Sonuç `wn` (*white noise*, beyaz gürültü) adına kaydedilir; sayılar birbirinden bağımsız olduğu için bu seri tanım gereği beyaz gürültüdür (Bölüm 6.7.1).
 3. `ar1 <- arima.sim(model = list(ar = 0.7), n = 400)`: `arima.sim()` (*simulate*, benzetim) kendisine verilen modelden yapay bir seri üretir. Argümanlar:
-   - `model = list(ar = 0.7)`: Modelin tarifi. `list()` farklı ayarları adlarıyla bir arada tutan bir kaptır; içindeki `ar = 0.7` "tek AR katsayısı 0.7 olan model", yani $\phi = 0.7$ ile AR(1) demektir. İki katsayılı bir AR(2) için `ar = c(0.5, 0.2)` yazılırdı. AR(1) katsayısının mutlak değeri 1'den küçük olmalıdır (Bölüm 6.6.1); durağan olmayan bir model verilirse (ör. `ar = 1.1`) fonksiyon "'ar' part of model is not stationary" hatasıyla durur.
+   - `model = list(ar = 0.7)`: Modelin tarifi. `list()` farklı ayarları adlarıyla bir arada tutan bir kaptır; içindeki `ar = 0.7` "tek AR katsayısı 0.7 olan model", yani $\phi = 0.7$ ile AR(1) demektir. İki katsayılı bir AR(2) için `ar = c(0.5, 0.2)` yazılırdı. AR(1) katsayısının mutlak değeri 1'den küçük olmalıdır (Bölüm 6.7.1); durağan olmayan bir model verilirse (ör. `ar = 1.1`) fonksiyon "'ar' part of model is not stationary" hatasıyla durur.
    - `n = 400`: Üretilecek serinin uzunluğu.
 
    Şokları `arima.sim()` kendisi `rnorm()` ile çeker (`rand.gen` argümanının varsayılanı). Serinin başı sıfırdan başlamanın etkisini taşımasın diye fonksiyon önce bize gösterilmeyen bir "ısınma" (*burn-in*) bölümü üretip atar; uzunluğunu kendisi seçer (`n.start` argümanı). Sonuç 400 değerli bir `ts` nesnesidir (1'den 400'e, frekansı 1) ve `ar1` adına kaydedilir.
 4. `ma1 <- arima.sim(model = list(ma = 0.8), n = 400)`: Aynı işi `ma = 0.8`, yani $\theta = 0.8$ ile MA(1) modeli için yapar.
-5. `par(mfrow = c(3, 2))`: Çizim alanını 3 satır × 2 sütunluk bir ızgaraya böler (Bölüm 6.5). Grafikler satır satır yerleştiği için her satırdaki ilk grafik sola, ikincisi sağa düşer.
+5. `par(mfrow = c(3, 2))`: Çizim alanını 3 satır × 2 sütunluk bir ızgaraya böler (Bölüm 6.6). Grafikler satır satır yerleştiği için her satırdaki ilk grafik sola, ikincisi sağa düşer.
 6. `acf(wn, lag.max = 15, main = "Beyaz gürültü: ACF");  pacf(wn, lag.max = 15, main = "Beyaz gürültü: PACF")` ve sonraki iki benzer satır: Her satırda iki komut vardır; `;` işareti "komut burada bitti, aynı satırda bir sonraki başlıyor" demektir. Böylece her süreç ızgarada bir satır kaplar: ACF solda, PACF sağda. `lag.max = 15` ilk 15 gecikmeye bakar; kesilme ve sönme desenleri ilk birkaç gecikmede ortaya çıktığı için bu yeterlidir. `main` her panele hangi süreç ve hangi fonksiyon olduğunu yazar. Komutlardan sonraki boşluklar yalnızca hizalama içindir.
 7. `par(mfrow = c(1, 1))`: Düzeni tek grafiğe geri döndürür.
 
 Kod ekrana sayı yazmaz; altı panelli bir grafik açar. `wn` sıradan bir vektör, `ar1` ve `ma1` ise frekansı 1 olan `ts` nesneleri olduğu için yatay eksen doğrudan gecikme sayısını (1, 2, …, 15) gösterir. Güven sınırları $\pm 1.96/\sqrt{400} = \pm 0.098$'dir. Grafikte görülmesi gerekenler:
 
 - **Beyaz gürültü (üst satır):** ACF ve PACF'te hiçbir çubuk bandı aşmaz (en büyük değer yaklaşık −0.09).
-- **AR(1) (orta satır):** ACF 0.72, 0.50, 0.34, 0.24, … diye geometrik olarak söner; PACF'te lag-1 çubuğu (0.72) büyüktür, lag-2'den itibaren çubuklar sıfıra yakındır. PACF 1. gecikmeden sonra kesilir: AR(1) imzası. Lag-6 ve lag-11'deki iki küçük negatif çubuk (yaklaşık −0.14) bandı az farkla aşar; bunlar örneklem dalgalanmasıdır (Bölüm 6.3.4'teki "20 çubukta 1" uyarısı).
+- **AR(1) (orta satır):** ACF 0.72, 0.50, 0.34, 0.24, … diye geometrik olarak söner; PACF'te lag-1 çubuğu (0.72) büyüktür, lag-2'den itibaren çubuklar sıfıra yakındır. PACF 1. gecikmeden sonra kesilir: AR(1) imzası. Lag-6 ve lag-11'deki iki küçük negatif çubuk (yaklaşık −0.14) bandı az farkla aşar; bunlar örneklem dalgalanmasıdır (Bölüm 6.3.5'teki "20 çubukta 1" uyarısı).
 - **MA(1) (alt satır):** ACF'de yalnızca lag-1 çubuğu (0.48) büyüktür, sonrası sıfıra yakındır (lag-13'teki 0.10 bandı kıl payı aşar); PACF ise 0.48, −0.31, 0.23, −0.19, … diye işaret değiştirerek söner: MA(1) imzası.
 
 Değerler teorik olanlara çok yakındır (AR(1) ACF 0.7, 0.49, 0.34; MA(1) PACF 0.49, −0.31, 0.22, −0.17).
 
 > **Not —** R'daki `arima.sim()` fonksiyonu MA katsayısını bu bölümdeki gibi **artı** işaretle ($`x_t = \varepsilon_t + \theta \varepsilon_{t-1}`$) kullanır. Bazı kitaplar ve yazılımlar eksi işaretli gösterim tercih eder; katsayıların işareti yorumlanırken bu farka dikkat edilmelidir.
 
-> **Hemen deneyin 6.6.4a · Bir AR(2)'nin imzası** (R, ~4 dk)
+> **Hemen deneyin 6.7.4a · Bir AR(2)'nin imzası** (R, ~4 dk)
 >
 > ```r
 > set.seed(1)
@@ -1387,11 +1391,11 @@ Değerler teorik olanlara çok yakındır (AR(1) ACF 0.7, 0.49, 0.34; MA(1) PACF
 >
 > <details><summary>Cevap</summary>
 >
-> `0.714 0.300 0.000 0.000`. Lag-2 PACF, modelin son katsayısı $\phi_2 = 0.3$'e eşittir (Bölüm 6.4.2, Tanım 1). Simülasyonda bulunan 0.32 buna yakındır.
+> `0.714 0.300 0.000 0.000`. Lag-2 PACF, modelin son katsayısı $\phi_2 = 0.3$'e eşittir (Bölüm 6.5.2, Tanım 1). Simülasyonda bulunan 0.32 buna yakındır.
 >
 > </details>
 
-> **Hemen deneyin 6.6.4b · Gretl'de AR(1) üretmek** (Gretl betiği, ~4 dk)
+> **Hemen deneyin 6.7.4b · Gretl'de AR(1) üretmek** (Gretl betiği, ~4 dk)
 >
 > Gretl'de **File → Script files → New script → gretl script** ile bir betik penceresi açın, aşağıdakini yapıştırıp **Run** düğmesine basın.
 >
@@ -1416,7 +1420,7 @@ Değerler teorik olanlara çok yakındır (AR(1) ACF 0.7, 0.49, 0.34; MA(1) PACF
 >
 > </details>
 
-#### 6.6.5. Özet Tablo ve Pratik Uyarılar
+#### 6.7.5. Özet Tablo ve Pratik Uyarılar
 
 | Model | ACF grafiği | PACF grafiği |
 | :--- | :--- | :--- |
@@ -1447,10 +1451,10 @@ Bu kurallar model seçiminde güçlü bir başlangıç noktasıdır, ancak uygul
 > **Yaygın yanılgılar:**
 >
 > - *"Lag-12'de büyük bir ACF ya da PACF çubuğu varsa modele AR(12) ya da MA(12) terimi eklenmelidir."* Yanlıştır. Aylık veride 12. gecikmedeki çubuk mevsimsel yapının izidir ve mevsimsel fark ($D$) ya da mevsimsel terimlerle ($P$, $Q$) modellenir. ARIMA(0,1,1)(0,1,1)[12] modeli bu etkiyi tek bir $\Theta_1$ katsayısıyla yakalar (Bölüm 7.3).
-> - *"ACF yavaş sönüyorsa seri güçlü bir hafızaya sahiptir; yüksek dereceli bir AR modeli gerekir."* Çoğu zaman yanlıştır. Yavaş sönme genellikle trendin ya da birim kökün işaretidir; önce fark alınır, model derecesi farkı alınmış serinin korelogramından okunur (6.3.6).
-> - *"Bandın dışında kalan her çubuk gerçek bir yapıdır."* Yanlıştır. %95'lik bantta 20 çubuktan biri şans eseri dışarı taşabilir (6.3.4); uzak ve sınırı az farkla aşan tek bir çubuk model derecesine eklenmez.
+> - *"ACF yavaş sönüyorsa seri güçlü bir hafızaya sahiptir; yüksek dereceli bir AR modeli gerekir."* Çoğu zaman yanlıştır. Yavaş sönme genellikle trendin ya da birim kökün işaretidir; önce fark alınır, model derecesi farkı alınmış serinin korelogramından okunur (6.4.2).
+> - *"Bandın dışında kalan her çubuk gerçek bir yapıdır."* Yanlıştır. %95'lik bantta 20 çubuktan biri şans eseri dışarı taşabilir (6.3.5); uzak ve sınırı az farkla aşan tek bir çubuk model derecesine eklenmez.
 
-> **Hemen deneyin 6.6.5 · ARMA'da iki grafik de söner** (R, ~2 dk)
+> **Hemen deneyin 6.7.5 · ARMA'da iki grafik de söner** (R, ~2 dk)
 >
 > Tablonun ARMA satırını teorik değerlerle doğrulayalım: $\phi = 0.5$, $\theta = 0.4$ olan ARMA(1,1).
 >

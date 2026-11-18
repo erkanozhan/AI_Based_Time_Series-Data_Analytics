@@ -38,7 +38,7 @@ Eğitim-test ayrımı Bölüm 8'de, zaman sırasını koruyan çapraz doğrulama
 > karisik <- sample(as.numeric(AirPassengers))          # sıra rastgele bozuldu
 > round(acf(AirPassengers, plot = FALSE)$acf[c(2, 13)], 2)   # gecikme 1 ve 12
 > round(acf(karisik, plot = FALSE)$acf[c(2, 13)], 2)
-> round(1.96 / sqrt(144), 2)                            # %95 güven sınırı (Bölüm 6.3.4)
+> round(1.96 / sqrt(144), 2)                            # %95 güven sınırı (Bölüm 6.3.5)
 > ```
 >
 > `acf(..., plot = FALSE)$acf` korelasyonları bir liste olarak verir; ilk eleman gecikme 0'dır (her zaman 1), bu yüzden 2. eleman gecikme 1'e, 13. eleman gecikme 12'ye karşılık gelir.
@@ -212,7 +212,7 @@ Zamansal ayrım Bölüm 8'de, sızıntı türleri Bölüm 12.1.5'te, zaman seris
 
 ### 17.7. Diyagnostikler Önemlidir: Hataları Kontrol Edin (Diagnostics Matter)
 
-İyi bir model tüm "sinyali" alır ve geriye yalnızca "gürültü" bırakır. Modelin artıklarını (gerçek değer eksi tahmin) kontrol edin. Artıklar Bölüm 7.4 ve 7.6.6'daki üç koşulu sağlamalıdır: sıfır ortalama, sabit varyans ve otokorelasyon yokluğu (artıkların ACF grafiğine bakın). Bu üç koşul birlikte artıkların **beyaz gürültü** olduğu anlamına gelir (Bölüm 6.6.1). *Hatalarda bir desen varsa, modeliniz bir şeyi gözden kaçırmış demektir.*
+İyi bir model tüm "sinyali" alır ve geriye yalnızca "gürültü" bırakır. Modelin artıklarını (gerçek değer eksi tahmin) kontrol edin. Artıklar Bölüm 7.4 ve 7.6.6'daki üç koşulu sağlamalıdır: sıfır ortalama, sabit varyans ve otokorelasyon yokluğu (artıkların ACF grafiğine bakın). Bu üç koşul birlikte artıkların **beyaz gürültü** olduğu anlamına gelir (Bölüm 6.7.1). *Hatalarda bir desen varsa, modeliniz bir şeyi gözden kaçırmış demektir.*
 
 *Örnek:* Altı ayın artıkları +5, +7, +6, +8, +6, +7 ise hepsi pozitiftir ve ortalamaları $(5 + 7 + 6 + 8 + 6 + 7) / 6 = 39 / 6 = 6.5$'tir. Model her ay yaklaşık 6.5 birim düşük tahmin ediyordur; bu bir desendir ve düzeltilebilir (ör. trend eksik modellenmiş olabilir). Artıklar +3, −2, +1, −4, +2, 0 gibi işaret değiştirerek sıfır çevresinde dağılıyorsa (ortalama $0 / 6 = 0$) modelin kaçırdığı belirgin bir yapı görünmez. Bölüm 15.4.2'deki CNN'in "Ortalama hata" satırı bu kontrolün bir örneğidir.
 

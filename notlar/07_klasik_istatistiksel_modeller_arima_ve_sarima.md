@@ -45,7 +45,7 @@ Formülü kelime kelime okuyalım. Alt indisler zamanı gösterir: $x_t$ bu dön
 Burada:
 
 - $c$ **sabit terimdir** (*constant*): Her dönem değişmeden eklenen bir sayıdır ve serinin hangi seviye etrafında dalgalanacağını belirler. Durağan bir AR(p) sürecinin uzun dönem ortalaması $\mu = c / (1 - \phi_1 - \dots - \phi_p)$'dir. Bunu görmek için serinin hiç şok almadan hep aynı $\mu$ değerinde durduğunu düşünelim: AR(2) için $\mu = c + \phi_1 \mu + \phi_2 \mu$ olur; $\mu$'lü terimleri sola toplayınca $\mu (1 - \phi_1 - \phi_2) = c$ bulunur. Yani $c$ ortalamanın kendisi değil, ortalamayı belirleyen bir sayıdır; $c = 0$ ise seri sıfır etrafında dalgalanır.
-- $\varepsilon_t$ modelin açıklayamadığı, öngörülemeyen rastgele şoktur: Bölüm 6.6.1'de tanımladığımız beyaz gürültü, $\varepsilon_t \sim \mathrm{WN}(0, \sigma^2)$.
+- $\varepsilon_t$ modelin açıklayamadığı, öngörülemeyen rastgele şoktur: Bölüm 6.7.1'de tanımladığımız beyaz gürültü, $\varepsilon_t \sim \mathrm{WN}(0, \sigma^2)$.
 
 > **Simge notu:** $`\sim`$ *(tilda)*: "… dağılımına sahiptir" · $`\mathrm{WN}(0, \sigma^2)`$: ortalaması 0, varyansı $`\sigma^2`$ *(sigma kare)* olan beyaz gürültü (white noise) · $`\mu`$ *(mü)*: serinin uzun dönem ortalaması · $`\cdot`$: çarpma işareti
 
@@ -97,7 +97,7 @@ $p$ değeri modelin "hafızasının" ne kadar geriye gittiğini belirtir. Örne�
 
 #### 7.1.2. MA(q): Hareketli Ortalama Modeli
 
-**Açıklama:** Buradaki "hareketli ortalama", `decompose()`'un trendi bulmak için kullandığı düzleştirmeyle aynı şey değildir: Burada gözlemlerin değil, geçmiş şokların ağırlıklı toplamı alınır (bkz. 6.6.1). MA modeli, önceki adımlardaki öngörülemeyen "şokları" bugünkü değeri açıklamak için kullanır.
+**Açıklama:** Buradaki "hareketli ortalama", `decompose()`'un trendi bulmak için kullandığı düzleştirmeyle aynı şey değildir: Burada gözlemlerin değil, geçmiş şokların ağırlıklı toplamı alınır (bkz. 6.7.1). MA modeli, önceki adımlardaki öngörülemeyen "şokları" bugünkü değeri açıklamak için kullanır.
 
 **Günlük hayattan bir örnek:** Bir vadide bağıran birini düşünelim. O an duyulan ses bağırışın kendisidir ($\varepsilon_t$); bir an sonra bağırışın yankısı daha zayıf olarak geri döner ($\theta_1 \varepsilon_{t-1}$), ardından sessizlik olur. Her an duyulan ses, o anki bağırış ile bir önceki bağırışın yankısının toplamıdır; MA(1) budur. MA(q)'da yankı $q$ kez döner, sonra tamamen kaybolur. Benzetmenin sınırı: $\theta$ negatif de olabilir; ters işaretli bir yankının gündelik deneyimde karşılığı yoktur, ama modelde şokun ertesi dönemde ters yönde iz bırakması demektir.
 
@@ -126,7 +126,7 @@ AR modelindeki $c$'den farklı olarak MA modelinde sabit terim doğrudan serinin
 
 Şok 1. dönemde tam gücüyle girer (+10), 2. dönemde yalnızca %60'ı kalır (+6), 3. dönemde model onu artık "hatırlamaz" ve seri ortalamasına döner. Yankı benzetmesiyle: Bağırışın yankısı yalnızca bir kez döner; ikinci yankı yoktur. Aynı şok, ortalaması 100 olan bir AR(1) modelinde ($\phi_1 = 0.6$) 110, 106, 103.6, 102.16, … biçiminde **yavaş yavaş** söner ama hiçbir zaman tam sıfırlanmaz, çünkü her değer bir öncekinden pay alır. MA ile AR arasındaki temel fark budur.
 
-$\theta$ katsayıları geçmiş şokların bugünkü değeri ne kadar etkilediğini belirler. İsim de bu formülden gelir: Model, geçmiş şokların "kayan" bir ağırlıklı toplamını kullanır. MA süreci bu yüzden **kısa hafızalıdır** ve ACF'si $q$ gecikmeden sonra kesilir (Bölüm 6.6.2).
+$\theta$ katsayıları geçmiş şokların bugünkü değeri ne kadar etkilediğini belirler. İsim de bu formülden gelir: Model, geçmiş şokların "kayan" bir ağırlıklı toplamını kullanır. MA süreci bu yüzden **kısa hafızalıdır** ve ACF'si $q$ gecikmeden sonra kesilir (Bölüm 6.7.2).
 
 > **Hemen deneyin 7.1.2 · MA(1) üret, katsayıyı geri bul** (Python, ~5 dk)
 >
@@ -182,7 +182,7 @@ x_4 &= 0.5 \cdot 4.5 + 0 + 0.4 \cdot 0 = 2.25
 
 Saf AR(1) ($\phi_1 = 0.5$) aynı şoka 10, 5, 2.5, 1.25 diye tepki verirdi. ARMA(1,1)'de MA kısmı ikinci dönemde şoka bir kez daha +4'lük "ek itme" yapar; sonra devreden çıkar ve AR kısmı etkiyi her dönem yarıya indirerek söndürür. Saf bir AR modeliyle bu "önce ek itme, sonra yarılanma" desenini kurmak için çok sayıda gecikme gerekir; ARMA bunu iki katsayıyla yapar. Az parametreli (tutumlu) model kurmanın anlamı budur.
 
-ARMA modeli **durağan** bir seri varsayar. ACF ve PACF grafiklerinin ikisi de keskin bir kesilme göstermeden yavaşça sönümleniyorsa ARMA yapısından şüphelenilir (Bölüm 6.6.5).
+ARMA modeli **durağan** bir seri varsayar. ACF ve PACF grafiklerinin ikisi de keskin bir kesilme göstermeden yavaşça sönümleniyorsa ARMA yapısından şüphelenilir (Bölüm 6.7.5).
 
 > **Hemen deneyin 7.1.3 · Şok tepkisini R'a hesaplatın** (R, ~2 dk)
 >
@@ -554,7 +554,7 @@ George Box ve Gwilym Jenkins, 1970'te ARIMA modellerinin nasıl kurulacağını 
 
 **0. Hazırlık.** Seri çizilir; trend, mevsimsellik ve varyans değişimi gözle incelenir. Varyans seviyeyle birlikte büyüyorsa log (ya da Box-Cox: log dönüşümünü de içeren güç dönüşümleri ailesi) dönüşümü uygulanır (Bölüm 2.4). Durağanlık ADF ve KPSS testleriyle sınanır. Bu testlerin nasıl çalıştığını 7.5'te ayrıntılı göreceğiz; bu bölüm yöntemin yol haritasıdır.
 
-**1. Tanımlama (identification).** Seriyi durağanlaştıracak fark sayıları ($d$ ve $D$) belirlenir. Ardından durağan serinin ACF ve PACF grafiklerinden (Bölüm 6.6) $p$, $q$, $P$, $Q$ için aday değerler çıkarılır. Kural olarak mevsimsel olmayan terimlere küçük gecikmelerde (1, 2, 3), mevsimsel terimlere $s$'nin katlarında (12, 24, …) bakılır. Mevsimsel gecikmelerde ACF $s$'de tek bir çubuktan sonra kesiliyor ve PACF bu gecikmelerde sönüyorsa mevsimsel MA ($Q = 1$); PACF $s$'den sonra kesilip ACF sönüyorsa mevsimsel AR ($P = 1$) adayı vardır (Bölüm 6.6.5'teki mevsimsel imza tablosu).
+**1. Tanımlama (identification).** Seriyi durağanlaştıracak fark sayıları ($d$ ve $D$) belirlenir. Ardından durağan serinin ACF ve PACF grafiklerinden (Bölüm 6.7) $p$, $q$, $P$, $Q$ için aday değerler çıkarılır. Kural olarak mevsimsel olmayan terimlere küçük gecikmelerde (1, 2, 3), mevsimsel terimlere $s$'nin katlarında (12, 24, …) bakılır. Mevsimsel gecikmelerde ACF $s$'de tek bir çubuktan sonra kesiliyor ve PACF bu gecikmelerde sönüyorsa mevsimsel MA ($Q = 1$); PACF $s$'den sonra kesilip ACF sönüyorsa mevsimsel AR ($P = 1$) adayı vardır (Bölüm 6.7.5'teki mevsimsel imza tablosu).
 
 **2. Kestirim (estimation).** Aday modellerin katsayıları ($\phi$, $\theta$, $\Phi$, $\Theta$) veriden kestirilir. (Bu derste *kestirim*, katsayıların veriden bulunmasını; *tahmin* ya da *öngörü* (*forecasting*) ise geleceğe ait değerlerin üretilmesini anlatır.) Yazılımlar bunu **en çok olabilirlik** (*maximum likelihood*) yöntemiyle yapar. **Olabilirlik** şu sorunun cevabıdır: "Model ve katsayıları doğru olsaydı, elimizdeki veriyi tam olarak bu hâliyle gözlemleme olasılığı ne kadar olurdu?" Yazılım katsayıları bu olasılığı en büyük yapacak şekilde ayarlar; bir dürbünün odak ayarını görüntü en net olana kadar çevirmek gibi. Bu olasılıklar çok küçük sayılar olduğu için pratikte logaritmaları ($\log L$, *log likelihood*) kullanılır. **Daha büyük $\log L$, veriye daha iyi uyum** demektir.
 
@@ -618,7 +618,7 @@ BIC benzer bir kriterdir ama parametre cezası daha ağırdır: $2k$ yerine $k \
 
 **Not —** AIC'nin mutlak değeri anlamsızdır; yalnızca aynı veri üzerindeki (aynı dönüşüm, aynı $d$ ve $D$) modeller karşılaştırılır. Örneğin 7.7.4'teki AIC 536 (log alınmamış 84 aylık eğitim verisi, $d = 0$) ile R'daki −483 (144 aylık log seri, $d = 1$) karşılaştırılamaz.
 
-**3. Teşhis (diagnostic checking).** Modelin açıklayamadığı kısma, yani **artıklara** (residuals) bakılır: $e_t = x_t - \hat{x}_ t$. Kurulan model, verideki hikâyeyi açıklamaya çalışan bir dedektife benzetilebilir. Artıklar, dedektifin açıklayamayıp geride bıraktığı kırıntılardır. Artıklarda bir desen varsa (örneğin her yaz hatalar büyüyorsa) dedektif önemli bir ipucunu kaçırmış demektir. Amacımız artıkların, boş bir radyo kanalındaki cızırtı gibi, tamamen rastgele ve öngörülemez olmasıdır (beyaz gürültü; Bölüm 2.2, 6.6.1).
+**3. Teşhis (diagnostic checking).** Modelin açıklayamadığı kısma, yani **artıklara** (residuals) bakılır: $e_t = x_t - \hat{x}_ t$. Kurulan model, verideki hikâyeyi açıklamaya çalışan bir dedektife benzetilebilir. Artıklar, dedektifin açıklayamayıp geride bıraktığı kırıntılardır. Artıklarda bir desen varsa (örneğin her yaz hatalar büyüyorsa) dedektif önemli bir ipucunu kaçırmış demektir. Amacımız artıkların, boş bir radyo kanalındaki cızırtı gibi, tamamen rastgele ve öngörülemez olmasıdır (beyaz gürültü; Bölüm 2.2, 6.7.1).
 
 İyi bir modelin artıklarının üç özelliği olmalıdır:
 
@@ -705,15 +705,9 @@ Kısacası ilk $h$ gecikmedeki otokorelasyonlar toplu olarak sıfıra yakınsa $
 
 ### 7.5. Durağanlık Testleri: ADF ve KPSS
 
-Bölüm 3.2'de durağanlığı grafikle ve ACF ile nasıl sezeceğimizi, birim kökün ne olduğunu, ADF testinin hipotezlerini ve p-değerinin nasıl okunacağını gördük. Modelleme öncesinde durağanlık kararını istatistiksel testlerle desteklemek gerekir. En yaygın iki test birbirinin **tersi** hipotezler kurar. Önce ADF testinin içine bakalım: "ADF testi aslında $\phi$'nin 1'e eşit olup olmadığını sınar" cümlesi formülde nasıl karşılık bulur?
+ADF testinin mantığı, hipotezleri ve p-değerinin okunuşu Bölüm 3.2.5'te anlatıldı. Burada yalnızca modellemede gereken ayrıntılara bakacağız: ADF regresyonunun tam biçimi, test istatistiğinin dağılımı ve kritik değerler, yazılımlar arasındaki farklar ve hipotezleri ADF'nin tersine kuran KPSS testi.
 
-**ADF'nin çekirdeği: AR(1)'den bir çıkarma işlemi.** AR(1) denkleminin iki tarafından $x_{t-1}$ çıkarıldığında sol tarafta bu dönemin **değişimi** ($\nabla x_t$), sağ tarafta $(\phi - 1)\thinspace  x_{t-1}$ kalır (türetme 3.2'de). Parantezdeki sayıya $\gamma$ adını verirsek ADF'nin çekirdek denklemi çıkar:
-
-```math
-\underbrace{\nabla x_t}_{\text{bugünkü değişim}} = \underbrace{\gamma}_{\substack{\text{birim kök}\\\text{katsayısı}}}\, \overbrace{x_{t-1}}^{\text{dünkü seviye}} + \underbrace{\varepsilon_t}_{\text{şok}}, \qquad \underbrace{\gamma = \phi - 1}_{\phi = 1\text{ ise }\gamma = 0}
-```
-
-**Ne anlatıyor?** Bugünkü değişim, dünkü seviyenin $\gamma$ katı ile şokun toplamıdır. $\gamma$ sıfırsa seviye değişimi etkilemez ve seri birim köklüdür; $\gamma$ negatifse seri ortalamasına geri çekilir.
+**ADF'nin çekirdeği.** 3.2.5'te AR(1) denklemini $\nabla x_t = (\phi - 1)\thinspace x_{t-1} + \varepsilon_t$ biçiminde yazmıştık. Parantezdeki sayıya $\gamma$ adını verirsek ADF'nin çekirdek denklemi $\nabla x_t = \gamma\thinspace x_{t-1} + \varepsilon_t$ olur: $\gamma = 0$ ise seri birim köklüdür, $\gamma < 0$ ise ortalamasına geri çekilir.
 
 > **Simge notu:** $`\gamma`$ *(gama)*: $`\phi - 1`$; ADF'nin sınadığı "birim kök katsayısı". Bölüm 3.2.1 ve 6.3.3'teki otokovaryans fonksiyonu $`\gamma(h)`$ ile karıştırılmamalıdır; burada parantez ve $`h`$ yoktur
 
@@ -727,7 +721,7 @@ Bu denklem aynı modeli başka bir soruyla yazar: "Bugünkü değişim, dünkü 
 
 Tablo, Bölüm 3.2'deki üç bakışı (katsayı, karakteristik kök ve şokun seyri) ADF'nin $\gamma$'sıyla birleştirir; 100 → 50, 100 → 100 ve 100 → 120 sayıları 3.2.2'deki örneklerle aynıdır; yalnızca "seviye" yerine "değişim" üzerinden okunurlar. Böylece $\gamma = 0$ (yani $\phi = 1$) birim kök demektir; $-2 < \gamma < 0$ (yani $-1 < \phi < 1$) ise seri durağandır. Pratikte $\phi$'nin −1'in altına indiği seriler çok nadir olduğundan test yalnızca $\gamma < 0$ yönüne bakar. Bölüm 3.2'deki lastik bant benzetmesi burada da geçerlidir: $\gamma < 0$ lastiğin seriyi ortalamaya geri çekmesi, $\gamma = 0$ lastiğin kopmuş olmasıdır; Şekil 7.5'teki eğim bu çekişin gücünü gösterir.
 
-ADF, "$`\phi`$ 1'e eşit mi?" sorusunu "**$\gamma$ sıfır mı?**" sorusuna çevirir. Bunun pratik nedeni, regresyon yazılımlarının her katsayı için "bu katsayı sıfır mı?" sorusuna hazır bir ölçü (t istatistiği) üretmesidir.
+"$`\phi`$ 1'e eşit mi?" sorusunu "$\gamma$ sıfır mı?" biçiminde sormanın pratik nedeni, regresyon yazılımlarının her katsayı için "bu katsayı sıfır mı?" sorusuna hazır bir ölçü (t istatistiği) üretmesidir.
 
 Şekil 7.5 bu fikri görselleştirir. Alt panellerde her nokta bir dönemi temsil eder: Yatay eksende dünkü seviye, dikey eksende bugünkü değişim vardır. Durağan seride ($\phi = 0.5$) nokta bulutu aşağı eğimlidir: Seviye yüksekken değişim çoğunlukla eksi, düşükken artıdır; seri hep ortalamasına geri çekilir. Rastgele yürüyüşte ($\phi = 1$) bulut yataydır: Dünkü seviye ne olursa olsun bugünkü değişim aynı şekilde dağılır; seriyi geri çeken bir kuvvet yoktur. ADF testi, bulutun içinden geçen doğrunun eğiminin ($\gamma$) sıfırdan anlamlı biçimde küçük olup olmadığını sınar.
 
@@ -747,9 +741,9 @@ ADF, "$`\phi`$ 1'e eşit mi?" sorusunu "**$\gamma$ sıfır mı?**" sorusuna çev
 
 - **$\alpha$ (sabit):** Serinin sıfır yerine örneğin 50 etrafında dalgalanmasına izin verir. Sabit olmasaydı test, ortalaması sıfır olmayan durağan serileri yanlış değerlendirirdi.
 - **$\beta t$ (doğrusal trend):** $t$ zaman sayacı, $\beta$ her dönem eklenen sabit artıştır. Bu terim sayesinde alternatif hipotez "seri düz bir trend çizgisi etrafında durağan dalgalanıyor" (**trend-durağan**, Bölüm 3.2) biçimini alır. Yani trend terimli ADF testinde $H_0$'ın reddi "trend çizgisi çıkarılınca seri durağan" demektir; "ortalaması sabit" demek değildir.
-- **$\sum \delta_i \nabla x_{t-i}$ (genişletilmiş kısım):** Gerçek seriler AR(1)'den daha uzun bir hafızaya sahip olabilir; bugünkü değişim dünkü ve evvelki günkü değişimlerle de ilişkili olabilir. Bu ilişki denklemde yer almazsa hata terimine sızar, $\varepsilon_t$ artık beyaz gürültü olmaz ve testin p-değerleri yanlış çıkar. Denkleme $k$ adet geçmiş değişim eklemek bu kısa dönem hafızayı "emer" ve $\gamma$'nın temiz ölçülmesini sağlar. Örneğin $k = 2$ ise toplam sembolü $\delta_1 \nabla x_{t-1} + \delta_2 \nabla x_{t-2}$ demektir. Testin adındaki *augmented* (genişletilmiş) kelimesi bu eklemeden gelir; bu terimler olmadan test yalnızca "Dickey-Fuller testi"dir.
+- **$\sum \delta_i \nabla x_{t-i}$ (genişletilmiş kısım):** Gerçek seriler AR(1)'den daha uzun bir hafızaya sahip olabilir; bugünkü değişim dünkü ve evvelki günkü değişimlerle de ilişkili olabilir. Bu ilişki denklemde yer almazsa hata terimine sızar, $\varepsilon_t$ artık beyaz gürültü olmaz ve testin p-değerleri yanlış çıkar. Denkleme $k$ adet geçmiş değişim eklemek bu kısa dönem hafızayı "emer" ve $\gamma$'nın temiz ölçülmesini sağlar. Örneğin $k = 2$ ise toplam sembolü $\delta_1 \nabla x_{t-1} + \delta_2 \nabla x_{t-2}$ demektir. Bu terimler olmadan test yalnızca "Dickey-Fuller testi"dir.
 
-**Hipotezler ve tek yönlü test:** $H_0$: $\gamma = 0$ (birim kök var, seri durağan değil); $H_1$: $\gamma < 0$ (seri durağan; trend terimi varsa trend etrafında durağan). Küçük p-değeri (< 0.05) $H_0$'ın reddi, yani "durağan" demektir (bkz. 3.2). Alternatif hipotez tek yönlüdür ($\gamma < 0$): $\gamma > 0$ patlayan bir seri demektir ve durağanlık lehine kanıt sayılmaz; R çıktısındaki `alternative hypothesis: stationary` bunu belirtir.
+**Hipotezler ve tek yönlü test:** 3.2.5'teki hipotezler $\gamma$ ile şöyle yazılır: $H_0$: $\gamma = 0$; $H_1$: $\gamma < 0$ (trend terimi varsa trend etrafında durağan). Alternatif hipotez tek yönlüdür ($\gamma < 0$): $\gamma > 0$ patlayan bir seri demektir ve durağanlık lehine kanıt sayılmaz; R çıktısındaki `alternative hypothesis: stationary` bunu belirtir.
 
 **Test istatistiği ve kritik değerler.** Yazılım regresyonu kurar, $\gamma$'yı veriden kestirir ($\hat{\gamma}$, "gama şapka") ve bu kestirimi kendi **standart hatasına** böler:
 
@@ -769,7 +763,7 @@ Sıradan bir regresyonda bu oran t-tablosuyla karşılaştırılır; tek yönlü
 
 İstatistik kritik değerden daha negatifse $H_0$ reddedilir. −7.32, −4.03'ten de küçük olduğu için birim kök %1 düzeyinde reddedilir. Sıradan t-tablosunu kullansaydık −1.65 gibi çok daha "kolay" bir sınırla, birim köklü serileri gereğinden sık durağan sanırdık. (Trend terimi olmayan, yalnızca sabitli regresyonda %5 kritik değeri yaklaşık −2.88'dir; Python'un `adfuller()` fonksiyonu varsayılan olarak bu biçimi kullanır, 7.7.2.)
 
-R'daki `tseries::adf.test()` p-değerini bu tablodan **doğrusal ara değerleme** (*interpolation*) ile hesaplar: İstatistik örneğin −3.44 (%5) ile −3.14 (%10) arasında kalsaydı, p-değeri 0.05 ile 0.10 arasında, uzaklıkla orantılı bir sayı olurdu. Tablo uçlarda 0.01 ve 0.99 olasılıklarında biter; istatistik %1 kritik değerinden de negatifse p-değeri 0.01'de sabitlenir. (KPSS için `kpss.test()` aynı yöntemi 0.01–0.10 aralığında kullanır; bu yüzden 7.6.3'te `p-value = 0.1` ve "greater than" uyarısı görülür.) Çıktıdaki `p-value = 0.01` ve `p-value smaller than printed p-value` uyarısı birlikte "gerçek p-değeri 0.01'den de küçük" demektir.
+R'daki `tseries::adf.test()` p-değerini bu tablodan **doğrusal ara değerleme** (*interpolation*) ile hesaplar: İstatistik örneğin −3.44 (%5) ile −3.14 (%10) arasında kalsaydı, p-değeri 0.05 ile 0.10 arasında, uzaklıkla orantılı bir sayı olurdu. Tablo uçlarda 0.01 ve 0.99 olasılıklarında biter; istatistik %1 kritik değerinden de negatifse p-değeri 0.01'de sabitlenir. (KPSS için `kpss.test()` aynı yöntemi 0.01–0.10 aralığında kullanır; bu yüzden 7.6.3'te `p-value = 0.1` ve "greater than" uyarısı görülür.) Bu sınırlarda R'ın verdiği uyarıların okunuşu 3.2.5'te anlatılmıştı.
 
 **Aynı test, üç yazılım.** ADF testinin varsayılan ayarları yazılıma göre değişir. Aynı seri için farklı sonuçlar görülmesinin başlıca nedeni budur (7.6.2 ve 7.7.2):
 
@@ -807,7 +801,7 @@ Testin fikri şöyledir: Seriden ortalamasını (trend sürümünde trend çizgi
 | p < 0.05 → "durağan" | p < 0.05 → "durağan değil" | **Çelişki:** ADF birim kökü, KPSS de durağanlığı reddediyor | Çoğunlukla trend-durağanlık, güçlü mevsimsellik ya da ADF'ye yetersiz gecikme verilmesi (7.6.2'deki ham `AirPassengers`). Grafiğe bakılır, fark alınıp yeniden test edilir |
 | p ≥ 0.05 → "durağan değil" | p ≥ 0.05 → "durağan" | **Kararsızlık:** İki test de kendi $`H_0`$'ını reddedecek kanıt bulamadı | Genellikle seri kısadır ya da $`\phi`$ 1'e çok yakındır; testler ayırt edemiyor. Grafiğe ve ACF'ye bakılır |
 
-**Not —** "Reddedilemedi" sonucu sıfır hipotezini kanıtlamaz (bkz. 3.2). Bu yüzden tek bir teste değil, grafik + ACF + iki testin birlikte verdiği tabloya güvenilmelidir.
+**Not —** 3.2.5'teki uyarı burada da geçerlidir: "Reddedilemedi", "kanıtlandı" demek değildir. Bu yüzden tek bir teste değil, grafik + ACF + iki testin birlikte verdiği tabloya güvenilmelidir.
 
 > **Hemen deneyin 7.5a · Üç seri, iki test** (R, ~5 dk)
 >
@@ -1077,7 +1071,7 @@ Bu iki satır, fark sayılarına testlere tek tek bakarak karar vermek yerine `f
 
 #### 7.6.4. Model Belirleme (ACF ve PACF)
 
-Durağan serinin ACF ve PACF grafiklerini inceleyerek AR ve MA terimleri için ipuçları ararız (Bölüm 6.6).
+Durağan serinin ACF ve PACF grafiklerini inceleyerek AR ve MA terimleri için ipuçları ararız (Bölüm 6.7).
 
 ```r
 par(mfrow = c(1, 2))  # grafikleri yan yana göster
@@ -1089,15 +1083,15 @@ par(mfrow = c(1, 1))
 Bu blok, durağanlaştırılmış serinin ACF ve PACF grafiklerini yan yana çizer. Box-Jenkins'in 1. adımında (tanımlama, 7.4) $p$, $q$, $P$, $Q$ için aday değerleri bu grafiklerden okuruz. Kodu satır satır okuyalım:
 
 1. `par(mfrow = c(1, 2))`: `par()` (*parameters*) R'ın temel grafik ayarlarını değiştirir. `mfrow` argümanı grafik penceresini satır ve sütun bölmelerine ayırır; `c(1, 2)` ile kurulan iki elemanlı vektör "1 satır, 2 sütun" demektir. Bundan sonra çizilen grafikler bölmeleri soldan sağa doldurur. Satır sonundaki `#` sonrası yorumdur.
-2. `acf(AP_stationary, lag.max = 36, main = "ACF")`: `acf()` serinin otokorelasyonlarını hesaplar ve çubuk grafik olarak çizer (Bölüm 6.3). `lag.max` kaç gecikmeye kadar bakılacağını belirler: 36 ay üç yıl demektir; böylece 12, 24 ve 36'daki mevsimsel gecikmeler de görünür. Yazılmasaydı varsayılan değer $10 \log_{10} 131 \approx 21$ gecikme olurdu ve 24 ile 36 grafiğe girmezdi. `main` grafik başlığıdır.
-3. `pacf(AP_stationary, lag.max = 36, main = "PACF")`: Aynı ayarlarla kısmi otokorelasyonları çizer (Bölüm 6.4) ve ikinci bölmeye yerleşir.
+2. `acf(AP_stationary, lag.max = 36, main = "ACF")`: `acf()` serinin otokorelasyonlarını hesaplar ve çubuk grafik olarak çizer (Bölüm 6.3–6.4). `lag.max` kaç gecikmeye kadar bakılacağını belirler: 36 ay üç yıl demektir; böylece 12, 24 ve 36'daki mevsimsel gecikmeler de görünür. Yazılmasaydı varsayılan değer $10 \log_{10} 131 \approx 21$ gecikme olurdu ve 24 ile 36 grafiğe girmezdi. `main` grafik başlığıdır.
+3. `pacf(AP_stationary, lag.max = 36, main = "PACF")`: Aynı ayarlarla kısmi otokorelasyonları çizer (Bölüm 6.5) ve ikinci bölmeye yerleşir.
 4. `par(mfrow = c(1, 1))`: Pencereyi yeniden tek grafik düzenine döndürür; bu satır olmasaydı sonraki grafikler de yarım genişlikte çizilirdi.
 
 Bu blok ekrana sayı yazmaz; çıktısı yan yana iki grafiktir. Okurken iki ayrıntı önemlidir. Birincisi, R `ts` nesnelerinde yatay ekseni "yıl" cinsinden gösterir; 1.0 = 12 ay, 2.0 = 24 ay gecikme demektir. ACF'nin en soldaki 0 gecikmeli çubuğu serinin kendisiyle korelasyonudur, her zaman 1'dir ve yorumlanmaz; PACF ise 1. gecikmeden başlar. İkincisi, mavi kesikli çizgiler güven bandıdır: $\pm 1.96/\sqrt{131} \approx \pm 0.17$. Bu grafiklerde iki belirgin iz görülür:
 
-- **ACF'de gecikme 1'de** belirgin bir negatif çubuk (yaklaşık −0.34) vardır; 3. gecikmede bandı biraz aşan bir çubuk (yaklaşık −0.20) dışında sonrası büyük ölçüde kesilir; 9, 23 ve 32. gecikmelerdeki sınırı az aşan çubuklar (yaklaşık 0.18, 0.22 ve 0.20) 36 çubukta tesadüfen beklenebilecek düzeydedir (Bölüm 6.3.4) → mevsimsel olmayan kısımda **MA(1)**, yani $q = 1$ adayı.
+- **ACF'de gecikme 1'de** belirgin bir negatif çubuk (yaklaşık −0.34) vardır; 3. gecikmede bandı biraz aşan bir çubuk (yaklaşık −0.20) dışında sonrası büyük ölçüde kesilir; 9, 23 ve 32. gecikmelerdeki sınırı az aşan çubuklar (yaklaşık 0.18, 0.22 ve 0.20) 36 çubukta tesadüfen beklenebilecek düzeydedir (Bölüm 6.3.5) → mevsimsel olmayan kısımda **MA(1)**, yani $q = 1$ adayı.
 - **ACF'de gecikme 12'de** (eksende 1.0) belirgin bir negatif çubuk (yaklaşık −0.39) vardır ve 24'te tekrarlamaz → mevsimsel kısımda **MA(1)**, yani $Q = 1$ adayı.
-- PACF'de de 1 ve 12'de anlamlı negatif çubuklar (yaklaşık −0.34) vardır, ancak PACF ACF kadar keskin kesilmez: 3. ve 13. gecikmelerde de küçük negatif çubuklar sürer. 9. gecikmedeki pozitif çubuk (yaklaşık 0.23) bandı aşsa da ACF'deki 9. gecikme gibi tek başına kalır ve tesadüf düzeyindedir. "ACF kesiliyor, PACF kesilmiyor" deseni MA yapısıyla tutarlıdır (Bölüm 6.6.2 ve 6.6.5).
+- PACF'de de 1 ve 12'de anlamlı negatif çubuklar (yaklaşık −0.34) vardır, ancak PACF ACF kadar keskin kesilmez: 3. ve 13. gecikmelerde de küçük negatif çubuklar sürer. 9. gecikmedeki pozitif çubuk (yaklaşık 0.23) bandı aşsa da ACF'deki 9. gecikme gibi tek başına kalır ve tesadüf düzeyindedir. "ACF kesiliyor, PACF kesilmiyor" deseni MA yapısıyla tutarlıdır (Bölüm 6.7.2 ve 6.7.5).
 
 Bu okuma bizi ARIMA(0,1,1)(0,1,1)[12] adayına götürür. ACF/PACF okumak deneyim ister; bu yüzden elle bulduğumuz adayı otomatik aramayla karşılaştıracağız.
 
@@ -1306,7 +1300,7 @@ Ekrana yazılan `[1] 450.4 477.2 525.5`, üç elemanlı bir vektördür: Orijina
 
 Gri alanların zamanla genişlemesi dikkat çekicidir: Ne kadar uzağı tahmin edersek belirsizlik o kadar artar. Bu, modelin uzun vadeli tahminlerde daha az kesin olduğunu dürüstçe ifade etmesidir. %95 aralığı Ocak 1961 için yaklaşık 419–484 iken Aralık 1962 için 400–691'e genişler (`exp(fc$lower)` ve `exp(fc$upper)` ile hesaplanır).
 
-**Aralık nasıl hesaplanır?** Bir adım ilerisi için %95 aralığı, nokta tahmininin iki yanına 1.96 standart hata eklenerek bulunur (1.96 sayısının kaynağı Bölüm 6.3.4'tedir). Model log ölçekte kurulduğu için hesap log ölçekte yapılır. Ocak 1961 için nokta tahmini 6.1102, şokların standart sapması $\sqrt{0.001371} \approx 0.0370$'tir (7.6.5). Aralık $6.1102 \pm 1.96 \times 0.0370$, yani 6.0376 ile 6.1828 arasıdır. `exp()` ile geri çevrilince yaklaşık 418.9 ile 484.3 bin yolcu bulunur; Bölüm 1.3'teki "tahmin 450; gerçek değer %95 olasılıkla 420 ile 480 arasında" örneği bu sonuca yakındır. Ufuk uzadıkça her adımın belirsizliği bir sonrakine eklendiği için standart hata büyür: Aralık 1962 ($h = 24$) için log ölçekteki standart hata yaklaşık 0.1396'dır, yani bir adım ilerisinin yaklaşık 3.8 katıdır.
+**Aralık nasıl hesaplanır?** Bir adım ilerisi için %95 aralığı, nokta tahmininin iki yanına 1.96 standart hata eklenerek bulunur (1.96 sayısının kaynağı Bölüm 6.3.5'tedir). Model log ölçekte kurulduğu için hesap log ölçekte yapılır. Ocak 1961 için nokta tahmini 6.1102, şokların standart sapması $\sqrt{0.001371} \approx 0.0370$'tir (7.6.5). Aralık $6.1102 \pm 1.96 \times 0.0370$, yani 6.0376 ile 6.1828 arasıdır. `exp()` ile geri çevrilince yaklaşık 418.9 ile 484.3 bin yolcu bulunur; Bölüm 1.3'teki "tahmin 450; gerçek değer %95 olasılıkla 420 ile 480 arasında" örneği bu sonuca yakındır. Ufuk uzadıkça her adımın belirsizliği bir sonrakine eklendiği için standart hata büyür: Aralık 1962 ($h = 24$) için log ölçekteki standart hata yaklaşık 0.1396'dır, yani bir adım ilerisinin yaklaşık 3.8 katıdır.
 
 **Not —** Log ölçekteki tahminin `exp()` ile geri çevrilmesi, orijinal ölçekte ortalamayı değil **ortancayı** (medyanı) verir; ortalama tahmin bundan çok az daha yüksektir. Aralık 1962 ($h = 24$) için oran $e^{0.1396^2/2} \approx 1.01$'dir; yani ortalama 525.5 yerine yaklaşık 530.6 bin yolcudur. Bu ders kapsamında fark ihmal edilebilir düzeydedir.
 
@@ -1424,7 +1418,7 @@ Orijinal seri  -> ADF p = 0.992, KPSS p = 0.010
 Durağanlaştırılmış seri -> ADF p = 0.0002, KPSS p = 0.100
 ```
 
-`adfuller(data)` tek bir sayı değil, bir **demet** (*tuple*: parantez içinde sıralanmış, değiştirilemeyen bir değer listesi) döndürür. Sırasıyla şunları içerir: test istatistiği, p-değeri, kullanılan gecikme sayısı, regresyondaki gözlem sayısı, kritik değerler sözlüğü (`{'1%': ...}` biçiminde anahtar–değer çiftleri) ve gecikme seçiminde kullanılan en iyi bilgi kriteri değeri. Orijinal seri için bu demet yaklaşık olarak (0.815, 0.992, 13, 130, {'1%': −3.48, '5%': −2.88, '10%': −2.58}, …) biçimindedir. Python'da sıra numarası 0'dan başladığı için `[1]` ikinci elemanı, yani p-değerini alır. `kpss(data, regression='c', nlags='auto')` de benzer bir demet döndürür (istatistik, p-değeri, gecikme sayısı, kritik değerler); `regression='c'` seviye durağanlığını sınar (R'daki `null = "Level"`), `nlags='auto'` gecikme sayısını veriden seçer. `print(f"...")` satırı Bölüm 6.3.7'deki f-dizesidir; `:.3f` üç ondalık basamak gösterir.
+`adfuller(data)` tek bir sayı değil, bir **demet** (*tuple*: parantez içinde sıralanmış, değiştirilemeyen bir değer listesi) döndürür. Sırasıyla şunları içerir: test istatistiği, p-değeri, kullanılan gecikme sayısı, regresyondaki gözlem sayısı, kritik değerler sözlüğü (`{'1%': ...}` biçiminde anahtar–değer çiftleri) ve gecikme seçiminde kullanılan en iyi bilgi kriteri değeri. Orijinal seri için bu demet yaklaşık olarak (0.815, 0.992, 13, 130, {'1%': −3.48, '5%': −2.88, '10%': −2.58}, …) biçimindedir. Python'da sıra numarası 0'dan başladığı için `[1]` ikinci elemanı, yani p-değerini alır. `kpss(data, regression='c', nlags='auto')` de benzer bir demet döndürür (istatistik, p-değeri, gecikme sayısı, kritik değerler); `regression='c'` seviye durağanlığını sınar (R'daki `null = "Level"`), `nlags='auto'` gecikme sayısını veriden seçer. `print(f"...")` satırı Bölüm 6.4.3'teki f-dizesidir; `:.3f` üç ondalık basamak gösterir.
 
 `np.log(data).diff(12).diff().dropna()` satırı R'daki `diff(diff(log(...), lag = 12))` ile aynı işi soldan sağa zincir hâlinde yapar: log al, 12 aylık farkı al, 1 aylık farkı al. Fark alınamayan ilk 13 ay boş değer (`NaN`) olarak kalır; `.dropna()` bunları atar.
 
