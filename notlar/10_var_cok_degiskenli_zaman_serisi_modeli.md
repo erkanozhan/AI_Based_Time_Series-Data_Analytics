@@ -222,8 +222,8 @@ Yani matris biçimi yeni bir model değildir; aynı iki denklemin kısaltılmı�
 **Tanım (VAR(p) modeli):** $k$ değişkenli bir VAR(p) modeli şöyle yazılır:
 
 ```math
-\underbrace{\begin{bmatrix} y_{1,t} \\ \vdots \\ y_{k,t} \end{bmatrix}}_{\substack{\mathbf{y}_t\\\text{k değişkenin}\\\text{bugünkü değeri}}}
-= \overbrace{\mathbf{c}}^{\text{sabitler}} + \underbrace{A_1 \mathbf{y}_{t-1} + A_2 \mathbf{y}_{t-2} + \dots + A_p \mathbf{y}_{t-p}}_{\substack{\text{tüm değişkenlerin}\\\text{son p dönemi}}} + \overbrace{\mathbf{u}_t}^{\text{şok vektörü}},
+\underbrace{\begin{bmatrix} y_{1,t} \\ \vdots \\ y_{k,t} \end{bmatrix}}_{\substack{\mathbf{y}_t\\k\text{ değişkenin}\\\text{bugünkü değeri}}}
+= \overbrace{\mathbf{c}}^{\text{sabitler}} + \underbrace{A_1 \mathbf{y}_{t-1} + A_2 \mathbf{y}_{t-2} + \dots + A_p \mathbf{y}_{t-p}}_{\substack{\text{tüm değişkenlerin}\\\text{son }p\text{ dönemi}}} + \overbrace{\mathbf{u}_t}^{\text{şok vektörü}},
 \qquad
 \underbrace{\mathrm{E}[\mathbf{u}_t] = \mathbf{0}}_{\substack{\text{şokların}\\\text{ortalaması sıfır}}},
 \quad
@@ -245,9 +245,9 @@ $\Sigma_u$ bir **varyans-kovaryans matrisidir**. İki değişkenli modelde 2 × 
 
 **Not —** $k = 1$ alındığında $\mathbf{y}_ t$ tek bir sayıya, $A_i$ matrisleri de tek birer katsayıya ($\phi_i$) iner ve VAR(p), Bölüm 7.1.1'deki AR(p) modelinin ta kendisi olur.
 
-**Parametre sayısı:** Her denklemde $1 + kp$ katsayı (sabit + $k$ değişkenin $p$ gecikmesi) vardır; toplamda $k(1 + kp)$ parametre tahmin edilir. Örneğin 3 değişkenli bir VAR(4) modelinde her denklemde $1 + 3 \cdot 4 = 13$, toplamda $3 \cdot 13 = 39$ parametre vardır. Parametre sayısı $p$ ile hızla büyüdüğü için gecikme seçimi (Bölüm 10.4) VAR'da özellikle önemlidir.
+**Parametre sayısı:** Her denklemde $1 + kp$ katsayı (sabit + $k$ değişkenin $p$ gecikmesi) vardır; toplamda $k(1 + kp)$ parametre kestirilir. Örneğin 3 değişkenli bir VAR(4) modelinde her denklemde $1 + 3 \cdot 4 = 13$, toplamda $3 \cdot 13 = 39$ parametre vardır. Parametre sayısı $p$ ile hızla büyüdüğü için gecikme seçimi (Bölüm 10.4) VAR'da özellikle önemlidir.
 
-**Tahmin:** Her denklemin sağ tarafında aynı açıklayıcı değişkenler (tüm değişkenlerin aynı gecikmeleri) bulunduğundan, VAR denklem denklem sıradan **en küçük kareler** (OLS, *ordinary least squares*) yöntemiyle tahmin edilebilir; bu, sistemi birlikte tahmin etmekle aynı sonucu verir. OLS, katsayıları "modelin hatalarının karelerinin toplamı en küçük olacak" biçimde seçen standart regresyon yöntemidir.
+**Kestirim:** Her denklemin sağ tarafında aynı açıklayıcı değişkenler (tüm değişkenlerin aynı gecikmeleri) bulunduğundan, VAR denklem denklem sıradan **en küçük kareler** (OLS, *ordinary least squares*) yöntemiyle kestirilebilir; bu, sistemi birlikte kestirmekle aynı sonucu verir. OLS, katsayıları "modelin hatalarının karelerinin toplamı en küçük olacak" biçimde seçen standart regresyon yöntemidir.
 
 ---
 
@@ -271,7 +271,7 @@ Kısacası "geçmiş enflasyon" ve "geçmiş faiz" bilgileri, hem bugünkü enfl
 
 ### 10.3. VAR Kurmadan Önce: Veri Hazırlığı
 
-VAR modeli tahmin etmeden önce birkaç kritik noktayı gözden geçirmek gerekir. Bu adımları atlamak, sonradan "nerede hata yaptım?" sorusuyla uğraşmak demektir.
+VAR modelini kestirmeden önce birkaç kritik noktayı gözden geçirmek gerekir. Bu adımları atlamak, sonradan "nerede hata yaptım?" sorusuyla uğraşmak demektir.
 
 #### 10.3.1. Aynı Frekansta Veri
 
@@ -281,7 +281,7 @@ Frekans uyumsuzluğu varsa ya yüksek frekanslı veri toplulaştırılır (ör. 
 
 #### 10.3.2. Ortak Örnek Aralığı (Sample)
 
-Bir seri 1990'dan, diğeri 1995'ten başlıyor; biri 2020'de, diğeri 2023'te bitiyor olabilir. VAR tahmini için tüm değişkenlerin aynı dönemde gözlenmiş olması gerekir. Bu nedenle **ortak kesişim aralığı**, yani tüm serilerin birlikte mevcut olduğu en geniş zaman penceresi kullanılır (bu örnekte 1995–2020). Bu pencerenin dışındaki gözlemler analize alınmaz; veri kaybı olsa da tutarlılık sağlanır.
+Bir seri 1990'dan, diğeri 1995'ten başlıyor; biri 2020'de, diğeri 2023'te bitiyor olabilir. VAR kestirimi için tüm değişkenlerin aynı dönemde gözlenmiş olması gerekir. Bu nedenle **ortak kesişim aralığı**, yani tüm serilerin birlikte mevcut olduğu en geniş zaman penceresi kullanılır (bu örnekte 1995–2020). Bu pencerenin dışındaki gözlemler analize alınmaz; veri kaybı olsa da tutarlılık sağlanır.
 
 > **Hemen deneyin 10.3.2 · Ortak aralığı ve frekansı pandas'la ayarlayın** (Python, ~4 dk)
 >
@@ -337,7 +337,7 @@ Durağanlık ADF ve KPSS testleriyle sınanır (ayrıntısı Bölüm 3.2 ve 7.5'
 
 Durağan olmayan serilerde en yaygın çözüm, Bölüm 2.1 ve 7.1.4'teki $\nabla$ operatörüyle **fark almaktır**: $\nabla y_t = y_t - y_{t-1}$, yani bu dönemin değeri eksi bir önceki dönemin değeri. Örneğin faiz üç ay boyunca 40, 45, 45 ise fark serisi 5, 0 olur: artık faizin düzeyini değil, her ay ne kadar değiştiğini modelleriz. Birinci fark alındığında çoğu ekonomik seri durağan hâle gelir; ikinci fark nadiren gerekir. Bir kez fark alınınca durağanlaşan seriye **birinci dereceden bütünleşik** (*integrated of order one*) denir ve **I(1)** diye yazılır; zaten durağan olan seri I(0)'dır.
 
-**Not —** Seriler aynı mertebeden bütünleşikse (ör. hepsi I(1)) ve aralarında uzun dönemli bir denge ilişkisi (**eşbütünleşme**, *cointegration*) varsa, farkları alınmış bir VAR bu uzun dönem bilgisini kaybeder. Bilinen bir benzetme: tasmalı köpeğiyle yürüyen bir kişinin ve köpeğin yolları ayrı ayrı rastgele görünür, ama aralarındaki mesafe tasmanın boyunu aşamaz. Farkları alınmış VAR yalnızca adımları modeller, "tasmayı" görmez. Bu durumda VAR yerine **VECM** (Vector Error Correction Model, hata düzeltme modeli) kullanmak daha uygundur: VECM, farklar için kurulan VAR'a "tasma ne kadar gerildi?" bilgisini taşıyan bir düzeltme terimi ekler. VECM bu dersin kapsamı dışındadır; bu bölümde VAR çerçevesinde kalıyoruz.
+**Not —** Seriler aynı mertebeden bütünleşikse (ör. hepsi I(1)) ve aralarında uzun dönemli bir denge ilişkisi (**eşbütünleşme**, *cointegration*) varsa, farkları alınmış bir VAR bu uzun dönem bilgisini kaybeder. Bilinen bir benzetme: tasmalı köpeğiyle yürüyen bir kişinin ve köpeğin yolları ayrı ayrı rastgele görünür, ama aralarındaki mesafe tasmanın boyunu aşamaz. Farkları alınmış VAR yalnızca adımları modeller, "tasmayı" görmez. Bu durumda VAR yerine **VECM** (Vector Error Correction Model, hata düzeltme modeli) kullanmak daha uygundur: VECM, farklar için kurulan VAR'a "tasma ne kadar gerildi?" bilgisini taşıyan bir düzeltme terimi ekler. Eşbütünleşmenin olup olmadığı **Johansen testi** ile sınanır (Gretl'deki karşılığı: Bölüm 11.6.2). VECM bu dersin kapsamı dışındadır; bu bölümde VAR çerçevesinde kalıyoruz.
 
 > **Hemen deneyin 10.3.3 · Sahte regresyonu kendi gözünüzle görün** (R, ~4 dk)
 >
@@ -394,11 +394,11 @@ Durağan olmayan serilerde en yaygın çözüm, Bölüm 2.1 ve 7.1.4'teki $\nabl
 VAR(p) modelinde $p$, kaç dönem geriye bakılacağını, yani modelin "hafızasını" belirler:
 
 - **$`p`$ çok küçükse:** Dinamik yapı yeterince yakalanmaz; değişkenler arasındaki gecikmeli etkileşimler gözden kaçar ve artıklarda otokorelasyon kalır.
-- **$`p`$ çok büyükse:** Her ek gecikme $`k^2`$ yeni parametre demektir (her denkleme $`k`$ yeni katsayı, $`k`$ denklem; 4 değişkenli bir VAR'da 16). Aşırı parametreleşme tahmin varyansını yükseltir ve öngörü gücünü zayıflatır.
+- **$`p`$ çok büyükse:** Her ek gecikme $`k^2`$ yeni parametre demektir (her denkleme $`k`$ yeni katsayı, $`k`$ denklem; 4 değişkenli bir VAR'da 16). Aşırı parametreleşme kestirim varyansını yükseltir ve öngörü gücünü zayıflatır.
 
 Bu dengeyi kurmak için **bilgi kriterleri** kullanılır. Hepsi aynı felsefeye, **Occam'ın usturasına** dayanır: benzer uyum sağlayan modeller arasında en basiti tercih edilir. Bir terzi benzetmesiyle: çok az ölçü alınarak dikilen ceket üzerinize oturmaz (yetersiz öğrenme); vücudunuzun o anki her milimetresine göre dikilen ceket ise hareket ettiğiniz anda işe yaramaz (aşırı öğrenme, Bölüm 8.1). Bilgi kriterleri en makul ceketi bulmaya yardım eder.
 
-**Tanım:** $T$ gözlem sayısı, $\hat{\Sigma}_ u(p)$ VAR(p) modelinin tahmin edilen hata kovaryans matrisi olmak üzere:
+**Tanım:** $T$ gözlem sayısı, $\hat{\Sigma}_ u(p)$ VAR(p) modelinin kestirilen hata kovaryans matrisi olmak üzere:
 
 ```math
 \begin{aligned}
@@ -410,7 +410,7 @@ Bu dengeyi kurmak için **bilgi kriterleri** kullanılır. Hepsi aynı felsefeye
 
 **Ne anlatıyor?** Üç kriterde de ilk terim, hata kovaryans matrisinin determinantı üzerinden modelin uyumunu ölçer ve hatalar küçüldükçe küçülür. İkinci terim parametre sayısıyla ($p k^2$) orantılı bir karmaşıklık cezasıdır; kriterler yalnızca bu cezanın katsayısında ayrılır ve BIC'nin katsayısı daha ağırdır.
 
-> **Simge notu:** $`\hat{\Sigma}_u`$ *(sigma u şapka)*: veriden tahmin edilen hata kovaryans matrisi; şapka (^) "tahmin edilen" demektir · $`\lvert \cdot \rvert`$: **burada mutlak değer değil, determinant** anlamındadır (aşağıda) · $`\ln`$ *(doğal logaritma, "el en")*: büyüdükçe yavaş artan bir fonksiyon; burada yalnızca "küçük değer, küçük sonuç" sırasını korumak için kullanılır
+> **Simge notu:** $`\hat{\Sigma}_u`$ *(sigma u şapka)*: veriden kestirilen hata kovaryans matrisi; şapka (^) "kestirilen" demektir · $`\lvert \cdot \rvert`$: **burada mutlak değer değil, determinant** anlamındadır (aşağıda) · $`\ln`$ *(doğal logaritma, "el en")*: büyüdükçe yavaş artan bir fonksiyon; burada yalnızca "küçük değer, küçük sonuç" sırasını korumak için kullanılır
 
 **Determinant nedir?** Bir kare matristen (satır ve sütun sayısı eşit) hesaplanan tek bir sayıdır. 2 × 2'lik bir matris için kural "çapraz çarpımların farkı"dır:
 
@@ -499,7 +499,7 @@ Pratikte kriterler farklı gecikme önerebilir. Böyle durumlarda BIC'nin önerd
 
 ### 10.5. Stabilite Koşulu: Öz Değerler Birim Çemberin İçinde
 
-Model tahmin edildikten sonra yapılması gereken önemli bir kontrol, **modelin stabil olup olmadığıdır**. Bu bölüm, ADF testindeki "birim kök" kavramının (Bölüm 3.2) çok değişkenli karşılığıdır.
+Model kestirildikten sonra yapılması gereken önemli bir kontrol, **modelin stabil olup olmadığıdır**. Bu bölüm, ADF testindeki "birim kök" kavramının (Bölüm 3.2) çok değişkenli karşılığıdır.
 
 **Açıklama:** Stabil bir VAR'da sisteme verilen bir şokun etkisi zamanla söner; sistem eski dengesine döner. Stabil olmayan bir VAR'da ise küçük bir şok bile büyüyerek patlar. Tek değişkenli AR(1) modeli $y_t = \phi y_{t-1} + \varepsilon_t$ için bunu Bölüm 3.2'de görmüştük (Şekil 3.4): 100 birimlik bir şok $\phi = 0.5$ iken söner (100 → 50 → 25 → ...), $\phi = 1$ iken hiç sönmez (**birim kök**), $\phi = 1.2$ iken büyür ve seri patlar. Koşul $\lvert \phi \rvert < 1$ idi ($\lvert \phi \rvert$: işaretini yok sayarak büyüklük). VAR'da ise şok tek bir sayı değil bir vektördür ve her dönem bir sayıyla değil, $A_1$ matrisiyle çarpılır. "Matris bir şoku her adımda kaç katına çıkarır?" sorusunun cevabı **öz değerlerdir**.
 
@@ -571,7 +571,7 @@ print(1 / ozdeger)                # karakteristik denklemin kökleri z = 1/λ
 **Tanım 1 (VAR(1) için stabilite):** $\mathbf{y}_ t = \mathbf{c} + A_1 \mathbf{y}_ {t-1} + \mathbf{u}_ t$ modeli, $A_1$ matrisinin tüm öz değerleri birim çemberin içindeyse stabildir:
 
 ```math
-\underbrace{\lvert \lambda_i \rvert}_{\substack{\text{i. öz değerin}\\\text{büyüklüğü (modülü)}}} < \overbrace{1}^{\substack{\text{birim çemberin}\\\text{yarıçapı}}} \quad (i = 1, \dots, k), \qquad \underbrace{\det(A_1 - \lambda I) = 0}_{\substack{\text{öz değerleri}\\\text{veren denklem}}}
+\underbrace{\lvert \lambda_i \rvert}_{\substack{i\text{. öz değerin}\\\text{büyüklüğü (modülü)}}} < \overbrace{1}^{\substack{\text{birim çemberin}\\\text{yarıçapı}}} \quad (i = 1, \dots, k), \qquad \underbrace{\det(A_1 - \lambda I) = 0}_{\substack{\text{öz değerleri}\\\text{veren denklem}}}
 ```
 
 **Ne anlatıyor?** VAR(1) modelinin stabil olması için katsayı matrisinin bütün öz değerlerinin büyüklüğü 1'den küçük, yani birim çemberin içinde olmalıdır. Öz değerler, sağdaki determinant denklemini sağlayan sayılardır.
@@ -698,7 +698,7 @@ Bilinen bir örnek: Aralık başındaki yılbaşı süsü satışları, birkaç 
 **Tanım:** İki değişkenli VAR(p) modelinde enflasyon ($y_1$) denklemi
 
 ```math
-\underbrace{y_{1,t}}_{\text{bugünkü enflasyon}} = c_1 + \underbrace{\sum_{i=1}^{p} a_{11}^{(i)} y_{1,t-i}}_{\substack{\text{enflasyonun kendi}\\\text{p gecikmesi}}} + \overbrace{\sum_{i=1}^{p} a_{12}^{(i)} y_{2,t-i}}^{\substack{\text{faizin p gecikmesi}\\\text{(kısıtlı modelde yok)}}} + u_{1,t}
+\underbrace{y_{1,t}}_{\text{bugünkü enflasyon}} = c_1 + \underbrace{\sum_{i=1}^{p} a_{11}^{(i)} y_{1,t-i}}_{\substack{\text{enflasyonun kendi}\\p\text{ gecikmesi}}} + \overbrace{\sum_{i=1}^{p} a_{12}^{(i)} y_{2,t-i}}^{\substack{\text{faizin }p\text{ gecikmesi}\\\text{(kısıtlı modelde yok)}}} + u_{1,t}
 ```
 
 olsun. $\sum$ işareti "toplam" demektir: altındaki $i = 1$'den üstündeki $p$'ye kadar her $i$ için terimi yazıp toplarız. Örneğin $p = 2$ için ikinci toplam açık hâliyle $a_{12}^{(1)} y_{2,t-1} + a_{12}^{(2)} y_{2,t-2}$'dir: faizin bir ve iki önceki dönemdeki değerleri, her biri kendi katsayısıyla. "$`y_2`$, $y_1$'in Granger nedeni değildir" hipotezi, $y_2$'nin tüm gecikme katsayılarının sıfır olmasıdır:
@@ -779,7 +779,7 @@ Yorumlarken dikkat edilecekler:
 
 ### 10.7. Etki-Tepki Fonksiyonu (Impulse Response Function, IRF)
 
-**Açıklama:** VAR katsayıları tek tek yorumlanması zor sayılardır: 3 değişkenli bir VAR(2)'de 18 katsayı vardır ve bir değişkenin etkisi birden çok gecikme ve dolaylı kanal üzerinden yayılır. Etki-tepki fonksiyonu bu karmaşayı tek bir soruya indirger:
+**Açıklama:** VAR katsayıları tek tek yorumlanması zor sayılardır: 3 değişkenli bir VAR(2)'de 18 gecikme katsayısı (sabitlerle 21) vardır ve bir değişkenin etkisi birden çok gecikme ve dolaylı kanal üzerinden yayılır. Etki-tepki fonksiyonu bu karmaşayı tek bir soruya indirger:
 
 > "Bugün faiz oranına bir birimlik (ya da bir standart sapmalık) şok gelse, sonraki dönemlerde enflasyon ve diğer değişkenler nasıl tepki verir?"
 
@@ -795,6 +795,7 @@ Bu, durgun suya atılan taşın yarattığı dalgaları izlemeye benzer: şok (t
 *   $h = 2$: $A_1 \cdot [0.2, 0.4] = [0.10 + 0.08,\thickspace  0.02 + 0.16] = [0.18, 0.18]$
 *   $h = 3$: $A_1 \cdot [0.18, 0.18] = [0.09 + 0.036,\thickspace  0.018 + 0.072] = [0.126, 0.090]$
 *   $h = 4$: $A_1 \cdot [0.126, 0.090] \approx [0.081, 0.049]$
+*   $h = 5$: $A_1 \cdot [0.081, 0.049] \approx [0.050, 0.028]$
 
 Faiz kendi şokundan sonra hızla düşer (1 → 0.4 → 0.18 → ...). Enflasyon ise $h = 0$'da hiç etkilenmez, çünkü faiz enflasyonu ancak bir dönem gecikmeyle etkiler. Sonra 0.2'ye çıkar ve yavaşça söner. Bu "önce yüksel, sonra sön" biçimi, çapraz etkilerin tipik izidir. Uzun vadede tepkiler her adımda kabaca %60'ına iner (0.081 / 0.126 ≈ 0.64, 0.050 / 0.081 ≈ 0.62): bu, en büyük öz değer olan 0.6'dır. Stabilite koşulu ile etki-tepki arasındaki bağ budur.
 
@@ -805,14 +806,14 @@ Faiz kendi şokundan sonra hızla düşer (1 → 0.4 → 0.18 → ...). Enflasyo
 **Tanım:** Elle yaptığımız hesabın genel hâli şudur. VAR(1)'i geriye doğru açalım: $\mathbf{y}_ t = A_1 \mathbf{y}_ {t-1} + \mathbf{u}_ t$ eşitliğinde $\mathbf{y}_ {t-1}$ yerine $A_1 \mathbf{y}_ {t-2} + \mathbf{u}_ {t-1}$ yazarsak $\mathbf{y}_ t = \mathbf{u}_ t + A_1 \mathbf{u}_ {t-1} + A_1^2 \mathbf{y}_ {t-2}$ olur; bunu sürdürdükçe bugünkü değer geçmiş şokların ağırlıklı toplamına dönüşür: bugünkü şok 1 ile, geçen dönemin şoku $A_1$ ile, iki dönem öncekinin şoku $A_1^2$ ile çarpılır ve böyle gider. Stabil bir VAR(p) için genel yazım (hareketli ortalama, MA(∞) gösterimi):
 
 ```math
-\mathbf{y}_t = \underbrace{\boldsymbol{\mu}}_{\text{ortalama}} + \sum_{i=0}^{\infty} \underbrace{\Phi_i}_{\substack{\text{i dönem sonraki}\\\text{tepki matrisi}}} \overbrace{\mathbf{u}_{t-i}}^{\substack{\text{i dönem}\\\text{önceki şok}}}, \qquad \Phi_0 = I, \quad \underbrace{\Phi_i = \sum_{j=1}^{\min(i,p)} \Phi_{i-j} A_j}_{\substack{\text{tepkiler, önceki tepkilerden}\\\text{adım adım hesaplanır}}}
+\mathbf{y}_t = \underbrace{\boldsymbol{\mu}}_{\text{ortalama}} + \sum_{i=0}^{\infty} \underbrace{\Phi_i}_{\substack{i\text{ dönem sonraki}\\\text{tepki matrisi}}} \overbrace{\mathbf{u}_{t-i}}^{\substack{i\text{ dönem}\\\text{önceki şok}}}, \qquad \Phi_0 = I, \quad \underbrace{\Phi_i = \sum_{j=1}^{\min(i,p)} \Phi_{i-j} A_j}_{\substack{\text{tepkiler, önceki tepkilerden}\\\text{adım adım hesaplanır}}}
 ```
 
 **Ne anlatıyor?** Stabil bir VAR modelinde bugünkü değer, ortalama ile bugünkü ve geçmiş bütün şokların tepki matrisleriyle ağırlıklandırılmış toplamıdır. Tepki matrisleri birim matristen başlar ve her biri, önceki tepkilerin katsayı matrisleriyle çarpılmasıyla adım adım hesaplanır.
 
 $\Phi_h$ matrisinin $(j, m)$ elemanı, $m$. değişkene $t$ anında gelen bir birimlik şokun $h$ dönem sonra $j$. değişkende yarattığı değişimdir. Bu değerlerin $h = 0, 1, 2, \dots$ için çizilmesi etki-tepki fonksiyonudur. VAR(1) için formül çok sadedir: $\Phi_h = A_1^h$. Örneğin $A_1^2$'nin satırları (0.27, 0.18) ve (0.09, 0.18)'dir; 2. sütunu [0.18, 0.18], yukarıda $h = 2$ için bulduğumuz tepkinin aynısıdır. Stabilite koşulu (Bölüm 10.5) tam olarak bu matris kuvvetlerinin sıfıra gitmesini, yani tepkilerin sönmesini garanti eder.
 
-> **Simge notu:** $`\boldsymbol{\mu}`$ *(kalın mü)*: sürecin ortalama vektörü · $`\infty`$ *(sonsuz)*: toplamın sonsuza kadar sürdüğü, ama terimlerin giderek küçüldüğü · $`\Phi_i`$ *(büyük fi)*: $`i`$. dönem tepki (MA katsayı) matrisi; küçük $`\phi`$ ile aynı harfin büyük yazılışıdır (Bölüm 7.3 ve 11.5'te büyük $`\Phi`$ mevsimsel AR katsayısıydı; burada anlamı farklıdır) · $`\min(i,p)`$: iki değerden küçüğü · $`A_1^h`$: $`A_1`$'in kendisiyle $`h`$ kez çarpımı
+> **Simge notu:** $`\boldsymbol{\mu}`$ *(kalın mü)*: sürecin ortalama vektörü · $`\infty`$ *(sonsuz)*: toplamın sonsuza kadar sürdüğü, ama terimlerin giderek küçüldüğü · $`\Phi_i`$ *(büyük fi)*: $`i`$. dönem tepki (MA katsayı) matrisi; küçük $`\phi`$ ile aynı harfin büyük yazılışıdır (Bölüm 7.3'te büyük $`\Phi`$ mevsimsel AR katsayısıydı; burada anlamı farklıdır) · $`\min(i,p)`$: iki değerden küçüğü · $`A_1^h`$: $`A_1`$'in kendisiyle $`h`$ kez çarpımı
 
 **Ortalama vektörü:** Stabil bir VAR(p) sürecinin uzun dönem ortalaması kapalı biçimde hesaplanabilir: $\boldsymbol{\mu} = (I - A_1 - \dots - A_p)^{-1}\mathbf{c}$. 10.1'deki örnekte $\mathbf{c} = (1,\ 0.5)$ ve $I - A_1$ matrisinin satırları $(0.5,\ -0.2)$ ile $(-0.1,\ 0.6)$'dır; determinantı $0.5 \cdot 0.6 - 0.2 \cdot 0.1 = 0.28$'dir. Ters matrisle çarpım $(0.7,\ 0.35) / 0.28 = (2.5,\ 1.25)$ verir. Bu sonuç, Hemen deneyin 10.1'de Excel tahminlerinin yerleştiği 2.5 ve 1.25 değerlerinin kapalı formdaki sağlamasıdır.
 
@@ -829,7 +830,7 @@ $\Phi_h$ matrisinin $(j, m)$ elemanı, $m$. değişkene $t$ anında gelen bir bi
 *   Yatay eksen: şoktan sonra geçen dönem sayısı ($h$).
 *   Dikey eksen: tepkinin büyüklüğü (değişkenin kendi biriminde).
 *   Çizgi sıfırın üstündeyse pozitif, altındaysa negatif tepki vardır.
-*   Grafikteki **güven bandı** (genellikle %95), tahmin edilen tepkinin belirsizliğini gösterir. Bant sıfırı içeriyorsa o dönemdeki tepki istatistiksel olarak sıfırdan ayırt edilemez.
+*   Grafikteki **güven bandı** (genellikle %95), kestirilen tepkinin belirsizliğini gösterir. Bant sıfırı içeriyorsa o dönemdeki tepki istatistiksel olarak sıfırdan ayırt edilemez. Bandı statsmodels'ın `irf.plot()` fonksiyonu varsayılan olarak asimptotik formüllerle, R'daki `irf()` ve Gretl'in menüsü ise bootstrap (veriden yeniden örnekleme) ile hesaplar; Gretl betiğindeki `--impulse-responses` tablosunda bant yoktur.
 *   Stabil bir modelde tüm tepkiler zamanla sıfıra yaklaşmalıdır.
 
 **Günlük hayattan bir örnek:** Durgun bir göle atılan taş düşünülsün. Taşın düştüğü yerde dalgalar oluşur, halkalar genişledikçe küçülür ve göl bir süre sonra yeniden durulur. IRF de bir değişkene verilen tek seferlik şokun öteki değişkenlere dönem dönem nasıl yayıldığını ve nasıl söndüğünü gösterir; güven bandı, dalgaların yüksekliğine ilişkin belirsizliği yansıtır. Halkalar sönmek yerine büyüyorsa model stabil değildir (Bölüm 10.5). Benzetmenin sınırı: Göldeki dalga taşın düştüğü anda en yüksektir; IRF'de ise tepki şoktan birkaç dönem sonra en güçlü hâline ulaşabilir (Şekil 10.3).
@@ -879,7 +880,7 @@ $\Phi_h$ matrisinin $(j, m)$ elemanı, $m$. değişkene $t$ anında gelen bir bi
 **Tanım:** Ortogonal tepki matrislerinin elemanları $\theta_{jm,i}$ olmak üzere, $j$. değişkenin $h$ adımlı tahmin hatası varyansında $m$. değişkenin şokunun payı:
 
 ```math
-\underbrace{\omega_{jm}(h)}_{\substack{\text{m. şokun j. değişkenin}\\\text{hata varyansındaki payı}}} = \frac{\overbrace{\sum_{i=0}^{h-1} \theta_{jm,i}^2}^{\substack{\text{yalnızca m. şokun}\\\text{katkısı}}}}{\underbrace{\sum_{i=0}^{h-1} \sum_{l=1}^{k} \theta_{jl,i}^2}_{\text{tüm şokların katkısı}}}
+\underbrace{\omega_{jm}(h)}_{\substack{m\text{. şokun }j\text{. değişkenin}\\\text{hata varyansındaki payı}}} = \frac{\overbrace{\sum_{i=0}^{h-1} \theta_{jm,i}^2}^{\substack{\text{yalnızca }m\text{. şokun}\\\text{katkısı}}}}{\underbrace{\sum_{i=0}^{h-1} \sum_{l=1}^{k} \theta_{jl,i}^2}_{\text{tüm şokların katkısı}}}
 ```
 
 **Ne anlatıyor?** $j$. değişkenin $h$ adımlı tahmin hatası varyansındaki $m$. şokun payı, bu şokun ilk $h$ adımdaki tepkilerinin kareleri toplamının, bütün şokların tepkilerinin kareleri toplamına oranıdır. Böylece her değişkenin tahmin belirsizliği, şokların kaynağına göre dilimlere ayrılır.
@@ -962,11 +963,12 @@ from statsmodels.tsa.stattools import adfuller
 df = pd.read_csv("data/macro.csv", parse_dates=["date"], index_col="date")
 vars_selected = ["inflation", "interest", "exchange"]
 df_var = df[vars_selected].dropna().asfreq("MS")   # MS: aylık, ay başı
+# 2) Grafikler: yalnızca tam dosyada
 
 for col in vars_selected:                          # 3) ADF: p < 0.05 ise durağan
     print(col, round(adfuller(df_var[col], autolag="AIC")[1], 3))
 
-model = VAR(df_var)                                # 4) Gecikme seçimi ve tahmin
+model = VAR(df_var)                                # 4) Gecikme seçimi ve kestirim
 lag_order_results = model.select_order(maxlags=8)
 print(lag_order_results.summary())
 selected_lag = max(1, lag_order_results.selected_orders['bic'])  # bu veride BIC → 2
@@ -1034,9 +1036,9 @@ Kütüphane satırları Bölüm 7.7'deki gibi okunur (`from statsmodels.tsa.api 
 
 *   `pd.read_csv(..., parse_dates=["date"], index_col="date")`: CSV dosyasını okur, `date` sütununu metin olarak değil tarih olarak yorumlar ve satır etiketi (indeks) yapar; böylece her satır bir aya karşılık gelir. `df[vars_selected]` köşeli parantez içine bir sütun adları listesi vererek yalnızca bu üç sütunu seçer, `.dropna()` eksik değer içeren satırları atar, `.asfreq("MS")` ise verinin aylık ve ay başı tarihli olduğunu açıkça belirtir (statsmodels aksi hâlde frekansı tahmin etmeye çalışıp uyarı verir).
 *   `adfuller(seri, autolag="AIC")[1]`: ADF testinin p-değerini alır (`[1]`, 7.7.2'deki gibi); `autolag="AIC"` testin kaç gecikme kullanacağını AIC ile seçer.
-*   `VAR(df_var)`: Modeli **tanımlar** ama henüz tahmin etmez; yalnızca hangi verinin kullanılacağını kaydeder.
+*   `VAR(df_var)`: Modeli **tanımlar** ama henüz kestirmez; yalnızca hangi verinin kullanılacağını kaydeder.
 *   `model.select_order(maxlags=8)`: VAR(0)'dan VAR(8)'e kadar tüm modelleri aynı ortak örnekle ($T = 112$) kurar ve her biri için AIC, BIC, FPE, HQIC değerlerini hesaplar. `.selected_orders` her kriterin önerdiği gecikmeyi tutan bir sözlüktür; `['bic']` BIC'nin önerisini alır. `max(1, ...)` kriterin 0 gecikme önermesi hâlinde en az 1 gecikme kullanmayı garanti eder.
-*   `model.fit(selected_lag)`: Seçilen gecikmeyle her denklemi OLS ile tahmin eder ve sonuç nesnesini (`results`) döndürür; sonraki tüm analizler bu nesnenin metotlarıyla yapılır. `results.summary()` her katsayı için `coefficient` (katsayı), `std. error` (standart hata), `t-stat` (t = katsayı / standart hata, bkz. 7.6.5) ve `prob` (bu t değerinin p-değeri) sütunlarını yazar. Aynı işi tek satırda `model.fit(maxlags=8, ic="bic")` da yapar: `ic` (*information criterion*) argümanı, gecikmeyi verilen kritere göre seçip modeli o gecikmeyle kurar (bu veride yine VAR(2)).
+*   `model.fit(selected_lag)`: Seçilen gecikmeyle her denklemi OLS ile kestirir ve sonuç nesnesini (`results`) döndürür; sonraki tüm analizler bu nesnenin metotlarıyla yapılır. `results.summary()` her katsayı için `coefficient` (katsayı), `std. error` (standart hata), `t-stat` (t = katsayı / standart hata, bkz. 7.6.5) ve `prob` (bu t değerinin p-değeri) sütunlarını yazar. Aynı işi tek satırda `model.fit(maxlags=8, ic="bic")` da yapar: `ic` (*information criterion*) argümanı, gecikmeyi verilen kritere göre seçip modeli o gecikmeyle kurar (bu veride yine VAR(2)).
 *   `results.is_stable()`: Eşlik matrisinin tüm öz değerlerinin birim çemberin içinde olup olmadığını `True`/`False` olarak döndürür. `results.roots` karakteristik denklemin köklerini verir; `np.abs()` her kökün modülünü (büyüklüğünü) alır, `1 / ...` ise bunları öz değer modüllerine çevirir (Bölüm 10.5'teki $z = 1/\lambda$ ilişkisi). `np.round(..., 3)` yalnızca okunabilirlik için üç basamağa yuvarlar.
 *   `results.test_whiteness(nlags=12)`: Artıklarda 12 gecikmeye kadar otokorelasyon olup olmadığını tüm denklemler için birlikte sınar (çok değişkenli *portmanteau* testi; statsmodels varsayılan olarak Box-Pierce tipi, yani küçük örneklem düzeltmesi yapılmamış istatistiği kullanır; $H_0$: otokorelasyon yok). `.pvalue` p-değerini verir.
 *   `results.forecast(y=df_var.values[-selected_lag:], steps=4)`: Tahmini başlatmak için modele son $p$ gözlemi vermemiz gerekir; VAR(2) bir sonraki ayı hesaplamak için son iki ayı kullanır. `df_var.values` tabloyu sayı dizisine çevirir, `[-selected_lag:]` dizinin sondan `selected_lag` satırını (burada son 2 ayı) alır. `steps=4` dört ay ileriye tahmin üretir; sonuç 4 satır × 3 sütunluk bir dizidir.
@@ -1046,11 +1048,11 @@ Kütüphane satırları Bölüm 7.7'deki gibi okunur (`from statsmodels.tsa.api 
 
 Çıktıyı okurken: Enflasyon denkleminde döviz kurunun iki katsayısı dikkat çekicidir: $3.67$ ve $-3.72$ neredeyse eşit büyüklükte ve zıt işaretlidir. $3.67 \cdot \text{kur}_ {t-1} - 3.72 \cdot \text{kur}_ {t-2} \approx 3.7 \cdot (\text{kur}_ {t-1} - \text{kur}_ {t-2})$ olduğu için, enflasyonu kurun **düzeyi** değil, geçen ayki **artışı** etkilemektedir. Faizin katsayıları ise küçüktür ve p-değerleri yüksektir (0.885, 0.773). Diğer çıktıların bu verideki sonuçları ve nasıl okunacakları 10.9.1'deki tabloda toplanmıştır.
 
-Dosya bu satırlara ek olarak serilerin grafiklerini, her denklemin Durbin-Watson istatistiğini (artıklarda birinci derece otokorelasyonu ölçer; 2'ye yakınsa otokorelasyon yok, 0'a yakınsa pozitif, 4'e yakınsa negatif otokorelasyon var), 4 aylık tahmin grafiğini ve dört yönlü Granger testlerini üretir.
+Dosya bu satırlara ek olarak serilerin grafiklerini, her denklemin Durbin-Watson istatistiğini (artıklarda birinci derece otokorelasyonu ölçer; 2'ye yakınsa otokorelasyon yok, 0'a yakınsa pozitif, 4'e yakınsa negatif otokorelasyon var; VAR'da 2'ye doğru yanlıdır, bkz. 10.9.1), 4 aylık tahmin grafiğini ve dört yönlü Granger testlerini üretir.
 
-**Neden BIC?** AIC'nin önerdiği VAR(7) her denklemde 22 parametre taşır ve stabil değildir (en büyük öz değer modülü ≈ 1.02). BIC'nin VAR(2)'si hem sade hem stabildir. Önerilen model stabil değilse IRF, FEVD ve tahminler güvenilmez (kriterlerin neden ayrıştığı için bkz. 10.4).
+**Neden BIC?** AIC'nin önerdiği VAR(7) her denklemde 22 parametre taşır ve stabil değildir (en büyük öz değer modülü ≈ 1.02). HQ'nun önerdiği VAR(3) da stabil değildir (en büyük öz değer modülü ≈ 1.017); bu düzey veride gecikmeyi artırmak artıklardaki otokorelasyonu gidermenin yolu değildir. BIC'nin VAR(2)'si hem sade hem stabildir. Önerilen model stabil değilse IRF, FEVD ve tahminler güvenilmez (kriterlerin neden ayrıştığı için bkz. 10.4).
 
-**Not —** Bu ana uygulama, düzey serilerle kurulduğu için öğretici bir örnektir; doğru kurulum farkı alınmış serilerle yapılır (aşağıdaki 2. alıştırma ve Hemen deneyin 10.6). En büyük öz değerin 1'e bu kadar yakın çıkması (0.997) tesadüf değildir: seriler durağan olmadığı için model neredeyse bir birim kök taşır. Bu durumda IRF'ler çok yavaş söner ve uzun ufuklu yorumlar dikkatle yapılmalıdır. Portmanteau testinin reddi (p ≈ 0.0000003) de aynı soruna işaret eder. Kod eğitim amaçlı olarak düzey serilerle devam eder. Alıştırma olarak:
+**Not —** Bu ana uygulama, düzey serilerle kurulduğu için öğretici bir örnektir. Seriler I(1) olduğundan doğru kurulum eşbütünleşmeye bağlıdır: eşbütünleşme yoksa model farkı alınmış serilerle kurulur (aşağıdaki 2. alıştırma ve Hemen deneyin 10.6), varsa VECM gerekir (10.3.3'teki Not). Bu veride Johansen testi bir eşbütünleşme ilişkisine işaret eder (Bölüm 11.6.2); farklarla kurulan model bu yüzden yalnızca kısa dönem ilişkilerini gösterir. En büyük öz değerin 1'e bu kadar yakın çıkması (0.997) tesadüf değildir: seriler durağan olmadığı için model neredeyse bir birim kök taşır. Bu durumda IRF'ler çok yavaş söner ve uzun ufuklu yorumlar dikkatle yapılmalıdır. Portmanteau testinin reddi (p ≈ 0.0000003) de aynı soruna işaret eder. Kod eğitim amaçlı olarak düzey serilerle devam eder. Alıştırma olarak:
 
 1. Kodun 4. adımında `'bic'` yerine `'aic'` yazıp VAR(7)'nin stabil çıkmadığını görün.
 2. Serilerin birinci farkını alıp (`df_var = df_var.diff().dropna()`) modeli yeniden kurun. Farkı alınmış serilerde ADF p-değerleri 0.05'in altına iner, BIC 1 gecikme önerir ve en büyük öz değer modülü 0.997'den yaklaşık 0.55'e düşer; model artık sınırda değil, rahatça stabildir. Granger sonuçlarındaki değişimi Hemen deneyin 10.6'da gördünüz: "enflasyon → faiz" ilişkisi anlamlılığını yitirir; döviz kurunun enflasyona (p < 0.001) ve faize (p ≈ 0.006) etkisi ise sürer.
@@ -1069,10 +1071,10 @@ Kodun ürettiği her çıktı bölümünün bu veride (`data/macro.csv`, VAR(2))
 | 4) Gecikme seçimi: AIC, BIC, FPE, HQIC tablosu | AIC ve FPE 7, BIC 2, HQIC 3 gecikme önerir. | Her sütunda en küçük değer yıldızla (`*`) işaretlenir. Kriterler farklı $`p`$ önerebilir (Bölüm 10.4). |
 | 4) `results.summary()`: her denklem için katsayılar (`L1.` bir, `L2.` iki gecikme), p-değerleri (`prob`); en altta artıkların korelasyon matrisi | Enflasyon denkleminde kur katsayıları 3.67 ve −3.72, faiz katsayıları anlamsız; artıklar arası en yüksek korelasyon faiz-kur arasında 0.18. | Tek tek katsayılardan çok, çapraz katsayıların anlamlılığına ve artık korelasyonlarına bakılır. Artıklar arası yüksek korelasyon, IRF'de sıralamanın önemli olacağını gösterir. |
 | 5) Stabilite: `True`/`False`, kök modülleri | `True`; en küçük kök modülü 1.003, yani en büyük öz değer modülü 0.997 (Şekil 10.2b). Model stabil, ama sınırda: şoklar çok yavaş söner. | `True` ve tüm kök modülleri $`\lvert z \rvert > 1`$ (öz değer modülleri < 1) olmalı. Değilse fark alma, gecikme sayısı ve aykırı değerler gözden geçirilir. 1'e çok yakın değerler yavaş sönen şoklara işaret eder. |
-| 6) Durbin-Watson (her denklem için) | 2.04, 2.23, 1.83: artıklarda belirgin **birinci derece** otokorelasyon yok. | 2'ye yakın değer artıklarda birinci derece otokorelasyon olmadığını gösterir; 1.5–2.5 dışı değerler gecikme artırmayı düşündürür. |
-| 6) Portmanteau (12 gecikme): p-değeri | p < 0.001: daha uzun gecikmelerde artık otokorelasyonu kalmış; model eksik. | p > 0.05 istenir. Küçükse artıklarda uzun gecikmeli otokorelasyon vardır: gecikme artırma ya da fark alma denenir. |
+| 6) Durbin-Watson (her denklem için) | 2.04, 2.23, 1.83: ilk bakışta 2'ye yakın. Ancak gecikmeli bağımlı değişken içeren denklemlerde DW 2'ye doğru yanlıdır; aynı modelde çok değişkenli test 1. gecikmede de otokorelasyonu reddeder (Gretl'de Rao F, p = 0.0013; Bölüm 11.6.2). | VAR'da DW tek başına yeterli değildir; karar çok değişkenli otokorelasyon testiyle (portmanteau, Rao F) verilir. |
+| 6) Portmanteau (12 gecikme): p-değeri | p < 0.001: artıklarda otokorelasyon kalmış; model eksik. | p > 0.05 istenir. Küçükse artıklarda otokorelasyon vardır: gecikme artırma ya da fark alma denenir. |
 | 7) Tahmin (2025 Ocak–Nisan): tahmin tablosu ve grafiği | Enflasyon 42.2, 41.4, 41.6, 42.3; faiz 48.9 → 55.7; kur 35.5 → 37.6. Düzey VAR'ı geçmişteki ilişkileri mekanik olarak sürdürür: faiz tahmini, Kasım 2024'teki indirime (50'den 47.5'e) rağmen yükselir. | Tahminler son gözlemlerden makul biçimde devam etmeli; ufuk uzadıkça belirsizlik artar. Doğruluk ölçümü için Bölüm 8'deki eğitim-test ayrımı ve MAE/RMSE/MAPE kullanılabilir. |
-| 8) IRF (bir birimlik şok): şok-tepki grafikleri | Kurda 1 TL'lik artış → enflasyon 1 ay sonra +3.7, 4. ayda +9.1 puan, 12. ayda hâlâ +5.9. Faiz şokuna enflasyonun tepkisi negatif ama güven bandı her dönemde sıfırı içeriyor: kur etkisi güçlü ve kalıcı, faiz etkisi istatistiksel olarak belirsiz. | Tepkinin işareti, en güçlü olduğu dönem, güven bandının sıfırı içerip içermediği ve sönümlenme (Bölüm 10.7). |
+| 8) IRF (bir birimlik şok): şok-tepki grafikleri | Kurda 1 TL'lik artış → enflasyon 1 ay sonra +3.7, 4. ayda +9.1 puan, 12. ayda hâlâ +5.9. (1 TL'lik şok, kur şokunun standart sapmasının (≈ 0.5) yaklaşık iki katıdır; Gretl'in bir standart sapmalık Cholesky şokuyla bulduğu en yüksek tepki (4.42, Bölüm 11.6.2) bu yüzden kabaca yarısıdır.) Faiz şokuna enflasyonun tepkisi negatif ama güven bandı her dönemde sıfırı içeriyor: kur etkisi güçlü ve kalıcı, faiz etkisi istatistiksel olarak belirsiz. | Tepkinin işareti, en güçlü olduğu dönem, güven bandının sıfırı içerip içermediği ve sönümlenme (Bölüm 10.7). |
 | 9) FEVD (12. dönem): dönemlere göre pay tablosu | Enflasyonun tahmin hatası varyansının %44'ü kendi şoklarından, %55'i döviz kuru şoklarından, %1'den azı faiz şoklarından geliyor. | Her satırın toplamı 1'dir; ufuk uzadıkça diğer değişkenlerin payının nasıl değiştiğine bakılır (Bölüm 10.8). statsmodels satırları 0'dan numaralar: 11 numaralı satır 12. dönemdir. |
 | 10) Granger: F istatistiği, p-değeri, "reject/fail to reject" | Faiz → enflasyon p = 0.84; döviz kuru → enflasyon p < 0.001; enflasyon → faiz p = 0.02; döviz kuru → faiz p < 0.001. Kurun geçmişi hem enflasyonu hem faizi öngörmeye yardım ediyor; faizin enflasyona katkısı anlamlı değil. | p < 0.05 (*reject*) ise "etkileyen" değişkenin geçmişi, "etkilenen" değişkeni öngörmeye yardımcıdır (Bölüm 10.6). |
 
@@ -1176,7 +1178,7 @@ VAR özellikle şu tip sorular için kullanışlıdır:
 
 Sınırlılıkları da akılda tutulmalıdır:
 
-*   **Parametre sayısı hızla artar** ($k^2 p$); değişken sayısı arttıkça kısa veriyle güvenilir tahmin zorlaşır. Bu yüzden VAR genellikle 2–6 değişkenle kurulur.
+*   **Parametre sayısı hızla artar** ($k + k^2 p$, kabaca $k^2 p$); değişken sayısı arttıkça kısa veriyle güvenilir kestirim zorlaşır. Bu yüzden VAR genellikle 2–6 değişkenle kurulur.
 *   **Doğrusaldır;** doğrusal olmayan ilişkileri yakalamak için Bölüm 12'den itibaren ele alınacak makine öğrenmesi ve derin öğrenme yöntemleri daha uygundur.
 *   **Durağanlık ve stabilite varsayımlarına** dayanır; yapısal kırılmalar (kriz dönemleri) sonuçları bozabilir.
 *   **Sonuçlar öngörü ilişkileridir;** Granger nedenselliği ve Cholesky sıralamasına dayalı IRF, gerçek nedensellik için ek teorik varsayımlar gerektirir.

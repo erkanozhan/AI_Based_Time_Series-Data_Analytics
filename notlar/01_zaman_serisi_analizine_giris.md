@@ -24,7 +24,7 @@ $$
 $$
 
 ```math
-\lbrace \underbrace{x_t}_{\substack{\text{t anındaki}\\\text{gözlem}}} : \overbrace{t \in \mathcal{T}}^{\substack{\text{t, gözlem anları}\\\text{kümesinin elemanı}}} \rbrace
+\lbrace \underbrace{x_t}_{\substack{t\text{ anındaki}\\\text{gözlem}}} : \overbrace{t \in \mathcal{T}}^{\substack{t\text{, gözlem anları}\\\text{kümesinin elemanı}}} \rbrace
 ```
 
 **Ne anlatıyor?** Zaman serisi, her gözlem anına bir değer karşılık getiren ve zaman sırasına göre dizilmiş gözlemlerden oluşur. Değerlerin hangi anda gözlendiği, değerlerin kendisi kadar önemlidir.
@@ -99,7 +99,7 @@ $$
 $$
 
 ```math
-\underbrace{\mathrm{Cov}(x_t, x_{t-h})}_{\substack{\text{bugün ile h adım önceki}\\\text{gözlemin kovaryansı}}} \overbrace{\neq 0}^{\substack{\text{sıfır değil:}\\\text{ilişkili}}} \quad \text{(en azından bazı } h \text{ gecikmeleri için)}
+\underbrace{\mathrm{Cov}(x_t, x_{t-h})}_{\substack{\text{bugün ile }h\text{ adım önceki}\\\text{gözlemin kovaryansı}}} \overbrace{\neq 0}^{\substack{\text{sıfır değil:}\\\text{ilişkili}}} \quad \text{(en azından bazı } h \text{ gecikmeleri için)}
 ```
 
 **Ne anlatıyor?** Zaman serisinde bir gözlem, kendisinden $h$ adım önceki gözlemle en azından bazı gecikmelerde ilişkilidir. Bu nedenle gözlemlerin bağımsız olduğunu varsayan klasik yöntemler zaman serilerine olduğu gibi uygulanamaz.
@@ -156,12 +156,12 @@ Bir zaman serisini analiz ederken genellikle aşağıdaki beş amaçtan bir ya d
 | **Anomali tespiti** (anomaly detection) | Hangi gözlemler olağan dışı? | Bir sunucunun trafiğindeki ani sıçrama saldırı olabilir mi? |
 | **Kontrol** (control) | Süreç istenen düzeyde nasıl tutulur? | Bir üretim hattındaki sıcaklık sapmaya başladığında ne zaman müdahale edilmeli? |
 
-Bu amaçlar birbirinden kopuk değildir. İyi bir tahmin için önce seriyi **tanımlamak** gerekir. Bir anomaliyi fark etmek için ise "normalde ne beklendiğini" gösteren bir tahmine ihtiyaç vardır: gözlenen değer tahmin aralığının çok dışına düşüyorsa, o gözlem şüphelidir.
+Bu amaçlar birbirinden kopuk değildir. İyi bir tahmin için önce seriyi **tanımlamak** gerekir. Bir anomaliyi fark etmek için ise "normalde ne beklendiğini" gösteren bir tahmine ihtiyaç vardır: gözlenen değer tahmin aralığının (aşağıda tanımlanıyor) çok dışına düşüyorsa, o gözlem şüphelidir.
 
 **Tanım (tahmin):** $T$ anına kadar olan gözlemlere dayanarak $h$ adım sonrası için yapılan tahmin şöyle gösterilir:
 
 ```math
-\underbrace{\hat{x}_{T+h}}_{\substack{\text{h adım sonrası}\\\text{için tahmin}}} = \overbrace{g}^{\text{model}}\big(\underbrace{x_T, x_{T-1}, \dots, x_1}_{\substack{\text{T anına kadarki}\\\text{bütün gözlemler}}}\big)
+\underbrace{\hat{x}_{T+h}}_{\substack{h\text{ adım sonrası}\\\text{için tahmin}}} = \overbrace{g}^{\text{model}}\big(\underbrace{x_T, x_{T-1}, \dots, x_1}_{\substack{T\text{ anına kadarki}\\\text{bütün gözlemler}}}\big)
 ```
 
 **Ne anlatıyor?** $h$ adım sonrası için yapılan tahmin, modelin yalnızca $T$ anına kadar gözlenmiş değerlere uygulanmasıyla üretilir. Tahmin anında geleceğe ait hiçbir gözlem kullanılamaz; formül bu kısıtı açıkça gösterir.
@@ -225,7 +225,7 @@ Zaman serisi verisi, ölçümün zaman içinde tekrarlandığı her alanda ortay
 > plot(EuStockMarkets)   # Finans: dört Avrupa borsa endeksinin günlük kapanışları, 1991-1998
 > ```
 >
-> **Ne göreceksiniz:** `ldeaths` her kış tepe, her yaz dip yapar (Ocak ortalaması yaklaşık 2959, Eylül ortalaması yaklaşık 1397). `co2` 313'ten 367'ye sürekli yükselir ve üzerinde küçük bir yıllık dalga vardır. `UKgas` hem yükselir hem de dalgaları büyür: 1960'ta en yüksek ve en düşük çeyrek arasındaki fark yaklaşık 75 iken 1986'da yaklaşık 816'dır. `EuStockMarkets` dört paneli alt alta çizer (DAX, SMI, CAC, FTSE).
+> **Ne göreceksiniz:** `ldeaths` her kış tepe, her yaz sonunda (Ağustos–Eylül) dip yapar (Ocak ortalaması yaklaşık 2959, Eylül ortalaması yaklaşık 1397). `co2` 313'ten 367'ye sürekli yükselir ve üzerinde küçük bir yıllık dalga vardır. `UKgas` hem yükselir hem de dalgaları büyür: 1960'ta en yüksek ve en düşük çeyrek arasındaki fark yaklaşık 75 iken 1986'da yaklaşık 816'dır. `EuStockMarkets` dört paneli alt alta çizer (DAX, SMI, CAC, FTSE).
 >
 > **Şimdi siz:** Her seri için 1.3'teki tablodan en uygun amacı seçin. Hangi serilerde Şekil 1.1'deki "yaz tepesi büyüyen" yapıya benzer bir **büyüyen dalga** görüyorsunuz?
 >
@@ -260,7 +260,7 @@ Hangi alanda çalışırsak çalışalım, zaman serisi analizi genellikle benze
 > 2. Ana pencerede iki değişken görünür: `g` (yolcu sayısı) ve `lg` (onun doğal logaritması). `g`'ye sağ tıklayıp **Time series plot** seçin (ya da **View → Graph specified vars → Time series plot…**).
 > 3. `g` seçiliyken **View → Summary statistics** seçin.
 >
-> Aynı işin betik karşılığı (**File → Script files → New script** penceresine yapıştırıp çalıştırabilirsiniz):
+> Aynı işin betik karşılığı (**File → Script files → New script → gretl script** penceresine yapıştırıp çalıştırabilirsiniz):
 >
 > ```gretl
 > open bjg.gdt

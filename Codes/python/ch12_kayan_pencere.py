@@ -46,7 +46,7 @@ print(X[:3], y[:3])
 # %%
 # 2) Aynı fikir pandas ile: gecikme ve takvim özellikleri
 tablo = pd.DataFrame({'y': seri})
-for k in [1, 2, 3, 12]:                     # x_{t-1}, x_{t-2}, x_{t-3} ve geçen yılın aynı ayı
+for k in [1, 2, 3, 12]:                     # y_{t-1}, y_{t-2}, y_{t-3} ve geçen yılın aynı ayı
     tablo[f'lag_{k}'] = seri.shift(k)
 # Hareketli ortalama yalnızca GEÇMİŞ değerlerden hesaplanır: shift(1) sızıntıyı önler
 tablo['ort_3'] = seri.shift(1).rolling(window=3).mean()

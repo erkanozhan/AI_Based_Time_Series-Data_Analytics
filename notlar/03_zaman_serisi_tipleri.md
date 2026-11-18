@@ -2,7 +2,7 @@
 
 ## 3. Zaman Serisi Tipleri
 
-Bir doktor tedaviye başlamadan önce teşhis koyar. Zaman serisi analizinde de durum aynıdır: **modeli seçmeden önce serinin "tipini" belirlemeliyiz.** Çünkü her seriye aynı yöntem uygulanmaz; yanlış tipe uygun bir model seçmek, grip hastasına kırık kol tedavisi uygulamaya benzer.
+Bir doktor tedaviye başlamadan önce teşhis koyar. Zaman serisi analizinde de durum aynıdır: **modeli seçmeden önce serinin "tipini" belirlemeliyiz.** Çünkü her seriye aynı yöntem uygulanmaz; serinin tipine uymayan bir model seçmek, grip hastasına kırık kol tedavisi uygulamaya benzer.
 
 Zaman serilerini sınıflandırırken **dört bağımsız eksen** kullanırız. Buradaki kilit fikir şudur: bu eksenler birbirini dışlamaz. Her seri, her eksenden **birer etiket** alır. Örneğin derste sık kullanacağımız `AirPassengers` serisi aynı anda *tek değişkenli*, *durağan olmayan*, *kesikli zamanlı* ve *stokastik* bir seridir.
 
@@ -34,7 +34,7 @@ $$
 $$
 
 ```math
-\underbrace{\lbrace x_t\rbrace_{t=1}^{T}}_{\substack{\text{T gözlemlik}\\\text{seri}}}, \qquad \underbrace{x_t \in \mathbb{R}}_{\substack{\text{her anda tek bir}\\\text{gerçel sayı}}}
+\underbrace{\lbrace x_t\rbrace_{t=1}^{T}}_{\substack{T\text{ gözlemlik}\\\text{seri}}}, \qquad \underbrace{x_t \in \mathbb{R}}_{\substack{\text{her anda tek bir}\\\text{gerçel sayı}}}
 ```
 
 **Ne anlatıyor?** Tek değişkenli bir seride her zaman noktasında yalnızca bir sayı gözlenir.
@@ -50,7 +50,7 @@ $$
 $$
 
 ```math
-\underbrace{\mathbf{x}_t}_{\substack{\text{t anındaki}\\\text{gözlem vektörü}}} = (\overbrace{x_{1,t}}^{\text{1. değişken}}, x_{2,t}, \dots, \overbrace{x_{k,t}}^{\text{k. değişken}})^\top \in \underbrace{\mathbb{R}^k}_{\substack{\text{k gerçel sayıdan}\\\text{oluşan vektörler}}}
+\underbrace{\mathbf{x}_t}_{\substack{t\text{ anındaki}\\\text{gözlem vektörü}}} = (\overbrace{x_{1,t}}^{\text{1. değişken}}, x_{2,t}, \dots, \overbrace{x_{k,t}}^{k\text{. değişken}})^\top \in \underbrace{\mathbb{R}^k}_{\substack{k\text{ gerçel sayıdan}\\\text{oluşan vektörler}}}
 ```
 
 **Ne anlatıyor?** Çok değişkenli bir seride her zaman noktasında $k$ değişkenin değeri birlikte gözlenir ve tek bir vektörde toplanır; böylece değişkenler arasındaki etkileşim incelenebilir.
@@ -149,9 +149,9 @@ Tanımda üç istatistiksel kavram kullanılır. Üçünü de basit örneklerle 
 
 ```math
 \begin{aligned}
-&1)\quad \underbrace{E[x_t]}_{\text{t anındaki ortalama}} = \underbrace{\mu}_{\substack{\text{sabit sayı,}\\\text{t'ye bağlı değil}}}\\[6pt]
-&2)\quad \underbrace{\mathrm{Var}(x_t)}_{\text{t anındaki varyans}} = \underbrace{\sigma^2 < \infty}_{\text{sabit ve sonlu}}\\[6pt]
-&3)\quad \underbrace{\mathrm{Cov}(x_t, x_{t+h})}_{\substack{\text{h adım arayla iki}\\\text{değerin kovaryansı}}} = \underbrace{\gamma(h)}_{\substack{\text{yalnızca gecikme h'ye}\\\text{bağlı, t'ye değil}}}
+&1)\quad \underbrace{E[x_t]}_{t\text{ anındaki ortalama}} = \underbrace{\mu}_{\substack{\text{sabit sayı,}\\t\text{'ye bağlı değil}}}\\[6pt]
+&2)\quad \underbrace{\mathrm{Var}(x_t)}_{t\text{ anındaki varyans}} = \underbrace{\sigma^2 < \infty}_{\text{sabit ve sonlu}}\\[6pt]
+&3)\quad \underbrace{\mathrm{Cov}(x_t, x_{t+h})}_{\substack{h\text{ adım arayla iki}\\\text{değerin kovaryansı}}} = \underbrace{\gamma(h)}_{\substack{\text{yalnızca gecikme }h\text{'ye}\\\text{bağlı, }t\text{'ye değil}}}
 \end{aligned}
 ```
 
@@ -205,7 +205,7 @@ Denklemi parça parça okuyalım:
 
 Tüm denklem şu cümlenin kısaltmasıdır: **Bugünkü satış = (dünkü satışın bugüne yansıyan kısmı) + (bugüne özgü sürpriz).**
 
-> **Simge notu:** $`\phi`$ *(fi)*: AR(1) katsayısı, serinin hafızası. Pi ($`\pi \approx 3.14`$) ile karıştırılmamalıdır; $`\phi`$ bir sabit değil, veriden kestirilen bir katsayıdır · $`\varepsilon_t`$ *(epsilon t)*: t anındaki rastgele şok. Küme işareti $`\in`$ (elemanıdır) ile karıştırılmamalıdır; $`\varepsilon`$ bir harftir, "ait olma" anlamı taşımaz · $`x_{t-1}`$ *(x t eksi bir)*: bir önceki dönemin değeri
+> **Simge notu:** $`\phi`$ *(fi)*: AR(1) katsayısı, serinin hafızası. Pi ($`\pi \approx 3.14`$) ile karıştırılmamalıdır; $`\phi`$, $`\pi`$ gibi evrensel bir sabit değildir: zamanla değişmez, ama değeri her seri için veriden kestirilir · $`\varepsilon_t`$ *(epsilon t)*: t anındaki rastgele şok. Küme işareti $`\in`$ (elemanıdır) ile karıştırılmamalıdır; $`\varepsilon`$ bir harftir, "ait olma" anlamı taşımaz · $`x_{t-1}`$ *(x t eksi bir)*: bir önceki dönemin değeri
 
 **Bir şokun yolculuğu.** $\phi$'nin neden bu kadar önemli olduğunu görmek için tek bir şoku izleyelim. Seri sıfırda dururken bir gün 100 birimlik bir şok gelsin ($\varepsilon = 100$) ve sonrasında hiç yeni şok gelmesin. Her gün bir önceki günün $\phi$ katı bugüne taşınır:
 
@@ -320,7 +320,7 @@ $$
 $$
 
 ```math
-\underbrace{1 - \phi z}_{\substack{\text{B yerine kukla}\\\text{değişken z konmuş iskelet}}} = 0
+\underbrace{1 - \phi z}_{\substack{B\text{ yerine kukla}\\\text{değişken }z\text{ konmuş iskelet}}} = 0
 ```
 
 **Ne anlatıyor?** Gecikme operatörünün yerine sıradan bir bilinmeyen konularak modelin karakteristik denklemi kurulur. Bu denklemin kökü, serinin durağan olup olmadığını belirler.
@@ -333,7 +333,7 @@ Bu birinci dereceden denklemi $2x - 6 = 0$ gibi çözeriz: $\phi z = 1$, buradan
 | 1 | 1 / 1 = 1 | Tam 1 | Birim kök, rastgele yürüyüş |
 | 1.25 | 1 / 1.25 = 0.8 | 1'den küçük | Patlayıcı |
 
-Kökün tersi ($1/z$), bir şokun her dönem çarpıldığı sayıdır: $z = 2$ ise şok her dönem yarıya iner, $z = 1$ ise hiç küçülmez.
+Kökün tersi ($1/z$), bir şokun her dönem çarpıldığı sayıdır: $z = 2$ ise şok her dönem yarıya iner, $z = 1$ ise hiç küçülmez. (Patlayıcı örnekte kök yuvarlak bir sayı, 0.8 çıksın diye 3.2.2'deki 1.2 yerine 1.25 seçilmiştir; $\phi = 1.2$ için kök $1/1.2 \approx 0.833$'tür, bkz. 3.2c.)
 
 Adın kaynağı da buradadır: Matematikte 1 sayısına **birim** denir. $\phi = 1$ olduğunda karakteristik denklemin kökü tam 1 çıkar; yani modelin **kökü birimdir**. "Birim kök" (*unit root*) adı buradan gelir. Bir seride birim kök olması, şokların hiç sönmemesi, birikerek kalması ve serinin durağan olmaması demektir.
 
@@ -383,7 +383,7 @@ Bu kod, yukarıda elle bulduğumuz kökleri R'a hesaplatır ve kural için gerek
 > Mod(polyroot(c(1, 0.5)))         # phi = -0.5 -> 1 - (-0.5)z = 1 + 0.5z
 > ```
 >
-> **Ne göreceksiniz:** `[1] 1.111111` (1'den büyük: durağan), `[1] 0.8333333` (1'den küçük: patlayıcı) ve `[1] 2` (durağan). Son satırda katsayı negatif olduğu halde kök yine 2'dir; kural kökün işaretine değil, sıfıra uzaklığına bakar.
+> **Ne göreceksiniz:** `[1] 1.111111` (1'den büyük: durağan), `[1] 0.8333333` (1'den küçük: patlayıcı) ve `[1] 2` (durağan). Son satırda katsayı negatif olduğu için kök −2'dir, ama sıfıra uzaklığı (`Mod`) yine 2'dir; kural kökün işaretine değil, sıfıra uzaklığına bakar.
 >
 > **Şimdi siz:** $`x_t = 1.25\thinspace x_{t-1} - 0.25\thinspace x_{t-2} + \varepsilon_t`$ modelinin karakteristik denklemi $`1 - 1.25z + 0.25z^2 = 0`$'dır. Kökleri `polyroot()` ile bulun. Seri durağan mı?
 >
@@ -416,11 +416,11 @@ Durağan olmayan serilerin hepsi aynı türden değildir. İki tür özellikle �
 
 Örneğin $\beta_0 = 100$ ve $\beta_1 = 2$ ise trend çizgisi 100'den başlar ve her dönem 2 birim yükselir; seri bu çizginin çevresinde dalgalanır ve bir şoktan sonra yine çizgiye döner. Rastgele yürüyüşte ise dönülecek bir çizgi yoktur. Bu ayrım önemlidir çünkü yanlış dönüşüm (trend-durağan seriden fark almak ya da birim köklü seriden sadece trend çıkarmak) hatalı modellere yol açar. ARIMA'daki "I" (Integrated) harfi tam olarak bu fark alma işlemini temsil eder.
 
-**Günlük hayattan bir örnek:** Trend-durağan seri raydaki bir tren gibidir: Sarsıntıyla biraz yana yatsa da rayın üstüne döner; ray deterministik trendtir. Fark-durağan seri ise rüzgârla sürüklenen bir sandal gibidir: Her dalga onu biraz iter ve gittiği yerde kalır; dönülecek bir ray yoktur. Benzetmenin sınırı: Seride trende dönüş anlık değil, kademelidir.
+**Günlük hayattan bir örnek:** Trend-durağan seri raydaki bir tren gibidir: Sarsıntıyla biraz yana yatsa da rayın üstüne döner; ray deterministik trendtir. Fark-durağan seri ise rüzgârla sürüklenen bir sandal gibidir: Her dalga onu biraz iter ve gittiği yerde kalır; dönülecek bir ray yoktur. Benzetmenin sınırı: Formüldeki $\varepsilon_t$ beyaz gürültü olduğu için seride trende dönüş bir sonraki dönemde gerçekleşir; sapmalar durağan bir AR süreci izlediğinde ise dönüş kademeli olur.
 
 #### 3.2.5. ADF Testi
 
-**ADF testi: hipotezler ve p-değeri.** Gerçek veride $\phi$'yi bilmeyiz; elimizde yalnızca gözlenmiş seri vardır. Bu seriden tahmin edilen katsayı, şans eseri 1'den biraz küçük ya da büyük çıkabilir. "Bu fark gerçek mi, yoksa tesadüf mü?" sorusunu yanıtlayan araca **hipotez testi** denir. Birim kök için en yaygın test **ADF** (*Augmented Dickey-Fuller*, genişletilmiş Dickey-Fuller) testidir. ADF iki iddiayı karşı karşıya koyar:
+**ADF testi: hipotezler ve p-değeri.** Gerçek veride $\phi$'yi bilmeyiz; elimizde yalnızca gözlenmiş seri vardır. Bu seriden kestirilen katsayı, şans eseri 1'den biraz küçük ya da büyük çıkabilir. "Bu fark gerçek mi, yoksa tesadüf mü?" sorusunu yanıtlayan araca **hipotez testi** denir. Birim kök için en yaygın test **ADF** (*Augmented Dickey-Fuller*, genişletilmiş Dickey-Fuller) testidir. ADF iki iddiayı karşı karşıya koyar:
 
 - **Sıfır hipotezi** $H_0$: "Seride birim kök vardır ($\phi = 1$); seri durağan değildir."
 - **Alternatif hipotez** $H_1$: "Birim kök yoktur ($\phi < 1$); seri durağandır." R çıktılarında görülen `alternative hypothesis: stationary` satırı tam olarak bunu söyler.
@@ -543,7 +543,7 @@ Beyaz gürültüde (−5.64, p = 0.01) ve farkı alınmış seride (−6.09, p =
 
 > **Hemen deneyin 3.2e · Gerçek bir hisse serisinde ADF** (Gretl betiği, ~4 dk)
 >
-> Gretl'in örnek dosyalarından `djclose`, Dow Jones endeksinin 1980–1989 arasındaki günlük kapanışlarıdır (2528 gözlem). Gretl'de **File → Script files → New script** ile açılan pencereye yapıştırıp **Run** (dişli simgesi) düğmesine basın:
+> Gretl'in örnek dosyalarından `djclose`, Dow Jones endeksinin 1980–1989 arasındaki günlük kapanışlarıdır (2528 gözlem). Gretl'de **File → Script files → New script → gretl script** ile açılan pencereye yapıştırıp **Run** (dişli simgesi) düğmesine basın:
 >
 > ```gretl
 > open djclose.gdt                              # Dow Jones günlük kapanış, 1980-1989
@@ -581,7 +581,7 @@ x_t = x(t \cdot \Delta t), \qquad t = 0, 1, 2, \dots
 $$
 
 ```math
-\underbrace{x_t}_{\substack{\text{t'nci}\\\text{gözlem}}} = \overbrace{x(t \cdot \Delta t)}^{\substack{\text{sürekli sürecin}\\t \cdot \Delta t\text{ anındaki değeri}}}, \qquad \underbrace{t = 0, 1, 2, \dots}_{\text{örnek numarası}}
+\underbrace{x_t}_{\substack{t\text{'nci}\\\text{gözlem}}} = \overbrace{x(t \cdot \Delta t)}^{\substack{\text{sürekli sürecin}\\t \cdot \Delta t\text{ anındaki değeri}}}, \qquad \underbrace{t = 0, 1, 2, \dots}_{\text{örnek numarası}}
 ```
 
 **Ne anlatıyor?** Kesikli seri, sürekli bir süreçten eşit aralıklarla alınan ölçümlerden oluşur: $t$'nci gözlem, sürecin $t \cdot \Delta t$ anındaki değeridir.
@@ -656,7 +656,7 @@ Bu dersteki ve gerçek dünyadaki analizlerin **büyük çoğunluğu kesikli zam
 - **Deterministik seri:** Tamamen bilinen bir fonksiyonla ifade edilir, hiçbir belirsizlik içermez:
 
 ```math
-x_t = \underbrace{f(t)}_{\substack{\text{zamanın bilinen}\\\text{fonksiyonu}}}, \qquad \text{örneğin} \quad x_t = \underbrace{A}_{\text{genlik}} \underbrace{\sin\left(\frac{2\pi t}{P}\right)}_{\substack{\text{her P adımda}\\\text{tekrar eden dalga}}} + \overbrace{\beta t}^{\substack{\text{doğrusal}\\\text{trend}}}
+x_t = \underbrace{f(t)}_{\substack{\text{zamanın bilinen}\\\text{fonksiyonu}}}, \qquad \text{örneğin} \quad x_t = \underbrace{A}_{\text{genlik}} \underbrace{\sin\left(\frac{2\pi t}{P}\right)}_{\substack{\text{her }P\text{ adımda}\\\text{tekrar eden dalga}}} + \overbrace{\beta t}^{\substack{\text{doğrusal}\\\text{trend}}}
 ```
 
 **Ne anlatıyor?** Deterministik bir seride her değer, zamanın bilinen bir fonksiyonundan hatasız hesaplanır. Örnekteki seri, her $P$ adımda kendini tekrarlayan bir dalga ile doğrusal bir trendin toplamıdır.
@@ -763,7 +763,7 @@ Derste kullanacağımız serilerin sınıflandırması:
 
 > **Hemen deneyin 3.5 · İki seriyi dört soruyla sınıflandırın** (R, ~5 dk)
 >
-> `lynx` (yıllık vaşak sayısı, 2.3) ve `co2` (aylık CO2, 1.4) için dört soruyu R'a yardımcı olarak sorduralım:
+> `lynx` (yıllık vaşak sayısı, 2.3) ve `co2` (aylık CO2, 1.4) için dört soruyu R'ın yardımıyla yanıtlayalım:
 >
 > ```r
 > library(tseries)
@@ -796,14 +796,14 @@ Derste kullanacağımız serilerin sınıflandırması:
    → Çünkü varyansı $\mathrm{Var}(x_t) = t\sigma^2$ zamanla büyür. Durağanlık için ortalamanın yanında varyansın ve otokovaryansın da sabit olması gerekir.
 
 3. **Hisse fiyatı durağan değilken günlük getirisi neden yaklaşık durağandır?**
-   → Getiri, fiyatın (log) farkıdır: $r_t = \ln P_t - \ln P_{t-1}$. Fark alma işlemi birim kökü ortadan kaldırır.
+   → Getiri, fiyatın (log) farkıdır: $r_t = \log p_t - \log p_{t-1}$. Fark alma işlemi birim kökü ortadan kaldırır.
 
-   > **Simge notu:** $`\ln`$ *(doğal logaritma, "el en")*: e tabanında logaritma · $`P_t`$: t günündeki fiyat · $`r_t`$: t günündeki log getiri
+   > **Simge notu:** $`\log`$: doğal logaritma (Bölüm 2.4); bazı kaynaklarda $`\ln`$ diye yazılır · $`p_t`$: t günündeki fiyat · $`r_t`$: t günündeki log getiri
 
 4. **Saatlik ölçülen bir seride 30 dakikalık bir döngü görülebilir mi?**
    → Hayır. 30 dakikalık döngünün frekansı saatte 2'dir; bunu yakalamak için saatte 4'ten fazla ölçüm, yani 15 dakikadan daha sık örnekleme gerekir (Nyquist). Saatlik örneklemede bu döngü kaybolur ya da örtüşme nedeniyle yanıltıcı görünür.
 
-5. **Bir AR(1) modelinde $`\phi = 0.8`$ tahmin edilmiş. Karakteristik denklemin kökü nedir, seri durağan mıdır? 100 birimlik bir şok iki dönem sonra kaça iner?**
+5. **Bir AR(1) modelinde $`\phi = 0.8`$ kestirilmiş. Karakteristik denklemin kökü nedir, seri durağan mıdır? 100 birimlik bir şok iki dönem sonra kaça iner?**
    → $`1 - 0.8z = 0`$ denkleminden $`z = 1/0.8 = 1.25`$ bulunur. Kök 1'den büyük olduğu için (birim çemberin dışında) seri durağandır. Şok $`100 \to 0.8 \times 100 = 80 \to 0.8 \times 80 = 64`$ olur; yavaş da olsa söner.
 
 6. **Bir seriye uygulanan ADF testi p = 0.32 verdi. "Seride birim kök olduğu kanıtlandı" demek doğru mu?**

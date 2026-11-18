@@ -20,13 +20,13 @@ Matematikte **fonksiyon**, her girdiye bir çıktı karşılık getiren kuraldı
 \underbrace{y(t)}_{\text{gözlem}} = \underbrace{g(t)}_{\text{trend}} + \underbrace{s(t)}_{\text{mevsimsellik}} + \underbrace{h(t)}_{\text{tatil etkisi}} + \underbrace{\varepsilon_t}_{\text{hata}}
 ```
 
-**Ne anlatıyor?** Prophet, gözlenen değeri trend, mevsimsellik ve tatil etkisinin o andaki katkıları ile açıklanamayan hatanın toplamı olarak modeller. Her bileşen ayrı ayrı modellenir ve katkılar toplanır.
+**Ne anlatıyor?** Prophet, gözlenen değeri trend, mevsimsellik ve tatil etkisinin o andaki katkıları ile açıklanamayan hatanın toplamı olarak modeller. Her bileşen ayrı bir fonksiyonla ifade edilir, katsayıları birlikte kestirilir ve katkılar toplanır.
 
 > **Simge notu:** $`y(t)`$: $`t`$ anındaki gözlem; "y t" diye okunur. Parantezli yazım $`y(t)`$ ile alt indisli yazım $`y_t`$ aynı şeyi anlatır: "t zamanındaki y değeri" · $`g(t)`$: trend fonksiyonu (*growth*, büyüme) · $`s(t)`$: mevsimsel (periyodik, düzenli tekrar eden) bileşen (*seasonality*) · $`h(t)`$: tatil/özel gün etkileri (*holidays*) · $`\varepsilon_t`$ *(epsilon t)*: modelin açıklayamadığı rastgele hata. $`\varepsilon`$ bir Yunan harfidir; küme işareti $`\in`$ ("elemanıdır") ile karıştırmayın
 
 Küçük bir örnek: Bir ayda trend 450 bin yolcuyu, mevsim etkisi +60'ı, tatil etkisi 0'ı gösteriyor ve o ay açıklanamayan bir −5'lik sapma olmuşsa gözlem $450 + 60 + 0 - 5 = 505$ olur. Model, gözlenen 505'i bu dört parçaya ayırmaya çalışır; tahmin yaparken de hata hariç ilk üç parçayı toplar.
 
-Bileşenler birbirinden bağımsız olarak modellenir ve sonra toplanır. Model teknik olarak bir **eğri uydurma (curve fitting)** ya da regresyon problemidir; yani girdiden (zaman) çıktıyı (gözlem) veren bir denklemin katsayıları veriden bulunur. Zaman, modelin tek girdisidir. Bu yüzden ARIMA'dan farklı olarak gözlemlerin eşit aralıklı olması veya eksiksiz olması gerekmez.
+Her bileşen ayrı bir fonksiyonla ifade edilir; ama katsayılar tek bir uydurma işleminde birlikte kestirilir ve katkılar toplanır. Model teknik olarak bir **eğri uydurma (curve fitting)** ya da regresyon problemidir; yani girdiden (zaman) çıktıyı (gözlem) veren bir denklemin katsayıları veriden bulunur. Zaman, modelin tek girdisidir. Bu yüzden ARIMA'dan farklı olarak gözlemlerin eşit aralıklı olması veya eksiksiz olması gerekmez.
 
 ![Prophet bileşen yapısı](../images/ch09_prophet_bilesenleri.svg)
 
@@ -99,7 +99,7 @@ Tablo eğrinin hikâyesini anlatır: Başta neredeyse sıfır, orta noktada ($t 
 > 2. **B2**'ye `=100/(1+ÜS(-1*(A2-5)))` yazın (İngilizce: `=100/(1+EXP(-1*(A2-5)))`). `ÜS(x)`, formüldeki $\exp(x) = e^x$'tir. B2'yi B12'ye kadar aşağı sürükleyin.
 > 3. **A1:B12**'yi seçin ve **Ekle → Grafik** menüsünden bir dağılım (çizgili) grafiği ekleyin.
 >
-> **Ne göreceksiniz:** t = 0, 3, 5, 7, 10 satırlarında 0,67; 11,92; 50; 88,08; 99,33 değerleri (yuvarlanmış hâlde): 9.1.1'deki tablonun aynısı. Grafik S biçimindedir: Önce yavaş, t = 5 civarında en hızlı yükselir, sonra 100'e yaklaşıp yatıklaşır ve 100'ü hiç aşmaz.
+> **Ne göreceksiniz:** t = 0, 3, 5, 7, 10 satırlarında 0,67; 11,92; 50; 88,08; 99,33 değerleri (yuvarlanmış hâlde; Türkçe Excel ondalık ayırıcı olarak virgül gösterir): 9.1.1'deki tablonun aynısı. Grafik S biçimindedir: Önce yavaş, t = 5 civarında en hızlı yükselir, sonra 100'e yaklaşıp yatıklaşır ve 100'ü hiç aşmaz.
 >
 > **Şimdi siz:** Büyüme hızını bir hücreye taşıyın: **E1**'e `1` yazın ve B2'deki formülü `=100/(1+ÜS(-$E$1*(A2-5)))` yapıp yeniden aşağı sürükleyin (`$E$1`, sürüklerken hep E1'e bakılmasını sağlar). Şimdi E1'e `2` yazın. t = 3 ve t = 7'de değerler nasıl değişti, eğri nasıl görünüyor?
 >
@@ -146,7 +146,7 @@ Tek bir dalga bile "kış düşük, yaz yüksek" desenini yakalar. Ancak gerçek
 
 *Şekil 9.3 — Fourier terimleri: (a) Yılda 1, 2 ve 3 tur atan dalgalar, katsayıları `AirPassengers` verisinden bulunmuş hâlleriyle. (b) Bu dalgaların toplamı: Yalnızca ilk dalga ($`N = 1`$) aylık mevsim etkilerinden ortalama 15.6 bin yolcu sapar; üç dalga ($`N = 3`$) bu sapmayı 6.0'a indirir.*
 
-**Yorum:** $n = 1$ terimi periyot başına tek bir tepe ve tek bir çukur üreten en kaba dalgadır. $n$ büyüdükçe daha hızlı salınan dalgalar eklenir; bunların toplamı, yaz tepesi ve kış çukuru gibi düzgün olmayan desenleri de yakalayabilir. $N$ (Prophet'taki adı `fourier_order`) büyüdükçe mevsimsel eğri daha esnek olur; varsayılan değer yıllık mevsimsellik için 10, haftalık için 3'tür. Esneklik bedelsiz değildir: Çok büyük $N$, veriye değil gürültüye uyan, aşırı dalgalı bir eğri üretebilir (9.2.1'deki bileşen grafiğinde bunun bir örneğini göreceğiz). Katsayılar $a_n, b_n$ sıradan bir regresyonla tahmin edilir: Her $\cos$ ve $\sin$ terimi bir girdi sütunu gibi davranır.
+**Yorum:** $n = 1$ terimi periyot başına tek bir tepe ve tek bir çukur üreten en kaba dalgadır. $n$ büyüdükçe daha hızlı salınan dalgalar eklenir; bunların toplamı, yaz tepesi ve kış çukuru gibi düzgün olmayan desenleri de yakalayabilir. $N$ (Prophet'taki adı `fourier_order`) büyüdükçe mevsimsel eğri daha esnek olur; varsayılan değer yıllık mevsimsellik için 10, haftalık için 3'tür. Esneklik bedelsiz değildir: Çok büyük $N$, veriye değil gürültüye uyan, aşırı dalgalı bir eğri üretebilir (9.2.1'deki bileşen grafiğinde bunun bir örneğini göreceğiz). Katsayılar $a_n, b_n$ regresyona benzer biçimde kestirilir: Her $\cos$ ve $\sin$ terimi bir girdi sütunu gibi davranır. Fark şudur: Prophet katsayıların aşırı büyümesini bir ön dağılımla sınırlar (`seasonality_prior_scale`, varsayılan 10) ve onları trendle birlikte kestirir.
 
 Bölüm 2.3'teki ayrımı hatırlayalım: Prophet'ın $s(t)$ bileşeni sabit ve bilinen periyotlu **mevsimselliği** modeller; süresi belirsiz **döngüsel** dalgalanmalar ise çoğunlukla trend bileşenine karışır.
 
@@ -164,7 +164,7 @@ Bölüm 2.3'teki ayrımı hatırlayalım: Prophet'ın $s(t)$ bileşeni sabit ve 
 >
 > <details><summary>Cevap</summary>
 >
-> Temmuz 44'ten 54'e çıkar, Ocak −44'ten −34'e yükselir; değerler sırasıyla yaklaşık −34; −31,3; −23,9; −6,4; 20,1; 44,9; 54; 41,3; 13,9; −13,6; −30,1; −34,9 olur. Yaz tepesi daha dar ve sivri, kış çukuru ise daha geniş ve yayvan hâle gelir. Tek dalga simetrik bir şekil verirken ikinci dalga bu simetriyi bozar; 9.1.2'deki "daha hızlı dalgalar eklendikçe daha karmaşık şekiller" fikri budur.
+> Temmuz 44'ten 54'e çıkar, Ocak −44'ten −34'e yükselir; değerler sırasıyla yaklaşık −34; −31,3; −23,9; −6,4; 20,1; 44,9; 54; 41,3; 13,9; −13,6; −30,1; −34,9 olur. Yaz tepesi daha dar ve sivri, kış çukuru ise daha geniş ve yayvan hâle gelir. Tek dalga tepesi ve çukuru birbirinin aynası olan bir şekil verirken ikinci dalga tepe ile çukur arasındaki bu simetriyi bozar; 9.1.2'deki "daha hızlı dalgalar eklendikçe daha karmaşık şekiller" fikri budur.
 >
 > </details>
 
@@ -561,7 +561,7 @@ print(df_cv.groupby('cutoff').size())        # her kesim noktası için 12 test 
 print(performance_metrics(df_cv, rolling_window=1)[['mae', 'rmse', 'mape']])
 ```
 
-- `horizon='365 days'`: Her turda kesim noktasından (*cutoff*) sonraki bir yıl tahmin edilir. Prophet süreleri gün cinsinden ister; aylık veride de böyle yazılır.
+- `horizon='365 days'`: Her turda kesim noktasından (*cutoff*) sonraki bir yıl tahmin edilir. Süreler pandas `Timedelta` biçiminde verilir; "ay" ve "yıl" birimi kabul edilmediği için aylık veride de gün cinsinden yazılır.
 - `period='365 days'`: Kesim noktası her turda bir yıl kaydırılır.
 - `initial='2922 days'` (8 yıl): İlk turdaki eğitim dönemi en az bu kadar uzun olur.
 

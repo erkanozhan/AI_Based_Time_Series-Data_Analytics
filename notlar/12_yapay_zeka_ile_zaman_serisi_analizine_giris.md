@@ -22,19 +22,19 @@ Makine öğrenmesi yaklaşımının temelinde basit ama güçlü bir fikir yatar
 
 Bir dondurmacıyı düşünün: Bugünkü satışı tahmin etmek isteyen dükkân sahibi; dünkü satışa, geçen hafta aynı günkü satışa ve bugünün hafta sonu olup olmadığına bakar. Bu üç bilgi tablonun sütunları (özellikler), bugünkü satış ise o satırın hedefidir. Geçmiş günlerin her biri böyle bir satır oluşturur ve model bu satırlardan "hangi koşulda satış ne olur" ilişkisini öğrenir.
 
-**Tanım:** $x_t$ değerini tahmin etmek için, geçmiş değerlerden ve bilinen takvim bilgilerinden oluşan bir fonksiyon öğrenmeye çalışırız. Formül, sözle şunu söyler: *bugünkü değer = (geçmiş değerlerden ve takvimden hesaplanan bir sonuç) + (önceden bilinemeyen bir sürpriz)*.
+**Tanım:** $y_t$ değerini tahmin etmek için, geçmiş değerlerden ve bilinen takvim bilgilerinden oluşan bir fonksiyon öğrenmeye çalışırız. Formül, sözle şunu söyler: *bugünkü değer = (geçmiş değerlerden ve takvimden hesaplanan bir sonuç) + (önceden bilinemeyen bir sürpriz)*.
 
 ```math
-\underbrace{x_t}_{\substack{\text{bugünkü değer}\\\text{(hedef)}}} = \overbrace{f}^{\text{öğrenilecek kural}}\big(\underbrace{x_{t-1}, x_{t-2}, \dots, x_{t-p}}_{\text{son p gözlem}}, \underbrace{\text{ay}, \text{haftanın günü}, \text{tatil mi?}, \dots}_{\text{takvim bilgisi}}\big) + \underbrace{\varepsilon_t}_{\text{sürpriz (hata)}}
+\underbrace{y_t}_{\substack{\text{bugünkü değer}\\\text{(hedef)}}} = \overbrace{f}^{\text{öğrenilecek kural}}\big(\underbrace{y_{t-1}, y_{t-2}, \dots, y_{t-p}}_{\text{son }p\text{ gözlem}}, \underbrace{\text{ay}, \text{haftanın günü}, \text{tatil mi?}, \dots}_{\text{takvim bilgisi}}\big) + \underbrace{\varepsilon_t}_{\text{sürpriz (hata)}}
 ```
 
 **Ne anlatıyor?** Bugünkü değer, son $p$ gözlemden ve takvim bilgisinden veriyle öğrenilen bir kuralın sonucu ile önceden bilinemeyen bir hatanın toplamı olarak ifade edilir. Böylece zaman serisi problemi, geçmiş değerlerin ve takvimin özellik, bugünkü değerin hedef olduğu bir denetimli öğrenme problemine dönüşür.
 
-> **Simge notu:** $`x_t`$ *(x t)*: t anındaki (bugünkü) değer; alttaki küçük $`t`$ (alt indis) değerin hangi zamana ait olduğunu gösterir · $`x_{t-1}`$ *(x t eksi bir)*: bir önceki dönemin değeri; $`x_{t-p}`$: p dönem önceki değer · $`f(\dots)`$ *(f fonksiyonu)*: parantez içindeki girdileri alıp tek bir sayı üreten kural; veriden öğrenilecektir ve doğrusal olması gerekmez · $`\dots`$ *(üç nokta)*: aradaki terimler · $`p`$: kaç geçmiş gözleme bakıldığı (pencere boyutu) · $`\varepsilon_t`$ *(epsilon t)*: modelin açıklayamadığı hata (sürpriz). ε (epsilon) bir Yunan harfidir; "elemanıdır" anlamındaki ∈ işaretiyle karıştırmayın.
+> **Simge notu:** $`y_t`$ *(y t)*: t anındaki (bugünkü) değer; alttaki küçük $`t`$ (alt indis) değerin hangi zamana ait olduğunu gösterir · $`y_{t-1}`$ *(y t eksi bir)*: bir önceki dönemin değeri; $`y_{t-p}`$: p dönem önceki değer · $`f(\dots)`$ *(f fonksiyonu)*: parantez içindeki girdileri alıp tek bir sayı üreten kural; veriden öğrenilecektir ve doğrusal olması gerekmez · $`\dots`$ *(üç nokta)*: aradaki terimler · $`p`$: kaç geçmiş gözleme bakıldığı (pencere boyutu) · $`\varepsilon_t`$ *(epsilon t)*: modelin açıklayamadığı hata (sürpriz). ε (epsilon) bir Yunan harfidir; "elemanıdır" anlamındaki ∈ işaretiyle karıştırmayın.
 
 **Küçük bir örnek:** Aylık `AirPassengers` serisinde (bin yolcu) Ocak 1950'yi tahmin etmek isteyelim. Çok basit bir kural seçelim: "$`f`$ = geçen yılın aynı ayı + 10". Ocak 1949'da değer 112 olduğuna göre tahmin $112 + 10 = 122$ olur. Gerçek değer 115'tir, dolayısıyla hata $\varepsilon = 115 - 122 = -7$ bulunur. Makine öğrenmesinin işi, bu tür hataları bütün geçmiş satırlarda olabildiğince küçültecek $f$ kuralını veriden kendisinin bulmasıdır.
 
-Bölüm 7'deki AR($p$) modeli de aslında aynı şeyi yapar, ancak $f$'yi **doğrusal** bir fonksiyon olarak varsayar. Doğrusal, girdilerin sabit sayılarla (katsayılarla) çarpılıp toplanması demektir; örneğin $f = 0.8 \cdot x_{t-1} + 0.2 \cdot x_{t-12}$. Makine öğrenmesi ise $f$'yi Gradient Boosting, Random Forest, XGBoost ya da sinir ağları gibi esnek algoritmalarla, "önceki ay yüksekse **ve** yaz ayıysa" gibi doğrusal olmayan etkileşimleri de yakalayacak biçimde öğrenir.
+Bölüm 7'deki AR($p$) modeli de aslında aynı şeyi yapar, ancak $f$'yi **doğrusal** bir fonksiyon olarak varsayar. Doğrusal, girdilerin sabit sayılarla (katsayılarla) çarpılıp toplanması demektir; örneğin $f = 0.8 \cdot y_{t-1} + 0.2 \cdot y_{t-12}$. Makine öğrenmesi ise $f$'yi Gradient Boosting, Random Forest, XGBoost ya da sinir ağları gibi esnek algoritmalarla, "önceki ay yüksekse **ve** yaz ayıysa" gibi doğrusal olmayan etkileşimleri de yakalayacak biçimde öğrenir.
 
 > **Hemen deneyin 12.1 · "Geçen yılın aynı ayı + 10" kuralını bütün 1950 yılına uygulayın** (Python, ~4 dk)
 >
@@ -78,7 +78,7 @@ Bölüm 7'deki AR($p$) modeli de aslında aynı şeyi yapar, ancak $f$'yi **doğ
 Dönüşümün en temel yolu **kayan penceredir**: $p$ uzunluğunda bir pencere serinin başından itibaren birer adım kaydırılır. Her konumda pencerenin içindeki $p$ değer bir satırın girdilerini (`X`), pencereden hemen sonraki değer ise o satırın hedefini (`y`) oluşturur.
 
 ```math
-\underbrace{x_{t-p},\ \dots,\ x_{t-2},\ x_{t-1}}_{\substack{\text{girdiler (X):}\\\text{penceredeki p değer}}} \;\longrightarrow\; \underbrace{x_t}_{\substack{\text{hedef (y):}\\\text{pencereden sonraki değer}}}, \qquad \overbrace{t = p+1,\ p+2,\ \dots,\ n}^{(n-p)\ \text{satır}}
+\underbrace{y_{t-p},\ \dots,\ y_{t-2},\ y_{t-1}}_{\substack{\text{girdiler (}X\text{):}\\\text{penceredeki }p\text{ değer}}} \;\longrightarrow\; \underbrace{y_t}_{\substack{\text{hedef (}y\text{):}\\\text{pencereden sonraki değer}}}, \qquad \overbrace{t = p+1,\ p+2,\ \dots,\ n}^{(n-p)\ \text{satır}}
 ```
 
 **Ne anlatıyor?** Penceredeki $p$ ardışık değer bir satırın girdilerini, pencereden hemen sonraki değer ise o satırın hedefini oluşturur. $t$'nin her değeri tablonun bir satırıdır; Şekil 12.1'de $p = 3$ ve $n = 10$ için $t = 4, 5, \dots, 10$ olur, yani 7 satır.
@@ -98,7 +98,7 @@ Pencere boyutu $p$ bir hiperparametredir, yani modelin veriden öğrenmediği, b
 
 > **Hemen deneyin 12.1.1a · Şekil 12.1'deki tabloyu hücre kaydırarak kurun** (Excel / LibreOffice Calc, ~5 dk)
 >
-> 1. Boş bir sayfada `A1` hücresine `x`, `B1`–`E1` hücrelerine sırayla `x_t-3`, `x_t-2`, `x_t-1`, `y` başlıklarını yazın.
+> 1. Boş bir sayfada `A1` hücresine `seri`, `B1`–`E1` hücrelerine sırayla `y_t-3`, `y_t-2`, `y_t-1`, `y` başlıklarını yazın.
 > 2. `A2:A11` hücrelerine `AirPassengers`'ın ilk 10 ayını alt alta yazın: 112, 118, 132, 129, 121, 135, 148, 148, 136, 119.
 > 3. İlk hedef 4. gözlemdir (129, `A5` hücresi). Bu yüzden 5. satıra şu formülleri yazın: `B5` hücresine `=A2`, `C5` hücresine `=A3`, `D5` hücresine `=A4`, `E5` hücresine `=A5`.
 > 4. `B5:E5` aralığını seçin ve seçimin sağ alt köşesindeki küçük kareyi (doldurma tutamacı) 11. satıra kadar aşağı sürükleyin.
@@ -123,8 +123,8 @@ Pencere boyutu $p$ bir hiperparametredir, yani modelin veriden öğrenmediği, b
 > x = np.array([112, 118, 132, 129, 121, 135, 148, 148, 136, 119])   # AirPassengers'ın ilk 10 ayı
 > s = pd.Series(x)
 > # shift(k): seriyi k satır aşağı kaydırır; dropna(): boş (NaN) hücre içeren satırları atar
-> tablo = pd.DataFrame({"x_t-3": s.shift(3), "x_t-2": s.shift(2),
->                       "x_t-1": s.shift(1), "y": s}).dropna()
+> tablo = pd.DataFrame({"y_t-3": s.shift(3), "y_t-2": s.shift(2),
+>                       "y_t-1": s.shift(1), "y": s}).dropna()
 > print(tablo)
 > print(tablo.shape)
 > ```
@@ -132,7 +132,7 @@ Pencere boyutu $p$ bir hiperparametredir, yani modelin veriden öğrenmediği, b
 > **Ne göreceksiniz:**
 >
 > ```text
->    x_t-3  x_t-2  x_t-1    y
+>    y_t-3  y_t-2  y_t-1    y
 > 3  112.0  118.0  132.0  129
 > 4  118.0  132.0  129.0  121
 > 5  132.0  129.0  121.0  135
@@ -145,7 +145,7 @@ Pencere boyutu $p$ bir hiperparametredir, yani modelin veriden öğrenmediği, b
 >
 > Satırlar Excel tablonuzla birebir aynıdır. Soldaki 3, 4, ... sayıları satırın serideki sıra numarasıdır (0'dan sayılır); ilk üç satır (0, 1, 2) `dropna()` ile atılmıştır.
 >
-> **Şimdi siz:** 10 gözlemlik bu seride $p = 12$ seçseydik kaç satır kalırdı? Önce tahmin edin, sonra sözlüğe `"x_t-4": s.shift(4)`, …, `"x_t-12": s.shift(12)` sütunlarını ekleyip `shape`'e bakın.
+> **Şimdi siz:** 10 gözlemlik bu seride $p = 12$ seçseydik kaç satır kalırdı? Önce tahmin edin, sonra sözlüğe `"y_t-4": s.shift(4)`, …, `"y_t-12": s.shift(12)` sütunlarını ekleyip `shape`'e bakın.
 >
 > <details><summary>Cevap</summary>
 >
@@ -163,13 +163,13 @@ Kayan pencere yalnızca son $p$ gözlemi kullanır. Özellik mühendisliğiyle b
 
 | Özellik türü | Örnek | Ne yakalar? |
 | --- | --- | --- |
-| Gecikme (lag) | $`x_{t-1}, x_{t-2}, x_{t-3}`$ | Kısa vadeli bağımlılık (otokorelasyon) |
-| Mevsimsel gecikme | $`x_{t-12}`$ (aylık veride geçen yılın aynı ayı) | Mevsimsel tekrar |
+| Gecikme (lag) | $`y_{t-1}, y_{t-2}, y_{t-3}`$ | Kısa vadeli bağımlılık (otokorelasyon) |
+| Mevsimsel gecikme | $`y_{t-12}`$ (aylık veride geçen yılın aynı ayı) | Mevsimsel tekrar |
 | Hareketli (kayan) istatistikler | Son 3 ayın ortalaması, son 12 ayın standart sapması | Yerel seviye ve oynaklık |
 | Takvim özellikleri | Ay (1–12), çeyrek, haftanın günü, hafta sonu mu, tatil mi | Takvime bağlı etkiler |
 | Dışsal değişkenler | Sıcaklık, fiyat, kampanya göstergesi | Serinin dışındaki nedenler |
 
-Tablodaki `lag_1` bir ay önceki, `lag_12` on iki ay önceki değerdir (gecikme ve kaydırma: bkz. 6.2.2). Aşağıdaki kod, `AirPassengers` verisi üzerinde hem kayan pencereyi hem de gecikme ve takvim özelliklerini oluşturur.
+Aşağıdaki kodda tablodaki $y_{t-1}$ sütununa `lag_1`, $y_{t-12}$ sütununa `lag_12` adını veriyoruz: `lag_1` bir ay önceki, `lag_12` on iki ay önceki değerdir (gecikme ve kaydırma: bkz. 6.2.2). Aşağıdaki kod, `AirPassengers` verisi üzerinde hem kayan pencereyi hem de gecikme ve takvim özelliklerini oluşturur.
 
 ```python
 import numpy as np
@@ -193,7 +193,7 @@ print(X[:3], y[:3])
 
 # 2) Aynı fikir pandas ile: gecikme ve takvim özellikleri
 tablo = pd.DataFrame({'y': seri})
-for k in [1, 2, 3, 12]:                     # x_{t-1}, x_{t-2}, x_{t-3} ve geçen yılın aynı ayı
+for k in [1, 2, 3, 12]:                     # y_{t-1}, y_{t-2}, y_{t-3} ve geçen yılın aynı ayı
     tablo[f'lag_{k}'] = seri.shift(k)
 # Hareketli ortalama yalnızca GEÇMİŞ değerlerden hesaplanır: shift(1) sızıntıyı önler
 tablo['ort_3'] = seri.shift(1).rolling(window=3).mean()
@@ -284,25 +284,25 @@ Bu tablo artık herhangi bir regresyon algoritmasına verilebilir. Bölüm 13'te
 
 #### 12.1.3. Tek Adımlı ve Çok Adımlı Tahmin
 
-Yukarıdaki tablo **tek adımlı (one-step-ahead)** bir tahmin kurar: Bilinen geçmişle yalnızca bir sonraki ayı tahmin ederiz. Oysa pratikte çoğu zaman birkaç adım ilerisi gerekir (ör. önümüzdeki 12 ay). Buna **çok adımlı (multi-step)** tahmin denir ve iki temel stratejisi vardır. Aşağıdaki formüllerde şapkalı $\hat{x}$ "tahmin edilen değer", şapkasız $x$ ise "gözlenmiş gerçek değer" anlamına gelir:
+Yukarıdaki tablo **tek adımlı (one-step-ahead)** bir tahmin kurar: Bilinen geçmişle yalnızca bir sonraki ayı tahmin ederiz. Oysa pratikte çoğu zaman birkaç adım ilerisi gerekir (ör. önümüzdeki 12 ay). Buna **çok adımlı (multi-step)** tahmin denir ve iki temel stratejisi vardır. Aşağıdaki formüllerde şapkalı $\hat{y}$ "tahmin edilen değer", şapkasız $y$ ise "gözlenmiş gerçek değer" anlamına gelir:
 
 ```math
 \begin{aligned}
-\text{Özyinelemeli:}\quad & \hat{x}_{t+1} = f(x_t, x_{t-1}, \dots, x_{t-p+1}), \quad \hat{x}_{t+2} = f(\hat{x}_{t+1}, x_t, \dots, x_{t-p+2}), \quad \dots \\
-\text{Doğrudan:}\quad & \hat{x}_{t+h} = f_h(x_t, x_{t-1}, \dots, x_{t-p+1}), \qquad h = 1, 2, \dots, H
+\text{Özyinelemeli:}\quad & \hat{y}_{t+1} = f(y_t, y_{t-1}, \dots, y_{t-p+1}), \quad \hat{y}_{t+2} = f(\hat{y}_{t+1}, y_t, \dots, y_{t-p+2}), \quad \dots \\
+\text{Doğrudan:}\quad & \hat{y}_{t+h} = f_h(y_t, y_{t-1}, \dots, y_{t-p+1}), \qquad h = 1, 2, \dots, H
 \end{aligned}
 ```
 
 ```math
 \begin{aligned}
-\underbrace{\text{Özyinelemeli:}}_{\substack{\text{tek model, tahminler}\\\text{girdiye geri beslenir}}}\quad & \hat{x}_{t+1} = f(x_t, x_{t-1}, \dots, x_{t-p+1}), \quad \hat{x}_{t+2} = f(\underbrace{\hat{x}_{t+1}}_{\substack{\text{gözlem yerine}\\\text{önceki tahmin}}}, x_t, \dots, x_{t-p+2}), \quad \dots \\[18pt]
-\underbrace{\text{Doğrudan:}}_{\substack{\text{her ufuk için}\\\text{ayrı model}}}\quad & \hat{x}_{t+h} = \overbrace{f_h}^{\substack{\text{h adım için}\\\text{eğitilmiş model}}}(\underbrace{x_t, x_{t-1}, \dots, x_{t-p+1}}_{\text{yalnızca gözlenmiş değerler}}), \qquad h = 1, 2, \dots, H
+\underbrace{\text{Özyinelemeli:}}_{\substack{\text{tek model, tahminler}\\\text{girdiye geri beslenir}}}\quad & \hat{y}_{t+1} = f(y_t, y_{t-1}, \dots, y_{t-p+1}), \quad \hat{y}_{t+2} = f(\underbrace{\hat{y}_{t+1}}_{\substack{\text{gözlem yerine}\\\text{önceki tahmin}}}, y_t, \dots, y_{t-p+2}), \quad \dots \\[18pt]
+\underbrace{\text{Doğrudan:}}_{\substack{\text{her ufuk için}\\\text{ayrı model}}}\quad & \hat{y}_{t+h} = \overbrace{f_h}^{\substack{h\text{ adım için}\\\text{eğitilmiş model}}}(\underbrace{y_t, y_{t-1}, \dots, y_{t-p+1}}_{\text{yalnızca gözlenmiş değerler}}), \qquad h = 1, 2, \dots, H
 \end{aligned}
 ```
 
 **Ne anlatıyor?** Özyinelemeli stratejide tek bir model, kendi tahminini bir sonraki adımda girdi olarak kullanır; doğrudan stratejide ise her ufuk için ayrı bir model yalnızca gözlenmiş değerlerden tahmin yapar.
 
-> **Simge notu:** $`t`$: elimizdeki son gözlemin zamanı ("şimdi") · $`\hat{x}_{t+h}`$ *(x şapka t artı h)*: $`h`$ adım sonrası için yapılan tahmin; şapka (^) "bu bir tahmindir" demektir · $`H`$: tahmin ufku (kaç adım ileriye tahmin yapıldığı) · $`h = 1, 2, \dots, H`$: h sırayla 1, 2, ..., H değerlerini alır · $`f_h`$ *(f h)*: yalnızca $`h`$ adım ilerisi için eğitilmiş ayrı model
+> **Simge notu:** $`t`$: elimizdeki son gözlemin zamanı ("şimdi") · $`\hat{y}_{t+h}`$ *(y şapka t artı h)*: $`h`$ adım sonrası için yapılan tahmin; şapka (^) "bu bir tahmindir" demektir · $`H`$: tahmin ufku (kaç adım ileriye tahmin yapıldığı) · $`h = 1, 2, \dots, H`$: h sırayla 1, 2, ..., H değerlerini alır · $`f_h`$ *(f h)*: yalnızca $`h`$ adım ilerisi için eğitilmiş ayrı model
 
 - **Özyinelemeli (recursive) strateji:** Tek bir tek-adım modeli eğitilir. Bir sonraki adımı tahmin eder, bu tahmini gerçek değermiş gibi pencereye ekler ve bir sonraki adıma geçer. Basittir, ancak her adımdaki hata bir sonraki adımın girdisine karışır ve **hatalar birikir**.
 - **Doğrudan (direct) strateji:** Her ufuk $h$ için ayrı bir model eğitilir: "1 ay sonrası modeli", "2 ay sonrası modeli" vb. Örneğin 2 ay sonrası modelinin eğitim tablosunda girdi son üç ay, hedef ise iki ay sonraki değerdir (aradaki ay atlanır). Hata birikimi yoktur, ancak $H$ tane model eğitmek gerekir ve modeller birbirinden habersizdir.
@@ -312,9 +312,9 @@ Yukarıdaki tablo **tek adımlı (one-step-ahead)** bir tahmin kurar: Bilinen ge
 
 **Küçük bir örnek (özyinelemeli):** Modelimiz çok basit olsun: "$`f`$ = son üç değerin ortalaması". Son üç gözlem 100, 110 ve 120 ise:
 
-1. $\hat{x}_ {t+1} = (100 + 110 + 120) / 3 = 110$
-2. Pencere bir kayar ve tahmin edilen 110 içeri girer: $\hat{x}_ {t+2} = (110 + 120 + 110) / 3 \approx 113.33$
-3. $\hat{x}_ {t+3} = (120 + 110 + 113.33) / 3 \approx 114.44$
+1. $\hat{y}_ {t+1} = (100 + 110 + 120) / 3 = 110$
+2. Pencere bir kayar ve tahmin edilen 110 içeri girer: $\hat{y}_ {t+2} = (110 + 120 + 110) / 3 \approx 113.33$
+3. $\hat{y}_ {t+3} = (120 + 110 + 113.33) / 3 \approx 114.44$
 
 Üçüncü adımda üç girdiden ikisi artık modelin kendi tahminidir. İlk tahmin hatalı çıkarsa, bu hata sonraki iki tahminin içine de taşınır.
 
@@ -364,15 +364,16 @@ Yukarıdaki tablo **tek adımlı (one-step-ahead)** bir tahmin kurar: Bilinen ge
 > import pandas as pd
 > from sklearn.linear_model import LinearRegression
 > seri = pd.read_csv("data/AirPassengers.csv", parse_dates=["Month"], index_col="Month")["Passengers"]
-> X = pd.DataFrame({"lag_0": seri, "lag_1": seri.shift(1), "lag_2": seri.shift(2)})
+> egitim = seri[:"1959-12"]                            # yalnızca 1949-1959: 1960 hiçbir yerde kullanılmaz
+> X = pd.DataFrame({"lag_0": egitim, "lag_1": egitim.shift(1), "lag_2": egitim.shift(2)})
 > son = X.loc[["1959-12-01"]]                          # tahminin başladığı satır: Aralık 1959
 > for h in [1, 2, 3]:                                  # doğrudan: her h için ayrı model
->     t = X.copy(); t["hedef"] = seri.shift(-h); t = t.loc[:"1959-12"].dropna()
+>     t = X.copy(); t["hedef"] = egitim.shift(-h); t = t.dropna()   # hedefi 1960'a düşen son h satır atılır
 >     m = LinearRegression().fit(t[["lag_0", "lag_1", "lag_2"]], t["hedef"])
 >     print("dogrudan     h =", h, round(m.predict(son)[0], 2))
-> t = X.copy(); t["hedef"] = seri.shift(-1); t = t.loc[:"1959-12"].dropna()
+> t = X.copy(); t["hedef"] = egitim.shift(-1); t = t.dropna()
 > m1 = LinearRegression().fit(t[["lag_0", "lag_1", "lag_2"]], t["hedef"])
-> pencere = list(seri[:"1959-12"].values[-3:])         # özyinelemeli: tek model, kendi tahminiyle
+> pencere = list(egitim.values[-3:])                   # özyinelemeli: tek model, kendi tahminiyle
 > for h in [1, 2, 3]:
 >     girdi = pd.DataFrame([[pencere[-1], pencere[-2], pencere[-3]]], columns=["lag_0", "lag_1", "lag_2"])
 >     p = m1.predict(girdi)[0]
@@ -384,11 +385,11 @@ Yukarıdaki tablo **tek adımlı (one-step-ahead)** bir tahmin kurar: Bilinen ge
 >
 > | Ufuk | Gerçek | Doğrudan | Özyinelemeli |
 > | :---: | :---: | :---: | :---: |
-> | Ocak 1960 ($h$ = 1) | 417 | 424.37 | 424.37 |
-> | Şubat 1960 ($h$ = 2) | 391 | 426.37 | 417.74 |
-> | Mart 1960 ($h$ = 3) | 419 | 428.33 | 406.33 |
+> | Ocak 1960 ($h$ = 1) | 417 | 424.91 | 424.91 |
+> | Şubat 1960 ($h$ = 2) | 391 | 427.03 | 418.54 |
+> | Mart 1960 ($h$ = 3) | 419 | 430.79 | 407.17 |
 >
-> $h$ = 1'de iki strateji aynı modeli kullandığı için sonuçlar aynıdır. Sonraki ufuklarda tahminler ayrışır: Doğrudan modeller her ufuk için son bilinen gerçek değerlerden yola çıkar; özyinelemeli model ise kendi tahminlerini girdi olarak kullanır. Bu küçük örnekte hiçbir strateji her ayda üstün değildir; hangisinin daha iyi olduğu veriye ve modele bağlıdır ve doğrulama verisi üzerinde sınanarak seçilmelidir.
+> Hedef `egitim.shift(-h)` ile yalnızca eğitim döneminden üretilir; `seri.shift(-h)` kullanılsaydı hedefi 1960'a düşen satırlar (ör. Aralık 1959 → Ocak 1960) eğitime girer ve tahmin edilen değerler eğitime sızardı (12.1.5). $h$ = 1'de iki strateji aynı modeli kullandığı için sonuçlar aynıdır. Sonraki ufuklarda tahminler ayrışır: Doğrudan modeller her ufuk için son bilinen gerçek değerlerden yola çıkar; özyinelemeli model ise kendi tahminlerini girdi olarak kullanır. Bu küçük örnekte hiçbir strateji her ayda üstün değildir; hangisinin daha iyi olduğu veriye ve modele bağlıdır ve doğrulama verisi üzerinde sınanarak seçilmelidir.
 
 #### 12.1.4. Ölçekleme İhtiyacı
 
@@ -402,12 +403,12 @@ Farklı algoritmaların verinin ölçeğine (sayıların büyüklüğüne) duyar
 Bölüm 15'te kullanacağımız `MinMaxScaler` ölçeklemeyi şu dönüşümle yapar:
 
 ```math
-\underbrace{x'_t}_{\text{ölçeklenmiş değer}} = \frac{\overbrace{x_t - x_{\min}}^{\text{en küçükten uzaklık}}}{\underbrace{x_{\max} - x_{\min}}_{\substack{\text{aralığın genişliği}\\\text{(eğitim setinde)}}}}
+\underbrace{y'_t}_{\text{ölçeklenmiş değer}} = \frac{\overbrace{y_t - y_{\min}}^{\text{en küçükten uzaklık}}}{\underbrace{y_{\max} - y_{\min}}_{\substack{\text{aralığın genişliği}\\\text{(eğitim setinde)}}}}
 ```
 
 **Ne anlatıyor?** MinMax ölçekleme, her değerin eğitim setindeki en küçük değerden uzaklığını aralığın genişliğine oranlar; sonuç, değerin eğitim aralığı içindeki göreli konumudur.
 
-> **Simge notu:** $`x'_t`$ *(x kesme t; "x üssü t" diye de okunur, ancak burada bir üs ya da türev yoktur)*: ölçeklenmiş değer · $`x_{\min}, x_{\max}`$: **eğitim setindeki** en küçük ve en büyük değer; buradaki "min" ve "max" bir zaman indisi değil, yalnızca bir etikettir
+> **Simge notu:** $`y'_t`$ *(y kesme t; "y üssü t" diye de okunur, ancak burada bir üs ya da türev yoktur)*: ölçeklenmiş değer · $`y_{\min}, y_{\max}`$: **eğitim setindeki** en küçük ve en büyük değer; buradaki "min" ve "max" bir zaman indisi değil, yalnızca bir etikettir
 
 Sözle: Değerden en küçük değeri çıkarırız (en küçük değer 0'a gelir), sonra aralığın genişliğine böleriz (en büyük değer 1'e gelir). `AirPassengers`'ın ilk 132 ayında (1949–1959) en küçük değer 104, en büyük değer 559'dur; aralığın genişliği $559 - 104 = 455$'tir:
 
@@ -415,10 +416,10 @@ Sözle: Değerden en küçük değeri çıkarırız (en küçük değer 0'a geli
 - 300 → $(300 - 104) / 455 = 196 / 455 \approx 0.431$
 - Test dönemindeki 622 (Temmuz 1960) → $(622 - 104) / 455 = 518 / 455 \approx 1.138$. Değer 1'i aşar; bu bir hata değildir, test döneminde eğitimde görülmemiş bir seviyeye çıkıldığını gösterir.
 
-Model 0–1 ölçeğinde tahmin üretir. Sonucu yolcu sayısı olarak okumak için formülü tersine çeviririz (**ters dönüşüm**, `inverse_transform`): $x_t = x'_ t \cdot (x_{\max} - x_{\min}) + x_{\min}$. Örneğin 0.5 tahmini $0.5 \cdot 455 + 104 = 331.5$ bin yolcuya karşılık gelir.
+Model 0–1 ölçeğinde tahmin üretir. Sonucu yolcu sayısı olarak okumak için formülü tersine çeviririz (**ters dönüşüm**, `inverse_transform`): $y_t = y'_ t \cdot (y_{\max} - y_{\min}) + y_{\min}$. Örneğin 0.5 tahmini $0.5 \cdot 455 + 104 = 331.5$ bin yolcuya karşılık gelir.
 
 ```math
-\underbrace{x_t}_{\substack{\text{yolcu sayısı}\\\text{(özgün ölçek)}}} = \underbrace{x'_t}_{\substack{\text{modelin 0--1}\\\text{ölçeğindeki tahmini}}} \cdot \overbrace{(x_{\max} - x_{\min})}^{\text{aralığın genişliği}} + \overbrace{x_{\min}}^{\text{en küçük değer}}
+\underbrace{y_t}_{\substack{\text{yolcu sayısı}\\\text{(özgün ölçek)}}} = \underbrace{y'_t}_{\substack{\text{modelin 0--1}\\\text{ölçeğindeki tahmini}}} \cdot \overbrace{(y_{\max} - y_{\min})}^{\text{aralığın genişliği}} + \overbrace{y_{\min}}^{\text{en küçük değer}}
 ```
 
 **Ne anlatıyor?** Ölçeklemenin iki adımı ters sırayla geri alınır: Önce aralığın genişliğiyle çarpılır, sonra en küçük değer eklenir. Böylece modelin 0–1 ölçeğindeki tahmini yeniden yolcu sayısına çevrilir.
@@ -543,7 +544,7 @@ Bu mimarilere geçmeden önce bir sinir ağının ne hesapladığını görelim.
 Yan yana duran nöronların oluşturduğu gruba **katman (layer)** denir. Keras'taki `Dense` katmanı, her nöronun önceki katmanın bütün çıktılarına bağlı olduğu en basit katmandır. Ağırlıklar ve yanlılıklar başta rastgele küçük sayılardır. **Eğitim**, bu sayıları modelin tahmin hatası küçülecek biçimde adım adım düzeltme işidir. Hatayı ölçen formüle **kayıp fonksiyonu (loss)**, düzeltmeyi yapan yönteme **optimizasyon algoritması (optimizer)** denir. Bu ikisini 15.2'de kodla birlikte ayrıntılı göreceğiz.
 
 ```math
-\underbrace{L(w)}_{\substack{\text{kayıp: ağırlıklara}\\\text{bağlı tek bir sayı}}} = \frac{1}{n}\sum_{i=1}^{n} \big(\overbrace{y_i - \hat{y}_i(w)}^{\text{i. örneğin hatası}}\big)^2
+\underbrace{L(w)}_{\substack{\text{kayıp: ağırlıklara}\\\text{bağlı tek bir sayı}}} = \frac{1}{n}\sum_{i=1}^{n} \big(\overbrace{y_i - \hat{y}_i(w)}^{i\text{. örneğin hatası}}\big)^2
 ```
 
 **Ne anlatıyor?** Kayıp, örneklerin hatalarının karelerinin ortalamasıdır; bu, Bölüm 8.2.2'deki MSE'dir. Buradaki $w$ ağın bütün ağırlık ve yanlılıklarını birlikte temsil eder; tahminler ağırlıklara bağlı olduğu için kayıp da onlara bağlıdır ve eğitim, ağırlıkları değiştirerek bu sayıyı küçültmeye çalışır.
@@ -677,7 +678,7 @@ $$
 $$
 
 ```math
-\underbrace{\frac{\partial h_t}{\partial h_{t-k}}}_{\substack{\text{k adım önceki durumun}\\\text{bugüne etkisi}}} = \underbrace{\prod_{j=0}^{k-1}}_{\text{k çarpanın çarpımı}} \overbrace{\frac{\partial h_{t-j}}{\partial h_{t-j-1}}}^{\substack{\text{tek adımlık}\\\text{duyarlılık}}}
+\underbrace{\frac{\partial h_t}{\partial h_{t-k}}}_{\substack{k\text{ adım önceki durumun}\\\text{bugüne etkisi}}} = \underbrace{\prod_{j=0}^{k-1}}_{k\text{ çarpanın çarpımı}} \overbrace{\frac{\partial h_{t-j}}{\partial h_{t-j-1}}}^{\substack{\text{tek adımlık}\\\text{duyarlılık}}}
 ```
 
 **Ne anlatıyor?** $k$ adım önceki gizli durumun bugünkü duruma etkisi, aradaki her adımın tek adımlık duyarlılıklarının çarpımıdır. Bu çarpanlar 1'den küçükse çarpım $k$ büyüdükçe hızla sıfıra yaklaşır ve uzak geçmişin etkisi öğrenilemez.
@@ -858,12 +859,12 @@ En benzer adım (geçen yılın Temmuz'u) sonuca en çok katkıyı yapar, ama di
 >
 > </details>
 
-**Yorum:** Her zaman adımı bir *sorgu* üretir ve bunu diğer tüm adımların *anahtarlarıyla* karşılaştırır. Benzerlik ne kadar yüksekse o adıma o kadar büyük ağırlık (dikkat) verilir. Sonuç, diğer adımların *değerlerinin* bu ağırlıklarla alınmış ortalamasıdır. Örneğin aylık bir seride model, Temmuz'u tahmin ederken geçen yılın ve iki yıl önceki Temmuz'un değerlerine yüksek dikkat vermeyi öğrenebilir. Uzaktaki bu adımlara bir RNN'deki gibi adım adım değil, **doğrudan** ulaştığı için hata sinyali uzun bir çarpım zincirinden geçmez ve kaybolan gradyan sorunu yaşanmaz.
+**Yorum:** Her zaman adımı bir *sorgu* üretir ve bunu diğer tüm adımların *anahtarlarıyla* karşılaştırır. Benzerlik ne kadar yüksekse o adıma o kadar büyük ağırlık (dikkat) verilir. Sonuç, diğer adımların *değerlerinin* bu ağırlıklarla alınmış ortalamasıdır. Örneğin aylık bir seride model, Temmuz'u tahmin ederken geçen yılın ve iki yıl önceki Temmuz'un değerlerine yüksek dikkat vermeyi öğrenebilir. Uzaktaki bu adımlara bir RNN'deki gibi adım adım değil, **doğrudan** ulaştığı için hata sinyali uzun bir çarpım zincirinden geçmez ve kaybolan gradyan sorunu büyük ölçüde ortadan kalkar.
 
 Bilinmesi gereken birkaç nokta:
 
 - Dikkat mekanizması sıraya kendiliğinden duyarlı değildir. Zaman bilgisini modele vermek için girdilere bir **konum kodlaması (positional encoding)** eklenir.
-- Her adım diğer tüm adımlarla karşılaştırıldığı için hesaplama maliyeti dizi uzunluğunun karesiyle artar: 100 adımlık bir dizide $100 \cdot 100 = 10\thinspace 000$, 1000 adımlıkta $1\thinspace 000\thinspace 000$ karşılaştırma gerekir. Zaman serisine özel Transformer türevleri (Informer, Autoformer, PatchTST, Temporal Fusion Transformer vb.) bu maliyeti azaltmaya ve seriye özgü yapıları kullanmaya odaklanır.
+- Her adım diğer tüm adımlarla karşılaştırıldığı için hesaplama maliyeti dizi uzunluğunun karesiyle artar: 100 adımlık bir dizide $100 \cdot 100 = 10\,000$, 1000 adımlıkta $1\,000\,000$ karşılaştırma gerekir. Zaman serisine özel Transformer türevleri (Informer, Autoformer, PatchTST, Temporal Fusion Transformer vb.) bu maliyeti azaltmaya ve seriye özgü yapıları kullanmaya odaklanır.
 - Transformer'lar genellikle **çok miktarda veri** ister. Tek bir kısa seride (ör. 144 aylık `AirPassengers`) basit modellerden daha iyi olmaları beklenmemelidir. Güçlerini binlerce ilişkili seri ya da çok uzun, yüksek frekanslı verilerde gösterirler.
 
 ---

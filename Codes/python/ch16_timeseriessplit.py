@@ -295,7 +295,7 @@ df_features['seasonal_diff'] = past - past.shift(12)
 df_features['month'] = df_features.index.month
 df_features['quarter'] = df_features.index.quarter
 df_features['year'] = df_features.index.year
-# Yılın ölçeklenmiş bir kopyası kullanılmaz: ham 'year' aynı bilgiyi taşır ve
+# Bölüm 13'teki year_normalized (min/max tüm seriden) kullanılmaz: ham 'year' aynı bilgiyi taşır ve
 # ölçekleyiciyi tüm seriyle fit etmek 16.4'teki ilkeye aykırı bir alışkanlıktır.
 
 # Gecikmeler nedeniyle ilk satırlarda oluşan eksik değerleri at

@@ -10,7 +10,7 @@ Bu ek, ders notlarında kullanılan R (*R programming language*) komutlarını i
 
 R, istatistiksel hesaplama ve grafik için geliştirilmiş, açık kaynak kodlu ve ücretsiz bir programlama dilidir. Zaman serisi analizinde R'ın başlıca avantajı, ARIMA, üstel düzeltme (Holt-Winters) ve ayrıştırma gibi klasik istatistiksel yöntemler için uzun süredir geliştirilen, olgun paketlere sahip olmasıdır. Python ise makine öğrenmesi ve derin öğrenme kütüphaneleriyle öne çıkar; bu nedenle derste iki dil birlikte kullanılır.
 
-Paketler, R'ın resmî paket arşivi CRAN (*Comprehensive R Archive Network*) üzerinden dağıtılır. CRAN'da bugün 20 000'i aşkın paket bulunmaktadır.
+Paketler, R'ın resmî paket arşivi CRAN (*Comprehensive R Archive Network*) üzerinden dağıtılır. CRAN'da bugün 20000'i aşkın paket bulunmaktadır.
 
 R'ın öne çıkan özellikleri şunlardır:
 
@@ -296,7 +296,7 @@ range(yolcu)   # en küçük ve en büyük değer
 #> [1] 104 622
 ```
 
-**Varyans** (*variance*) değerlerin ortalama etrafındaki yayılımını ölçer: Her değerin ortalamadan farkı alınır, farkların kareleri toplanır ve gözlem sayısının bir eksiğine ($n - 1$) bölünür. **Standart sapma** (*standard deviation*) varyansın kareköküdür ve verinin kendi biriminde ifade edildiği için daha kolay yorumlanır. R'ın `var()` ve `sd()` fonksiyonları $n - 1$'e böler; $n$'ye bölen tanımla farkı Bölüm 2.2'de açıklanır.
+**Varyans** (*variance*) değerlerin ortalama etrafındaki yayılımını ölçer: Her değerin ortalamadan farkı alınır, farkların kareleri toplanır ve gözlem sayısının bir eksiğine ($`n - 1`$) bölünür. **Standart sapma** (*standard deviation*) varyansın kareköküdür ve verinin kendi biriminde ifade edildiği için daha kolay yorumlanır. R'ın `var()` ve `sd()` fonksiyonları $`n - 1`$'e böler; $`n`$'ye bölen tanımla farkı Bölüm 2.2'de açıklanır.
 
 Eksik değer (`NA`) içeren bir vektörde `mean(x)` sonucu da `NA` olur; eksik değerleri dışarıda bırakmak için `na.rm = TRUE` argümanı verilir:
 

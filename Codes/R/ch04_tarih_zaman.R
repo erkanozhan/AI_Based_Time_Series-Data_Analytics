@@ -226,7 +226,7 @@ x + ddays(1)    # Tam 24 saat sonra
 # Artık yıl
 ymd("2024-02-29") + years(1)     # 29 Şubat 2025 yok
 #> [1] NA
-ymd("2024-02-29") + dyears(1)    # 365,25 gün sonrası
+ymd("2024-02-29") + dyears(1)    # 365.25 gün sonrası
 #> [1] "2025-02-28 06:00:00 UTC"
 
 # ---- 4.5.1 Örnek 1: Kaç Gündür Hayattasınız? ----

@@ -104,7 +104,7 @@ Ağaç 1'in {B, C} yaprağı, iki artığın ortalamasıdır: $(0 + 30) / 2 = 15
 **Tanım (Gradient Boosting):** Başlangıç tahmini $f_0$ (genellikle hedefin ortalaması) olmak üzere, $m$. adımda önce her gözlemin artığı hesaplanır:
 
 ```math
-\underbrace{r_i^{(m)}}_{\substack{\text{m. ağacın}\\\text{öğreneceği hedef}}} = \underbrace{y_i}_{\text{gerçek değer}} - \underbrace{\hat{y}_i^{(m-1)}}_{\substack{\text{önceki adımların}\\\text{toplam tahmini}}}
+\underbrace{r_i^{(m)}}_{\substack{m\text{. ağacın}\\\text{öğreneceği hedef}}} = \underbrace{y_i}_{\text{gerçek değer}} - \underbrace{\hat{y}_i^{(m-1)}}_{\substack{\text{önceki adımların}\\\text{toplam tahmini}}}
 ```
 
 **Ne anlatıyor?** $m$. ağacın öğreneceği hedef, her gözlemin gerçek değeri ile önceki adımların toplam tahmini arasındaki farktır, yani artıktır. Tablodaki Artık 1 satırı (−30, 0, 30) bu formülle bulunur.
@@ -112,7 +112,7 @@ Ağaç 1'in {B, C} yaprağı, iki artığın ortalamasıdır: $(0 + 30) / 2 = 15
 Ardından bu artıklara yeni bir ağaç $f_m$ uydurulur ve model küçük bir adımla güncellenir:
 
 ```math
-\underbrace{\hat{y}_i^{(m)}}_{\text{yeni tahmin}} = \underbrace{\hat{y}_i^{(m-1)}}_{\text{önceki tahmin}} + \overbrace{\eta}^{\text{öğrenme oranı}} \underbrace{f_m(x_i)}_{\substack{\text{m. ağacın}\\\text{düzeltmesi}}}
+\underbrace{\hat{y}_i^{(m)}}_{\text{yeni tahmin}} = \underbrace{\hat{y}_i^{(m-1)}}_{\text{önceki tahmin}} + \overbrace{\eta}^{\text{öğrenme oranı}} \underbrace{f_m(x_i)}_{\substack{m\text{. ağacın}\\\text{düzeltmesi}}}
 ```
 
 **Ne anlatıyor?** Yeni tahmin, önceki tahmine $m$. ağacın düzeltmesinin öğrenme oranıyla küçültülmüş hâlinin eklenmesiyle elde edilir. Tablodaki "Tahmin 1 = önceki + 0.5 × ağaç 1" satırının formül hâlidir.
@@ -120,7 +120,7 @@ Ardından bu artıklara yeni bir ağaç $f_m$ uydurulur ve model küçük bir ad
 $M$ ağaç kurulduktan sonra nihai tahmin, tüm ağaçların katkılarının toplamıdır:
 
 ```math
-\underbrace{\hat{y}_i}_{\text{nihai tahmin}} = \underbrace{f_0}_{\substack{\text{başlangıç}\\\text{(ortalama)}}} + \eta \overbrace{\sum_{m=1}^{M} f_m(x_i)}^{\text{M ağacın katkılarının toplamı}}
+\underbrace{\hat{y}_i}_{\text{nihai tahmin}} = \underbrace{f_0}_{\substack{\text{başlangıç}\\\text{(ortalama)}}} + \eta \overbrace{\sum_{m=1}^{M} f_m(x_i)}^{M\text{ ağacın katkılarının toplamı}}
 ```
 
 **Ne anlatıyor?** Nihai tahmin, başlangıç tahmini ile $M$ ağacın öğrenme oranıyla küçültülmüş katkılarının toplamıdır. Her ağaç, kendinden öncekilerin bıraktığı hatanın bir bölümünü düzeltir.
@@ -179,7 +179,7 @@ Yönteme "gradient" (gradyan) denmesinin nedeni şudur. **Kayıp** (loss), bir t
 
 **Ne anlatıyor?** Kare hata kaybının tahmine göre eğiminin ters işaretlisi, artığın kendisidir. Yöntemin adındaki "gradyan" bu eşitlikten gelir.
 
-Sayılarla deneyelim: $y = 100$ ve $\hat{y} = 90$ iken kayıp $\frac{1}{2} \cdot 10^2 = 50$'dir. Tahmini 1 artırıp 91 yaparsak kayıp $\frac{1}{2} \cdot 9^2 = 40.5$ olur; yani tahmindeki 1 birimlik artış kaybı yaklaşık 10 birim azaltır. Eğim yaklaşık −10'dur, ters işaretlisi +10'dur ve bu da artığın kendisidir ($100 - 90 = 10$). Yani artıklara ağaç uydurmak, kaybı en hızlı azaltan yönde (gradyanın tersi yönünde) adım atmakla, yani **gradyan inişiyle** aynı şeydir (gradyan inişi: Bölüm 12.1.4 ve 12.2; sisli dağ örneği). Başka kayıp fonksiyonları (ör. mutlak hata) kullanıldığında ağaçlar artık yerine bu negatif gradyana uydurulur.
+Sayılarla deneyelim: $y = 100$ ve $\hat{y} = 90$ iken kayıp $\frac{1}{2} \cdot 10^2 = 50$'dir. Tahmini 1 artırıp 91 yaparsak kayıp $\frac{1}{2} \cdot 9^2 = 40.5$ olur; yani tahmindeki 1 birimlik artış kaybı yaklaşık 10 birim azaltır. Eğim yaklaşık −10'dur, ters işaretlisi +10'dur ve bu da artığın kendisidir ($100 - 90 = 10$). Yani artıklara ağaç uydurmak, kaybı en hızlı azaltan yönde (gradyanın tersi yönünde) adım atmakla, yani **gradyan inişiyle** aynı şeydir (gradyan inişi: Bölüm 12.2, "Sinir ağının yapı taşları"; sisli dağ örneği). Başka kayıp fonksiyonları (ör. mutlak hata) kullanıldığında ağaçlar artık yerine bu negatif gradyana uydurulur.
 
 > **Simge notu:** $`L`$: tek bir gözlemin kaybı · $`\partial`$ *(kısmi türev, "del")*: bir büyüklüğün diğerine göre değişim hızı; $`\partial L / \partial \hat{y}`$ "tahmin çok az değişince kayıp ne kadar değişir?" demektir
 
@@ -201,9 +201,9 @@ Burada ilk terim tahmin hatasını (ör. kare hata), ikinci terim ise her ağac�
 
 > **Simge notu:** $`\mathcal{L}`$ *(kaligrafik L)*: en küçüklenecek toplam amaç fonksiyonu · $`l(y_i, \hat{y}_i)`$ *(küçük l)*: tek bir gözlemin kaybı, ör. $`\frac{1}{2}(y_i - \hat{y}_i)^2`$ (½ katsayısı türevi sadeleştirir; yaprak değeri formülü bu kayıpla geçerlidir) · $`\sum_{i=1}^{n}`$: i'yi 1'den n'ye (tüm eğitim gözlemleri) kadar değiştirip topla · $`\Omega`$ *(büyük omega)*: ağaç karmaşıklığı cezası · $`\gamma`$ *(gama)*: her yeni yaprak için ödenen ceza · $`\lambda`$ *(lambda)*: yaprak değerlerinin büyüklüğüne verilen ceza (L2 düzenlileştirme) · $`w_j^2`$: j. yaprağın değerinin karesi (burada üst simge 2 gerçekten bir üstür)
 
-**Sayısal örnek:** $\gamma = 1$ ve $\lambda = 1$ olsun. Üç yapraklı, yaprak değerleri 2, −1 ve 3 olan bir ağacın cezası $\Omega = 1 \cdot 3 + \frac{1}{2} \cdot 1 \cdot (2^2 + (-1)^2 + 3^2) = 3 + \frac{1}{2} \cdot 14 = 3 + 7 = 10$'dur. İki yapraklı, yaprak değerleri 1 ve −1 olan daha sade bir ağacın cezası ise $2 + \frac{1}{2} \cdot (1 + 1) = 3$'tür. Karmaşık ağaç hatayı sade ağaca göre en az $10 - 3 = 7$ birim daha fazla azaltmıyorsa XGBoost sade ağacı tercih eder.
+**Sayısal örnek:** $\gamma = 1$ ve $\lambda = 1$ olsun. Üç yapraklı, yaprak değerleri 2, −1 ve 3 olan bir ağacın cezası $\Omega = 1 \cdot 3 + \frac{1}{2} \cdot 1 \cdot (2^2 + (-1)^2 + 3^2) = 3 + \frac{1}{2} \cdot 14 = 3 + 7 = 10$'dur. İki yapraklı, yaprak değerleri 1 ve −1 olan daha sade bir ağacın cezası ise $2 + \frac{1}{2} \cdot (1 + 1) = 3$'tür. Karmaşık ağaç amaç fonksiyonundaki tahmin hatası terimini sade ağaca göre en az $10 - 3 = 7$ birim daha fazla azaltmıyorsa XGBoost sade ağacı tercih eder.
 
-**Yorum:** $\gamma$ büyüdükçe model yeni bir bölme yapmak için daha fazla hata azalması "talep eder": Bir bölme, hatayı en az $\gamma$ kadar azaltmıyorsa yapılmaz ve ağaçlar sade kalır. $\lambda$ büyüdükçe yaprak değerleri sıfıra doğru çekilir ve her ağacın tek başına yapabileceği aşırı düzeltmeler engellenir. Kare hata kaybında XGBoost'un bir yaprağa verdiği değer, *yapraktaki artıkların toplamı / (yapraktaki gözlem sayısı + λ)* formülüyle hesaplanır. Artıkları 10, 20 ve 30 olan bir yaprak için (toplam 60, gözlem sayısı 3): $\lambda = 0$ iken $60 / 3 = 20$ (düz ortalama), $\lambda = 1$ iken $60 / 4 = 15$, $\lambda = 3$ iken $60 / 6 = 10$ olur. İki cezanın ortak amacı, modelin eğitim verisini ezberlemesini (aşırı öğrenme) önlemektir.
+**Yorum:** $\gamma$ büyüdükçe model yeni bir bölme yapmak için daha fazla hata azalması "talep eder": Bir bölme, kare hata toplamını en az $\gamma$ kadar azaltmıyorsa yapılmaz ve ağaçlar sade kalır. (XGBoost bölmenin kazancını, kayıptaki ½ çarpanı olmadan, yani doğrudan kare hata toplamındaki azalma olarak hesaplar ve $\gamma$'yı bu azalmayla karşılaştırır; Hemen deneyin 13.1.3 bunu sayılarla gösterir.) $\lambda$ büyüdükçe yaprak değerleri sıfıra doğru çekilir ve her ağacın tek başına yapabileceği aşırı düzeltmeler engellenir. Kare hata kaybında XGBoost'un bir yaprağa verdiği değer, *yapraktaki artıkların toplamı / (yapraktaki gözlem sayısı + λ)* formülüyle hesaplanır. Artıkları 10, 20 ve 30 olan bir yaprak için (toplam 60, gözlem sayısı 3): $\lambda = 0$ iken $60 / 3 = 20$ (düz ortalama), $\lambda = 1$ iken $60 / 4 = 15$, $\lambda = 3$ iken $60 / 6 = 10$ olur. İki cezanın ortak amacı, modelin eğitim verisini ezberlemesini (aşırı öğrenme) önlemektir.
 
 ```math
 \underbrace{w_j}_{\text{yaprak değeri}} = \frac{\overbrace{\textstyle\sum_{x_i \in R_j} r_i}^{\text{yapraktaki artıkların toplamı}}}{\underbrace{n_j}_{\substack{\text{yapraktaki}\\\text{gözlem sayısı}}} + \underbrace{\lambda}_{\text{L2 cezası}}}
@@ -259,7 +259,7 @@ XGBoost bunlara ek olarak ikinci dereceden türev bilgisini (eğimin yanında e�
 | `subsample` | — | Her ağaçta kullanılan satır (gözlem) oranı; rastgelelik ekleyerek aşırı öğrenmeyi azaltır. | 0.7–1.0 |
 | `colsample_bytree` | — | Her ağaçta kullanılan özellik (sütun) oranı. | 0.7–1.0 |
 | `gamma`, `reg_lambda` | $`\gamma`$, $`\lambda`$ | 13.1.3'teki düzenlileştirme cezaları. | 0 / 1 (varsayılan) |
-| `early_stopping_rounds` | — | Doğrulama hatası bu kadar tur boyunca iyileşmezse eğitimi durdurur. xgboost 2.0 ve sonrasında modelin kurucusuna (`XGBRegressor(...)`) yazılır; eski kodlardaki `fit(..., early_stopping_rounds=...)` biçimi artık hata verir. | 20–50 |
+| `early_stopping_rounds` | — | Doğrulama hatası bu kadar tur boyunca iyileşmezse eğitimi durdurur. xgboost 1.6'dan beri modelin kurucusuna (`XGBRegressor(...)`) yazılır; eski kodlardaki `fit(..., early_stopping_rounds=...)` biçimi 2.0'da uyarı verir, 2.1 ve sonrasında ise hata (`TypeError`) verir. | 20–50 |
 
 **Not —** `n_estimators` ile `learning_rate` birbirine bağlıdır: öğrenme oranını yarıya indirirseniz, aynı uyumu yakalamak için yaklaşık iki kat ağaç gerekir. Örneğin $\eta = 0.1$ iken 30 birimlik bir artığı tam öğrenen bir ağaç tahmini yalnızca $0.1 \cdot 30 = 3$ birim düzeltir; $\eta = 0.05$ iken aynı ağaç 1.5 birim düzeltir.
 
@@ -299,7 +299,7 @@ XGBoost bunlara ek olarak ikinci dereceden türev bilgisini (eğimin yanında e�
 > n= 200 lr=0.05  derinlik=3  egitim MAE=  3.05  test MAE= 31.82
 > ```
 >
-> 10 ağaç yetersizdir (yetersiz öğrenme, Bölüm 8.4.3). Öğrenme hızını yarıya indirip ağaç sayısını iki katına çıkarınca (200 ağaç, 0.05) 100 ağaç / 0.1 ile neredeyse aynı uyum elde edilir.
+> 10 ağaç yetersizdir (yetersiz öğrenme, Bölüm 8.4.3). Öğrenme oranını yarıya indirip ağaç sayısını iki katına çıkarınca (200 ağaç, 0.05) 100 ağaç / 0.1 ile neredeyse aynı uyum elde edilir.
 >
 > **Şimdi siz:** (1) `dene(20, 0.05, 3)` satırını ekleyin; sonucu hangi satıra benzemesini beklersiniz? (2) `dene(1000, 0.1, 3)` deneyin. Eğitim hatası ve test hatası ne olur?
 >
@@ -351,7 +351,7 @@ Hareketli standart sapma (standart sapma: Bölüm 2.2), son birkaç ayın ne kad
 >
 > <details><summary>Cevap</summary>
 >
-> Ortalama $1174 / 3 \approx 391.33$; sapmalar $15.67, -29.33, 13.67$; kareleri toplamı $\approx 245.4 + 860.4 + 186.8 = 1292.7$; $1292.7 / (3 - 1) \approx 646.3$; $\sqrt{646.3} \approx 25.42$. Excel de 25,42 verir. Son çeyrekteki büyük dalgalanma (Ekim'den Kasım'a 45'lik düşüş) oynaklığı yükseltmiştir.
+> Ortalama $1174 / 3 \approx 391.33$; sapmalar $15.67, -29.33, 13.67$; kareleri toplamı $\approx 245.4 + 860.4 + 186.8 = 1292.7$; $1292.7 / (3 - 1) \approx 646.3$; $\sqrt{646.3} \approx 25.42$. Excel de 25,42 verir (Türkçe Excel ondalık ayırıcı olarak virgül kullanır). Son çeyrekteki büyük dalgalanma (Ekim'den Kasım'a 45'lik düşüş) oynaklığı yükseltmiştir.
 >
 > </details>
 
@@ -463,7 +463,7 @@ Bu satırların her biri belirli bir iş görür:
 2. **Hareketli ortalama ve yıllık değişim:** `shift(1).rolling(12).mean()` her ayın yanına kendisinden önceki 12 ayın ortalamasını yazar. `seasonal_diff`, `shift(1) - shift(13)` yani `lag_1 − lag_13` farkıdır (13.2'deki örnek: 68).
 3. **`dropna()`:** En uzun kaydırma `shift(13)` olduğu için ilk 13 satır NaN içerir ve atılır; 144 aydan **131** satır (Şubat 1950 – Aralık 1960) kalır.
 4. **Bölme:** `split_point = len(X) - test_size` = $131 - 12 = 119$'dur. `X.iloc[:119]` ilk 119 satırı (Şubat 1950 – Aralık 1959) eğitime, `X.iloc[119:]` son 12 satırı (1960) teste ayırır. Eğitimin içinden `iloc[:-12]` ile ilk 107 satır (Şubat 1950 – Aralık 1958) asıl eğitime, `iloc[-12:]` ile 1959 yılı doğrulamaya ayrılır. Hiçbir aşamada satırlar karıştırılmaz.
-5. **`params` ve `**params`:** `dict(...)` hiperparametreleri bir sözlükte (anahtar–değer listesi) toplar. `XGBRegressor(..., **params)` yazımındaki iki yıldız sözlüğü "açar", yani `learning_rate=0.05, max_depth=4, ...` argümanlarını tek tek yazmışız gibi iletir. Böylece aynı ayarlar üç ayrı modelde tekrar yazılmadan kullanılır. Ayarların anlamı: `learning_rate=0.05` her ağacın katkısını %5'e indirir; `max_depth=4`, bir gözlemin ağaçta izlediği yol boyunca en fazla 4 soru sorulmasına izin verir (ağaçta en çok 16 yaprak olur); `subsample=0.8` her ağacın satırların rastgele %80'iyle, `colsample_bytree=0.8` ise 21 özelliğin rastgele %80'iyle (16 özellik) kurulmasını sağlar; `random_state=SEED` bu rastgeleliği sabitler, böylece kod her çalıştığında aynı sonucu verir.
+5. **`params` ve `**params`:** `dict(...)` hiperparametreleri bir sözlükte (anahtar–değer listesi) toplar. `XGBRegressor(..., **params)` yazımındaki iki yıldız sözlüğü "açar", yani `learning_rate=0.05, max_depth=4, ...` argümanlarını tek tek yazmışız gibi iletir. Böylece aynı ayarlar üç ayrı modelde tekrar yazılmadan kullanılır. Ayarların anlamı: `learning_rate=0.05` her ağacın katkısını %5'e indirir; `max_depth=4`, bir gözlemin ağaçta izlediği yol boyunca en fazla 4 soru sorulmasına izin verir (ağaçta en çok 16 yaprak olur). Bu programda satır ve sütun alt örneklemesi (`subsample`, `colsample_bytree`; bkz. 13.1.4) kullanılmaz; `random_state=SEED` olası rastgeleliği sabitler, böylece kod her çalıştığında aynı sonucu verir.
 6. **Erken durdurma:** `XGBRegressor(n_estimators=1000, early_stopping_rounds=50, ...)` en fazla 1000 ağaç kurmaya hazırdır, ama doğrulama hatası art arda 50 ağaç boyunca iyileşmezse durur. `fit(X_tr_in, y_tr_in, eval_set=[(X_val, y_val)], verbose=False)` modeli asıl eğitim verisiyle kurar; `eval_set`, içinde `(girdi, hedef)` çiftleri bulunan bir listedir ve model her yeni ağaçtan sonra bu kümedeki hatayı (varsayılan olarak RMSE) ölçer. `verbose=False`, her turun hatasının ekrana yazdırılmasını engeller. `eval_set` olarak test setini vermek sızıntıdır: Test bilgisi model seçimine karışır ve sonuçlar olduğundan iyi görünür; bu yüzden doğrulama yılı eğitimin içinden ayrılır. (`early_stopping_rounds`'un neden kurucuya yazıldığı için bkz. 13.1.4'teki tablo.)
 7. **`best_iteration`:** Doğrulama hatasının en düşük olduğu turun numarasıdır. Python'da sayma 0'dan başladığı için bu numaranın 1 fazlası ağaç sayısıdır: `best_n = best_iteration + 1`. Bizim çalıştırmamızda `best_iteration` = 213, yani `best_n` = 214'tür; eğitim, 214. ağaçtan sonra 50 tur daha denenip iyileşme görülmeyince 264. ağaçta durmuştur.
 8. **Yeniden eğitim ve tahmin:** `XGBRegressor(n_estimators=best_n, **params)` aynı ayarlarla, ama tam 214 ağaçlık yeni bir model kurar ve `fit(X_train, y_train)` ile doğrulama yılı dahil bütün eğitim verisinde eğitir. `model.predict(X_test)` 12 test ayı için 12 sayılık bir NumPy dizisi döndürür. `calculate_metrics` ise üç değer döndürür; `a, b, c = ...` yazımı bu üç değeri sırayla üç değişkene atar.
@@ -564,7 +564,7 @@ Ortalama Sonuçlar:
 > egitim max: 559  test tahmin max: 544.6
 > ```
 >
-> Hareketli ortalamalar olmayan bu sade modelde `lag_12` önemin %82'sini tek başına alır. Temmuz zirvesi (622) yine 544.6 civarında tahmin edilir; ana programdaki "Ekstrapolasyon kontrolü" ile aynı tablo.
+> Hareketli ortalamalar olmayan bu sade modelde `lag_12` önemin yaklaşık %83'ünü tek başına alır. Temmuz zirvesi (622) yine 544.6 civarında tahmin edilir; ana programdaki "Ekstrapolasyon kontrolü" ile aynı tablo.
 >
 > **Şimdi siz:** Modeli "zorlayın": `n_estimators=1000, max_depth=10` yapın. Daha derin ve daha çok ağaç tavanı aşmayı sağlar mı?
 >
@@ -724,7 +724,7 @@ Python'da `shift()` fonksiyonu ile yaptığımız gecikme üretimini Weka'da `TS
 Tüm filtreler `Preprocess` sekmesindeki **Filter** bölümünden şu şekilde uygulanır: `Choose` düğmesine tıklayın, ağaçtan filtreyi seçin, filtre adının yazılı olduğu kutuya tıklayarak ayarlarını açın, `OK` deyin ve son olarak sağdaki `Apply` düğmesine basın.
 
 1. **Sütunu kopyalama:** `filters → unsupervised → attribute → Copy` filtresini seçin. `attributeIndices` ayarına `Passengers` sütununun sıra numarasını (genellikle `2`) yazıp uygulayın. Listenin sonuna `Copy of Passengers` adlı yeni bir sütun eklenir.
-2. **Yeniden adlandırma:** Kopyanın adındaki boşluklar ileride sorun yaratabilir. `filters → unsupervised → attribute → RenameAttribute` filtresiyle bu sütunun adını `YolcuGiris` gibi bitişik bir ada dönüştürün (ayarlar: `attributeIndices` = `last`, `find` = `.*`, `replace` = `YolcuGiris`; `.*` "adın tamamı" anlamına gelen bir kalıptır) (alternatif olarak `Edit` penceresinde sütun başlığına sağ tıklayıp `Rename attribute` da kullanılabilir).
+2. **Yeniden adlandırma:** Kopyanın adındaki boşluklar ileride sorun yaratabilir. `filters → unsupervised → attribute → RenameAttribute` filtresiyle bu sütunun adını `YolcuGiris` gibi bitişik bir ada dönüştürün (ayarlar: `attributeIndices` = `last`, `find` = `.*`, `replace` = `YolcuGiris`; `.*` "adın tamamı" anlamına gelen bir kalıptır). Alternatif olarak `Edit` penceresinde sütun başlığına sağ tıklayıp `Rename attribute` da kullanılabilir.
 3. **Sıralama:** Weka, hedefi belirtilmemiş verilerde varsayılan olarak **en son sütunu hedef** (class) kabul eder; `Preprocess` sekmesinde denetimli (supervised) bir filtre uygulanırken de sağ alttaki `Class` kutusunda seçili sütun, yani başlangıçta son sütun hedef sayılır. `filters → unsupervised → attribute → Reorder` filtresinde `attributeIndices` ayarını `1,3,2` yapın. Böylece sıralama Tarih, YolcuGiris (girdi), Passengers (hedef) olur ve `TSLagMaker` hedefi doğru tanır.
 
 Hazırlık tamamlandıktan sonra asıl dönüşüme geçin: `filters → supervised → attribute → TSLagMaker` filtresini seçin ve ayarlarını şöyle yapın. Ayar penceresinde ayarlar ilk sütundaki okunaklı adlarıyla görünür; parantez içinde Weka'nın iç adları da verilmiştir:
@@ -820,7 +820,7 @@ Yukarıdaki ayarlarla (Tarih sütunu silinmiş, %80 sıralı ayrım) bizim denem
 | AdditiveRegression (REPTree, 200 iterasyon, shrinkage 0.1) | 0.904 | 45.7 | 60.6 | %22.8 |
 | SMOreg | 0.969 | 15.3 | 19.8 | %7.6 |
 
-Tablo 13.3'teki sınırlılığı açıkça gösterir: Eğitim aralığının dışına çıkabilen SMOreg'in hatası, ağaç tabanlı yöntemlerin üçte biri civarındadır. REPTree satırı ise ayrı bir ders verir: Korelasyon 0.88 gibi yüksek bir değerdir, ama MAE 105'tir. Korelasyon yalnızca tahminlerin gerçek değerlerle **birlikte** inip çıkıp çıkmadığını ölçer; tahminlerin hepsi gerçeğin 100 birim altında olsa bile yüksek çıkabilir. Bu yüzden korelasyon tek başına başarı ölçüsü olarak kullanılmamalıdır.
+Tablo, 13.3'teki sınırlılığı açıkça gösterir: Eğitim aralığının dışına çıkabilen SMOreg'in hatası, ağaç tabanlı yöntemlerin üçte biri civarındadır. REPTree satırı ise ayrı bir ders verir: Korelasyon 0.88 gibi yüksek bir değerdir, ama MAE 105'tir. Korelasyon yalnızca tahminlerin gerçek değerlerle **birlikte** inip çıkıp çıkmadığını ölçer; tahminlerin hepsi gerçeğin 100 birim altında olsa bile yüksek çıkabilir. Bu yüzden korelasyon tek başına başarı ölçüsü olarak kullanılmamalıdır.
 
 Bu değerleri Python ile elde ettiğiniz sonuçlarla (13.4) kıyaslayarak hangi algoritmanın veriniz için daha uygun olduğuna karar verebilirsiniz. Kıyaslamanın adil olması için test döneminin iki ortamda da aynı olmasına dikkat edin: Python'da test yalnızca 1960 yılıdır (12 ay), buradaki %80 ayrımında ise 29 aydır.
 

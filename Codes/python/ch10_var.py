@@ -122,7 +122,7 @@ for col in vars_selected:
 #   df_var["inflation_d"] = df_var["inflation"].diff()
 # Fark alınınca ilk gözlem NaN olur, dropna() ile temizlenir ve ADF tekrarlanır.
 # Bu örnekte eğitim amaçlı orijinal serilerle devam ediyoruz.
-# Gerçek bir çalışmada durağan olmayan seriler mutlaka dönüştürülmelidir.
+# Gerçek bir çalışmada durağan olmayan seriler farkla dönüştürülmeli ya da eşbütünleşme varsa VECM kurulmalıdır (Bölüm 10.3.3).
 
 # %% [markdown]
 # ## 4) VAR modelinin kurulması ve gecikme seçimi (Bölüm 10.4)
@@ -214,6 +214,8 @@ print("(Tüm |kök| değerleri 1'den büyük, yani tüm |öz değer| değerleri 
 # ## 6) Artık (residual) analizi
 # İyi bir modelde artıkların ortalaması sıfır, otokorelasyonu yok ve varyansı sabittir.
 # Durbin-Watson (DW) birinci derece otokorelasyonu ölçer: DW ≈ 2 ideal, 1.5–2.5 arası genellikle kabul edilebilir.
+# Ancak VAR denklemlerinde gecikmeli bağımlı değişkenler bulunduğu için DW 2'ye doğru yanlıdır;
+# asıl karar aşağıdaki çok değişkenli portmanteau testiyle verilir (Bölüm 10.9.1).
 
 # %%
 print("\n" + "=" * 55)
@@ -234,7 +236,7 @@ for i, col in enumerate(vars_selected):
         yorum = "negatif otokorelasyon olabilir"
     print(f"  {col}: {dw:.3f} ({yorum})")
 
-print("\n  Not: 2'ye yakın değerler otokorelasyon olmadığını gösterir.")
+print("\n  Not: VAR'da DW 2'ye doğru yanlıdır; karar aşağıdaki portmanteau testiyle verilir.")
 
 # DW yalnızca bir önceki ayla ilişkiye bakar. Çok değişkenli portmanteau testi ise
 # 12 gecikmeye kadar tüm denklemlerin artıklarını birlikte sınar (statsmodels varsayılan
@@ -242,7 +244,7 @@ print("\n  Not: 2'ye yakın değerler otokorelasyon olmadığını gösterir.")
 whiteness = results.test_whiteness(nlags=12)
 print(f"\nPortmanteau testi (12 gecikme): p-değeri = {whiteness.pvalue:.4f}")
 if whiteness.pvalue < 0.05:
-    print("  → Artıklarda daha uzun gecikmelerde otokorelasyon kalmış (H0 reddedildi).")
+    print("  → Artıklarda otokorelasyon kalmış (H0 reddedildi).")
     print("    Düzey serilerle kurulan modelin bir eksikliği; fark almak ya da gecikmeyi artırmak denenebilir.")
 
 # Artıklar sıfır çizgisi etrafında rastgele dağılmalı; trend, periyodik örüntü

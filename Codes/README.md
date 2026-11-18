@@ -59,6 +59,8 @@ python Codes/python/ch07_sarima_airpassengers.py
 
 ### 3. R
 
+Ders notundaki R çıktıları **R 4.5** ile üretilmiştir; R 4.5 ya da daha yeni bir sürüm kullanılması önerilir. Daha eski sürümlerde bazı çıktılar biçim olarak farklı görünür: örneğin `head()` bir `ts` nesnesinden ay/çeyrek etiketlerini düşürür ve sonucu düz vektör ya da matris olarak yazar. Hesaplanan değerler aynıdır. Sürüm `R.version.string` ile görülür.
+
 RStudio'da depo klasörünü proje olarak açın (ya da çalışma dizinini depo kök dizini yapın) ve bir kez paketleri kurun:
 
 ```r

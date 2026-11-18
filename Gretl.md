@@ -8,7 +8,7 @@ Bu ek, derste kullanılan ekonometri yazılımı Gretl'i menüler üzerinden tan
 
 ### B.1. Gretl Nedir?
 
-Gretl (*Gnu Regression, Econometrics and Time-series Library*), ekonometri ve zaman serisi analizi için geliştirilmiş, açık kaynak kodlu ve ücretsiz bir yazılımdır. C dilinde yazılmıştır ve GNU Genel Kamu Lisansı (GPL) ile dağıtılır; R ya da Python üzerine kurulu değildir, kendi hesaplama kütüphanesini kullanır. Başlıca geliştiricileri Allin Cottrell ve Riccardo "Jack" Lucchetti'dir.
+Gretl (*GNU Regression, Econometrics and Time-series Library*), ekonometri ve zaman serisi analizi için geliştirilmiş, açık kaynak kodlu ve ücretsiz bir yazılımdır. C dilinde yazılmıştır ve GNU Genel Kamu Lisansı (GPL) ile dağıtılır; R ya da Python üzerine kurulu değildir, kendi hesaplama kütüphanesini kullanır. Başlıca geliştiricileri Allin Cottrell ve Riccardo "Jack" Lucchetti'dir.
 
 Gretl'in iki kullanım biçimi vardır:
 
@@ -118,7 +118,7 @@ Olağan dönemlerde artıklar sıfır çevresinde küçük değerler alır; mode
 
 **2. Olağan davranışın modeli:** Getirinin bugünkü değeri bir AR(1) modeliyle açıklanır: $\text{getiri}_t = \alpha + \beta\,\text{getiri}_{t-1} + u_t$. Menüden **Model → Ordinary Least Squares** seçilir, bağımlı değişken `getiri`, açıklayıcı değişkenler `const` ve `getiri`'nin birinci gecikmesi olarak verilir (gecikme, **Add → Lags of selected variables** ile `getiri_1` adıyla eklenebilir).
 
-**3. Artıkları kaydetmek:** Model penceresinde **Save → Residuals** seçilir; artıklar yeni bir değişken olarak veri setine eklenir.
+**3. Artıkları kaydetmek:** Model penceresinde **Save → Residuals** seçilir; artıklar yeni bir değişken olarak veri setine eklenir. Gretl ad olarak `uhat1` önerir; 4. adımdaki formülle uyumlu olması için ad `u` yapılır.
 
 **4. Eşik:** Bir değişken normal dağılıyorsa değerlerinin yaklaşık %99.7'si ortalamanın ±3 standart sapma **içinde** kalır (*üç sigma kuralı*). Mutlak değeri 3 standart sapmayı aşan artıklar olası anomali olarak işaretlenir. **Add → Define new variable** ile `bayrak = abs(u) > 3 * sd(u)` tanımlanır; bu değişken anomali olan günlerde 1, diğer günlerde 0 değerini alır.
 

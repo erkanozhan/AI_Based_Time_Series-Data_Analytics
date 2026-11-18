@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="900" height="470" viewBox="0 0 900 470">
 <title>Box-Jenkins döngüsü</title>
 <rect x="0.5" y="0.5" width="899" height="469" rx="10" fill="#ffffff" stroke="#d1d5db"/>
-<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">Box-Jenkins Yöntemi: Tanımlama → Tahmin → Teşhis → Öngörü</text>
+<text x="450.0" y="30.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="18" fill="#1f2937" text-anchor="middle" font-weight="bold">Box-Jenkins Yöntemi: Tanımlama → Kestirim → Teşhis → Öngörü</text>
 <text x="450.0" y="50.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.5" fill="#6b7280" text-anchor="middle" font-weight="normal">Teşhis aşaması başarısızsa model yeniden tanımlanır; döngü artıklar beyaz gürültü olana kadar sürer</text>
 <rect x="40" y="105" width="170" height="118" rx="10" fill="#6b7280" fill-opacity="0.08" stroke="#6b7280" stroke-width="1.6"/>
 <text x="125.0" y="135.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#6b7280" text-anchor="middle" font-weight="bold">0. Hazırlık</text>
@@ -14,7 +14,7 @@
 <text x="340.0" y="184.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.2" fill="#1f2937" text-anchor="middle" font-weight="normal">ACF / PACF'ye bak</text>
 <text x="340.0" y="205.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.2" fill="#1f2937" text-anchor="middle" font-weight="normal">p, q, P, Q adayları</text>
 <rect x="470" y="105" width="170" height="118" rx="10" fill="#ea580c" fill-opacity="0.08" stroke="#ea580c" stroke-width="1.6"/>
-<text x="555.0" y="135.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#ea580c" text-anchor="middle" font-weight="bold">2. Tahmin</text>
+<text x="555.0" y="135.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="15" fill="#ea580c" text-anchor="middle" font-weight="bold">2. Kestirim</text>
 <text x="555.0" y="163.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.2" fill="#1f2937" text-anchor="middle" font-weight="normal">Katsayıları kestir</text>
 <text x="555.0" y="184.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.2" fill="#1f2937" text-anchor="middle" font-weight="normal">(en çok olabilirlik)</text>
 <text x="555.0" y="205.0" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="12.2" fill="#1f2937" text-anchor="middle" font-weight="normal">AIC / BIC ile kıyasla</text>

@@ -203,7 +203,7 @@ print(f"  Test: {len(X_test)} gözlem ({y_test.index.min()} - {y_test.index.max(
 # Adım 2: Bu ağaç sayısıyla modeli tüm eğitim verisinde yeniden eğit.
 
 params = dict(
-    learning_rate=0.05,       # Öğrenme hızı (eta)
+    learning_rate=0.05,       # Öğrenme oranı (eta)
     max_depth=4,              # Ağaç derinliği
     # subsample ve colsample_bytree kullanılmaz: model rastgelelik içermez ve
     # aynı xgboost sürümüyle her çalıştırmada aynı sonucu verir.
@@ -211,8 +211,9 @@ params = dict(
 )
 
 print("\nXGBoost modeli eğitiliyor (erken durdurma)...")
-# Not: xgboost >= 2.0'da early_stopping_rounds kurucuya (XGBRegressor) yazılır;
-# eski kodlardaki fit(..., early_stopping_rounds=50) biçimi TypeError verir.
+# Not: xgboost 1.6'dan beri early_stopping_rounds kurucuya (XGBRegressor) yazılır;
+# eski kodlardaki fit(..., early_stopping_rounds=50) biçimi 2.0'da uyarı,
+# 2.1 ve sonrasında TypeError verir.
 es_model = xgb.XGBRegressor(n_estimators=1000, early_stopping_rounds=50, **params)
 es_model.fit(X_tr_in, y_tr_in, eval_set=[(X_val, y_val)], verbose=False)
 
@@ -224,7 +225,7 @@ model.fit(X_train, y_train)
 
 # %% [markdown]
 # ### 5) Tahmin ve performans değerlendirmesi (13.4.1)
-# Ekstrapolasyon kontrolü: testteki en büyük tahmin (544) eğitimdeki tavanın (559) bile altında kalır.
+# Ekstrapolasyon kontrolü: testteki en büyük tahmin (552) eğitimdeki tavanın (559) bile altında kalır.
 
 # %%
 # =============================================================

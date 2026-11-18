@@ -88,7 +88,7 @@ son_yil = train_data[-12:].values
 snaive_pred = np.tile(son_yil, len(test_data) // 12 + 1)[:len(test_data)]
 snaive_metrics = evaluate_model(test_data, snaive_pred, "Mevsimsel Naive")
 
-# 3) Sonraki bölümlerde aynı fonksiyonu diğer modeller için de kullanacağız.
+# 3) Aynı fonksiyon sonraki bölümlerdeki modeller için de kullanılabilir.
 #    (Bu satırlar, ilgili bölümlerdeki değişkenler tanımlandıktan sonra çalışır.)
 #    Dikkat: Prophet ve XGBoost bölümlerinde test seti yalnızca 1960 yılıdır (12 ay);
 #    onları 8.3'teki 12 aylık sonuçlarla kıyaslayın. LSTM ise buradaki 60 aylık

@@ -25,7 +25,7 @@ $$
 $$
 
 ```math
-\underbrace{\lbrace x_t\rbrace_{t=1}^{T}}_{\substack{\text{t = 1'den T'ye kadar}\\\text{gözlemlerin dizisi}}} = \lbrace \overbrace{x_1}^{\text{ilk gözlem}}, x_2, \dots, \overbrace{x_T}^{\text{son gözlem}} \rbrace
+\underbrace{\lbrace x_t\rbrace_{t=1}^{T}}_{\substack{t = 1\text{'den }T\text{'ye kadar}\\\text{gözlemlerin dizisi}}} = \lbrace \overbrace{x_1}^{\text{ilk gözlem}}, x_2, \dots, \overbrace{x_T}^{\text{son gözlem}} \rbrace
 ```
 
 **Ne anlatıyor?** Seri, birinci gözlemden $T$'nci gözleme kadar zaman sırasıyla dizilmiş $T$ değerden oluşur; alt indis her değerin kaçıncı zaman noktasına ait olduğunu gösterir.
@@ -36,7 +36,7 @@ Bu gösterimdeki kavramlar şunlardır:
 
 | Kavram | Gösterim | Anlamı | Örnek |
 | --- | --- | --- | --- |
-| **Gözlem** (observation) | $x_t$ | $t$ anında ölçülen değer | Şekil 2.1'de 15. aydaki değer: $x_{15} = 129$ |
+| **Gözlem** (observation) | $x_t$ | $t$ anında ölçülen değer | Şekil 2.1'deki temsilî seride 15. aydaki değer: $x_{15} = 129$ |
 | **Zaman dizini** (time index) | $t = 1, 2, \dots, T$ | Gözlemlerin sıra numarası | 1. ay, 2. ay, … |
 | **Seri uzunluğu** | $T$ | Toplam gözlem sayısı | `AirPassengers`: $T = 144$ ay |
 | **Örnekleme aralığı** | $\Delta t$ | Ardışık iki gözlem arasındaki süre | 1 ay, 1 gün, 1 saat |
@@ -77,7 +77,7 @@ Operatörlerin işe yarayan özelliği, komutları sayılar gibi parantez içind
 > head(diff(AirPassengers, lag = 12), 3)   # mevsimsel fark: x_t - x_(t-12)
 > ```
 >
-> **Ne göreceksiniz:** `diff(x)` → `[1]  3 -2`, yani tablodaki $`\nabla x_2 = 3`$ ve $`\nabla x_3 = -2`$. Yolcu serisinin ilk farkları `Feb 6, Mar 14, Apr -3, May -8, Jun 14, Jul 13` (1949) olarak yazılır: Şubat'ta 6 bin yolcu artış, Nisan'da 3 bin azalış. Mevsimsel farkın ilk değerleri `1950 Jan 3, Feb 8, Mar 9`'dur; Ocak 1950 için metindeki $`115 - 112 = 3`$ hesabının aynısıdır. İlk farkın Ocak 1949 yerine Şubat 1949'dan başladığına dikkat edin: İlk gözlemin "dünü" yoktur.
+> **Ne göreceksiniz:** `diff(x)` → `[1]  3 -2`, yani tablodaki $`\nabla x_2 = 3`$ ve $`\nabla x_3 = -2`$. Yolcu serisinin ilk farkları `Feb 6, Mar 14, Apr -3, May -8, Jun 14, Jul 13` (1949) olarak yazılır (R 4.5 ve sonrası; daha eski sürümlerde `head()` ay adlarını düşürür ve `[1]  6 14 -3 ...` görünür): Şubat'ta 6 bin yolcu artış, Nisan'da 3 bin azalış. Mevsimsel farkın ilk değerleri `1950 Jan 3, Feb 8, Mar 9`'dur; Ocak 1950 için metindeki $`115 - 112 = 3`$ hesabının aynısıdır. İlk farkın Ocak 1949 yerine Şubat 1949'dan başladığına dikkat edin: İlk gözlemin "dünü" yoktur.
 >
 > **Şimdi siz:** (1) `diff(AirPassengers)` ve `diff(AirPassengers, lag = 12)` kaç gözlemlik olur? Önce tahmin edin, sonra `length()` ile kontrol edin. (2) `diff(x, lag = 2)` ne verir? Bu, $`B^2`$ ile hangi ifadeye karşılık gelir?
 >
@@ -152,9 +152,9 @@ $I_t \sim \text{iid}(0, \sigma^2)$ ifadesi şöyle okunur: "$`I_t`$ değerleri b
 
 ```math
 \begin{gathered}
-\underbrace{\bar{x}}_{\text{ortalama}} = \underbrace{\frac{1}{n}\sum_{i=1}^{n} x_i}_{\substack{\text{değerleri topla,}\\\text{n'ye böl}}}
+\underbrace{\bar{x}}_{\text{ortalama}} = \underbrace{\frac{1}{n}\sum_{i=1}^{n} x_i}_{\substack{\text{değerleri topla,}\\n\text{'ye böl}}}
 \\[6pt]
-\underbrace{\sigma^2}_{\text{varyans}} = \underbrace{\frac{1}{n}\sum_{i=1}^{n}}_{\substack{\text{n değerin}\\\text{ortalamasını al}}} \underbrace{\big(\overbrace{x_i - \bar{x}}^{\text{ortalamadan fark}}\big)^2}_{\text{farkın karesi}}, \qquad \underbrace{\sigma}_{\substack{\text{standart}\\\text{sapma}}} = \sqrt{\sigma^2}
+\underbrace{\sigma^2}_{\text{varyans}} = \underbrace{\frac{1}{n}\sum_{i=1}^{n}}_{\substack{n\text{ değerin}\\\text{ortalamasını al}}} \underbrace{\big(\overbrace{x_i - \bar{x}}^{\text{ortalamadan fark}}\big)^2}_{\text{farkın karesi}}, \qquad \underbrace{\sigma}_{\substack{\text{standart}\\\text{sapma}}} = \sqrt{\sigma^2}
 \end{gathered}
 ```
 
@@ -164,7 +164,7 @@ $I_t \sim \text{iid}(0, \sigma^2)$ ifadesi şöyle okunur: "$`I_t`$ değerleri b
 
 Bu tür bir gürültüye "beyaz" denmesinin nedeni bir benzetmedir: Beyaz ışık bütün renkleri (dalga boylarını) eşit ölçüde içerir; beyaz gürültü de yavaş ve hızlı bütün salınımları (frekansları) eşit güçte içerir. Hiçbir ritim öne çıkmadığı için seride bir düzen ya da tekrar görülmez.
 
-> **Simge notu:** $`\approx`$ *(yaklaşık eşittir)*: iki değer birbirine yakındır · $`\sum_{j=1}^{s}`$ *(büyük sigma, j eşittir 1'den s'ye)*: j = 1, …, s için terimlerin toplamı · $`\sim`$ *(tilda)*: "… dağılımına sahiptir" · $`\text{iid}`$ *(ay-ay-di)*: bağımsız ve özdeş dağılımlı (independent and identically distributed) · $`\sigma`$ *(küçük sigma)*: standart sapma · $`\sigma^2`$ *(sigma kare)*: varyans. Toplam sembolü büyük sigma ($`\Sigma`$) ile standart sapma sembolü küçük sigma ($`\sigma`$) aynı harfin iki biçimidir ama anlamları tamamen farklıdır
+> **Simge notu:** $`T_t`$ *(büyük te, t)*: alt indisli $`T_t`$ trend bileşenidir; alt indissiz $`T`$ ise 2.1'deki gibi toplam gözlem sayısıdır · $`\approx`$ *(yaklaşık eşittir)*: iki değer birbirine yakındır · $`\sum_{j=1}^{s}`$ *(büyük sigma, j eşittir 1'den s'ye)*: j = 1, …, s için terimlerin toplamı · $`\sim`$ *(tilda)*: "… dağılımına sahiptir" · $`\text{iid}`$ *(ay-ay-di)*: bağımsız ve özdeş dağılımlı (independent and identically distributed) · $`\sigma`$ *(küçük sigma)*: standart sapma · $`\sigma^2`$ *(sigma kare)*: varyans. Toplam sembolü büyük sigma ($`\Sigma`$) ile standart sapma sembolü küçük sigma ($`\sigma`$) aynı harfin iki biçimidir ama anlamları tamamen farklıdır
 
 > **Uygulamada trend ve döngü genellikle birleştirilir.** Döngünün periyodu değişken olduğu için onu trendden güvenilir biçimde ayırmak zordur. Bu yüzden R'daki `decompose()` ve `stl()` gibi yöntemler seriyi **üç** bileşene ayırır: *trend-döngü* ($`T_t`$, döngüyü de içerir), *mevsimsellik* ($`S_t`$) ve *kalan* ($`R_t`$ ya da $`I_t`$). Bölüm 2.5'teki ve Bölüm 6.2.3'teki `decompose()` çıktılarında bu yüzden gözlenen serinin altında yalnızca üç bileşen görürüz.
 
@@ -210,7 +210,7 @@ Bu tür bir gürültüye "beyaz" denmesinin nedeni bir benzetmedir: Beyaz ışı
 >
 > Excel'de: A1:A3'e 2, 4, 6 yazın; B1'e `=VAR.P(A1:A3)` (İngilizce de `=VAR.P(A1:A3)`), B2'ye `=VAR.S(A1:A3)` (İngilizce de `=VAR.S(A1:A3)`), B3'e `=STDSAPMA.S(A1:A3)` (İngilizce: `=STDEV.S(A1:A3)`) yazın.
 >
-> **Ne göreceksiniz:** R'da sırasıyla `4`, `-2 0 2`, `2.666667`, `4` ve `2`. Excel'de B1 = 2,666667 (n'ye böler, metindeki $`8/3`$), B2 = 4 (n − 1'e böler, R'ın `var()`'ı ile aynı), B3 = 2.
+> **Ne göreceksiniz:** R'da sırasıyla `4`, `-2 0 2`, `2.666667`, `4` ve `2`. Excel'de B1 = 2.666667 (Türkçe arayüzde ondalık ayracı virgül olduğu için 2,666667 görünür; n'ye böler, metindeki $`8/3`$), B2 = 4 (n − 1'e böler, R'ın `var()`'ı ile aynı), B3 = 2.
 >
 > **Şimdi siz:** 1, 4, 7 için iki varyansı ve `sd()`'yi önce kâğıtta hesaplayın, sonra kontrol edin.
 >
@@ -293,7 +293,7 @@ $$
 
 **Ne anlatıyor?** Gözlenen değer, trend, mevsimsel etki ve düzensiz bileşenin toplanmasıyla oluşur; bileşenler birbirinin büyüklüğünü etkilemez.
 
-Mevsimsel etki **sabit bir miktardır.** Örneğin "Temmuz'da satışlar ortalamadan her yıl yaklaşık 500 birim fazladır."
+Mevsimsel etki **sabit bir miktardır.** Örneğin "Temmuz'da satışlar o dönemin trend seviyesinden her yıl yaklaşık 500 birim fazladır."
 
 **Tanım 2 (çarpımsal model):**
 
@@ -303,7 +303,7 @@ Mevsimsel etki **sabit bir miktardır.** Örneğin "Temmuz'da satışlar ortalam
 
 **Ne anlatıyor?** Gözlenen değer, trend seviyesinin mevsim katsayısı ve düzensiz katsayıyla çarpılmasıyla elde edilir. Katsayı 1'in üstündeyse seviye büyütülür, altındaysa küçültülür; bu nedenle mevsimsel etki seviyeyle orantılı olarak değişir.
 
-Mevsimsel etki **bir orandır.** Örneğin "Temmuz'da satışlar ortalamadan her yıl yaklaşık %20 fazladır." Trend yükseldikçe bu %20'nin mutlak karşılığı da büyür. Çarpımsal modelde mevsimsel katsayıların ortalaması 1'dir. Örneğin $S_{\text{Temmuz}} = 1.20$, %20 fazlalık anlamına gelir.
+Mevsimsel etki **bir orandır.** Örneğin "Temmuz'da satışlar o dönemin trend seviyesinden her yıl yaklaşık %20 fazladır." Trend yükseldikçe bu %20'nin mutlak karşılığı da büyür. Çarpımsal modelde mevsimsel katsayıların ortalaması 1'dir. Örneğin $S_{\text{Temmuz}} = 1.20$, %20 fazlalık anlamına gelir.
 
 Farkı sayılarla görelim. Trend bir yıl 1000, birkaç yıl sonra 3000 birim olsun. Toplamsal modelde Temmuz etkisi "+500 birim" ise Temmuz değeri $1000 + 500 = 1500$'den $3000 + 500 = 3500$'e çıkar: dalganın boyu hep 500'dür. Çarpımsal modelde Temmuz katsayısı 1.20 ise Temmuz değeri $1000 \times 1.20 = 1200$'den $3000 \times 1.20 = 3600$'e çıkar: dalganın boyu 200'den 600'e büyür. Şekil 2.4b'deki "huni" görüntüsü buradan doğar.
 
@@ -314,7 +314,7 @@ Farkı sayılarla görelim. Trend bir yıl 1000, birkaç yıl sonra 3000 birim o
 | Mevsimsel dalgaların yüksekliği zaman içinde yaklaşık sabit | Toplamsal |
 | Dalgalar seviye yükseldikçe büyüyor ("huni" şekli) | Çarpımsal |
 
-**Log dönüşümü ile köprü kurmak:** **Logaritma**, çarpmayı toplamaya çeviren bir işlemdir. En kolay 10 tabanında görülür: $\log_{10} 100 = 2$'dir, çünkü $10^2 = 100$; $\log_{10} 1000 = 3$'tür, çünkü $10^3 = 1000$. Yani logaritma "tabanı kaçıncı kuvvetine yükseltirsem bu sayıyı elde ederim?" sorusunun cevabıdır. Şimdi iki sayının çarpımına bakalım: $100 \times 1000 = 100\thinspace 000 = 10^5$, dolayısıyla $\log_{10} 100\thinspace 000 = 5 = 2 + 3$. Çarpımın logaritması, logaritmaların toplamıdır: $\log(a \times b) = \log a + \log b$. R'daki `log()` fonksiyonu aynı kuralı 10 yerine $e \approx 2.718$ tabanıyla uygular (**doğal logaritma**).
+**Log dönüşümü ile köprü kurmak:** **Logaritma**, çarpmayı toplamaya çeviren bir işlemdir. En kolay 10 tabanında görülür: $\log_{10} 100 = 2$'dir, çünkü $10^2 = 100$; $\log_{10} 1000 = 3$'tür, çünkü $10^3 = 1000$. Yani logaritma "tabanı kaçıncı kuvvetine yükseltirsem bu sayıyı elde ederim?" sorusunun cevabıdır. Şimdi iki sayının çarpımına bakalım: $100 \times 1000 = 100\,000 = 10^5$, dolayısıyla $\log_{10} 100\,000 = 5 = 2 + 3$. Çarpımın logaritması, logaritmaların toplamıdır: $\log(a \times b) = \log a + \log b$. R'daki `log()` fonksiyonu aynı kuralı 10 yerine $e \approx 2.718$ tabanıyla uygular (**doğal logaritma**).
 
 Bu kural sayesinde çarpımsal bir modelin logaritması alınınca model toplamsal hâle gelir:
 
@@ -328,7 +328,7 @@ Bu kural sayesinde çarpımsal bir modelin logaritması alınınca model toplams
 
 Bunun pratik sonucu şudur: Eşit **oranlar**, logaritmada eşit **farklara** dönüşür. 100'den 120'ye de 500'den 600'e de çıkış %20'lik bir artıştır. Mutlak farklar 20 ve 100 iken logaritmik farklar ikisinde de aynıdır: $\log 120 - \log 100 = \log 600 - \log 500 = \log 1.2 \approx 0.182$. Bu yüzden seviye yükseldikçe büyüyen dalgalar, log ölçeğinde eşit boylu hâle gelir.
 
-**Günlük hayattan bir örnek:** 10.000 TL maaşa 1.000 TL zam ile 50.000 TL maaşa 5.000 TL zam aynı oranda, yüzde 10'dur. Lira olarak ikinci zam beş kat büyüktür, ama log ölçeğinde iki zam eşit boyda görünür.
+**Günlük hayattan bir örnek:** 10000 TL maaşa 1000 TL zam ile 50000 TL maaşa 5000 TL zam aynı oranda, yüzde 10'dur. Lira olarak ikinci zam beş kat büyüktür, ama log ölçeğinde iki zam eşit boyda görünür.
 
 Bu nedenle çarpımsal yapıdaki serilerde (örneğin `AirPassengers`) önce `log()` dönüşümü uygulanır, ardından toplamsal yöntemler kullanılır. Bölüm 7'deki SARIMA uygulamasında `log(AirPassengers)` kullanmamızın nedeni budur.
 
@@ -450,7 +450,7 @@ Kod, `AirPassengers` serisini aynı amaçla üç farklı yoldan bileşenlerine a
 >
 > <details><summary>Cevap</summary>
 >
-> Toplamsal modelde etkiler `[-24.7 -36.2  -2.2  -8.   -4.5  35.4  63.8  62.8  16.5 -20.6 -53.6 -28.6]` olur: Temmuz yaklaşık +63.8 bin yolcu. Artık oran değil, sabit bir miktardır; ama bu seride dalgalar büyüdüğü için tek bir sabit miktar ilk yıllara fazla, son yıllara az gelir. Trendde 12 değer boştur (baştaki ve sondaki 6'şar ay), R'daki `NA`'larla aynı.
+> Toplamsal modelde etkiler `[-24.749 -36.188  -2.241  -8.036  -4.506  35.402  63.831  62.823  16.521 -20.642 -53.593 -28.619]` olur (ekranda iki satıra bölünerek yazılır): Temmuz yaklaşık +63.8 bin yolcu. Artık oran değil, sabit bir miktardır; ama bu seride dalgalar büyüdüğü için tek bir sabit miktar ilk yıllara fazla, son yıllara az gelir. Trendde 12 değer boştur (baştaki ve sondaki 6'şar ay), R'daki `NA`'larla aynı.
 >
 > </details>
 
@@ -488,14 +488,14 @@ Durağanlığın matematiksel tanımı ve testleri Bölüm 3.2'de ayrıntılı o
 >
 > <details><summary>Cevap</summary>
 >
-> `length(dd)` → `[1] 131` (144 − 1 − 12). Grafikte yıllık tekrar eden desen kaybolur, seri sıfır çevresinde düzensiz dalgalanır; iki yarının ortalamaları 0.0023 ve −0.0017'dir. Bu, Bölüm 7'deki SARIMA modelinin kullandığı "log + birinci fark + mevsimsel fark" dönüşümüdür. Serinin başındaki dalgalanmanın sonundakinden biraz büyük olduğunu da fark edebilirsiniz; tam durağanlık kararını Bölüm 3.2'deki testlere bırakırız.
+> `length(dd)` → `[1] 131` (144 − 1 − 12). Grafikte yıllık tekrar eden desen kaybolur, seri sıfır çevresinde düzensiz dalgalanır; iki yarının ortalamaları (`mean(dd[1:65]); mean(dd[66:131])`) 0.0023 ve −0.0017'dir. Bu, Bölüm 7'deki SARIMA modelinin kullandığı "log + birinci fark + mevsimsel fark" dönüşümüdür. Serinin başındaki dalgalanmanın sonundakinden biraz büyük olduğunu da fark edebilirsiniz; tam durağanlık kararını Bölüm 3.2'deki testlere bırakırız.
 >
 > </details>
 
 <details>
 <summary><b>Kendinizi test edin (cevaplar için tıklayın)</b></summary>
 
-1. **Bir alışveriş merkezinin günlük ziyaretçi sayısında hafta sonları sürekli artış görülüyor. Bu hangi bileşendir? Periyodu nedir?**
+1. **Bir alışveriş merkezinin günlük ziyaretçi sayısı her hafta sonu yükseliyor, hafta içi yeniden düşüyor. Bu hangi bileşendir? Periyodu nedir?**
    → Mevsimsellik. Periyot 7 gündür (günlük veride $s = 7$).
 
 2. **Bir ülkenin GSYH serisinde 1990–2020 arasında 3, 7 ve 5 yıl arayla gerçekleşen dört durgunluk dönemi var. Bu hangi bileşendir?**

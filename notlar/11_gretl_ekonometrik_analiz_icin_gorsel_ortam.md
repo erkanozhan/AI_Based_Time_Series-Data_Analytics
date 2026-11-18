@@ -19,9 +19,9 @@ Gretl'i, kod yazmadan "ekonometrik çekirdek modelleri" denemek için pratik bir
 Gretl'i açtığınızda karşınıza şu bölümler çıkar:
 
 *   **Menü çubuğu:** **File, Tools, Data, View, Add, Sample, Variable, Model, Help**. Zaman serisi çalışmalarında en çok **Data** (veri yapısı), **Add** (log, fark gibi yeni değişkenler), **Variable** (seçili değişken için testler) ve **Model** menüleri kullanılır.
-*   **Ana pencere:** Veri kümesinin adı, frekansı ve örnek aralığı üstte; değişken listesi altta görünür.
+*   **Ana pencere:** Üstte veri dosyasının adı, ortada değişken listesi, altta durum satırında verinin frekansı ve örnek aralığı (ör. `Monthly: Full range 1949:01 - 1960:12`) görünür.
 *   **Değişken listesi:** Veri yüklendikten sonra değişkenlerin adları, numaraları ve açıklamaları burada listelenir. Bir değişkene çift tıklamak değerlerini, sağ tıklamak kısayol menüsünü (grafik, korelogram, testler) açar. Listede her zaman bulunan `const` (0 numaralı), regresyonlardaki sabit terim için Gretl'in kendi oluşturduğu değişkendir.
-*   **Konsol ve betik penceresi:** **Tools → Gretl console** ile komutları tek tek çalıştırabilir, **File → Script files → New script** ile betik yazabilirsiniz.
+*   **Konsol ve betik penceresi:** **Tools → Gretl console** ile komutları tek tek çalıştırabilir, **File → Script files → New script → gretl script** ile betik yazabilirsiniz.
 
 Gretl veri kümelerini üç yapıya ayırır:
 
@@ -39,7 +39,7 @@ Bir veri kümesini zaman serisi olarak kullanmak için frekansını (aylık, çe
 
 > **Hemen deneyin 11.1 · AirPassengers Gretl'in içinde zaten var** (Gretl menüleri ve konsol, ~3 dk)
 >
-> Gretl'i açın ve **File → Open data → Sample file…** seçin. Açılan pencerenin **Gretl** sekmesinde `bjg` satırını ("Box and Jenkins Series G (airline passengers)") bulup çift tıklayın. Ana pencerenin üstündeki veri bilgisine ve değişken listesine bakın. Ardından **Tools → Gretl console** ile konsolu açın ve aşağıdaki satırı yazıp Enter'a basın:
+> Gretl'i açın ve **File → Open data → Sample file…** seçin. Açılan pencerenin **Gretl** sekmesinde `bjg` satırını ("Box and Jenkins Series G (airline passengers)") bulup çift tıklayın. Ana penceredeki değişken listesine ve alttaki durum satırına bakın. Ardından **Tools → Gretl console** ile konsolu açın ve aşağıdaki satırı yazıp Enter'a basın:
 >
 > ```gretl
 > labels          # değişkenlerin açıklamalarını yazar
@@ -86,7 +86,7 @@ Gretl ayrıca Excel, Stata, SPSS ve kendi biçimi olan `.gdt` dosyalarını da a
 >
 > Dosyayı **Farklı Kaydet** ile `satis.csv` adıyla kaydedin (Kayıt türü: **Tüm dosyalar**; yoksa dosya `satis.csv.txt` olur). Gretl'de **File → Open data → User file…** ile bu dosyayı açın.
 >
-> **Ne göreceksiniz:** Ana pencerenin üstünde verinin aylık olduğu ve 2024:01–2024:06 aralığını kapsadığı yazar; değişken listesinde (`const` dışında) yalnızca `satis` vardır. İlk sütunun başlığı `date` olduğu ve tarihler `2024-01` biçiminde yazıldığı için Gretl bu sütunu değişken değil **gözlem etiketi** sayar ve zaman yapısını kendisi kurar.
+> **Ne göreceksiniz:** Ana pencerenin altındaki durum satırında verinin aylık olduğu ve 2024:01–2024:06 aralığını kapsadığı yazar; değişken listesinde (`const` dışında) yalnızca `satis` vardır. İlk sütunun başlığı `date` olduğu ve tarihler `2024-01` biçiminde yazıldığı için Gretl bu sütunu değişken değil **gözlem etiketi** sayar ve zaman yapısını kendisi kurar.
 >
 > **Şimdi siz:** Not Defteri'nde yalnızca ilk satırdaki `date` sözcüğünü `Ay` yapıp kaydedin ve dosyayı Gretl'de yeniden açın (Gretl veri yapısını tanımlamak isteyip istemediğinizi sorarsa şimdilik **No** deyin). Neyin değişeceğini önce tahmin edin.
 >
@@ -103,13 +103,13 @@ Gretl ayrıca Excel, Stata, SPSS ve kendi biçimi olan `.gdt` dosyalarını da a
     *   **Time series** seçilir,
     *   **Frequency** olarak *monthly* seçilir,
     *   **Starting observation** olarak `1949:01` girilir.
-3.  Onaylandığında Gretl her satırı bir aya karşılık gelen bir gözlem olarak kabul eder; ana pencerenin üstünde "Monthly data, 1949:01–1960:12" gibi bir bilgi görünür.
+3.  Onaylandığında Gretl her satırı bir aya karşılık gelen bir gözlem olarak kabul eder; ana pencerenin altındaki durum satırında `Monthly: Full range 1949:01 - 1960:12` bilgisi görünür.
 
 Bu aşamadan sonra grafiklerde tarih ekseni doğru görünür, mevsimsel fark gibi işlemler ve ARIMA modelleri ek bir ayar gerektirmeden çalışır. Gretl'de tarihler `yıl:dönem` biçiminde yazılır: `1949:01` 1949'un 1. ayı, çeyreklik veride `2015:3` 2015'in 3. çeyreğidir.
 
 > **Hemen deneyin 11.2.2 · Yanlış frekans seçerseniz ne olur?** (Gretl menüleri, ~3 dk)
 >
-> `data/AirPassengers.csv` dosyasını **File → Open data → User file…** ile açın (tarihsiz açılır). Şimdi bilerek yanlış yapın: **Data → Dataset structure…** sihirbazında **Time series** seçin, **Frequency** olarak *quarterly* (çeyreklik) seçin ve **Starting observation** kutusuna `1949:1` yazın. Onayladıktan sonra ana pencerenin üstündeki tarih aralığına bakın.
+> `data/AirPassengers.csv` dosyasını **File → Open data → User file…** ile açın (tarihsiz açılır). Şimdi bilerek yanlış yapın: **Data → Dataset structure…** sihirbazında **Time series** seçin, **Frequency** olarak *quarterly* (çeyreklik) seçin ve **Starting observation** kutusuna `1949:1` yazın. Onayladıktan sonra ana pencerenin altındaki durum satırında tarih aralığına bakın.
 >
 > **Ne göreceksiniz:** Aralık **1949:1 – 1984:4** olarak görünür. Gretl hata vermez: 144 satırı 144 çeyrek, yani 36 yıl sayar. Frekansın doğru olup olmadığını Gretl bilemez; bunu kontrol etmek sizin işinizdir. Yanlış frekansla mevsimsel fark (`sdiff`) 12 ay yerine 4 dönem geriye bakar ve mevsimsel ARIMA yanlış periyotla ($s = 4$) kurulur.
 >
@@ -154,7 +154,7 @@ Gretl'in güçlü yanlarından biri, regresyonun birkaç tıklamayla kurulabilme
 1.  **Model → Ordinary Least Squares…** (sıradan en küçük kareler, OLS) seçilir.
 2.  **Dependent variable** (bağımlı değişken, yani açıklanmak istenen) olarak ör. `Passengers` seçilir.
 3.  **Regressors** (açıklayıcı değişkenler) olarak zaman trendi, mevsimsel kuklalar ya da gecikmeler eklenir. Bunlar önceden **Add → Time trend**, **Add → Periodic dummies** ve **Add → Lags of selected variables** ile oluşturulabilir. Mevsimsel **kukla** (*dummy*) değişken, ilgili ayda 1, diğer aylarda 0 değerini alan bir değişkendir (ör. her Temmuz'da 1).
-4.  **OK** dendiğinde katsayı tahminleri, t-istatistikleri (katsayının standart hatasına oranı; mutlak değeri yaklaşık 2'den büyükse katsayı genellikle anlamlıdır), R-kare (açıklanan varyans oranı, Bölüm 10.3.3) ve bilgi kriterleri ayrı bir model penceresinde gösterilir.
+4.  **OK** dendiğinde katsayı kestirimleri, t-istatistikleri (katsayının standart hatasına oranı; mutlak değeri yaklaşık 2'den büyükse katsayı genellikle anlamlıdır), R-kare (açıklanan varyans oranı, Bölüm 10.3.3) ve bilgi kriterleri ayrı bir model penceresinde gösterilir.
 
 Model penceresinde **Graphs → Residual plot → Against time** ile artıkların zaman grafiği, **Tests → Autocorrelation** ile artıklarda otokorelasyon olup olmadığı incelenir. Zaman serisi regresyonlarında artıklar genellikle güçlü otokorelasyon gösterir; bu, ARIMA gibi dinamik modellere geçme gereğine işaret eder.
 
@@ -187,7 +187,7 @@ ARIMA ve SARIMA'nın teorisi Bölüm 7'de anlatılmıştır; burada yalnızca Gr
     *   **AR order** ($p$), **Difference** ($d$), **MA order** ($q$),
     *   Mevsimsel kısım için **Seasonal AR** ($P$), **Seasonal difference** ($D$), **Seasonal MA** ($Q$); periyot ($s = 12$) veri frekansından otomatik alınır.
     *   Gretl varsayılan olarak modele bir sabit terim ekler. $d = 1$ ve $D = 1$ olan bir modelde sabit gereksizdir (iki kez fark alınmış seride sabit, giderek hızlanan bir trend anlamına gelir); R'daki `Arima()` ile aynı sonucu almak için **Include a constant** kutusunun işaretini kaldırın.
-4.  **OK** dendiğinde parametre tahminleri, standart hatalar, log-olabilirlik ve bilgi kriterleri (AIC, BIC, HQ) listelenir.
+4.  **OK** dendiğinde parametre kestirimleri, standart hatalar, log-olabilirlik ve bilgi kriterleri (AIC, BIC, HQ) listelenir.
 5.  Model penceresinden **Graphs → Residual correlogram** ile artıkların ACF/PACF grafikleri, **Analysis → Forecasts…** ile tahminler ve güven aralıkları elde edilir.
 
 > **Hemen deneyin 11.3.3 · Sabit kutusunu işaretleyip kaldırın: AIC ne kadar değişir?** (Gretl menüleri, ~4 dk)
@@ -218,7 +218,7 @@ Serinin durağan olup olmadığı ve artıkların otokorelasyon içerip içermed
 | Artıklarda otokorelasyon (ARIMA'da Ljung-Box, OLS'de Breusch-Godfrey, VAR'da Rao F) | Model penceresi → **Tests → Autocorrelation** | `modtest --autocorr` |
 | Artıkların normalliği | Model penceresi → **Tests → Normality of residual** | `modtest --normality` |
 
-Komutlardaki sayılar ve seçenekler şöyle okunur: `corrgm x 36` `x` değişkeninin ilk 36 gecikmedeki ACF ve PACF değerlerini tablo olarak yazar (ve grafiğini çizer). `adf 12 x --c --ct` ADF testini 12 gecikmeli farkla yapar; `--c` yalnızca sabitli, `--ct` sabit ve trendli sürümü ister, ikisi birlikte yazılınca iki sonuç da raporlanır. `kpss 12 x` KPSS testini 12 gecikmelik bant genişliğiyle yapar. `modtest` her zaman **en son tahmin edilen modele** uygulanır; bu yüzden bir modeli kurduktan hemen sonra yazılır.
+Komutlardaki sayılar ve seçenekler şöyle okunur: `corrgm x 36` `x` değişkeninin ilk 36 gecikmedeki ACF ve PACF değerlerini tablo olarak yazar (ve grafiğini çizer). `adf 12 x --c --ct` ADF testini 12 gecikmeli farkla yapar; `--c` yalnızca sabitli, `--ct` sabit ve trendli sürümü ister, ikisi birlikte yazılınca iki sonuç da raporlanır. `kpss 12 x` KPSS testini 12 gecikmelik bant genişliğiyle yapar. `modtest` her zaman **en son kestirilen modele** uygulanır; bu yüzden bir modeli kurduktan hemen sonra yazılır.
 
 ADF testinde $H_0$ "birim kök vardır (seri durağan değildir)", KPSS testinde ise $H_0$ "seri durağandır" şeklindedir; iki testi birlikte kullanmak daha güvenilir bir karar verir. Ljung-Box testinde $H_0$ "artıklarda otokorelasyon yoktur" hipotezidir ve iyi bir modelde reddedilmemesi (p > 0.05) istenir. Normallik testinde de $H_0$ "artıklar normal dağılır" şeklindedir (H₀/H₁ ve p-değeri: bkz. Bölüm 3.2).
 
@@ -252,9 +252,9 @@ Bu testler, ARIMA kurarken ya da daha sonra LSTM/GRU gibi modellere (Bölüm 15)
 
 Menülerle yapılan her işlem Gretl'in komut dilinde de yazılabilir. Betik kullanmanın avantajı, analizin **tekrarlanabilir** olmasıdır: veri güncellendiğinde aynı adımlar tek tuşla yeniden çalıştırılır. Aşağıdaki betik, AirPassengers üzerinde Bölüm 7'deki Box-Jenkins adımlarını (dönüşüm → durağanlık → korelogram → model seçimi → artık kontrolü → tahmin) ve Bölüm 8'deki eğitim-test değerlendirmesini uygular.
 
-Betiği çalıştırmak için **File → Script files → New script** ile açılan pencereye yapıştırıp **Run** (dişli simgesi) düğmesine basabilir ya da `.inp` dosyası olarak kaydedip komut satırından `gretlcli -b betik.inp` ile çalıştırabilirsiniz (`gretlcli` Gretl'in komut satırı sürümüdür, `-b` "batch", yani betiği baştan sona soru sormadan çalıştır demektir).
+Betiği çalıştırmak için **File → Script files → New script → gretl script** ile açılan pencereye yapıştırıp **Run** (dişli simgesi) düğmesine basabilir ya da `.inp` dosyası olarak kaydedip komut satırından `gretlcli -b betik.inp` ile çalıştırabilirsiniz (`gretlcli` Gretl'in komut satırı sürümüdür, `-b` "batch", yani betiği baştan sona soru sormadan çalıştır demektir).
 
-Tam betik yaklaşık 160 satır olduğu için ayrı bir dosyaya taşındı. Aşağıda her adımın kilit komutları yer alıyor; adım numaraları (1–8), dosyadaki bölüm başlıklarıyla ve aşağıdaki "Betik çıktılarının yorumlanması" listesiyle aynıdır.
+Tam betik yaklaşık 175 satır olduğu için ayrı bir dosyaya taşındı. Aşağıda her adımın kilit komutları yer alıyor; adım numaraları (1–8), dosyadaki bölüm başlıklarıyla ve aşağıdaki "Betik çıktılarının yorumlanması" listesiyle aynıdır.
 
 ```gretl
 # ARIMA betiğinin kilit satırları (tam betik: Codes/gretl/ch11_arima_airpassengers.inp)
@@ -317,7 +317,7 @@ Komutların ne yaptığı:
 
 > **Hemen deneyin 11.5 · Kısa bir betikle 24 aylık test: ufuk uzayınca hata** (Gretl betiği, ~5 dk)
 >
-> **File → Script files → New script** ile boş bir betik penceresi açın, aşağıdaki satırları yapıştırıp **Run** (dişli simgesi) düğmesine basın. Betik `bjg` örnek dosyasını kullandığı için dosya yolu sorunu çıkmaz.
+> **File → Script files → New script → gretl script** ile boş bir betik penceresi açın, aşağıdaki satırları yapıştırıp **Run** (dişli simgesi) düğmesine basın. Betik `bjg` örnek dosyasını kullandığı için dosya yolu sorunu çıkmaz.
 >
 > ```gretl
 > open bjg                                   # Gretl'in AirPassengers kopyası (aylık)
@@ -373,7 +373,7 @@ VAR modelinin teorisi (tanım, gecikme seçimi, stabilite, Granger nedenselliği
 > 2. **Model → Multivariate time series → VAR lag selection…** seçin; dört değişkeni de listeye ekleyin, en büyük gecikmeyi **4** yapıp **OK**'a basın.
 > 3. **Model → Multivariate time series → Vector Autoregression…** ile aynı dört değişkenle **Lag order** = 2 olan modeli kurun. Sonuç penceresinde **Graphs → VAR inverse roots** seçin.
 >
-> Aynı işin betik karşılığı (**File → Script files → New script** ile açılan pencereye yazıp çalıştırabilirsiniz):
+> Aynı işin betik karşılığı (**File → Script files → New script → gretl script** ile açılan pencereye yazıp çalıştırabilirsiniz):
 >
 > ```gretl
 > open denmark
@@ -465,7 +465,7 @@ Bu betik çalıştırıldığında Gretl önce gecikme seçim tablosunu, ardınd
 
 IRF grafiklerini ve ters kök grafiğini görmek için betik çalıştıktan sonra model penceresindeki **Graphs** menüsü kullanılabilir.
 
-**Not —** Bölüm 10'daki Python uygulamasında olduğu gibi, VAR'a girmeden önce serilerin durağanlığı ADF/KPSS ile kontrol edilmeli (Bölüm 11.4), gerekirse **Add → First differences of selected variables** ile farkları alınmalıdır. Betikte bunu denemek için `var` satırlarından önce `diff inflation interest exchange` yazıp modeli `d_inflation d_interest d_exchange` değişkenleriyle kurabilirsiniz.
+**Not —** Bölüm 10'daki Python uygulamasında olduğu gibi, VAR'a girmeden önce serilerin durağanlığı ADF/KPSS ile kontrol edilmeli (Bölüm 11.4), gerekirse **Add → First differences of selected variables** ile farkları alınmalıdır. Betikte bunu denemek için `var` satırlarından önce `diff inflation interest exchange` yazıp modeli `d_inflation d_interest d_exchange` değişkenleriyle kurabilirsiniz. Seriler I(1) ise farka geçmeden önce aralarında eşbütünleşme olup olmadığı da sınanmalıdır (Bölüm 10.3.3): **Model → Multivariate time series → Cointegration test (Johansen)** menüsü ya da `coint2 2 inflation interest exchange` komutu Johansen testini yapar. Bu veride "eşbütünleşme yok" hipotezi reddedilir (rank 0 için trace testi p = 0.0053, rank 1 için p = 0.19): bir eşbütünleşme ilişkisi vardır ve farklarla kurulan VAR yerine VECM uygundur (Bölüm 10.9'daki Not).
 
 Durağanlık kontrolünün ve stabilitenin Gretl'deki karşılığı şöyle yazılabilir:
 
@@ -481,24 +481,24 @@ eval maxc(abs(eigen($compan)))            # en büyük öz değer modülü
 
 > **Hemen deneyin 11.6.2 · Farkı alınmış serilerle VAR: Granger sonuçları değişir mi?** (Gretl betiği, ~5 dk)
 >
-> Yukarıdaki notu deneyelim. **File → Script files → New script** ile yeni bir betik açın, aşağıdakileri yapıştırıp **Run** deyin (Gretl dosyayı bulamazsa `open` satırına `macro.csv`'nin tam yolunu yazın).
+> Yukarıdaki notu deneyelim. **File → Script files → New script → gretl script** ile yeni bir betik açın, aşağıdakileri yapıştırıp **Run** deyin (Gretl dosyayı bulamazsa `open` satırına `macro.csv`'nin tam yolunu yazın).
 >
 > ```gretl
 > open "data/macro.csv"
 > setobs 12 2015:01 --time-series
 > diff inflation interest exchange     # d_inflation, d_interest, d_exchange
 > var 8 d_inflation d_interest d_exchange --lagselect
-> var 2 d_inflation d_interest d_exchange
+> var 1 d_inflation d_interest d_exchange   # BIC ve HQC'nin seçtiği gecikme
 > modtest --autocorr                   # Rao F otokorelasyon testi
 > ```
 >
-> **Ne göreceksiniz:** Gecikme tablosunda AIC'nin yıldızı **8**'de, BIC ve HQC'nin yıldızı **1**'dedir. VAR(2) çıktısında `d_inflation` denkleminin altında `All lags of d_interest F(2, 110) = 0.22847 [0.7961]` (faiz → enflasyon yine Granger nedeni değil; düzeyde 0.8375'ti) ve `All lags of d_exchange F(2, 110) = 20.934 [0.0000]` (kur → enflasyon yine çok anlamlı) yazar. Otokorelasyon testinde 1–4. gecikmelerin p-değerleri 0.2257, 0.3827, 0.3187, 0.2416'dır (hepsi > 0.05); 5. gecikmeden itibaren p < 0.05 olur. Düzey serilerle kurulan VAR(2)'de bütün gecikmelerde p < 0.01 idi.
+> **Ne göreceksiniz:** Gecikme tablosunda AIC'nin yıldızı **8**'de, BIC ve HQC'nin yıldızı **1**'dedir; model bu yüzden 1 gecikmeyle kurulur (Hemen deneyin 10.6'daki Python modeliyle aynı). VAR(1) çıktısında `d_inflation` denkleminin altında `All lags of d_interest F(1, 114) = 0.39955 [0.5286]` (faiz → enflasyon yine Granger nedeni değil; düzeyde 0.8375'ti) ve `All lags of d_exchange F(1, 114) = 44.456 [0.0000]` (kur → enflasyon yine çok anlamlı) yazar. Otokorelasyon testinde p-değerleri 1. gecikmede 0.0095, 3. gecikmede 0.0839'dur ve 5. gecikmeden itibaren 0.001'in altına iner: Düzey serilerle kurulan VAR(2)'deki kadar güçlü olmasa da (orada bütün gecikmelerde p < 0.01 idi) artıklarda otokorelasyon kalır. (`var 2` ile kurulursa ilk dört gecikmenin p-değerleri 0.05'in üstüne çıkar.)
 >
 > **Şimdi siz:** Aynı çıktıda `d_interest` denkleminde `All lags of d_inflation` satırının p-değeri kaçtır? Düzey modelde enflasyon → faiz p-değeri 0.022'ydi (anlamlı).
 >
 > <details><summary>Cevap</summary>
 >
-> `All lags of d_inflation F(2, 110) = 0.46367 [0.6302]`: farkı alınmış modelde enflasyon artık faizin Granger nedeni görünmez. Python'da (Hemen deneyin 10.6) gördüğümüz sonucun aynısıdır. Kur → faiz ilişkisi ise farklarla da anlamlı kalır (`All lags of d_exchange F(2, 110) = 4.2257 [0.0171]`).
+> `All lags of d_inflation F(1, 114) = 0.81597 [0.3683]`: farkı alınmış modelde enflasyon artık faizin Granger nedeni görünmez. Python'da (Hemen deneyin 10.6) gördüğümüz sonucun aynısıdır (orada p = 0.367; küçük fark, statsmodels'ın testi tüm sistem üzerinden kurmasından gelir, bkz. 10.9). Kur → faiz ilişkisi ise farklarla da anlamlı kalır (`All lags of d_exchange F(1, 114) = 7.5533 [0.0070]`).
 >
 > </details>
 
@@ -514,7 +514,7 @@ Toparlamak için ders boyunca kullanılan araçları şöyle karşılaştırabil
 | **R / Python** | Esnek veri işleme ve otomasyon; Prophet (Bölüm 9), XGBoost (Bölüm 13), LSTM/GRU/1D-CNN (Bölüm 15) gibi gelişmiş modeller. |
 | **Weka** | Kod yazmadan makine öğrenmesi algoritmalarını denemek; zaman serilerini gecikmeli değişkenlerle tabloya dönüştürüp regresyon uygulamak (Bölüm 13 ve 14). |
 
-Gretl bu resmin içinde, özellikle zaman serisi ve ekonometrik modellerin temel mantığını görmek için oldukça işlevli bir araçtır. Aynı veriyi Gretl, Python ve Weka'da çalıştırmak, hem yöntemleri hem de ortamların farklarını karşılaştırmak için iyi bir alıştırmadır.
+Gretl bu resmin içinde, özellikle zaman serisi ve ekonometrik modellerin temel mantığını görmek için oldukça işlevsel bir araçtır. Aynı veriyi Gretl, Python ve Weka'da çalıştırmak, hem yöntemleri hem de ortamların farklarını karşılaştırmak için iyi bir alıştırmadır.
 
 > **Hemen deneyin 11.7 · Aynı model iki programda: Gretl ve R** (R ve Gretl, ~4 dk)
 >
@@ -526,7 +526,7 @@ Gretl bu resmin içinde, özellikle zaman serisi ve ekonometrik modellerin temel
 > m      # katsayılar, log-olabilirlik ve AIC
 > ```
 >
-> **Ne göreceksiniz:** `ma1 = -0.4018`, `sma1 = -0.5569`, `log likelihood = 244.7`, `AIC=-483.4`. Sonuçlar Gretl'inkilerle aynıdır; yalnızca adlar farklıdır (Gretl'in `theta_1` / `Theta_1`'i, R'da `ma1` / `sma1`). Dördüncü basamaktaki küçük farklar iki programın sayısal optimizasyonunun farklı noktalarda durmasından kaynaklanır.
+> **Ne göreceksiniz:** `ma1 = -0.4018`, `sma1 = -0.5569`, `log likelihood = 244.7`, `AIC=-483.4`. Sonuçlar Gretl'inkilerle aynıdır; yalnızca adlar farklıdır (Gretl'in `theta_1` / `Theta_1`'i, R'da `ma1` / `sma1`). R çıktıyı daha az basamakla yazar; Gretl'in değerleri aynı basamağa yuvarlandığında aynı sayılar çıkar.
 >
 > **Şimdi siz:** R'da `exp(forecast(m, h = 12)$mean)` yazarak 1961 tahminlerini yolcu sayısına çevirin. Ocak ve Temmuz 1961 değerlerini 11.5'teki Gretl sonuçlarıyla (yaklaşık 450 ve 670) karşılaştırın.
 >

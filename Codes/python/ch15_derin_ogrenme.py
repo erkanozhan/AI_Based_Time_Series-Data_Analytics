@@ -156,7 +156,7 @@ model_gru.add(GRU(50))
 model_gru.add(Dense(1))
 
 model_gru.compile(loss='mean_squared_error', optimizer='adam')
-model_gru.summary()   # GRU katmanı: 7.950 parametre (LSTM'de 10.400)
+model_gru.summary()   # GRU katmanı: 7950 parametre (LSTM'de 10400)
 
 # LSTM ile aynı eğitim ayarları: adil karşılaştırma için
 model_gru.fit(trainX, trainY, epochs=100, batch_size=1, verbose=2)
@@ -462,7 +462,7 @@ print(auto_model)   # Bölüm 7.7.4'te seçilen model: ARIMA(1,0,0)(0,1,1)[12], 
 # 60 ay ileriye çok adımlı tahmin
 predictions_arima = np.asarray(auto_model.predict(n_periods=len(test_data)))
 rmse_arima = np.sqrt(mean_squared_error(test_data, predictions_arima))
-print(f'ARIMA Modeli RMSE Değeri: {rmse_arima:.2f}')   # Bölüm 7.7.5: yaklaşık 47.9
+print(f'ARIMA Modeli RMSE Değeri: {rmse_arima:.2f}')   # Bölüm 7.7.5: 47.87
 
 # %% [markdown]
 # ### XGBoost (aynı 60 aylık test dönemi), naive referanslar ve karşılaştırma tablosu

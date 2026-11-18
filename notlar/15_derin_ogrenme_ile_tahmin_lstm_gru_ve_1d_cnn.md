@@ -323,19 +323,19 @@ Kodun önemli satırları şunlardır:
 
 **Çıktının yorumu:**
 
-- `model_lstm.summary()` LSTM katmanı için 10.400 parametre gösterir. Dört ağırlık seti ($f, i, o, \tilde{C}$) vardır. Her set, her birim için 1 girdi ağırlığı, önceki gizli durumdaki 50 değer için 50 ağırlık ve 1 yanlılık, yani 52 sayı içerir: $50 \times (1 + 50) + 50 = 2550 + 50 = 2600$. Dört set için $4 \times 2600 = 10.400$ olur. Buna `Dense` katmanının $50 + 1 = 51$ parametresi eklenir; toplam 10.451.
+- `model_lstm.summary()` LSTM katmanı için 10400 parametre gösterir. Dört ağırlık seti ($f, i, o, \tilde{C}$) vardır. Her set, her birim için 1 girdi ağırlığı, önceki gizli durumdaki 50 değer için 50 ağırlık ve 1 yanlılık, yani 52 sayı içerir: $50 \times (1 + 50) + 50 = 2550 + 50 = 2600$. Dört set için $4 \times 2600 = 10\,400$ olur. Buna `Dense` katmanının $50 + 1 = 51$ parametresi eklenir; toplam 10451.
 - Eğitim tahminleri gerçek seriyi yakından izliyorsa ama test tahminleri özellikle 1959–1960 tepelerinde gerçek değerlerin altında kalıyorsa bu, 15.1.1'deki ekstrapolasyon sorununun işaretidir.
 - `rmse_lstm` yolcu sayısıyla aynı birimdedir (bin yolcu). Bizim çalıştırmamızda 46.19 çıktı. Sizin değeriniz 15.1.1'de (2. madde) belirttiğimiz nedenlerle farklı olabilir. Farkın ne kadar büyük olabileceğini 15.3'te göreceğiz. 15.5'te diğer modellerle bu değer üzerinden karşılaştıracağız.
 
 ```math
-\text{LSTM parametre sayısı} = \underbrace{4}_{\substack{\text{ağırlık seti}\\(f,\ i,\ o,\ \tilde{C})}} \cdot \big[\underbrace{h \cdot (h + x)}_{\substack{\text{W ve U}\\\text{ağırlıkları}}} + \underbrace{h}_{\text{yanlılıklar}}\big]
+\text{LSTM parametre sayısı} = \underbrace{4}_{\substack{\text{ağırlık seti}\\(f,\ i,\ o,\ \tilde{C})}} \cdot \big[\underbrace{m \cdot (m + d)}_{\substack{W\text{ ve }U\\\text{ağırlıkları}}} + \underbrace{m}_{\text{yanlılıklar}}\big]
 ```
 
-**Ne anlatıyor?** LSTM'deki dört ağırlık setinin her biri, girdi ve önceki gizli durum için ağırlıklar ile birim başına bir yanlılık içerir; toplam parametre sayısı bir setin dört katıdır. Burada $h$ birim sayısı (bizde 50), $x$ her zaman adımındaki özellik sayısıdır (bizde 1). $h \cdot (h + x) = h \cdot x + h \cdot h$ eşitliğinde ilk terim girdiyi çarpan $W$ tablosunun, ikincisi önceki gizli durumu çarpan $U$ tablosunun eleman sayısıdır.
+**Ne anlatıyor?** LSTM'deki dört ağırlık setinin her biri, girdi ve önceki gizli durum için ağırlıklar ile birim başına bir yanlılık içerir; toplam parametre sayısı bir setin dört katıdır. Burada $m$ birim sayısı (bizde 50), $d$ her zaman adımındaki özellik sayısıdır (bizde 1); gizli durum $h_t$ ve girdi $x_t$ ile karışmasın diye bu sayılar için ayrı harfler kullanıyoruz. $m \cdot (m + d) = m \cdot d + m \cdot m$ eşitliğinde ilk terim girdiyi çarpan $W$ tablosunun, ikincisi önceki gizli durumu çarpan $U$ tablosunun eleman sayısıdır.
 
 > **Hemen deneyin 15.2 · Parametre sayısını formülle doğrulayın** (Python, ~4 dk)
 >
-> Küçük bir LSTM kurun (eğitmeden) ve `summary()`'deki parametre sayısını formülle karşılaştırın. $h$ birim ve $x$ özellik için LSTM katmanı $4 \cdot [h \cdot (h + x) + h]$ parametre taşır.
+> Küçük bir LSTM kurun (eğitmeden) ve `summary()`'deki parametre sayısını formülle karşılaştırın. $m$ birim ve $d$ özellik için LSTM katmanı $4 \cdot [m \cdot (m + d) + m]$ parametre taşır (kodda $m$ yerine `h`, $d$ yerine `x` değişkeni kullanılır).
 >
 > ```python
 > from tensorflow.keras.models import Sequential
@@ -349,7 +349,7 @@ Kodun önemli satırları şunlardır:
 >
 > **Ne göreceksiniz:** Tabloda `lstm (LSTM)` satırında `320`, `dense (Dense)` satırında `9`, altta `Total params: 329` ve en sonda `Formül: 320`. Hesap: $4 \cdot [8 \cdot 9 + 8] = 4 \cdot 80 = 320$; `Dense(1)` için $8 + 1 = 9$. (Katman adlarının sonunda `_1`, `_2` gibi ekler görebilirsiniz; aynı oturumda birden çok model kurduğunuzda Keras adları numaralandırır.)
 >
-> **Şimdi siz:** Çalıştırmadan önce tahmin edin: (1) `x = 3` (üç değişkenli seri) olursa LSTM katmanı kaç parametre taşır? (2) `Input(shape=(24, x))` ile pencere 24 aya çıkarsa toplam değişir mi? (3) `LSTM(h)` yerine `GRU(h)` yazarsanız (15.3'teki formül: $3 \cdot [h \cdot (h + x) + 2h]$) kaç olur? (4) `print([w.shape for w in model.layers[0].get_weights()])` satırı katmanın ağırlık tablolarının şekillerini yazdırır (`model.layers[0]` modelin ilk katmanı, yani LSTM'dir; `Input` katman listesinde yer almaz). `x = 1` iken LSTM ve GRU için hangi şekilleri beklersiniz?
+> **Şimdi siz:** Çalıştırmadan önce tahmin edin: (1) `x = 3` (üç değişkenli seri) olursa LSTM katmanı kaç parametre taşır? (2) `Input(shape=(24, x))` ile pencere 24 aya çıkarsa toplam değişir mi? (3) `LSTM(h)` yerine `GRU(h)` yazarsanız (15.3'teki formül: $3 \cdot [m \cdot (m + d) + 2m]$) kaç olur? (4) `print([w.shape for w in model.layers[0].get_weights()])` satırı katmanın ağırlık tablolarının şekillerini yazdırır (`model.layers[0]` modelin ilk katmanı, yani LSTM'dir; `Input` katman listesinde yer almaz). `x = 1` iken LSTM ve GRU için hangi şekilleri beklersiniz?
 >
 > <details><summary>Cevap</summary>
 >
@@ -427,7 +427,7 @@ model_gru.add(GRU(50))
 model_gru.add(Dense(1))
 
 model_gru.compile(loss='mean_squared_error', optimizer='adam')
-model_gru.summary()   # GRU katmanı: 7.950 parametre (LSTM'de 10.400)
+model_gru.summary()   # GRU katmanı: 7950 parametre (LSTM'de 10400)
 
 # LSTM ile aynı eğitim ayarları: adil karşılaştırma için
 model_gru.fit(trainX, trainY, epochs=100, batch_size=1, verbose=2)
@@ -454,7 +454,7 @@ plt.show()
 
 Kod, LSTM kodunun neredeyse aynısıdır; değişen iki şey vardır. Birincisi, `LSTM(50)` yerine `GRU(50)` katmanı kullanılır. İkincisi, model kurulmadan önce `tf.keras.utils.set_random_seed(SEED)` yeniden çağrılır. Böylece GRU'nun ağırlıkları, LSTM eğitimi sırasında üretilen rastgele sayılardan etkilenmeden, aynı tohumdan başlar ve kodu tek başına çalıştırdığınızda da aynı sonucu verir. `compile`, `fit`, `predict` ve `inverse_transform` satırları 15.2'de anlattığımız gibi çalışır.
 
-**Çıktının yorumu:** Keras'ın varsayılan GRU uygulaması (`reset_after=True`) her ağırlık seti için iki yanlılık tutar (15.3'teki not). Bu yüzden parametre sayısı $3 \times [50 \times (1 + 50) + 2 \times 50] = 3 \times [2550 + 100] = 3 \times 2650 = 7950$ olur. LSTM'in 10.400 parametresine göre fark $10400 - 7950 = 2450$, yani yaklaşık %24'tür ($2450 / 10400 \approx 0.236$).
+**Çıktının yorumu:** Keras'ın varsayılan GRU uygulaması (`reset_after=True`) her ağırlık seti için iki yanlılık tutar (15.3'teki not). Bu yüzden parametre sayısı $3 \times [50 \times (1 + 50) + 2 \times 50] = 3 \times [2550 + 100] = 3 \times 2650 = 7950$ olur. LSTM'in 10400 parametresine göre fark $10\,400 - 7950 = 2450$, yani yaklaşık %24'tür ($2450 / 10400 \approx 0.236$).
 
 Bizim bilgisayarımızda `SEED = 42` ile GRU'nun test RMSE'si **183.64** çıktı; LSTM'in 46.19'unun yaklaşık dört katı. Eğitim hatası ise iki modelde de benzer ve küçüktü (yaklaşık 13–15 bin yolcu). Sorun eğitimde değil, test döneminde ortaya çıkıyor. Bunun bir model hatası mı yoksa şanssız bir başlangıç mı olduğunu anlamak için aynı kodu yalnızca tohumu değiştirerek yeniden çalıştırdık:
 
@@ -489,7 +489,7 @@ Tablo ve Şekil 15.3 bu bölümün belki de en önemli dersini veriyor: Küçük
 >     print(f"Tohum {tohum:2d}: test RMSE = {np.sqrt(mean_squared_error(testY_inv, tahmin)):.2f}")
 > ```
 >
-> **Ne göreceksiniz:** Bizim bilgisayarımızda (Windows, TensorFlow 2.21, yalnızca işlemci) `Tohum  1: 53.74`, `Tohum  7: 54.93`, `Tohum 42: 56.03` çıktı ve aynı bilgisayarda tekrar çalıştırınca aynı sayılar geldi. Sizin değerleriniz birkaç birim farklı olabilir. Önemli olan üçünün birbirine yakın (yaklaşık 50–60) olmasıdır. Ekranda `retracing` diye başlayan uyarılar görebilirsiniz; döngüde model yeniden kurulduğu için çıkar ve zararsızdır.
+> **Ne göreceksiniz:** Bizim bilgisayarımızda (Windows, TensorFlow 2.21, yalnızca işlemci) `Tohum  1: test RMSE = 53.74`, `Tohum  7: test RMSE = 54.93`, `Tohum 42: test RMSE = 56.03` çıktı ve aynı bilgisayarda tekrar çalıştırınca aynı sayılar geldi. Sizin değerleriniz birkaç birim farklı olabilir. Önemli olan üçünün birbirine yakın (yaklaşık 50–60) olmasıdır. Ekranda `retracing` diye başlayan uyarılar görebilirsiniz; döngüde model yeniden kurulduğu için çıkar ve zararsızdır.
 >
 > **Şimdi siz:** `birim = 4` yapıp yeniden çalıştırın. Üç tohumun sonuçları birbirine yine yakın mı? Neden?
 >
@@ -501,7 +501,7 @@ Tablo ve Şekil 15.3 bu bölümün belki de en önemli dersini veriyor: Küçük
 
 ### 15.4. 1D-CNN: Desen Tabanlı Yaklaşım
 
-Şimdiye kadar zaman serilerine iki temel felsefeyle yaklaştık: geçmişi hatırlamak (LSTM, GRU) ve kurallar oluşturmak (XGBoost); Prophet ise seriyi bileşenlere ayırıp eğri uydurur. Yapay zeka literatüründe, genellikle görüntü işlemeyle özdeşleşmiş olsa da zaman serilerinde de başarılı sonuçlar veren bir yöntem daha vardır: **1D-CNN (bir boyutlu evrişimli sinir ağı)**.
+Şimdiye kadar zaman serilerine üç temel felsefeyle yaklaştık: seriyi istatistiksel bir modelle açıklamak (ARIMA), geçmişi hatırlamak (LSTM, GRU) ve kurallar oluşturmak (XGBoost); Prophet ise seriyi bileşenlere ayırıp eğri uydurur. Yapay zeka literatüründe, genellikle görüntü işlemeyle özdeşleşmiş olsa da zaman serilerinde de başarılı sonuçlar veren bir yöntem daha vardır: **1D-CNN (bir boyutlu evrişimli sinir ağı)**.
 
 CNN'leri çoğunlukla "bu resimde kedi var mı?" sorusuyla duyarız. Orada ağ, resmin üzerinde küçük pencereler gezdirerek kenarları ve köşeleri öğrenir. Zaman serisinde mantık aynıdır; yalnızca pencere iki boyutlu bir resim yerine tek boyutlu bir dizi üzerinde kayar. Filtreler, verinin içindeki yükseliş eğilimini, ani düşüşü veya tepe noktasını birer **desen** olarak tanımayı öğrenir.
 
@@ -516,24 +516,24 @@ Evrişimin fikri basittir: Birkaç sayıdan oluşan küçük bir **filtre** (ağ
 **Tanım (1D evrişim):** Uzunluğu $K$ olan bir filtrenin ağırlıkları $w_0, \dots, w_{K-1}$ ve yanlılığı $b$ olsun. Filtrenin $t$ konumundaki çıktısı:
 
 ```math
-\underbrace{y_t}_{\substack{\text{t konumundaki}\\\text{çıktı}}} = \underbrace{g}_{\text{aktivasyon}}\Big(\overbrace{\sum_{k=0}^{K-1} w_k x_{t+k}}^{\substack{\text{filtre altındaki K değerin}\\\text{ağırlıklı toplamı}}} + \underbrace{b}_{\text{yanlılık}}\Big)
+\underbrace{a_t}_{\substack{t\text{ konumundaki}\\\text{çıktı}}} = \underbrace{g}_{\text{aktivasyon}}\Big(\overbrace{\sum_{k=0}^{K-1} w_k x_{t+k}}^{\substack{\text{filtre altındaki }K\text{ değerin}\\\text{ağırlıklı toplamı}}} + \underbrace{b}_{\text{yanlılık}}\Big)
 ```
 
 **Ne anlatıyor?** Filtre, serinin $t$ konumundan başlayan $K$ değerinin üzerine konur; her değer filtrenin karşılık gelen ağırlığıyla çarpılır, çarpımlar toplanır, yanlılık eklenir ve sonuç aktivasyon fonksiyonundan geçirilir. Elde edilen sayı, filtrenin aradığı desenin o konumda ne kadar güçlü olduğunu gösterir.
 
-> **Simge notu:** $`\sum`$ *(büyük sigma, "toplam")*: altındaki $`k=0`$ ile üstündeki $`K-1`$ arasındaki her $`k`$ için yanındaki terimi yazıp hepsini toplamak demektir. $`K = 3`$ için $`\sum_{k=0}^{2} w_k x_{t+k} = w_0 x_t + w_1 x_{t+1} + w_2 x_{t+2}`$ olur. LSTM'deki küçük $`\sigma`$ (sigmoid) ile karıştırmayın · $`K`$: filtre uzunluğu (Keras'ta `kernel_size`) · $`k`$: filtre içindeki sıra numarası (0, 1, …, K−1) · $`w_k`$ *(dabılyu k)*: filtrenin $`k`$. ağırlığı, eğitimle öğrenilir · $`x_{t+k}`$: serinin $`t+k`$. değeri; $`t`$ filtrenin o anda başladığı konumdur · $`b`$: yanlılık · $`y_t`$: filtrenin $`t`$ konumundaki çıktısı · $`g`$: aktivasyon fonksiyonu (burada ReLU; tanımı 12.2'nin başındaki tabloda)
+> **Simge notu:** $`\sum`$ *(büyük sigma, "toplam")*: altındaki $`k=0`$ ile üstündeki $`K-1`$ arasındaki her $`k`$ için yanındaki terimi yazıp hepsini toplamak demektir. $`K = 3`$ için $`\sum_{k=0}^{2} w_k x_{t+k} = w_0 x_t + w_1 x_{t+1} + w_2 x_{t+2}`$ olur. LSTM'deki küçük $`\sigma`$ (sigmoid) ile karıştırmayın · $`K`$: filtre uzunluğu (Keras'ta `kernel_size`) · $`k`$: filtre içindeki sıra numarası (0, 1, …, K−1) · $`w_k`$ *(dabılyu k)*: filtrenin $`k`$. ağırlığı, eğitimle öğrenilir · $`x_{t+k}`$: serinin $`t+k`$. değeri; $`t`$ filtrenin o anda başladığı konumdur · $`b`$: yanlılık · $`a_t`$: filtrenin $`t`$ konumundaki çıktısı · $`g`$: aktivasyon fonksiyonu (burada ReLU; tanımı 12.2'nin başındaki tabloda)
 
 **Sayısal örnek:** Şekil 15.4'teki elle seçilmiş filtrenin ağırlıkları $w_0 = -1$, $w_1 = 0$, $w_2 = +1$, yanlılığı $b = 0$ olsun. Seri 1949'un ilk ayları: 112, 118, 132, 129, 121, 135, … Filtre ilk üç aya oturduğunda:
 
 ```math
 \begin{aligned}
-y_1 &= (-1) \cdot 112 + 0 \cdot 118 + (+1) \cdot 132 = -112 + 0 + 132 = 20 &&\Rightarrow \text{ReLU: } 20\\
-y_2 &= (-1) \cdot 118 + 0 \cdot 132 + (+1) \cdot 129 = -118 + 0 + 129 = 11 &&\Rightarrow \text{ReLU: } 11\\
-y_3 &= (-1) \cdot 132 + 0 \cdot 129 + (+1) \cdot 121 = -132 + 0 + 121 = -11 &&\Rightarrow \text{ReLU: } 0
+a_1 &= (-1) \cdot 112 + 0 \cdot 118 + (+1) \cdot 132 = -112 + 0 + 132 = 20 &&\Rightarrow \text{ReLU: } 20\\
+a_2 &= (-1) \cdot 118 + 0 \cdot 132 + (+1) \cdot 129 = -118 + 0 + 129 = 11 &&\Rightarrow \text{ReLU: } 11\\
+a_3 &= (-1) \cdot 132 + 0 \cdot 129 + (+1) \cdot 121 = -132 + 0 + 121 = -11 &&\Rightarrow \text{ReLU: } 0
 \end{aligned}
 ```
 
-Bu filtre aslında $y_t = x_{t+2} - x_t$ farkını, yani "iki ay sonraki değer bugünküne göre ne kadar yüksek?" sorusunu hesaplar. Pozitif sonuç üç aylık bir yükselişi, negatif sonuç düşüşü gösterir; ReLU düşüşleri 0'a çevirir ve yalnızca yükselişleri bırakır. 12 aylık seride filtre 10 farklı konuma oturabilir ($12 - 3 + 1 = 10$), bu yüzden 10 çıktı oluşur: 20, 11, 0, 6, 27, 13, 0, 0, 0, 0.
+Bu filtre aslında $a_t = x_{t+2} - x_t$ farkını, yani "iki ay sonraki değer bugünküne göre ne kadar yüksek?" sorusunu hesaplar. Pozitif sonuç üç aylık bir yükselişi, negatif sonuç düşüşü gösterir; ReLU düşüşleri 0'a çevirir ve yalnızca yükselişleri bırakır. 12 aylık seride filtre 10 farklı konuma oturabilir ($12 - 3 + 1 = 10$), bu yüzden 10 çıktı oluşur: 20, 11, 0, 6, 27, 13, 0, 0, 0, 0.
 
 **Havuzlama (pooling):** `MaxPooling1D(pool_size=2)` bu diziyi ikişerli gruplara ayırır ve her gruptan yalnızca en büyüğünü tutar: (20, 11) → 20, (0, 6) → 6, (27, 13) → 27, (0, 0) → 0, (0, 0) → 0. 10 değer 5'e iner. Havuzlama hem hesabı küçültür hem de desenin bir ay erken ya da geç görülmesini önemsiz kılar: Yükseliş grubun birinci ya da ikinci ayında olsun, sonuç aynıdır.
 
@@ -585,7 +585,7 @@ Bu filtre aslında $y_t = x_{t+2} - x_t$ farkını, yani "iki ay sonraki değer 
 >
 > <details><summary>Cevap</summary>
 >
-> (1) Bu filtre $x_t - x_{t+2}$'yi, yani düşüşleri ölçer: `[0. 0. 11. 0. 0. 0. 12. 29. 32. 1.]`, havuzlama sonrası `[0. 11. 0. 29. 32.]`. En güçlü sinyaller yaz sonrasındaki düşüştedir: Ağustos → Ekim ($148 - 119 = 29$) ve Eylül → Kasım ($136 - 104 = 32$). (2) 12 değer: `[118. 20. 11. 0. 6. 27. 13. 0. 0. 0. 0. 0.]`. `'same'` serinin başına bir 0 eklediği için ilk konumda hesap $(-1) \cdot 0 + 0 \cdot 112 + 1 \cdot 118 = 118$ olur. Bu kenar etkisi gerçek bir yükseliş değildir; dolgunun yan etkisidir.
+> (1) Bu filtre $x_t - x_{t+2}$'yi, yani düşüşleri ölçer: `[0. 0. 11. 0. 0. 0. 12. 29. 32. 1.]`, havuzlama sonrası `[0. 11. 0. 29. 32.]`. En güçlü sinyaller yaz sonrasındaki düşüştedir: Ağustos → Ekim ($148 - 119 = 29$) ve Eylül → Kasım ($136 - 104 = 32$). (2) 12 değer: `[118. 20. 11. 0. 6. 27. 13. 0. 0. 0. 0. 0.]`. `'same'` serinin başına ve sonuna birer 0 eklediği için ilk konumda hesap $(-1) \cdot 0 + 0 \cdot 112 + 1 \cdot 118 = 118$ olur. Bu kenar etkisi gerçek bir yükseliş değildir; dolgunun yan etkisidir.
 >
 > </details>
 
@@ -642,9 +642,9 @@ Birden fazla evrişim katmanı üst üste konduğunda ikinci katmandaki bir filt
 
 #### 15.4.2. 1D-CNN Uygulaması
 
-Aşağıdaki kod 15.1'deki ortak veriyi kullanır. Evrişimli model LSTM'den çok daha fazla parametre taşır (44.261; LSTM'de 10.451) ve 60 örnekle eğitildiğinde genel deseni öğrenmek yerine eğitim verisini ezberleyebilir. Bunu izlemek için XGBoost'ta olduğu gibi eğitim kümesinin son 12 ayını **doğrulama** kümesi olarak ayırıyor ve **erken durdurma** kullanıyoruz (bkz. 13.4 ve 8.1.1): Doğrulama hatası iyileşmeyi bırakınca eğitim kesilir.
+Aşağıdaki kod 15.1'deki ortak veriyi kullanır. Evrişimli model LSTM'den çok daha fazla parametre taşır (44261; LSTM'de 10451) ve 60 örnekle eğitildiğinde genel deseni öğrenmek yerine eğitim verisini ezberleyebilir. Bunu izlemek için XGBoost'ta olduğu gibi eğitim kümesinin son 12 ayını **doğrulama** kümesi olarak ayırıyor ve **erken durdurma** kullanıyoruz (bkz. 13.4 ve 8.1.1): Doğrulama hatası iyileşmeyi bırakınca eğitim kesilir.
 
-Tam program (yaklaşık 260 satır) uygulama dosyasındadır; aşağıda kilit satırlar yer alıyor. Dosyada katmanlar tek tek, açıklamalı olarak alt alta yazılmıştır.
+1D-CNN bölümünün tam kodu (yaklaşık 260 satır) uygulama dosyasındadır; aşağıda kilit satırlar yer alıyor. Dosyada katmanlar tek tek, açıklamalı olarak alt alta yazılmıştır.
 
 ```python
 # 1D-CNN — kilit satırlar (tam kod: Codes/python/ch15_derin_ogrenme.py)
@@ -763,15 +763,15 @@ Bu yapılandırmanın test RMSE değeri: 27.91
 
 **Çıktının yorumu:**
 
-- **Parametre sayısı:** 44.261 parametrenin hesabı: ilk evrişim katmanında her filtre 3 ağırlık ve 1 yanlılık taşır, $64 \times (3 + 1) = 256$. İkinci katmanda her filtre 3 zaman adımı × 64 özellik haritası = 192 ağırlık ve 1 yanlılık taşır, $128 \times (192 + 1) = 24.704$. `Dense(50)` için $384 \times 50 + 50 = 19.250$, çıktı katmanı için $50 + 1 = 51$. Toplam $256 + 24.704 + 19.250 + 51 = 44.261$.
+- **Parametre sayısı:** 44261 parametrenin hesabı: ilk evrişim katmanında her filtre 3 ağırlık ve 1 yanlılık taşır, $64 \times (3 + 1) = 256$. İkinci katmanda her filtre 3 zaman adımı × 64 özellik haritası = 192 ağırlık ve 1 yanlılık taşır, $128 \times (192 + 1) = 24\,704$. `Dense(50)` için $384 \times 50 + 50 = 19\,250$, çıktı katmanı için $50 + 1 = 51$. Toplam $256 + 24\,704 + 19\,250 + 51 = 44\,261$.
 - **Öğrenme eğrileri (Şekil 15.5):** Durma ve geri yükleme noktaları (16. epoch'un ağırlıkları, 36. epoch'ta durma) şeklin alt yazısında açıklanmıştır. Doğrulama kaybı eğitim kaybından çok yüksekse model ezberliyordur; dropout oranını artırmak ya da filtre sayısını azaltmak denenebilir.
 - **Eğitim, doğrulama ve test RMSE:** Eğitimden teste doğru hatanın artması (13.65 → 24.66 → 32.43) normaldir: Model eğitim verisini zaten görmüştür, doğrulama yılı (1955) eğitime en yakın dönemdir, test dönemi ise hem daha uzun hem de eğitimde hiç görülmemiş yolcu düzeyleri içerir. Test RMSE'nin eğitimin birkaç katı olması hem aşırı öğrenmeye hem de 15.1.1'deki ekstrapolasyon sorununa işaret eder; burada oran $32.43 / 13.65 \approx 2.4$'tür.
 - **Hata analizi:** Hata burada "gerçek eksi tahmin" olarak hesaplanır. Ortalama hata 18.38, yani pozitiftir: Model test döneminde ortalama olarak yaklaşık 18 bin yolcu **düşük** tahmin yapıyor. Bu sistematik sapma da ekstrapolasyon sorununun işaretidir (15.1.1). Hataların zamanla büyümesi, trendin model tarafından tam yakalanamadığını gösterir.
-- **Hiperparametre karşılaştırması:** Doğrulama RMSE'si en küçük olan yapılandırma (2) seçildi. Bu yapılandırma ana modelle aynı ayarlara sahip olduğu hâlde doğrulama RMSE'si farklıdır (22.23 ve 24.66), çünkü döngüdeki modeller farklı rastgele başlangıç ağırlıklarıyla kurulur ve erken durdurma sabrı 15'tir. Üç yapılandırma arasındaki farklar (22–27) bu rastgelelikten kaynaklanan farkla aynı büyüklüktedir; yani bu küçük deneyle hangi ayarın gerçekten daha iyi olduğunu kesin olarak söyleyemeyiz.
+- **Hiperparametre karşılaştırması:** Doğrulama RMSE'si en küçük olan yapılandırma (2) seçildi. Bu yapılandırma ana modelle aynı ayarlara sahip olduğu hâlde doğrulama RMSE'si (22.23 ve 24.66) ve test RMSE'si (27.91 ve 32.43) farklıdır; 15.5'te ana modelin değeri (32.43) kullanılır. Fark, döngüdeki modellerin farklı rastgele başlangıç ağırlıklarıyla kurulmasından ve erken durdurma sabrının 15 olmasından kaynaklanır. Üç yapılandırma arasındaki farklar (22–27) bu rastgelelikten kaynaklanan farkla aynı büyüklüktedir; yani bu küçük deneyle hangi ayarın gerçekten daha iyi olduğunu kesin olarak söyleyemeyiz.
 
 > **Not — Neden `BatchNormalization` kullanmıyoruz?** İnternetteki birçok 1D-CNN örneğinde her evrişim katmanından sonra bir `BatchNormalization` katmanı bulunur. Bu katman, bir önceki katmanın çıktılarını eğitim sırasında her yığının kendi ortalamasına göre, tahmin sırasında ise eğitim boyunca biriktirdiği ortalamalara göre yeniden ölçekler. Büyük veri setlerinde eğitimi hızlandırır ve kararlı kılar. Bizim denememizde aynı modelde her iki evrişim katmanının arkasına bu katmanı eklediğimizde sonuç çarpıcı biçimde kötüleşti: Eğitim RMSE'si 118.68, test RMSE'si 247.86 çıktı ve model test döneminde ortalama 234 bin yolcu düşük tahmin yaptı; yani model kendi eğitim verisini bile tahmin edemez hâle geldi. Olası neden, yalnızca 60 örnek ve 16'lık küçük yığınlarla hesaplanan yığın ortalamalarının hem birbirinden hem de tahmin sırasında kullanılan birikmiş ortalamalardan çok farklı olmasıdır; trendli bir seride her yığın farklı bir yolcu düzeyini temsil eder. Ders: Bir katmanın "genellikle işe yaradığı" söylense bile, eklediğiniz her bileşenin kendi verinizdeki etkisini ölçün.
 
-> **Hemen deneyin 15.4.2b · 44.261 parametreyi saydırın** (Python, ~4 dk)
+> **Hemen deneyin 15.4.2b · 44261 parametreyi saydırın** (Python, ~4 dk)
 >
 > 15.4.2'deki mimariyi eğitmeden kurun ve her katmanın parametre sayısını yazdırın.
 >
@@ -808,7 +808,7 @@ Bu yapılandırmanın test RMSE değeri: 27.91
 >
 > <details><summary>Cevap</summary>
 >
-> (1) $32 \cdot (3 + 1) = 128$; $64 \cdot (3 \cdot 32 + 1) = 6208$; `Flatten` $3 \cdot 64 = 192$ → $192 \cdot 50 + 50 = 9650$; $51$. Toplam **16.037**. (2) Yalnızca evrişim satırları değişir: $64 \cdot (5 + 1) = 384$ ve $128 \cdot (5 \cdot 64 + 1) = 41.088$; `Dense` satırları aynı kalır (19.250 ve 51), çünkü `'same'` dolgu uzunluğu değiştirmez. Toplam **60.773**.
+> (1) $32 \cdot (3 + 1) = 128$; $64 \cdot (3 \cdot 32 + 1) = 6208$; `Flatten` $3 \cdot 64 = 192$ → $192 \cdot 50 + 50 = 9650$; $51$. Toplam **16037**. (2) Yalnızca evrişim satırları değişir: $64 \cdot (5 + 1) = 384$ ve $128 \cdot (5 \cdot 64 + 1) = 41\,088$; `Dense` satırları aynı kalır (19250 ve 51), çünkü `'same'` dolgu uzunluğu değiştirmez. Toplam **60773**.
 >
 > </details>
 
@@ -882,7 +882,7 @@ Elimizde artık beş farklı yaklaşım var. Bunların yanına, hiçbir şey ö�
 
 Karşılaştırmanın adil olması için hepsini **aynı test döneminde** (1956–1960, son 60 ay) ve aynı ölçütle (RMSE, bkz. Bölüm 8.2.2) değerlendiriyoruz:
 
-- `rmse_arima`, Bölüm 7'deki Python uygulamasında (`auto_arima` ile `train_data = data[:-60]`, `test_data = data[-60:]`) hesaplanan değişkendir. Aşağıdaki kodu notlardaki sırayla çalıştırıyorsanız Bölüm 7.7'deki Python kodunun aynı oturumda çalıştırılmış olması gerekir. Uygulama dosyası ise bu modeli kendisi yeniden kurar; bizim çalıştırmamızda `auto_arima` yine sabit terimli ARIMA(1,0,0)(0,1,1)[12] modelini seçti ve RMSE 47.87 çıktı (Bölüm 7.7.5'teki yaklaşık 47.9 ile aynı).
+- `rmse_arima`, Bölüm 7'deki Python uygulamasında (`auto_arima` ile `train_data = data[:-60]`, `test_data = data[-60:]`) hesaplanan değişkendir. Aşağıdaki kodu notlardaki sırayla çalıştırıyorsanız Bölüm 7.7'deki Python kodunun aynı oturumda çalıştırılmış olması gerekir. Uygulama dosyası ise bu modeli kendisi yeniden kurar; bizim çalıştırmamızda `auto_arima` yine sabit terimli ARIMA(1,0,0)(0,1,1)[12] modelini seçti ve RMSE 47.87 çıktı (Bölüm 7.7.5'teki 47.87 ile aynı).
 - `rmse_lstm`, `rmse_gru` ve `rmse_cnn` bu bölümün 15.2–15.4 kodlarından gelir.
 - `rmse_naive` ve `rmse_snaive` aşağıdaki kodda, model kurmadan hesaplanır: Tahmin olarak geçen ayın ya da geçen yılın aynı ayının **gerçek** değeri yazılır. LSTM, GRU, 1D-CNN ve XGBoost gibi bunlar da her ay gerçek geçmişi gördüğü için, tek adımlı modellerin geçmesi gereken çıtayı gösterir.
 - Bölüm 13'teki XGBoost uygulaması farklı bir test dönemi (son 12 ay) kullandığı için RMSE'si doğrudan karşılaştırılamaz. Aşağıda XGBoost'u aynı 60 aylık test dönemi için, 12 gecikme ve ay bilgisiyle yeniden eğitiyoruz.
@@ -998,7 +998,7 @@ Son olarak, buradaki bütün sonuçlar **tek bir** eğitim-test ayrımına dayan
 > print(f"Tek adımlı ARIMA: {rmse(tek_adim):.2f}")
 > ```
 >
-> `SARIMAX(..., trend='c')` Bölüm 7.7'deki `auto_arima` modelinin aynısını statsmodels ile kurar (`trend='c'` sabit terimi ekler). `fit.apply(y)` katsayıları **yeniden tahmin etmeden** modeli bütün seriye uygular; `fittedvalues` her ay için "bir önceki aya kadarki gerçek değerlerle yapılan" tahmindir. Katsayılar yalnızca 1949–1955'ten öğrenildiği için test verisi modele sızmaz.
+> `SARIMAX(..., trend='c')` Bölüm 7.7'deki `auto_arima` modelinin aynısını statsmodels ile kurar (`trend='c'` sabit terimi ekler). `fit.apply(y)` katsayıları **yeniden kestirmeden** modeli bütün seriye uygular; `fittedvalues` her ay için "bir önceki aya kadarki gerçek değerlerle yapılan" tahmindir. Katsayılar yalnızca 1949–1955'ten öğrenildiği için test verisi modele sızmaz.
 >
 > **Ne göreceksiniz:**
 >
@@ -1009,11 +1009,11 @@ Son olarak, buradaki bütün sonuçlar **tek bir** eğitim-test ayrımına dayan
 >
 > İlk satır tablodaki ARIMA değeridir. Aynı model, diğerleriyle aynı koşulda (tek adımlı) çalıştırılınca hata üçte birin altına iner: 13.96, tablodaki en iyi model olan 1D-CNN'in (32.43) ve mevsimsel naive'in (42.54) çok altındadır. Bu küçük ve düzenli seride, adil koşullarda en iyi sonucu klasik model verir.
 >
-> **Şimdi siz:** (1) Tabloyu "tek adımlı" modellerle adil biçimde yeniden sıralayın. (2) Katsayıları bütün seriden tahmin etseydik ne olurdu? `fit` yerine `SARIMAX(y, ...)` ile kurulan bir modelin `fittedvalues[-60:]` değerleriyle RMSE'yi hesaplayın ve neden bu sonucun kullanılamayacağını açıklayın.
+> **Şimdi siz:** (1) Tabloyu "tek adımlı" modellerle adil biçimde yeniden sıralayın. (2) Katsayıları bütün seriden kestirseydik ne olurdu? `fit` yerine `SARIMAX(y, ...)` ile kurulan bir modelin `fittedvalues[-60:]` değerleriyle RMSE'yi hesaplayın ve neden bu sonucun kullanılamayacağını açıklayın.
 >
 > <details><summary>Cevap</summary>
 >
-> (1) Tek adımlı ARIMA 13.96, 1D-CNN 32.43, mevsimsel naive 42.54, naive 45.57, LSTM 46.19, XGBoost 86.31, GRU 183.64. (2) RMSE 13.26 çıkar, biraz daha iyi görünür. Ama bu sayı geçersizdir: Katsayılar (ör. mevsimsel MA katsayısı −0.300 yerine −0.142) test dönemi de görülerek tahmin edilmiştir; model sınava girmeden cevap anahtarını görmüştür (veri sızıntısı, Bölüm 12.1.5 ve 17.6). Doğru yöntem, katsayıları yalnızca eğitimden öğrenip test dönemine `apply` ile uygulamaktır.
+> (1) Tek adımlı ARIMA 13.96, 1D-CNN 32.43, mevsimsel naive 42.54, naive 45.57, LSTM 46.19, XGBoost 86.31, GRU 183.64. (2) RMSE 13.26 çıkar, biraz daha iyi görünür. Ama bu sayı geçersizdir: Katsayılar (ör. mevsimsel MA katsayısı −0.300 yerine −0.142) test dönemi de görülerek kestirilmiştir; model sınava girmeden cevap anahtarını görmüştür (veri sızıntısı, Bölüm 12.1.5 ve 17.6). Doğru yöntem, katsayıları yalnızca eğitimden öğrenip test dönemine `apply` ile uygulamaktır.
 >
 > </details>
 

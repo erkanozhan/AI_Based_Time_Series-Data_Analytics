@@ -151,7 +151,7 @@ phi22 <- function(r1, r2) (r2 - r1^2) / (1 - r1^2)
 print(phi22(0.5, 0.25))  # AR(1), phi = 0.5: 0 (zincirden fazlası yok)
 print(phi22(0.5, 0.60))  # 0.47 (lag-2'nin kendine ait katkısı var)
 
-# ---- 6.6.2-6.6.3 Teorik ACF ve PACF (Şekil 6.9) ----
+# ---- 6.6.2-6.6.3 Teorik ACF ve PACF (Şekil 6.10) ----
 print(round(ARMAacf(ar = 0.5, lag.max = 6), 4))               # 0.5^h
 print(round(ARMAacf(ar = 0.5, lag.max = 6, pacf = TRUE), 4))  # 0.5, sonra 0
 print(round(ARMAacf(ma = 0.8, lag.max = 6), 4))               # 0.4878, sonra 0

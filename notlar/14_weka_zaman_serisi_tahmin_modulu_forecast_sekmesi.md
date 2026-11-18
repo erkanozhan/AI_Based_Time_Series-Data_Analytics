@@ -89,7 +89,7 @@ Verimiz hazırsa `Forecast` sekmesine geçelim. `Basic configuration` alt sekmes
 
 Forecast sekmesinin içindeki algoritma (ör. `LinearRegression` ya da `RandomForest`) aslında yalnızca **bir adım ilerisini** tahmin etmeyi bilir: son 12 ayın değerlerini ve takvim bilgisini alır, bir sonraki ayın değerini üretir. Peki 12 ay ilerisini nasıl tahmin eder?
 
-**Açıklama:** Weka, Bölüm 12.1.3'te gördüğümüz özyinelemeli stratejiyi otomatik uygular (genel formül 12.1.3'te): Ocak 1961 tahmini, sanki gerçekleşmiş bir değermiş gibi girdi penceresine eklenir, en eski değer dışarı atılır ve Şubat 1961 tahmin edilir; bu, istenen adım sayısına ulaşılana kadar sürer.
+**Açıklama:** Weka, Bölüm 12.1.3'te gördüğümüz özyinelemeli stratejiyi (genel formülü de oradadır) otomatik uygular: Ocak 1961 tahmini, sanki gerçekleşmiş bir değermiş gibi girdi penceresine eklenir, en eski değer dışarı atılır ve Şubat 1961 tahmin edilir; bu, istenen adım sayısına ulaşılana kadar sürer.
 
 Gecikme sayısı $p = 12$ iken girdilerin kaçının gerçek, kaçının tahmin olduğuna bakalım:
 
@@ -107,7 +107,7 @@ Gecikme sayısı $p = 12$ iken girdilerin kaçının gerçek, kaçının tahmin 
 
 > **Hemen deneyin 14.2.1 · Ufku 12'den 24'e çıkarın: 1961 tahminleri değişir mi?** (Weka Explorer, ~4 dk)
 >
-> `Forecast` sekmesinde 14.2'deki temel ayarları yapın (`Passengers`, `Tarih`, `Monthly`, `12`, `Perform evaluation`), `Evaluation` sekmesinde `Evaluate on training` işaretini kaldırıp `Evaluate on held out training` = `0.1` seçin (nedeni 14.2.2'de), `Base learner` varsayılan `LinearRegression` kalsın. **`Start`** deyin ve `=== Future predictions from end of test data ===` bölümünde `1961-01*` ile `1961-07*` değerlerini not edin. Sonra `Number of time units to forecast` kutusunu **`24`** yapıp yeniden `Start` deyin.
+> `Forecast` sekmesinde 14.2'deki temel ayarları yapın (`Passengers`, `Tarih`, `Monthly`, `12`, `Perform evaluation`), `Advanced configuration` → `Evaluation` sekmesinde `Evaluate on training` işaretini kaldırıp `Evaluate on held out training` = `0.1` seçin (nedeni 14.2.2'de), `Base learner` varsayılan `LinearRegression` kalsın. **`Start`** deyin ve `=== Future predictions from end of test data ===` bölümünde `1961-01*` ile `1961-07*` değerlerini not edin. Sonra `Number of time units to forecast` kutusunu **`24`** yapıp yeniden `Start` deyin.
 >
 > **Ne göreceksiniz:** İlk çalıştırmada `1961-01*` = 412.4956 ve `1961-07*` = 679.8498'dir. 24 adımlık çalıştırmada liste `1962-12*`'ye kadar uzar, ama 1961'in 12 değeri **birebir aynı** kalır (yine 412.4956 ve 679.8498). Özyinelemeli tahminde Ocak 1961, Şubat 1961, … sırayla üretilir; 1962 tahminleri 1961 tahminlerinin üzerine eklenir, öncekileri değiştirmez.
 >
@@ -125,7 +125,7 @@ Modelin başarısının nerede ve nasıl ölçüleceği `Advanced configuration`
 
 **Sağ taraftaki test seçenekleri:**
 
-- **Evaluate on training (eğitim verisiyle test et):** `Perform evaluation` işaretlendiğinde bu kutu kendiliğinden işaretlenir; **işaretini kaldırın.** Bu, soruları önceden gören bir öğrencinin sınava girmesi gibidir: Model eğitim verisini ezberlemiş olabilir (aşırı öğrenme, Bölüm 8.1) ve hata olduğundan çok düşük görünür.
+- **Evaluate on training (eğitim verisiyle test et):** `Perform evaluation` işaretlendiğinde bu kutu kendiliğinden işaretlenir; **işaretini kaldırın.** Bu, soruları önceden gören bir öğrencinin sınava girmesi gibidir: Model eğitim verisini ezberlemiş olabilir (aşırı öğrenme, Bölüm 8.1 ve 8.4.3) ve hata olduğundan çok düşük görünür.
 - **Evaluate on held out training (ayrılmış veriyle test et):** **İşaretleyin.** Yanındaki kutuya ya bir gözlem sayısı (ör. **`12`**) ya da 1'den küçük bir oran (ör. `0.1`, verinin %10'u) yazılır; kutudaki varsayılan değer `0.3`'tür. `0.1` yazarsanız Weka eğitim kısmını $144 \cdot 0.9 = 129.6 \approx 130$ ay olarak yuvarlar ve son **14 ayı** (Kasım 1959 – Aralık 1960) saklar.
   - **Mantığı:** Weka serinin son kısmını (ör. son 12 ayı) eğitimden çıkarıp saklar, modeli geri kalan veriyle eğitir, sonra saklanan dönemi tahmin ederek gerçek değerlerle karşılaştırır. Gerçekçi başarı testi budur (eğitim/test ayrımının mantığı için bkz. Bölüm 8).
 
@@ -146,7 +146,7 @@ Modelin başarısının nerede ve nasıl ölçüleceği `Advanced configuration`
 >
 > <details><summary>Cevap</summary>
 >
-> `RandomForest`'ta eğitim MAE'si **5.6887** (14.3.1'deki üç öğrenici arasında en düşük), test MAE'si ise **31.8779**'dur (en yüksek); test hatası eğitim hatasının yaklaşık 5.6 katıdır. Eğitim verisine en iyi uyan model, yeni verideki en kötü model çıkmıştır: `Evaluate on training` sonucuna bakarak model seçmek bu yüzden yanıltıcıdır.
+> `RandomForest`'ta eğitim MAE'si **5.6887** (`LinearRegression`'ın 7.8316'sından düşük), test MAE'si ise **31.8779**'dur (14.3.1'deki üç öğrenici arasında en yüksek); test hatası eğitim hatasının yaklaşık 5.6 katıdır. Eğitim verisine daha iyi uyan model, yeni verideki en kötü model çıkmıştır: `Evaluate on training` sonucuna bakarak model seçmek bu yüzden yanıltıcıdır.
 >
 > </details>
 
@@ -172,7 +172,7 @@ Tahmin algoritmasının seçildiği yerdir. Varsayılan `LinearRegression` basit
 >
 > **Ne göreceksiniz:** `LinearRegression` satırı yukarıdaki gibidir. Diğer iki satırı siz dolduracaksınız.
 >
-> **Şimdi siz:** Tabloyu doldurun. 1 adım ileride hangisi en iyi? Hangisinin 1961 tahmini, 1960 Temmuz'unun gerçek değeri olan 622'nin altında kalıyor ve neden?
+> **Şimdi siz:** Tabloyu doldurun. 1 adım ileride hangisi en iyi? Hangisinin Temmuz 1961 tahmini, 1960 Temmuz'unun gerçek değeri olan 622'nin altında kalıyor ve neden?
 >
 > <details><summary>Cevap</summary>
 >
@@ -200,7 +200,7 @@ Aynı sekmedeki `Include powers of time` (zamanın karesi ve küpü) ve `Include
 >
 > 14.2.1'deki ayarlarla (`LinearRegression`, ufuk `12`, held out `0.1`) çalışın. `Lag creation` sekmesinde **`Use custom lag lengths`** kutusunu işaretleyin, `Minimum lag` = `1`, **`Maximum lag` = `6`** yapıp `Start` deyin. Test tablosundaki `Mean absolute error` satırının `1-step-ahead` ve `8-steps-ahead` sütunlarını ve `1961-07*` tahminini not edin.
 >
-> **Ne göreceksiniz:** `Maximum lag` = 6 ile 1 adım MAE 18.9307, 8 adım MAE 36.5292 ve `1961-07*` = 586.248'dir. Varsayılan 12 gecikmede bu değerler 19.7823, 24.5711 ve 679.8498'di. Kısa vadede fark yoktur, ama 6 gecikmeli model "geçen yılın aynı ayı" bilgisini (12. gecikme) göremediği için orta vadede hatası büyür ve Temmuz 1961 tahmini, Temmuz 1960'ın gerçek değeri 622'nin bile altında kalır.
+> **Ne göreceksiniz:** `Maximum lag` = 6 ile 1 adım MAE 18.9307, 8 adım MAE 36.5292 ve `1961-07*` = 586.248'dir. Varsayılan 12 gecikmede bu değerler 19.7823, 24.5711 ve 679.8498'di. Kısa vadede belirgin bir fark yoktur, ama 6 gecikmeli model "geçen yılın aynı ayı" bilgisini (12. gecikme) göremediği için orta vadede hatası büyür ve Temmuz 1961 tahmini, Temmuz 1960'ın gerçek değeri 622'nin bile altında kalır.
 >
 > **Şimdi siz:** `Maximum lag` değerini **`24`** yapın. 2 yıl geriye bakmak sonuçları belirgin biçimde iyileştirir mi? Önce tahmin edin.
 >
@@ -343,14 +343,14 @@ Held out oranı `0.1` iken `1-step-ahead` için **N = 14**, `12-steps-ahead` iç
 **Tanım:** Test için ayrılan gözlem sayısı $k$ ve tahmin ufku $h$ olmak üzere, $h$ adım ileri tahmin için hesaplamaya giren gözlem sayısı:
 
 ```math
-\underbrace{N_h}_{\substack{\text{h adım ilerisi için}\\\text{kontrol edilebilen tahmin}}} = \underbrace{k}_{\text{test ayı sayısı}} - \underbrace{h}_{\text{ufuk}} + 1
+\underbrace{N_h}_{\substack{h\text{ adım ilerisi için}\\\text{kontrol edilebilen tahmin}}} = \underbrace{k}_{\text{test ayı sayısı}} - \underbrace{h}_{\text{ufuk}} + 1
 ```
 
 **Ne anlatıyor?** $h$ adım ileri tahminin gerçek değerle karşılaştırılabildiği başlangıç noktası sayısı, test ayı sayısından ufuk çıkarılıp 1 eklenerek bulunur. Ufuk uzadıkça kontrol edilebilen tahmin sayısı azalır ve uzun vadeli hata daha az gözleme dayanır.
 
 > **Simge notu:** $`N_h`$ *(N h)*: h adım ileri tahminde hesaplamaya giren tahmin sayısı; alt indis hangi ufka ait olduğunu gösterir · $`k`$: saklanan test ayı sayısı · $`h`$: tahmin ufku
 
-Formülün mantığı basit bir saymadır: $h$ adım ileri tahminle kontrol edilebilen ilk test ayı $h$. aydır (eğitim sonundan $h$ adım sonrası), sonuncusu ise $k$. aydır. $h$'den $k$'ye kadar (ikisi de dahil) $k - h + 1$ tane ay vardır; örneğin $k = 14$ ve $h = 12$ için 12., 13. ve 14. aylar, yani $14 - 12 + 1 = 3$ ay. $k = 14$ için: $N_1 = 14$, $N_3 = 12$, $N_6 = 9$, $N_{12} = 3$. Bu değerler, 14.6'daki Weka çıktısının `N` sütunuyla birebir aynıdır.
+Formülün mantığı basit bir saymadır: $h$ adım ileri tahminle kontrol edilebilen ilk test ayı $h$. aydır (eğitim sonundan $h$ adım sonrası), sonuncusu ise $k$. aydır. $h$'den $k$'ye kadar (ikisi de dahil) $k - h + 1$ tane ay vardır; örneğin $k = 14$ ve $h = 12$ için 12., 13. ve 14. aylar, yani $14 - 12 + 1 = 3$ ay. $k = 14$ için: $N_1 = 14$, $N_3 = 12$, $N_6 = 9$, $N_{12} = 3$. Bu değerler, 14.6'daki tablonun `N` sütunuyla (Weka çıktısında `N` satırı) birebir aynıdır.
 
 ![Ufuk arttıkça N değerinin azalması](../images/ch14_ufuk_N.svg)
 
