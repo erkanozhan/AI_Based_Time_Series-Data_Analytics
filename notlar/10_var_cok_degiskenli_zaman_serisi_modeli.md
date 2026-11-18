@@ -440,7 +440,7 @@ Bu dengeyi kurmak için **bilgi kriterleri** kullanılır. Hepsi aynı felsefeye
 *   BIC: $9 \cdot \ln 112 / 112 = 9 \cdot 4.72 / 112 \approx 0.38$
 *   HQ: $9 \cdot 2 \ln(4.72) / 112 \approx 0.25$
 
-VAR(2)'den VAR(7)'ye çıkmak (5 ek gecikme) uyum terimini yaklaşık 1.20 azaltır. AIC buna karşılık $5 \cdot 0.16 = 0.80$ ceza keser; net kazanç kalır ve AIC VAR(7)'yi seçer. BIC'nin cezası $5 \cdot 0.38 = 1.90$'dır; kazanç cezayı karşılamaz ve BIC VAR(2)'de kalır. Aynı veriye bakan iki kriterin farklı karar vermesinin nedeni yalnızca ceza katsayısıdır.
+VAR(2)'den VAR(7)'ye çıkmak (5 ek gecikme) uyum terimini yaklaşık 1.18 azaltır. AIC buna karşılık $5 \cdot 0.16 = 0.80$ ceza keser; net kazanç kalır ve AIC VAR(7)'yi seçer. BIC'nin cezası $5 \cdot 0.38 = 1.90$'dır; kazanç cezayı karşılamaz ve BIC VAR(2)'de kalır. Aynı veriye bakan iki kriterin farklı karar vermesinin nedeni yalnızca ceza katsayısıdır.
 
 Pratikte kriterler farklı gecikme önerebilir. Böyle durumlarda BIC'nin önerdiği daha düşük gecikme genellikle güvenli bir başlangıçtır; ancak seçilen modelin artıklarında otokorelasyon kalıp kalmadığı da (Bölüm 10.9'daki artık analizi) mutlaka kontrol edilmelidir. Artıklar otokorelasyonluysa gecikme artırılır. (statsmodels tablosunda bir de **FPE**, *Final Prediction Error*, "nihai tahmin hatası" sütunu görürsünüz; çoğunlukla AIC ile aynı gecikmeyi önerir.)
 
@@ -465,7 +465,7 @@ Pratikte kriterler farklı gecikme önerebilir. Böyle durumlarda BIC'nin önerd
 > ```text
 > 4 {'aic': np.int64(4), 'bic': np.int64(2), 'hqic': np.int64(3), 'fpe': np.int64(4)}
 > 8 {'aic': np.int64(7), 'bic': np.int64(2), 'hqic': np.int64(3), 'fpe': np.int64(7)}
-> 12 {'aic': np.int64(12), 'bic': np.int64(2), 'hqic': np.int64(2), 'fpe': np.int64(12)}
+> 12 {'aic': np.int64(12), 'bic': np.int64(2), 'hqic': np.int64(3), 'fpe': np.int64(12)}
 > ```
 >
 > (`np.int64(4)` NumPy'ın 4 tam sayısını yazma biçimidir.) BIC her durumda 2'de kalır. AIC ise neredeyse hep izin verilen en büyük gecikmeyi (4 ve 12) seçer: Hafif cezası, uyumdaki küçük kazançları bile ödüllendirir. Bir kriterin hep üst sınırı seçmesi, o kriterin seçimine güvenmemek için bir uyarıdır.
@@ -586,7 +586,7 @@ VAR'da da aynısı geçerlidir: karakteristik denklem $\det(I - A_1 z) = 0$'ın 
 
 ![Birim çember, öz değerler ve kökler](../images/ch10_birim_cember.svg)
 
-*Şekil 10.2 — (a) Örnek matrisin öz değerleri (0.6 ve 0.3, mavi) birim çemberin içinde, kökleri ($`z = 1/\lambda`$: 1.67 ve 3.33, kırmızı) dışındadır; turuncu halka birim kökün (1) yeridir. (b) Bölüm 10.9'daki VAR(2) modelinin altı öz değeri: hepsi içeride; ancak karmaşık eşlenik bir çift oluşturan ikisinin modülü 0.997'dir ve bu iki öz değer çembere neredeyse değer.*
+*Şekil 10.2 — (a) Örnek matrisin öz değerleri (0.6 ve 0.3, mavi) birim çemberin içinde, kökleri ($`z = 1/\lambda`$: 1.67 ve 3.33, kırmızı) dışındadır; turuncu halka birim kökün (1) yeridir. (b) Bölüm 10.9'daki VAR(2) modelinin altı öz değeri: hepsi içeride; ancak karmaşık eşlenik bir çift oluşturan ikisinin modülü 0.996'dır ve bu iki öz değer çembere neredeyse değer.*
 
 **Tanım 2 (VAR(p) için stabilite):** VAR(2) ya da daha fazla gecikmeli bir modelde tek bir $A_1$ matrisi yoktur. Bu durumda şu dönüşüme başvurulur: bu ayın ve geçen ayın değerleri alt alta yazılarak daha uzun bir vektör oluşturulur ve model bu uzun vektör için bir VAR(1)'e dönüştürülür. Bu VAR(1)'in katsayı matrisine **eşlik (companion) matrisi** denir ve $kp \times kp$ boyutludur:
 
@@ -717,10 +717,10 @@ H_0: \underbrace{a_{12}^{(1)} = a_{12}^{(2)} = \dots = a_{12}^{(p)}}_{\substack{
 
 Bu $p$ kısıt birlikte bir **F-testi** (ya da onun büyük örneklem karşılığı olan Wald testi; ayrıntısı kapsam dışı) ile sınanır. Testin mantığı iki modeli karşılaştırmaktır: faizin gecikmelerini **içeren** enflasyon denklemi ile bu gecikmeler **çıkarılmış** denklem. Faizin gecikmeleri çıkarılınca hatalar belirgin biçimde büyüyorsa faiz ek bilgi taşıyordur; F istatistiği büyük, p-değeri küçük çıkar. p-değeri 0.05'ten küçükse $H_0$ reddedilir: faizin geçmişi enflasyonu öngörmeye yardımcıdır.
 
-**Sayısal örnek (Bölüm 10.9'daki veri, VAR(2)):** Enflasyon denkleminin hata kareleri toplamı tüm değişkenlerle 722.3'tür.
+**Sayısal örnek (Bölüm 10.9'daki veri, VAR(2)):** Enflasyon denkleminin hata kareleri toplamı tüm değişkenlerle 722.2'dir.
 
-*   Faizin iki gecikmesi çıkarılınca bu toplam yalnızca 724.6'ya çıkar (%0.3 artış). Faiz neredeyse hiç ek bilgi taşımaz: F = 0.18, p = 0.84. Faizin hiçbir katkısı olmasa bile bu kadarlık ya da daha büyük bir iyileşmeyi tesadüfen görme olasılığı %84'tür; $H_0$ reddedilemez.
-*   Döviz kurunun iki gecikmesi çıkarılınca toplam 1157.2'ye çıkar (%60 artış). F = 33.4, p < 0.001: döviz kuru enflasyonun Granger nedenidir.
+*   Faizin iki gecikmesi çıkarılınca bu toplam yalnızca 724.6'ya çıkar (%0.3 artış). Faiz neredeyse hiç ek bilgi taşımaz: F = 0.19, p = 0.83. Faizin hiçbir katkısı olmasa bile bu kadarlık ya da daha büyük bir iyileşmeyi tesadüfen görme olasılığı %83'tür; $H_0$ reddedilemez.
+*   Döviz kurunun iki gecikmesi çıkarılınca toplam 1158.3'e çıkar (%60 artış). F = 33.5, p < 0.001: döviz kuru enflasyonun Granger nedenidir.
 
 Yorumlarken dikkat edilecekler:
 
@@ -752,26 +752,26 @@ Yorumlarken dikkat edilecekler:
 > **Ne göreceksiniz:**
 >
 > ```text
-> interest -> inflation   p = 0.8374
-> inflation -> interest   p = 0.0201
-> inflation -> exchange   p = 0.4977
-> interest -> exchange   p = 0.1389
+> interest -> inflation   p = 0.8311
+> inflation -> interest   p = 0.026
+> inflation -> exchange   p = 0.4861
+> interest -> exchange   p = 0.1276
 > ```
 >
-> Faiz enflasyonu öngörmez (p = 0.84, 10.6'daki örnekle aynı), ama **ters yön** anlamlıdır: Enflasyonun geçmişi faizi öngörmeye yardım eder (p = 0.02). Kurun kendisi ise ne enflasyon ne faiz tarafından öngörülür (p = 0.50 ve 0.14). Yani bu veride bilgi kurdan enflasyon ve faize doğru akar, tersine akmaz.
+> Faiz enflasyonu öngörmez (p = 0.83, 10.6'daki örnekle aynı), ama **ters yön** anlamlıdır: Enflasyonun geçmişi faizi öngörmeye yardım eder (p = 0.03). Kurun kendisi ise ne enflasyon ne faiz tarafından öngörülür (p = 0.49 ve 0.13). Yani bu veride bilgi kurdan enflasyon ve faize doğru akar, tersine akmaz.
 >
 > **Şimdi siz:** Serilerin birinci farkını alıp aynı testleri yapın: `df_var` satırının sonuna `.diff().dropna()` ekleyin ve `fit(2)` yerine `fit(1)` yazın (farkı alınmış seriler için BIC 1 gecikme önerir). Hangi sonuç değişti?
 >
 > <details><summary>Cevap</summary>
 >
 > ```text
-> interest -> inflation   p = 0.5277
-> inflation -> interest   p = 0.367
-> inflation -> exchange   p = 0.1789
-> interest -> exchange   p = 0.5894
+> interest -> inflation   p = 0.4615
+> inflation -> interest   p = 0.346
+> inflation -> exchange   p = 0.1777
+> interest -> exchange   p = 0.5925
 > ```
 >
-> "Enflasyon → faiz" ilişkisi anlamlılığını yitirir (p = 0.02 → 0.37). 10.6'daki uyarının (ve 10.9'daki alıştırmanın) örneğidir: Düzey serilerde görülen bu sonuç kısmen iki serinin ortak trendinden kaynaklanıyordu.
+> "Enflasyon → faiz" ilişkisi anlamlılığını yitirir (p = 0.03 → 0.35). 10.6'daki uyarının (ve 10.9'daki alıştırmanın) örneğidir: Düzey serilerde görülen bu sonuç kısmen iki serinin ortak trendinden kaynaklanıyordu.
 >
 > </details>
 
@@ -998,38 +998,38 @@ print(gc.summary())
 
 ```text
 #> inflation 0.806
-#> interest 0.128
+#> interest 0.108
 #> exchange 0.999
 #>  VAR Order Selection (* highlights the minimums)
 #> =================================================
 #>       AIC         BIC         FPE         HQIC
 #> -------------------------------------------------
-#> 0       13.78       13.85   9.607e+05       13.80
-#> 1       2.786       3.078       16.22       2.904
-#> 2       1.794      2.304*       6.019       2.001
-#> 3       1.701       2.429       5.489      1.997*
-#> 4       1.630       2.577       5.120       2.014
-#> 5       1.578       2.743       4.873       2.051
-#> 6       1.658       3.041       5.299       2.219
-#> 7      1.399*       3.001      4.114*       2.049
-#> 8       1.426       3.247       4.260       2.165
+#> 0       13.78       13.85   9.615e+05       13.81
+#> 1       2.784       3.075       16.18       2.902
+#> 2       1.798      2.308*       6.040       2.005
+#> 3       1.700       2.429       5.484      1.996*
+#> 4       1.637       2.584       5.158       2.022
+#> 5       1.586       2.751       4.913       2.059
+#> 6       1.669       3.052       5.358       2.230
+#> 7      1.427*       3.029      4.233*       2.077
+#> 8       1.465       3.286       4.430       2.204
 #> -------------------------------------------------
 #> Results for equation inflation
 #>                   coefficient       std. error           t-stat            prob
-#> L1.inflation         1.444557         0.063360           22.799           0.000
-#> L1.interest         -0.020435         0.140791           -0.145           0.885
-#> L1.exchange          3.666997         0.458237            8.002           0.000
-#> L2.inflation        -0.480591         0.066184           -7.261           0.000
-#> L2.interest          0.039731         0.137865            0.288           0.773
-#> L2.exchange         -3.717500         0.486191           -7.646           0.000
+#> L1.inflation         1.445053         0.063360           22.807           0.000
+#> L1.interest         -0.027366         0.144182           -0.190           0.849
+#> L1.exchange          3.669249         0.457678            8.017           0.000
+#> L2.inflation        -0.481444         0.066363           -7.255           0.000
+#> L2.interest          0.046299         0.141006            0.328           0.743
+#> L2.exchange         -3.718163         0.485632           -7.656           0.000
 #> ...
 #> True
-#> [3.8   1.8   1.8   1.2   1.003 1.003]
-#> [0.263 0.556 0.556 0.833 0.997 0.997]
-#> 3.2266279417763184e-07
+#> [3.918 1.782 1.782 1.196 1.004 1.004]
+#> [0.255 0.561 0.561 0.836 0.996 0.996]
+#> 3.6168504901663537e-06
 #> Granger causality F-test. H_0: interest does not Granger-cause inflation. Conclusion: fail to reject H_0 at 5% significance level.
 #> Test statistic Critical value p-value         df
-#>         0.1776          3.023   0.837 (2, np.int64(333))
+#>         0.1851          3.023   0.831 (2, np.int64(333))
 ```
 
 Kütüphane satırları Bölüm 7.7'deki gibi okunur (`from statsmodels.tsa.api import VAR` yalnızca `VAR` sınıfını getirir). Ardından kilit satırlar şunları yapar:
@@ -1044,18 +1044,18 @@ Kütüphane satırları Bölüm 7.7'deki gibi okunur (`from statsmodels.tsa.api 
 *   `results.forecast(y=df_var.values[-selected_lag:], steps=4)`: Tahmini başlatmak için modele son $p$ gözlemi vermemiz gerekir; VAR(2) bir sonraki ayı hesaplamak için son iki ayı kullanır. `df_var.values` tabloyu sayı dizisine çevirir, `[-selected_lag:]` dizinin sondan `selected_lag` satırını (burada son 2 ayı) alır. `steps=4` dört ay ileriye tahmin üretir; sonuç 4 satır × 3 sütunluk bir dizidir.
 *   `results.irf(12)`: 0'dan 12'ye kadar her ufuk için tepki matrislerini (10.7'deki $\Phi_h$ ve $\Theta_h$) hesaplar. `irf.plot(orth=False)` tüm şok-tepki çiftlerini bir birimlik şoklarla (ortogonal olmayan) çizer; `impulse=` şokun verildiği, `response=` tepkisi izlenen değişkeni seçer.
 *   `results.fevd(12)`: 12 ufuklu varyans ayrıştırmasını hesaplar; `.summary()` her değişken için dönem dönem pay tablosunu ekrana yazar.
-*   `results.test_causality(caused=..., causing=[...], kind="f")`: Granger testini yapar. `caused` etkilenen, `causing` etkileyen değişken(ler)dir; `kind="f"` F-testi kullanılacağını söyler. `.summary()` test istatistiğini, kritik değeri, p-değerini ve "reject / fail to reject" (reddet / reddedilemedi) kararını yazar. statsmodels bu testi tüm sistem üzerinden kurduğu için serbestlik derecesi (2, 333) çıkar (`np.int64(333)` yazımı yalnızca NumPy'ın sayıyı gösterme biçimidir); Gretl aynı testi tek denklem üzerinden F(2, 111) olarak yapar. p-değerleri neredeyse aynıdır (0.837 ve 0.838).
+*   `results.test_causality(caused=..., causing=[...], kind="f")`: Granger testini yapar. `caused` etkilenen, `causing` etkileyen değişken(ler)dir; `kind="f"` F-testi kullanılacağını söyler. `.summary()` test istatistiğini, kritik değeri, p-değerini ve "reject / fail to reject" (reddet / reddedilemedi) kararını yazar. statsmodels bu testi tüm sistem üzerinden kurduğu için serbestlik derecesi (2, 333) çıkar (`np.int64(333)` yazımı yalnızca NumPy'ın sayıyı gösterme biçimidir); Gretl aynı testi tek denklem üzerinden F(2, 111) olarak yapar. p-değerleri neredeyse aynıdır (0.8311 ve 0.8313).
 
-Çıktıyı okurken: Enflasyon denkleminde döviz kurunun iki katsayısı dikkat çekicidir: $3.67$ ve $-3.72$ neredeyse eşit büyüklükte ve zıt işaretlidir. $3.67 \cdot \text{kur}_ {t-1} - 3.72 \cdot \text{kur}_ {t-2} \approx 3.7 \cdot (\text{kur}_ {t-1} - \text{kur}_ {t-2})$ olduğu için, enflasyonu kurun **düzeyi** değil, geçen ayki **artışı** etkilemektedir. Faizin katsayıları ise küçüktür ve p-değerleri yüksektir (0.885, 0.773). Diğer çıktıların bu verideki sonuçları ve nasıl okunacakları 10.9.1'deki tabloda toplanmıştır.
+Çıktıyı okurken: Enflasyon denkleminde döviz kurunun iki katsayısı dikkat çekicidir: $3.67$ ve $-3.72$ neredeyse eşit büyüklükte ve zıt işaretlidir. $3.67 \cdot \text{kur}_ {t-1} - 3.72 \cdot \text{kur}_ {t-2} \approx 3.7 \cdot (\text{kur}_ {t-1} - \text{kur}_ {t-2})$ olduğu için, enflasyonu kurun **düzeyi** değil, geçen ayki **artışı** etkilemektedir. Faizin katsayıları ise küçüktür ve p-değerleri yüksektir (0.849, 0.743). Diğer çıktıların bu verideki sonuçları ve nasıl okunacakları 10.9.1'deki tabloda toplanmıştır.
 
 Dosya bu satırlara ek olarak serilerin grafiklerini, her denklemin Durbin-Watson istatistiğini (artıklarda birinci derece otokorelasyonu ölçer; 2'ye yakınsa otokorelasyon yok, 0'a yakınsa pozitif, 4'e yakınsa negatif otokorelasyon var; VAR'da 2'ye doğru yanlıdır, bkz. 10.9.1), 4 aylık tahmin grafiğini ve dört yönlü Granger testlerini üretir.
 
-**Neden BIC?** AIC'nin önerdiği VAR(7) her denklemde 22 parametre taşır ve stabil değildir (en büyük öz değer modülü ≈ 1.02). HQ'nun önerdiği VAR(3) da stabil değildir (en büyük öz değer modülü ≈ 1.017); bu düzey veride gecikmeyi artırmak artıklardaki otokorelasyonu gidermenin yolu değildir. BIC'nin VAR(2)'si hem sade hem stabildir. Önerilen model stabil değilse IRF, FEVD ve tahminler güvenilmez (kriterlerin neden ayrıştığı için bkz. 10.4).
+**Neden BIC?** AIC'nin önerdiği VAR(7) her denklemde 22 parametre taşır ve stabil değildir (en büyük öz değer modülü ≈ 1.02). HQ'nun önerdiği VAR(3) da stabil değildir (en büyük öz değer modülü ≈ 1.019); bu düzey veride gecikmeyi artırmak artıklardaki otokorelasyonu gidermenin yolu değildir. BIC'nin VAR(2)'si hem sade hem stabildir. Önerilen model stabil değilse IRF, FEVD ve tahminler güvenilmez (kriterlerin neden ayrıştığı için bkz. 10.4).
 
-**Not —** Bu ana uygulama, düzey serilerle kurulduğu için öğretici bir örnektir. Seriler I(1) olduğundan doğru kurulum eşbütünleşmeye bağlıdır: eşbütünleşme yoksa model farkı alınmış serilerle kurulur (aşağıdaki 2. alıştırma ve Hemen deneyin 10.6), varsa VECM gerekir (10.3.3'teki Not). Bu veride Johansen testi bir eşbütünleşme ilişkisine işaret eder (Bölüm 11.6.2); farklarla kurulan model bu yüzden yalnızca kısa dönem ilişkilerini gösterir. En büyük öz değerin 1'e bu kadar yakın çıkması (0.997) tesadüf değildir: seriler durağan olmadığı için model neredeyse bir birim kök taşır. Bu durumda IRF'ler çok yavaş söner ve uzun ufuklu yorumlar dikkatle yapılmalıdır. Portmanteau testinin reddi (p ≈ 0.0000003) de aynı soruna işaret eder. Kod eğitim amaçlı olarak düzey serilerle devam eder. Alıştırma olarak:
+**Not —** Bu ana uygulama, düzey serilerle kurulduğu için öğretici bir örnektir. Seriler I(1) olduğundan doğru kurulum eşbütünleşmeye bağlıdır: eşbütünleşme yoksa model farkı alınmış serilerle kurulur (aşağıdaki 2. alıştırma ve Hemen deneyin 10.6), varsa VECM gerekir (10.3.3'teki Not). Bu veride Johansen testi bir eşbütünleşme ilişkisine işaret eder (Bölüm 11.6.2); farklarla kurulan model bu yüzden yalnızca kısa dönem ilişkilerini gösterir. En büyük öz değerin 1'e bu kadar yakın çıkması (0.996) tesadüf değildir: seriler durağan olmadığı için model neredeyse bir birim kök taşır. Bu durumda IRF'ler çok yavaş söner ve uzun ufuklu yorumlar dikkatle yapılmalıdır. Portmanteau testinin reddi (p ≈ 0.000004) de aynı soruna işaret eder. Kod eğitim amaçlı olarak düzey serilerle devam eder. Alıştırma olarak:
 
 1. Kodun 4. adımında `'bic'` yerine `'aic'` yazıp VAR(7)'nin stabil çıkmadığını görün.
-2. Serilerin birinci farkını alıp (`df_var = df_var.diff().dropna()`) modeli yeniden kurun. Farkı alınmış serilerde ADF p-değerleri 0.05'in altına iner, BIC 1 gecikme önerir ve en büyük öz değer modülü 0.997'den yaklaşık 0.55'e düşer; model artık sınırda değil, rahatça stabildir. Granger sonuçlarındaki değişimi Hemen deneyin 10.6'da gördünüz: "enflasyon → faiz" ilişkisi anlamlılığını yitirir; döviz kurunun enflasyona (p < 0.001) ve faize (p ≈ 0.006) etkisi ise sürer.
+2. Serilerin birinci farkını alıp (`df_var = df_var.diff().dropna()`) modeli yeniden kurun. Farkı alınmış serilerde ADF p-değerleri 0.05'in altına iner, BIC 1 gecikme önerir ve en büyük öz değer modülü 0.996'dan yaklaşık 0.55'e düşer; model artık sınırda değil, rahatça stabildir. Granger sonuçlarındaki değişimi Hemen deneyin 10.6'da gördünüz: "enflasyon → faiz" ilişkisi anlamlılığını yitirir; döviz kurunun enflasyona (p < 0.001) ve faize (p ≈ 0.007) etkisi ise sürer.
 
 > **Uygulama dosyası:** [`Codes/python/ch10_var.py`](../Codes/python/ch10_var.py) · [Notebook](../Codes/notebooks/ch10_var.ipynb) · [![Colab'da aç](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/Codes/notebooks/ch10_var.ipynb)
 >
@@ -1067,16 +1067,16 @@ Kodun ürettiği her çıktı bölümünün bu veride (`data/macro.csv`, VAR(2))
 
 | Çıktı | Bu verideki sonuç | Neye bakılır? |
 | --- | --- | --- |
-| 3) ADF: test istatistiği, p-değeri | p = 0.81, 0.13, 0.999: üç seri de durağan değil. | p < 0.05 ise seri durağan. Değilse `diff()` ile fark alınıp test tekrarlanır (Bölüm 10.3.3). |
+| 3) ADF: test istatistiği, p-değeri | p = 0.81, 0.11, 0.999: üç seri de durağan değil. | p < 0.05 ise seri durağan. Değilse `diff()` ile fark alınıp test tekrarlanır (Bölüm 10.3.3). |
 | 4) Gecikme seçimi: AIC, BIC, FPE, HQIC tablosu | AIC ve FPE 7, BIC 2, HQIC 3 gecikme önerir. | Her sütunda en küçük değer yıldızla (`*`) işaretlenir. Kriterler farklı $`p`$ önerebilir (Bölüm 10.4). |
 | 4) `results.summary()`: her denklem için katsayılar (`L1.` bir, `L2.` iki gecikme), p-değerleri (`prob`); en altta artıkların korelasyon matrisi | Enflasyon denkleminde kur katsayıları 3.67 ve −3.72, faiz katsayıları anlamsız; artıklar arası en yüksek korelasyon faiz-kur arasında 0.18. | Tek tek katsayılardan çok, çapraz katsayıların anlamlılığına ve artık korelasyonlarına bakılır. Artıklar arası yüksek korelasyon, IRF'de sıralamanın önemli olacağını gösterir. |
-| 5) Stabilite: `True`/`False`, kök modülleri | `True`; en küçük kök modülü 1.003, yani en büyük öz değer modülü 0.997 (Şekil 10.2b). Model stabil, ama sınırda: şoklar çok yavaş söner. | `True` ve tüm kök modülleri $`\lvert z \rvert > 1`$ (öz değer modülleri < 1) olmalı. Değilse fark alma, gecikme sayısı ve aykırı değerler gözden geçirilir. 1'e çok yakın değerler yavaş sönen şoklara işaret eder. |
-| 6) Durbin-Watson (her denklem için) | 2.04, 2.23, 1.83: ilk bakışta 2'ye yakın. Ancak gecikmeli bağımlı değişken içeren denklemlerde DW 2'ye doğru yanlıdır; aynı modelde çok değişkenli test 1. gecikmede de otokorelasyonu reddeder (Gretl'de Rao F, p = 0.0013; Bölüm 11.6.2). | VAR'da DW tek başına yeterli değildir; karar çok değişkenli otokorelasyon testiyle (portmanteau, Rao F) verilir. |
+| 5) Stabilite: `True`/`False`, kök modülleri | `True`; en küçük kök modülü 1.004, yani en büyük öz değer modülü 0.996 (Şekil 10.2b). Model stabil, ama sınırda: şoklar çok yavaş söner. | `True` ve tüm kök modülleri $`\lvert z \rvert > 1`$ (öz değer modülleri < 1) olmalı. Değilse fark alma, gecikme sayısı ve aykırı değerler gözden geçirilir. 1'e çok yakın değerler yavaş sönen şoklara işaret eder. |
+| 6) Durbin-Watson (her denklem için) | 2.05, 2.19, 1.83: ilk bakışta 2'ye yakın. Ancak gecikmeli bağımlı değişken içeren denklemlerde DW 2'ye doğru yanlıdır; aynı modelde çok değişkenli test 1. gecikmede de otokorelasyonu reddeder (Gretl'de Rao F, p = 0.0011; Bölüm 11.6.2). | VAR'da DW tek başına yeterli değildir; karar çok değişkenli otokorelasyon testiyle (portmanteau, Rao F) verilir. |
 | 6) Portmanteau (12 gecikme): p-değeri | p < 0.001: artıklarda otokorelasyon kalmış; model eksik. | p > 0.05 istenir. Küçükse artıklarda otokorelasyon vardır: gecikme artırma ya da fark alma denenir. |
-| 7) Tahmin (2025 Ocak–Nisan): tahmin tablosu ve grafiği | Enflasyon 42.2, 41.4, 41.6, 42.3; faiz 48.9 → 55.7; kur 35.5 → 37.6. Düzey VAR'ı geçmişteki ilişkileri mekanik olarak sürdürür: faiz tahmini, Kasım 2024'teki indirime (50'den 47.5'e) rağmen yükselir. | Tahminler son gözlemlerden makul biçimde devam etmeli; ufuk uzadıkça belirsizlik artar. Doğruluk ölçümü için Bölüm 8'deki eğitim-test ayrımı ve MAE/RMSE/MAPE kullanılabilir. |
-| 8) IRF (bir birimlik şok): şok-tepki grafikleri | Kurda 1 TL'lik artış → enflasyon 1 ay sonra +3.7, 4. ayda +9.1 puan, 12. ayda hâlâ +5.9. (1 TL'lik şok, kur şokunun standart sapmasının (≈ 0.5) yaklaşık iki katıdır; Gretl'in bir standart sapmalık Cholesky şokuyla bulduğu en yüksek tepki (4.42, Bölüm 11.6.2) bu yüzden kabaca yarısıdır.) Faiz şokuna enflasyonun tepkisi negatif ama güven bandı her dönemde sıfırı içeriyor: kur etkisi güçlü ve kalıcı, faiz etkisi istatistiksel olarak belirsiz. | Tepkinin işareti, en güçlü olduğu dönem, güven bandının sıfırı içerip içermediği ve sönümlenme (Bölüm 10.7). |
+| 7) Tahmin (2025 Ocak–Nisan): tahmin tablosu ve grafiği | Enflasyon 42.4, 42.0, 42.6, 43.7; faiz 48.0 → 54.7; kur 35.5 → 37.8. Düzey VAR'ı geçmişteki ilişkileri mekanik olarak sürdürür: faiz tahmini, Aralık 2024'teki indirime (50'den 47.5'e) rağmen yükselir. | Tahminler son gözlemlerden makul biçimde devam etmeli; ufuk uzadıkça belirsizlik artar. Doğruluk ölçümü için Bölüm 8'deki eğitim-test ayrımı ve MAE/RMSE/MAPE kullanılabilir. |
+| 8) IRF (bir birimlik şok): şok-tepki grafikleri | Kurda 1 TL'lik artış → enflasyon 1 ay sonra +3.7, 4. ayda +9.1 puan, 12. ayda hâlâ +5.9. (1 TL'lik şok, kur şokunun standart sapmasının (≈ 0.5) yaklaşık iki katıdır; Gretl'in bir standart sapmalık Cholesky şokuyla bulduğu en yüksek tepki (4.41, Bölüm 11.6.2) bu yüzden kabaca yarısıdır.) Faiz şokuna enflasyonun tepkisi negatif ama güven bandı her dönemde sıfırı içeriyor: kur etkisi güçlü ve kalıcı, faiz etkisi istatistiksel olarak belirsiz. | Tepkinin işareti, en güçlü olduğu dönem, güven bandının sıfırı içerip içermediği ve sönümlenme (Bölüm 10.7). |
 | 9) FEVD (12. dönem): dönemlere göre pay tablosu | Enflasyonun tahmin hatası varyansının %44'ü kendi şoklarından, %55'i döviz kuru şoklarından, %1'den azı faiz şoklarından geliyor. | Her satırın toplamı 1'dir; ufuk uzadıkça diğer değişkenlerin payının nasıl değiştiğine bakılır (Bölüm 10.8). statsmodels satırları 0'dan numaralar: 11 numaralı satır 12. dönemdir. |
-| 10) Granger: F istatistiği, p-değeri, "reject/fail to reject" | Faiz → enflasyon p = 0.84; döviz kuru → enflasyon p < 0.001; enflasyon → faiz p = 0.02; döviz kuru → faiz p < 0.001. Kurun geçmişi hem enflasyonu hem faizi öngörmeye yardım ediyor; faizin enflasyona katkısı anlamlı değil. | p < 0.05 (*reject*) ise "etkileyen" değişkenin geçmişi, "etkilenen" değişkeni öngörmeye yardımcıdır (Bölüm 10.6). |
+| 10) Granger: F istatistiği, p-değeri, "reject/fail to reject" | Faiz → enflasyon p = 0.83; döviz kuru → enflasyon p < 0.001; enflasyon → faiz p = 0.03; döviz kuru → faiz p < 0.001. Kurun geçmişi hem enflasyonu hem faizi öngörmeye yardım ediyor; faizin enflasyona katkısı anlamlı değil. | p < 0.05 (*reject*) ise "etkileyen" değişkenin geçmişi, "etkilenen" değişkeni öngörmeye yardımcıdır (Bölüm 10.6). |
 
 **Not —** Koddaki IRF grafikleri `orth=False` ile bir birimlik (ortogonal olmayan) şoklara göre çizilir. Cholesky şoklarına göre tepki için `irf.plot(orth=True)` kullanılabilir; bu durumda sonuç `df_var` sütunlarının sırasına bağlıdır (Bölüm 10.7). `fevd()` her zaman Cholesky şoklarını kullanır.
 
@@ -1109,7 +1109,7 @@ Kodun ürettiği her çıktı bölümünün bu veride (`data/macro.csv`, VAR(2))
 > ```text
 >            VAR(2)  Naive
 > inflation   24.00   9.51
-> interest    11.12   6.25
+> interest    10.91   6.46
 > exchange     2.88   3.50
 > ```
 >

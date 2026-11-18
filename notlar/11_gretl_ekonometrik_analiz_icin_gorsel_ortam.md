@@ -363,7 +363,7 @@ VAR modelinin teorisi (tanım, gecikme seçimi, stabilite, Granger nedenselliği
     *   **Tests → Autocorrelation** ile artıklarda otokorelasyon testi,
     *   **Analysis → Forecasts…** ile tahminler elde edilir.
 
-**Granger nedenselliği nerede?** Gretl VAR çıktısında her denklemin altında yer alan **"F-tests of zero restrictions"** bölümündeki "All lags of interest" satırı, enflasyon denkleminde faizin tüm gecikme katsayılarının sıfır olduğu hipotezini sınar. Bu, Bölüm 10.6'daki Granger nedensellik testinin ta kendisidir: p-değeri 0.05'ten küçükse faiz, enflasyonun Granger nedenidir. Bu veride satır `F(2, 111) = 0.17759 [0.8375]` şeklindedir: köşeli parantezdeki 0.8375 p-değeridir ve faiz enflasyonun Granger nedeni değildir. Aynı denklemdeki "All lags of exchange" satırı ise `F(2, 111) = 33.412 [0.0000]` verir.
+**Granger nedenselliği nerede?** Gretl VAR çıktısında her denklemin altında yer alan **"F-tests of zero restrictions"** bölümündeki "All lags of interest" satırı, enflasyon denkleminde faizin tüm gecikme katsayılarının sıfır olduğu hipotezini sınar. Bu, Bölüm 10.6'daki Granger nedensellik testinin ta kendisidir: p-değeri 0.05'ten küçükse faiz, enflasyonun Granger nedenidir. Bu veride satır `F(2, 111) = 0.18509 [0.8313]` şeklindedir: köşeli parantezdeki 0.8313 p-değeridir ve faiz enflasyonun Granger nedeni değildir. Aynı denklemdeki "All lags of exchange" satırı ise `F(2, 111) = 33.509 [0.0000]` verir.
 
 > **Hemen deneyin 11.6.1a · Gretl'de hazır bir veriyle VAR ve ters kökler** (Gretl menüleri, ~5 dk)
 >
@@ -414,13 +414,13 @@ VAR modelinin teorisi (tanım, gecikme seçimi, stabilite, Granger nedenselliği
 > var 2 exchange interest inflation --impulse-responses --variance-decomp
 > ```
 >
-> **Ne göreceksiniz:** Katsayılar, Granger testleri ve FEVD tablosundaki `std. error` sütunu değişmez; değişen yalnızca aynı aydaki şokların değişkenlere nasıl paylaştırıldığıdır. Kur şokuna enflasyonun 1. dönemdeki tepkisi artık 0 değil 0.127'dir; faiz şokuna tepkisi de −0.109'dur. Kur şokuna enflasyonun en yüksek tepkisi yine 5. dönemdedir (4.42 yerine 4.55). Enflasyonun 12. dönem FEVD'si %44.0 kendi, %0.8 faiz, %55.2 kur yerine %38.5 kendi, %4.4 faiz, %57.1 kur olur.
+> **Ne göreceksiniz:** Katsayılar, Granger testleri ve FEVD tablosundaki `std. error` sütunu değişmez; değişen yalnızca aynı aydaki şokların değişkenlere nasıl paylaştırıldığıdır. Kur şokuna enflasyonun 1. dönemdeki tepkisi artık 0 değil 0.126'dır; faiz şokuna tepkisi de −0.089'dur. Kur şokuna enflasyonun en yüksek tepkisi yine 5. dönemdedir (4.41 yerine 4.53). Enflasyonun 12. dönem FEVD'si %43.7 kendi, %0.9 faiz, %55.4 kur yerine %38.4 kendi, %4.7 faiz, %56.9 kur olur.
 >
 > **Şimdi siz:** Faizin 12. dönem FEVD'sinde kur şokunun payı iki sıralamada kaçtır? Neden değişti?
 >
 > <details><summary>Cevap</summary>
 >
-> `inflation interest exchange` sırasında %10.5, `exchange interest inflation` sırasında %19.7. Kur listenin başına alınınca, faiz ve kur şoklarının aynı aydaki ortak kısmı (artık korelasyonu 0.18, Bölüm 10.9.1) tümüyle kura yazılır. Veri hangi şokun önce geldiğini söyleyemez; sıralama bir varsayımdır ve raporlanmalıdır.
+> `inflation interest exchange` sırasında %10.9, `exchange interest inflation` sırasında %20.3. Kur listenin başına alınınca, faiz ve kur şoklarının aynı aydaki ortak kısmı (artık korelasyonu 0.18, Bölüm 10.9.1) tümüyle kura yazılır. Veri hangi şokun önce geldiğini söyleyemez; sıralama bir varsayımdır ve raporlanmalıdır.
 >
 > </details>
 
@@ -455,17 +455,17 @@ Betikteki komutlar şöyle çalışır: `var 8 inflation interest exchange --lag
 
 Bu betik çalıştırıldığında Gretl önce gecikme seçim tablosunu, ardından VAR sonuç tablosunu (Granger testleri dahil), IRF ve FEVD tablolarını, artık testlerini ve tahminleri sırasıyla yazdırır. Sonuçlar Bölüm 10.9'daki Python sonuçlarıyla karşılaştırılabilir:
 
-*   **Gecikme seçimi:** AIC 7, BIC 2, HQC 3 (aynı). Gretl'in kriter değerleri statsmodels'tan farklı bir sabit içerdiği için sayılar farklıdır (ör. BIC 10.82'ye karşı 2.30), ama seçilen gecikmeler aynıdır.
-*   **Katsayılar:** Birebir aynıdır (ör. enflasyon denkleminde `exchange_1` = 3.667, `exchange_2` = −3.718). Gretl gecikmeleri `inflation_1`, `inflation_2` biçiminde, statsmodels `L1.inflation`, `L2.inflation` biçiminde adlandırır. Her denklemin altındaki Durbin-Watson değerleri de aynıdır (2.04, 2.23, 1.83).
-*   **Granger (F-tests of zero restrictions):** faiz → enflasyon p = 0.84, döviz kuru → enflasyon p < 0.001, enflasyon → faiz p = 0.022, döviz kuru → faiz p = 0.0002.
-*   **IRF:** Gretl'in tabloları "one-standard error shock", yani Cholesky şoklarına göredir ve 1. dönem şokun geldiği andır (Python'da $h = 0$). Enflasyon listede ilk sırada olduğu için faiz ve kur şoklarına enflasyonun 1. dönemdeki tepkisi 0'dır (Bölüm 10.7). Kur şokuna enflasyonun tepkisi 5. dönemde en yüksek değerine (4.42) ulaşır. Python'un `orth=True` tepkileri yaklaşık %3 büyük çıkar, çünkü statsmodels şok büyüklüğünü serbestlik derecesine göre düzeltilmiş varyansla, Gretl ise düzeltmesiz varyansla hesaplar.
-*   **FEVD (12. dönem, enflasyon):** %44.0 kendi, %0.8 faiz, %55.2 döviz kuru şoku (aynı).
+*   **Gecikme seçimi:** AIC 7, BIC 2, HQC 3 (aynı). Gretl'in kriter değerleri statsmodels'tan farklı bir sabit içerdiği için sayılar farklıdır (ör. BIC 10.82'ye karşı 2.31), ama seçilen gecikmeler aynıdır.
+*   **Katsayılar:** Birebir aynıdır (ör. enflasyon denkleminde `exchange_1` = 3.669, `exchange_2` = −3.718). Gretl gecikmeleri `inflation_1`, `inflation_2` biçiminde, statsmodels `L1.inflation`, `L2.inflation` biçiminde adlandırır. Her denklemin altındaki Durbin-Watson değerleri de aynıdır (2.05, 2.19, 1.83).
+*   **Granger (F-tests of zero restrictions):** faiz → enflasyon p = 0.83, döviz kuru → enflasyon p < 0.001, enflasyon → faiz p = 0.028, döviz kuru → faiz p = 0.0004.
+*   **IRF:** Gretl'in tabloları "one-standard error shock", yani Cholesky şoklarına göredir ve 1. dönem şokun geldiği andır (Python'da $h = 0$). Enflasyon listede ilk sırada olduğu için faiz ve kur şoklarına enflasyonun 1. dönemdeki tepkisi 0'dır (Bölüm 10.7). Kur şokuna enflasyonun tepkisi 5. dönemde en yüksek değerine (4.41) ulaşır. Python'un `orth=True` tepkileri yaklaşık %3 büyük çıkar, çünkü statsmodels şok büyüklüğünü serbestlik derecesine göre düzeltilmiş varyansla, Gretl ise düzeltmesiz varyansla hesaplar.
+*   **FEVD (12. dönem, enflasyon):** %43.7 kendi, %0.9 faiz, %55.4 döviz kuru şoku (aynı).
 *   **Artık testleri:** Rao F otokorelasyon testi tüm gecikmelerde p < 0.01 verir; Doornik-Hansen normallik testi de reddeder. Python'daki portmanteau testiyle aynı sonuç: düzey serilerle kurulan model artıklarda yapı bırakmaktadır.
-*   **Tahmin:** 2025 Ocak için enflasyon 42.23, faiz 48.87, kur 35.47 (Python'la aynı). Tablodaki %95 aralıklar ufuk uzadıkça hızla genişler; Aralık 2025 enflasyon tahmini için aralık yaklaşık 13 ile 77 arasındadır.
+*   **Tahmin:** 2025 Ocak için enflasyon 42.36, faiz 48.05, kur 35.55 (Python'la aynı). Tablodaki %95 aralıklar ufuk uzadıkça hızla genişler; Aralık 2025 enflasyon tahmini için aralık yaklaşık 16 ile 80 arasındadır.
 
 IRF grafiklerini ve ters kök grafiğini görmek için betik çalıştıktan sonra model penceresindeki **Graphs** menüsü kullanılabilir.
 
-**Not —** Bölüm 10'daki Python uygulamasında olduğu gibi, VAR'a girmeden önce serilerin durağanlığı ADF/KPSS ile kontrol edilmeli (Bölüm 11.4), gerekirse **Add → First differences of selected variables** ile farkları alınmalıdır. Betikte bunu denemek için `var` satırlarından önce `diff inflation interest exchange` yazıp modeli `d_inflation d_interest d_exchange` değişkenleriyle kurabilirsiniz. Seriler I(1) ise farka geçmeden önce aralarında eşbütünleşme olup olmadığı da sınanmalıdır (Bölüm 10.3.3): **Model → Multivariate time series → Cointegration test (Johansen)** menüsü ya da `coint2 2 inflation interest exchange` komutu Johansen testini yapar. Bu veride "eşbütünleşme yok" hipotezi reddedilir (rank 0 için trace testi p = 0.0053, rank 1 için p = 0.19): bir eşbütünleşme ilişkisi vardır ve farklarla kurulan VAR yerine VECM uygundur (Bölüm 10.9'daki Not).
+**Not —** Bölüm 10'daki Python uygulamasında olduğu gibi, VAR'a girmeden önce serilerin durağanlığı ADF/KPSS ile kontrol edilmeli (Bölüm 11.4), gerekirse **Add → First differences of selected variables** ile farkları alınmalıdır. Betikte bunu denemek için `var` satırlarından önce `diff inflation interest exchange` yazıp modeli `d_inflation d_interest d_exchange` değişkenleriyle kurabilirsiniz. Seriler I(1) ise farka geçmeden önce aralarında eşbütünleşme olup olmadığı da sınanmalıdır (Bölüm 10.3.3): **Model → Multivariate time series → Cointegration test (Johansen)** menüsü ya da `coint2 2 inflation interest exchange` komutu Johansen testini yapar. Bu veride "eşbütünleşme yok" hipotezi reddedilir (rank 0 için trace testi p = 0.0064, rank 1 için p = 0.22): bir eşbütünleşme ilişkisi vardır ve farklarla kurulan VAR yerine VECM uygundur (Bölüm 10.9'daki Not).
 
 Durağanlık kontrolünün ve stabilitenin Gretl'deki karşılığı şöyle yazılabilir:
 
@@ -477,7 +477,7 @@ var 2 inflation interest exchange --quiet
 eval maxc(abs(eigen($compan)))            # en büyük öz değer modülü
 ```
 
-`--test-down=AIC` seçeneği verildiğinde `12` sabit gecikme değil üst sınırdır: Gretl 12 gecikmeden başlayıp gecikme sayısını AIC ile geriye doğru seçer. Bu veride düzey serilerin p-değerleri 0.9158 (enflasyon), 0.1278 (faiz) ve 1 (kur) çıkar; farkı alınmış serilerde 0.0153, 0.0142 ve 1.2e-08'e iner. Gretl gecikmeyi statsmodels'tan farklı seçtiği için düzey enflasyonun p-değeri Bölüm 10.9'daki 0.806'dan farklıdır, ama karar aynıdır: düzey seriler durağan değil, farklar durağan. Son satır VAR(2) için 0.99737 yazar (Şekil 10.2b'deki 0.997); aynı satırı `var 7 ...` sonrasında çalıştırırsanız 1.0238 çıkar ve AIC'nin önerdiği VAR(7)'nin stabil olmadığını görürsünüz (Bölüm 10.9).
+`--test-down=AIC` seçeneği verildiğinde `12` sabit gecikme değil üst sınırdır: Gretl 12 gecikmeden başlayıp gecikme sayısını AIC ile geriye doğru seçer. Bu veride düzey serilerin p-değerleri 0.9158 (enflasyon), 0.1077 (faiz) ve 1 (kur) çıkar; farkı alınmış serilerde 0.0153, 0.0153 ve 1.2e-08'e iner. Gretl gecikmeyi statsmodels'tan farklı seçtiği için düzey enflasyonun p-değeri Bölüm 10.9'daki 0.806'dan farklıdır, ama karar aynıdır: düzey seriler durağan değil, farklar durağan. Son satır VAR(2) için 0.99639 yazar (Şekil 10.2b'deki 0.996); aynı satırı `var 7 ...` sonrasında çalıştırırsanız 1.0244 çıkar ve AIC'nin önerdiği VAR(7)'nin stabil olmadığını görürsünüz (Bölüm 10.9).
 
 > **Hemen deneyin 11.6.2 · Farkı alınmış serilerle VAR: Granger sonuçları değişir mi?** (Gretl betiği, ~5 dk)
 >
@@ -492,13 +492,13 @@ eval maxc(abs(eigen($compan)))            # en büyük öz değer modülü
 > modtest --autocorr                   # Rao F otokorelasyon testi
 > ```
 >
-> **Ne göreceksiniz:** Gecikme tablosunda AIC'nin yıldızı **8**'de, BIC ve HQC'nin yıldızı **1**'dedir; model bu yüzden 1 gecikmeyle kurulur (Hemen deneyin 10.6'daki Python modeliyle aynı). VAR(1) çıktısında `d_inflation` denkleminin altında `All lags of d_interest F(1, 114) = 0.39955 [0.5286]` (faiz → enflasyon yine Granger nedeni değil; düzeyde 0.8375'ti) ve `All lags of d_exchange F(1, 114) = 44.456 [0.0000]` (kur → enflasyon yine çok anlamlı) yazar. Otokorelasyon testinde p-değerleri 1. gecikmede 0.0095, 3. gecikmede 0.0839'dur ve 5. gecikmeden itibaren 0.001'in altına iner: Düzey serilerle kurulan VAR(2)'deki kadar güçlü olmasa da (orada bütün gecikmelerde p < 0.01 idi) artıklarda otokorelasyon kalır. (`var 2` ile kurulursa ilk dört gecikmenin p-değerleri 0.05'in üstüne çıkar.)
+> **Ne göreceksiniz:** Gecikme tablosunda AIC'nin yıldızı **8**'de, BIC ve HQC'nin yıldızı **1**'dedir; model bu yüzden 1 gecikmeyle kurulur (Hemen deneyin 10.6'daki Python modeliyle aynı). VAR(1) çıktısında `d_inflation` denkleminin altında `All lags of d_interest F(1, 114) = 0.54355 [0.4625]` (faiz → enflasyon yine Granger nedeni değil; düzeyde 0.8313'tü) ve `All lags of d_exchange F(1, 114) = 44.856 [0.0000]` (kur → enflasyon yine çok anlamlı) yazar. Otokorelasyon testinde p-değerleri 1. gecikmede 0.0091, 3. gecikmede 0.0940'tır ve 5. gecikmeden itibaren 0.001'in altına iner: Düzey serilerle kurulan VAR(2)'deki kadar güçlü olmasa da (orada bütün gecikmelerde p < 0.01 idi) artıklarda otokorelasyon kalır. (`var 2` ile kurulursa ilk dört gecikmenin p-değerleri 0.05'in üstüne çıkar.)
 >
-> **Şimdi siz:** Aynı çıktıda `d_interest` denkleminde `All lags of d_inflation` satırının p-değeri kaçtır? Düzey modelde enflasyon → faiz p-değeri 0.022'ydi (anlamlı).
+> **Şimdi siz:** Aynı çıktıda `d_interest` denkleminde `All lags of d_inflation` satırının p-değeri kaçtır? Düzey modelde enflasyon → faiz p-değeri 0.028'di (anlamlı).
 >
 > <details><summary>Cevap</summary>
 >
-> `All lags of d_inflation F(1, 114) = 0.81597 [0.3683]`: farkı alınmış modelde enflasyon artık faizin Granger nedeni görünmez. Python'da (Hemen deneyin 10.6) gördüğümüz sonucun aynısıdır (orada p = 0.367; küçük fark, statsmodels'ın testi tüm sistem üzerinden kurmasından gelir, bkz. 10.9). Kur → faiz ilişkisi ise farklarla da anlamlı kalır (`All lags of d_exchange F(1, 114) = 7.5533 [0.0070]`).
+> `All lags of d_inflation F(1, 114) = 0.89048 [0.3473]`: farkı alınmış modelde enflasyon artık faizin Granger nedeni görünmez. Python'da (Hemen deneyin 10.6) gördüğümüz sonucun aynısıdır (orada p = 0.346; küçük fark, statsmodels'ın testi tüm sistem üzerinden kurmasından gelir, bkz. 10.9). Kur → faiz ilişkisi ise farklarla da anlamlı kalır (`All lags of d_exchange F(1, 114) = 7.3216 [0.0079]`).
 >
 > </details>
 
