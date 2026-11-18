@@ -13,6 +13,16 @@
 /* Kenar çubuğunda bölüm başlıkları biraz daha sıkı dursun */
 .sidebar ul li a { white-space: normal; }
 
+/* Dar ekranlarda (telefon) uzun satır içi kod ve bağlantılar (dosya yolları, URL'ler) satıra sığmayınca
+   bölünsün; aksi hâlde ekranın sağından taşar ve kesilir. Kod blokları (pre) kendi içinde kaydırılmaya devam eder. */
+.markdown-section :not(pre) > code,
+.markdown-section a { overflow-wrap: anywhere; }
+
+/* Ekrana sığmayan blok formüller kesilmesin, kendi içinde yatay kaydırılsın (yazdırmada gerek yok). */
+@media screen {
+  .markdown-section .katex-display { overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
+}
+
 /* ---- Yazdırma sayfası (yazdir.html): notun tamamı tek sayfada ---- */
 body.yazdir .sidebar,
 body.yazdir .sidebar-toggle,
