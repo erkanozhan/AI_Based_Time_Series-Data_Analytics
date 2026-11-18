@@ -22,7 +22,7 @@ Yanlış okuma ne zaman fark edilir? Gün kısmı 12'den büyük olan bir tariht
 
 `01/02/2024` gibi gün ve ay kısmının ikisi de 12 ya da daha küçük olan tarihlerde durum daha da kötüdür: iki okuma da takvimde var olan bir gündür, bu yüzden ne `NA` oluşur ne de uyarı çıkar; veri sessizce yanlış okunur. Çözüm, tarihleri tek anlamlı bir düzende yazmaktır.
 
-**Tanım (ISO 8601):** Tarih ve saat yazımı için uluslararası standarttır (ISO: Uluslararası Standartlar Örgütü). Bileşenleri büyükten küçüğe sıralar: 4 haneli yıl (`Y`), 2 haneli ay (`M`), 2 haneli gün (`D`); gerekirse başa 0 eklenir (`02`, `01`). En sık yazım tireli `YYYY-MM-DD`'dir (*genişletilmiş biçim*); ayraçsız `YYYYMMDD` (*temel biçim*) da geçerlidir. Saat eklenecekse araya `T` konur (`YYYY-MM-DDTHH:MM:SS`); sondaki `Z` ya da `+03:00` saatin UTC'ye göre farkını söyler (bkz. tablo ve 4.2.2).
+**Tanım (ISO 8601):** Tarih ve saat yazımı için uluslararası standarttır (ISO: Uluslararası Standartlar Örgütü). Bileşenleri büyükten küçüğe sıralar: 4 haneli yıl (`Y`), 2 haneli ay (`M`), 2 haneli gün (`D`); gerekirse başa 0 eklenir (`02`, `01`). En sık yazım tireli `YYYY-MM-DD`'dir (*genişletilmiş biçim*); ayraçsız `YYYYMMDD` (*temel biçim*) da geçerlidir. Saat eklenecekse araya `T` konur (`YYYY-MM-DDTHH:MM:SS`); sondaki `Z` ya da `+03:00` saatin UTC'ye göre farkını söyler (bkz. tablo ve 4.2.2). Bu şablonda ilk `MM` ay, ikincisi dakikadır; R'ın biçim kodlarında bu ikisi `%m` ve `%M` ile ayrılır (4.2.1).
 
 | Yazım | Anlamı |
 | --- | --- |
@@ -104,7 +104,7 @@ Bir sayının tarih olarak anlam kazanması için bir başlangıç noktası (sı
 | `POSIXct` | Gün + saat (+ saat dilimi) | 1970-01-01 00:00 UTC'den bu yana saniye | Saatlik, dakikalık, sensör, borsa verileri |
 | `POSIXlt` | Gün + saat (+ saat dilimi) | Bileşen listesi (`year`, `mon`, `mday`, `hour`, ...) | Bileşenlere erişim, ara işlem |
 
-Bunu doğrudan görelim. Kod okunurken 2.5'teki kurallar geçerlidir: `#` sonrası yorumdur, `#>` satırları R'ın ekrana yazdığı çıktıdır (konsola yazılmaz), baştaki `[1]` ise sıra numarasıdır (Hemen deneyin 1.1a).
+Bunu doğrudan görelim. Kod okunurken 2.5'teki kurallar geçerlidir: `#` sonrası yorumdur, `#>` satırları R'ın ekrana yazdığı çıktıdır (konsola yazılmaz), baştaki `[1]` ise sıra numarasıdır (Ek A.2).
 
 ```r
 # Date: içeride gün sayısı

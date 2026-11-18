@@ -108,7 +108,7 @@ $$
 
 Kovaryans şimdilik şöyle düşünülebilir: İki büyüklük birlikte ortalamanın üstüne çıkıp birlikte altına iniyorsa kovaryans pozitif, biri yükselirken öteki düşüyorsa negatif, aralarında bir düzen yoksa sıfıra yakındır. Buradaki iki büyüklük aynı serinin $h$ adım uzaktaki değerleridir; $h = 1$ için "bu ay" ile "geçen ay". Formül yalnızca şunu söyler: en azından bazı gecikmelerde bu ilişki sıfır değildir. Kovaryansın küçük bir sayısal örnekle nasıl hesaplandığını Bölüm 3.2'de göreceğiz.
 
-**Günlük hayattan bir örnek:** Bir otoyoldaki trafik yoğunluğunu 5 dakikada bir ölçtüğümüzü düşünelim. Şu an yoğunluk ortalamanın üstündeyse 5 dakika sonra da büyük olasılıkla üstündedir: $h = 1$ için kovaryans pozitiftir. 6 saat sonrasıyla ilişki zayıftır (sabah zirvesi geçmiştir), ama 24 saat sonrasıyla yine güçlüdür. Yani ilişki bazı $h$ değerlerinde güçlü, bazılarında zayıftır.
+**Günlük hayattan bir örnek:** Bir otoyoldaki trafik yoğunluğunu 5 dakikada bir ölçtüğümüzü düşünelim. Şu an yoğunluk ortalamanın üstündeyse 5 dakika sonra da büyük olasılıkla üstündedir: $h = 1$ için kovaryans pozitiftir. 6 saat sonrasıyla ($h = 72$) ilişki zayıftır (sabah zirvesi geçmiştir), ama 24 saat sonrasıyla ($h = 288$) yine güçlüdür. Yani ilişki bazı $h$ değerlerinde güçlü, bazılarında zayıftır.
 
 Bu ilişkiye **otokorelasyon** (*autocorrelation*, kendi geçmişiyle korelasyon) denir ve ölçülmesi Bölüm 6'da ayrıntılı olarak ele alınır. Bu basit gözlemin üç önemli sonucu vardır:
 
@@ -130,7 +130,7 @@ Bu ilişkiye **otokorelasyon** (*autocorrelation*, kendi geçmişiyle korelasyon
 > par(mfrow = c(1, 1))                  # grafik alanını eski hâline döndür
 > ```
 >
-> `<-` işareti sağdaki sonucu soldaki isimle saklar (ayrıntısı Bölüm 2.5'te). `;` aynı satıra iki komut yazmayı sağlar.
+> `<-` işareti sağdaki sonucu soldaki isimle saklar (ayrıntısı Bölüm 2.5'te). `;` aynı satıra iki komut yazmayı sağlar. `sample()` sonucu artık bir zaman serisi değil düz bir sayı vektörüdür; bu yüzden sağdaki grafiğin yatay ekseninde yıllar yerine 1–144 sıra numaraları (`Index`) görünür.
 >
 > **Ne göreceksiniz:** İki ortalama da `[1] 280.2986`'dır. Solda trend ve yaz tepeleri, sağda hiçbir düzeni olmayan, 104 ile 622 arasında rastgele zıplayan bir çizgi vardır. Sayılar aynı, hikâye kaybolmuştur.
 >

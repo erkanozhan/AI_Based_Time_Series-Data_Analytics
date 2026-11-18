@@ -62,7 +62,7 @@ Bu yöntem, gözlemlerin birbirinden bağımsız olduğu tablo verilerinde (ör.
 
 Sonuç: Rastgele K-fold, zaman serisinde **gerçekte olduğundan çok daha iyi** görünen, iyimser performans tahminleri üretir. Bu tahminlere güvenerek seçilen model, kullanıma alındığında hayal kırıklığı yaratır.
 
-Doğru değerlendirme **gerçek tahmin koşulunu taklit etmelidir**. Tahminin yapıldığı ana $t$ diyelim (ör. Aralık 1955'in sonu). Model, $t$ anına kadar olan veriyle eğitilir ve yalnızca $t$'den **sonraki** gözlemler üzerinde test edilir. Bu işlem farklı $t$ noktaları için tekrarlanır. Literatürde bu yaklaşıma **kayan başlangıç noktası (rolling origin)** ya da **ileriye doğru yürüyen doğrulama (walk-forward validation)** denir.
+Doğru değerlendirme **gerçek tahmin koşulunu taklit etmelidir**. Tahminin yapıldığı ana $t$ diyelim (ör. Aralık 1955'in sonu). Model, $t$ anına kadar olan veriyle eğitilir ve yalnızca $t$'den **sonraki** gözlemler üzerinde test edilir. Bu işlem farklı $t$ noktaları için tekrarlanır. Literatürde bu yaklaşıma **kayan başlangıç noktası (rolling origin)** ya da **ileriye doğru yürüyen doğrulama (walk-forward validation)** denir. Başlangıç noktası 16.2'deki iki pencere türünde de kayar; "kayan pencere" adı ise yalnızca eğitim uzunluğunun sabit tutulmasını anlatır.
 
 ![Rastgele K-Fold ve TimeSeriesSplit fold diyagramı](../images/ch16_tss_foldlar.svg)
 
@@ -430,7 +430,7 @@ Ortalama $(31.67 + 25.72 + 33.82 + 40.78 + 28.84) / 5 = 160.83 / 5 \approx 32.17
 
 **Günlük hayattan bir örnek:** Bir basketbolcuyu tek maçtaki sayısıyla değil, sezon ortalaması ve skorunun maçtan maça ne kadar dalgalandığıyla değerlendiririz. Ortalama 30 sayı atan oyuncu bir maçta 15, ötekinde 45 atıyorsa tek maça bakarak "en iyisi" demek yanıltır. Fold'ların RMSE'leri de o modelin maç maç skorlarıdır.
 
-> **Not —** Aynı ilke hiperparametre seçimi ve erken durdurma için de geçerlidir. Erken durdurmada izlenen doğrulama kümesi, hatası raporlanan fold'un kendisiyse sonuç yine iyimser olur: Model tam da o dönemde en iyi göründüğü noktada durdurulmuş olur. Doğrusu, erken durdurma için fold'un **eğitim** kısmının sonundan ayrı bir iç doğrulama dilimi ayırmaktır; 16.5'teki GRU bunu uygular. Ağaç tabanlı modellerde ölçekleme gerekmez, ancak gecikme ve hareketli ortalama gibi özelliklerin yalnızca geçmiş değerlerden (`shift(1)` ile) üretildiğinden emin olmak gerekir. scikit-learn'de ön işlemeyi `Pipeline` içine koymak, `fit` işleminin her fold'da otomatik olarak yalnızca eğitim verisiyle yapılmasını garanti eder.
+> **Not —** Aynı ilke hiperparametre seçimi (Hemen deneyin 16.5c) ve erken durdurma için de geçerlidir. Erken durdurmada izlenen doğrulama kümesi, hatası raporlanan fold'un kendisiyse sonuç yine iyimser olur: Model tam da o dönemde en iyi göründüğü noktada durdurulmuş olur. Doğrusu, erken durdurma için fold'un **eğitim** kısmının sonundan ayrı bir iç doğrulama dilimi ayırmaktır; 16.5'teki GRU bunu uygular. Ağaç tabanlı modellerde ölçekleme gerekmez, ancak gecikme ve hareketli ortalama gibi özelliklerin yalnızca geçmiş değerlerden (`shift(1)` ile) üretildiğinden emin olmak gerekir. scikit-learn'de ön işlemeyi `Pipeline` içine koymak, `fit` işleminin her fold'da otomatik olarak yalnızca eğitim verisiyle yapılmasını garanti eder.
 
 > **Hemen deneyin 16.4 · Ölçekleyici fold içinde mi, dışında mı?** (Python, ~4 dk)
 >
@@ -516,11 +516,14 @@ Programın tamamı (yaklaşık 310 satır) uygulama dosyasındadır; aşağıda 
 # GRU + XGBoost aynı fold'larda — kilit satırlar (tam kod: Codes/python/ch16_timeseriessplit.py)
 tscv = TimeSeriesSplit(n_splits=5, test_size=12)
 folds = list(tscv.split(values))       # fold'lar BİR KEZ belirlenir; üç yöntem de bu listeyi kullanır
+inner_val = 12                         # erken durdurma için fold eğitiminin son 12 penceresi
+# build_gru_model(look_back): Input -> GRU(50) -> Dropout(0.2) -> Dense(1)
 
 for k, (train_idx, val_idx) in enumerate(folds, 1):
     # GRU: ölçekleyici, pencereler ve maskeler 16.4'teki gibi kurulur (X_tr, y_tr, X_va)
     # Kaç epoch? Fold eğitiminin son 12 penceresi iç doğrulama olur
     model = build_gru_model(look_back)
+    early_stop = EarlyStopping(monitor='val_loss', patience=15, restore_best_weights=True)
     history = model.fit(X_tr[:-inner_val], y_tr[:-inner_val], epochs=200, batch_size=8,
                         validation_data=(X_tr[-inner_val:], y_tr[-inner_val:]),
                         callbacks=[early_stop], verbose=0)
@@ -640,7 +643,7 @@ rolling_mean_12    0.021985
 >
 > <details><summary>Cevap</summary>
 >
-> `XGBoost 33.80 ± 9.56` (fold'lar 24.49, 29.58, 28.25, 51.69, 34.99); naive satırları değişmez. Ortalama biraz iyileşti, ama 1958 (28.25'e karşı 17.01) ve 1959 (51.69'a karşı 49.25) yine naive'in yılı. Fark (yaklaşık 6.9) hâlâ standart sapmalar düzeyinde; tek bir ayarı değiştirmek tabloyu kökten değiştirmedi. Dikkat: `max_depth=6`'yı bu beş fold'a bakarak seçersek 33.80 artık dürüst bir hata tahmini değildir, çünkü ayar raporlanan doğrulama yıllarıyla seçilmiş olur (16.4'teki Not).
+> `XGBoost 33.80 ± 9.56` (fold'lar 24.49, 29.58, 28.25, 51.69, 34.99); naive satırları değişmez. Ortalama biraz iyileşti, ama 1958 (28.25'e karşı 17.01) ve 1959 (51.69'a karşı 49.25) yine naive'in yılı. Fark (yaklaşık 6.9) hâlâ standart sapmalar düzeyinde; tek bir ayarı değiştirmek tabloyu kökten değiştirmedi. Dikkat: `max_depth=6`'yı bu beş fold'a bakarak seçersek 33.80 artık dürüst bir hata tahmini değildir, çünkü ayar raporlanan doğrulama yıllarıyla seçilmiş olur (16.4'teki Not; doğru düzen Hemen deneyin 16.5c'de).
 >
 > </details>
 
@@ -685,6 +688,52 @@ rolling_mean_12    0.021985
 > ```
 >
 > Dört fold'da iki düzen birbirine yakın sonuç verir. 1959'da ise tek adımlı tahmin belirgin biçimde kötüdür: Model, eğitim aralığının üstündeki gerçek Temmuz değerini (548) girdi olarak alınca Ağustos'u yaklaşık 443 tahmin eder (gerçek değer 559); özyinelemeli tahmin aynı ay için yaklaşık 499 verir. Değerlendirme düzeni sonucu değiştirebilir; özyinelemeli tahmin her zaman daha kötü değildir. Bu yüzden bir karşılaştırmada hangi düzenin kullanıldığı açıkça belirtilmelidir.
+
+> **Hemen deneyin 16.5c · Hiperparametreyi zamana saygılı seçin: `GridSearchCV`** (Python, ~5 dk)
+>
+> 16.5'teki kutuda `max_depth`'i raporlanan fold'lara bakarak değiştirdik; böyle seçilen bir ayarın hatası iyimserdir. Doğru düzende ayar yalnızca 1950–1959 ile seçilir, 1960 ise seçime hiç karışmayan **dış test** olarak bir kez ölçülür.
+>
+> ```python
+> import numpy as np, pandas as pd, xgboost as xgb
+> from sklearn.model_selection import TimeSeriesSplit, GridSearchCV
+> s = pd.read_csv("data/AirPassengers.csv")["Passengers"]
+> X = pd.DataFrame({f"lag_{l}": s.shift(l) for l in range(1, 13)}).dropna()   # 12 gecikme
+> y = s.loc[X.index]
+> X_gel, y_gel = X.iloc[:-12], y.iloc[:-12]      # 1950-1959: ayar seçimi
+> X_test, y_test = X.iloc[-12:], y.iloc[-12:]    # 1960: hiç dokunulmayan dış test
+> arama = GridSearchCV(
+>     xgb.XGBRegressor(learning_rate=0.05, random_state=42),
+>     param_grid={"max_depth": [2, 3, 4, 6], "n_estimators": [100, 300]},
+>     cv=TimeSeriesSplit(n_splits=4, test_size=12),               # iç doğrulama: 1956-1959
+>     scoring="neg_root_mean_squared_error")
+> arama.fit(X_gel, y_gel)
+> print("En iyi ayar:", arama.best_params_)
+> print(f"Seçimdeki RMSE (best_score_): {-arama.best_score_:.2f}")
+> tahmin = arama.predict(X_test)                    # en iyi ayar, 1950-1959'un tamamıyla yeniden eğitildi
+> print(f"1960 dış test RMSE: {np.sqrt(np.mean((y_test - tahmin) ** 2)):.2f}")
+> print(f"1960 mevsimsel naive RMSE: {np.sqrt(np.mean((y_test - X_test['lag_12']) ** 2)):.2f}")
+> ```
+>
+> `GridSearchCV` 4 × 2 = 8 ayar bileşiminin her birini dört iç fold'da (1956, 1957, 1958 ve 1959) dener, fold RMSE'lerinin ortalaması en küçük olanı seçer ve bu ayarla modeli 1950–1959'un tamamında yeniden eğitir (`refit=True` varsayılandır). `cv` parametresine tamsayı değil `TimeSeriesSplit` nesnesi verilmesi şarttır (16.4b). Ölçekleme gereken bir modelde ölçekleyici `make_pipeline` ile modele bağlanırsa her iç fold'da yalnızca o fold'un eğitimiyle fit edilir.
+>
+> **Ne göreceksiniz:**
+>
+> ```text
+> En iyi ayar: {'max_depth': 6, 'n_estimators': 300}
+> Seçimdeki RMSE (best_score_): 33.50
+> 1960 dış test RMSE: 34.99
+> 1960 mevsimsel naive RMSE: 50.71
+> ```
+>
+> `best_score_` raporlanacak hata değildir: Aynı dört yıl hem sekiz adaydan birini seçmek hem de onu puanlamak için kullanıldı ve seçilen, sekiz puanın en küçüğüdür. Bu, sekiz zar atıp en yüksek geleni "zar ortalaması" diye yazmaya benzer. Dürüst sayı, seçime hiç karışmamış 1960'ın 34.99'udur. Tek bir test yılı ise yine tek bir dönemdir (16.1). Hem ayar seçimini hem de birden çok test dönemini isteyen durumda **iç içe çapraz doğrulama (nested cross-validation)** kullanılır: Dış döngü fold'ları hatayı ölçer, her dış fold'un içinde ise yalnızca o fold'un eğitim kısmında ayrı bir `TimeSeriesSplit` ile ayar seçilir. Böylece hiçbir dış doğrulama yılı ayar seçimine girmez.
+>
+> **Şimdi siz:** Yukarıdaki `arama` nesnesini dış döngüye verin: `cross_val_score(arama, X, y, cv=TimeSeriesSplit(n_splits=5, test_size=12), scoring="neg_root_mean_squared_error")` (`cross_val_score`'u içe aktarmayı ve başına `-` koymayı unutmayın). Her dış fold'da ayar yeniden seçilir. Ortalama, 16.5'teki kutuda `max_depth=6` ile bulduğumuz 33.80'den büyük mü çıkar? Son fold neden 1960 dış testiyle aynıdır?
+>
+> <details><summary>Cevap</summary>
+>
+> `33.89 ± 9.71`, fold'lar `[22.9 29.4 30.5 51.7 35. ]`. Bu sayı "ayarı seçme dahil" yöntemin dürüst hatasıdır ve fold'lara bakarak seçilmiş ayarın 33.80'inden biraz büyüktür. Fark küçüktür, çünkü yalnızca sekiz aday denendi ve adayların hataları birbirine yakındır (iç fold ortalamaları 33.50 ile 37.16 arasında). Aday sayısı arttıkça iyimserlik de büyür. Son dış fold 1950–1959 ile ayar seçip 1960'ı ölçer; yukarıdaki işlemin aynısı olduğu için 35.0 (34.99) çıkar.
+>
+> </details>
 
 ---
 

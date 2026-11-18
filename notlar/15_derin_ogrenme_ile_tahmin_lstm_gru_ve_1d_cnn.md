@@ -77,7 +77,7 @@ Eğitim: 84 ay, Test: 60 ay
 Kodu satır satır okuyalım:
 
 1. `import numpy as np` satırı NumPy kütüphanesini yükler ve ona kısa bir takma ad (`np`) verir; bundan sonra `np.array(...)` yazmak yeterlidir. `from sklearn.preprocessing import MinMaxScaler` ise kütüphanenin tamamını değil, yalnızca adı geçen aracı getirir.
-2. `tf.keras.utils.set_random_seed(SEED)` rastgele sayı üreteçlerini sabit bir başlangıç değerine (**tohum**, *seed*) bağlar. Sinir ağının ağırlıkları başta rastgele seçildiği için tohum sabitlenmezse her çalıştırmada farklı bir model elde edilir. Tohum aynı makinede sonuçları büyük ölçüde tekrarlanabilir kılar. Yine de işletim sistemi, işlemci ve TensorFlow sürümü değiştiğinde sayılar biraz farklı çıkabilir; bu bölümde verdiğimiz derin öğrenme sonuçlarını bu yüzden "yaklaşık" olarak okuyun.
+2. `tf.keras.utils.set_random_seed(SEED)` rastgele sayı üreteçlerini sabit bir başlangıç değerine (**tohum**, *seed*) bağlar. Sinir ağının ağırlıkları başta rastgele seçildiği için tohum sabitlenmezse her çalıştırmada farklı bir model elde edilir. Tohum aynı makinede sonuçları büyük ölçüde tekrarlanabilir kılar. Yine de işletim sistemi, işlemci ve TensorFlow sürümü değiştiğinde sayılar biraz farklı çıkabilir; bu bölümde verdiğimiz derin öğrenme sonuçlarını bu yüzden "yaklaşık" olarak okuyun. GPU'da çalışırken bazı işlemler tohum sabit olsa bile her seferinde biraz farklı sonuç verebilir; aynı makinede birebir aynı sayılar gerekiyorsa tohumdan sonra `tf.config.experimental.enable_op_determinism()` satırı eklenir, karşılığında eğitim yavaşlar.
 3. `load_airpassengers(as_series=True)` 144 aylık yolcu sayısını bir pandas serisi olarak getirir. `pd.date_range(start='1949-01-01', periods=144, freq='MS')` ise grafiklerin yatay ekseni için 144 tarih üretir (`'MS'`: her ayın ilk günü, *month start*).
 4. `data.values.astype('float32').reshape(-1, 1)` üç iş yapar: değerleri NumPy dizisine çevirir, sinir ağlarının kullandığı 32 bitlik ondalık sayı türüne dönüştürür ve diziyi tek sütunlu bir tabloya çevirir. Örneğin `[112, 118, 132]` listesi `reshape(-1, 1)` ile `[[112], [118], [132]]` hâline gelir; şekli `(3, 1)`, yani 3 satır ve 1 sütundur. `-1` "satır sayısını sen hesapla" demektir. `MinMaxScaler` girdiyi bu tablo biçiminde ister.
 5. `train_size = 144 - 60 = 84`. `dataset[:train_size]` köşeli parantez içindeki **dilimleme** ile ilk 84 satırı (Python'da 0'dan 83'e kadar olan sıra numaraları) seçer.
@@ -254,7 +254,16 @@ Sayılar ve sıraları değişmez; değişen yalnızca kabın düzenidir. Sağda
 
 LSTM'in iç yapısını Bölüm 12.2.2'de kavramsal olarak gördük: Hücre, uzun süreli bilgiyi taşıyan bir **hücre durumu** $C_t$ (defter) ve her adımda dışarıya verilen bir **gizli durum** $h_t$ tutar; 0 ile 1 arasında değer alan üç **kapı** (vana) bu iki durum arasındaki bilgi akışını denetler.
 
-LSTM hücresinin denklemleri ve sayısal örneği 12.2.2'dedir. Orada her kapı birleşik yazımla, örneğin $f_t = \sigma(W_f [h_{t-1}, x_t] + b_f)$ biçiminde verildi ve bu yazımın $W_{f,h} h_{t-1} + W_{f,x} x_t$ ile aynı olduğu gösterildi. Keras ağırlıkları bu ayrık biçimde, girdi ve gizli durum için iki ayrı tablo olarak saklar. Bu bölümde yaygın kaynaklardaki kısa gösterimi kullanıyoruz: Girdiyi çarpan $W_{f,x}$ tablosunu $W_f$, önceki gizli durumu çarpan $W_{f,h}$ tablosunu $U_f$ ile gösteriyoruz. Böylece unutma kapısı $f_t = \sigma(W_f x_t + U_f h_{t-1} + b_f)$ biçiminde yazılır. Bu yazım, aşağıdaki parametre sayımını (dört ağırlık seti, her birinde $W$, $U$ ve $b$) ve 15.3'teki GRU denklemlerini okumayı kolaylaştırır. 50 birimli bir katmanda her harf 50 sayılık bir listeyi, $W$ ve $U$ de ağırlık tablolarını temsil eder. Dikkat: 12.2.1'deki basit RNN'de $W_h$ önceki gizli durumu çarpan tabloydu. Bu bölümde ise $W$ her zaman girdiyi, $U$ önceki gizli durumu çarpar; 15.3'teki $W_h$ ve $U_h$'nin alt indisindeki $h$, bu tabloların aday durum $\tilde{h}_t$'ye ait olduğunu gösterir.
+LSTM hücresinin denklemleri ve sayısal örneği 12.2.2'dedir. Orada her kapı birleşik yazımla, örneğin $f_t = \sigma(W_f [h_{t-1}, x_t] + b_f)$ biçiminde verildi ve bu yazımın $W_{f,h} h_{t-1} + W_{f,x} x_t$ ile aynı olduğu gösterildi. Keras ağırlıkları bu ayrık biçimde, girdi ve gizli durum için iki ayrı tablo olarak saklar. Bu bölümde yaygın kaynaklardaki kısa gösterimi kullanıyoruz:
+
+| 12.2.2'deki yazım | Bu bölümdeki yazım | Neyi çarpar? |
+| --- | --- | --- |
+| $`W_{f,x}`$ | $`W_f`$ | bugünkü girdi $`x_t`$ |
+| $`W_{f,h}`$ | $`U_f`$ | önceki gizli durum $`h_{t-1}`$ |
+
+Böylece unutma kapısı $f_t = \sigma(W_f x_t + U_f h_{t-1} + b_f)$ biçiminde yazılır. Bu yazım, aşağıdaki parametre sayımını (dört ağırlık seti, her birinde $W$, $U$ ve $b$) ve 15.3'teki GRU denklemlerini okumayı kolaylaştırır. 50 birimli bir katmanda her harf 50 sayılık bir listeyi, $W$ ve $U$ de ağırlık tablolarını temsil eder.
+
+**Dikkat:** 12.2.1'deki basit RNN'de $W_h$ önceki gizli durumu çarpan tabloydu. Bu bölümde ise $W$ her zaman girdiyi, $U$ önceki gizli durumu çarpar; 15.3'teki $W_h$ ve $U_h$'nin alt indisindeki $h$, bu tabloların aday durum $\tilde{h}_t$'ye ait olduğunu gösterir.
 
 Diğer kapılar ($i_t$, $o_t$) ve aday bilgi $\tilde{C}_t$ aynı kalıpla, kendi $W$, $U$ ve $b$'leriyle yazılır; açıklamalı gösterimi ve okunuşu 12.2.2'dedir. Aşağıdaki "dört ağırlık seti" bu dört satırın ağırlıklarıdır.
 
@@ -595,11 +604,11 @@ Keras'taki `Conv1D` ve ilgili katmanların parametreleri:
 | --- | --- |
 | `filters` | Kaç farklı desen aranacağı; her filtre ayrı bir özellik haritası üretir |
 | `kernel_size` | Filtrenin aynı anda kaç zaman adımına baktığı |
-| `padding` | `'valid'`: kenar eklenmez, çıktı $`n-K+1`$ uzunluğundadır; `'same'`: kenarlara sıfır eklenir, çıktı uzunluğu girdiyle aynı kalır |
+| `padding` | `'valid'`: kenar eklenmez, çıktı $`n-K+1`$ uzunluğundadır; `'same'`: kenarlara sıfır eklenir, çıktı uzunluğu girdiyle aynı kalır; `'causal'`: $`K-1`$ sıfır yalnızca başa eklenir, uzunluk yine korunur ve $`t`$ konumundaki çıktı yalnızca $`t`$ ve öncesine bakar (1949 örneğinde `[112. 118. 20. 11. 0. …]`) |
 | `MaxPooling1D(pool_size=2)` | Ardışık iki değerin en büyüğünü alır: uzunluk yarıya iner, küçük kaymalara karşı dayanıklılık artar |
 | `Flatten` + `Dense` | Özellik haritalarını tek bir sayı listesine açıp tahmine dönüştürür |
 
-Bizim modelimizdeki sayıları birlikte izleyelim. Girdi 12 aylık penceredir. `padding='same'` serinin iki ucuna birer 0 ekler; 14 değerlik dizide 3'lük filtre $14 - 3 + 1 = 12$ konuma oturur ve uzunluk 12 olarak kalır (`'valid'` olsaydı yukarıdaki örnekteki gibi 10'a inerdi). İlk evrişim katmanındaki 64 filtrenin her biri ayrı bir 12 değerlik özellik haritası üretir; çıktının şekli `(12, 64)` olur. Havuzlama uzunluğu $12 / 2 = 6$'ya indirir. İkinci evrişim katmanı 128 filtreyle `(6, 128)`, ikinci havuzlama `(3, 128)` verir. `Flatten` bu $3 \times 128 = 384$ sayıyı tek bir uzun listeye dizer; `Dense(50)` bunları 50 sayıya, `Dense(1)` de tek tahmine indirir.
+Bizim modelimizdeki sayıları birlikte izleyelim. Girdi 12 aylık penceredir. `padding='same'` serinin iki ucuna birer 0 ekler; 14 değerlik dizide 3'lük filtre $14 - 3 + 1 = 12$ konuma oturur ve uzunluk 12 olarak kalır (`'valid'` olsaydı yukarıdaki örnekteki gibi 10'a inerdi). Sağ uca eklenen 0 bir sızıntı değildir: Pencerenin tamamı tahmin edilen aydan önceki aylardır, eklenen 0 da gelecekten gelen bir değer değil, yapay bir dolgudur. `'causal'` dolgu ise pencerenin içinde bile her konumun yalnızca geçmişe bakmasını gerektiren mimarilerde (ör. genişletilmiş evrişimle kurulan derin modellerde) kullanılır. İlk evrişim katmanındaki 64 filtrenin her biri ayrı bir 12 değerlik özellik haritası üretir; çıktının şekli `(12, 64)` olur. Havuzlama uzunluğu $12 / 2 = 6$'ya indirir. İkinci evrişim katmanı 128 filtreyle `(6, 128)`, ikinci havuzlama `(3, 128)` verir. `Flatten` bu $3 \times 128 = 384$ sayıyı tek bir uzun listeye dizer; `Dense(50)` bunları 50 sayıya, `Dense(1)` de tek tahmine indirir.
 
 Birden fazla evrişim katmanı üst üste konduğunda ikinci katmandaki bir filtre, ilk katmanın desenlerinin birleşimine bakar. Havuzlamayla birlikte her katman serinin daha uzun bir bölümünü "görür". Buna filtrenin **alıcı alanı (receptive field)** denir. Örneğin ilk katmandaki bir filtre 3 ayı görür. Havuzlamadan sonra ikinci katmandaki 3'lük bir filtre, her biri iki ilk-katman çıktısını özetleyen 3 değere, yani 6 ilk-katman çıktısına bakar; bu 6 çıktının her biri 3 aylık, birbirine bir ay kaydırılmış dilimlerden geldiği için toplamda $6 + 2 = 8$ aylık bir dilimi kapsar.
 
@@ -648,6 +657,11 @@ Aşağıdaki kod 15.1'deki ortak veriyi kullanır. Evrişimli model LSTM'den ço
 
 ```python
 # 1D-CNN — kilit satırlar (tam kod: Codes/python/ch15_derin_ogrenme.py)
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Input, Dense, Flatten, Conv1D, MaxPooling1D, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.optimizers import Adam
+
 val_size = 12
 X_train, y_train = trainX[:-val_size], trainY[:-val_size]   # eğitim
 X_val, y_val = trainX[-val_size:], trainY[-val_size:]       # doğrulama (erken durdurma)
@@ -682,7 +696,7 @@ Kilit satırları sırayla açıklayalım:
 - **`def build_cnn_model(look_back, filters=64, kernel_size=3, dropout_rate=0.2)`:** Modeli bir fonksiyonun içinde kurmak, aynı mimariyi farklı ayarlarla (ör. `filters=32`) tek satırda yeniden üretmeyi sağlar; dosyadaki hiperparametre karşılaştırması bunu kullanır. `Sequential([...])` katmanları `add` yerine köşeli parantez içinde bir liste olarak alır; iki yazım aynı modeli kurar.
 - **`Conv1D(filters, kernel_size, activation='relu', padding='same')`:** 15.4.1'de anlatılan evrişim katmanıdır: 64 farklı 3'lük filtre, ReLU aktivasyonu, uzunluğu koruyan kenar dolgusu.
 - **`MaxPooling1D(pool_size=2)`:** İkişerli gruplardan en büyüğünü tutar ve uzunluğu yarıya indirir (15.4.1'deki örnek).
-- **`Dropout(0.2)`:** Eğitimin her adımında katmandaki nöronların rastgele seçilmiş yüzde 20'sini geçici olarak kapatır (çıktılarını 0 yapar). Her gün rastgele birkaç üyesi izinli olan bir ekip düşünün: Ekip tek bir kişiye bağımlı kalamaz ve işi paylaşmayı öğrenir. Ağ da böylece tek tek nöronlara dayanmak yerine daha genel desenler öğrenir. Tahmin sırasında (`predict`) dropout kapanır ve bütün nöronlar çalışır.
+- **`Dropout(0.2)`:** Eğitimin her adımında katmandaki nöronların rastgele seçilmiş yüzde 20'sini geçici olarak kapatır (çıktılarını 0 yapar). Her gün rastgele birkaç üyesi izinli olan bir ekip düşünün: Ekip tek bir kişiye bağımlı kalamaz ve işi paylaşmayı öğrenir. Ağ da böylece tek tek nöronlara dayanmak yerine daha genel desenler öğrenir. Eğitimde açık kalan değerler $1 / (1 - 0.2) = 1.25$ ile çarpılarak büyütülür; böylece katmanın çıktısının ortalama büyüklüğü değişmez. Tahmin sırasında (`predict`) dropout kapanır, bütün nöronlar çalışır ve büyütme yapılmaz.
 - **`Flatten()`, `Dense(50, activation='relu')` ve `Dense(1)`:** Özellik haritalarını tek bir listeye açıp önce 50 sayıya, sonra tek tahmine indirir (şekiller 15.4.1'deki hesapta).
 - **`compile(optimizer=Adam(learning_rate=0.001), loss='mse', metrics=['mae'])`:** Kayıp yine ortalama kare hatadır (`'mse'`, `'mean_squared_error'` yazımının kısaltması). Öğrenme oranı açıkça 0.001 olarak verilmiştir. `metrics=['mae']` ortalama mutlak hatayı da izler; MAE eğitimi etkilemez, yalnızca raporlanır.
 - **`EarlyStopping(monitor='val_loss', patience=20, restore_best_weights=True)`:** Her epoch sonunda doğrulama kaybını (`val_loss`) izler. **Sabır (patience)**, iyileşme olmadan kaç epoch bekleneceğidir. Örneğin doğrulama kaybı en düşük değerine 35. epoch'ta ulaşmış ve sonraki 20 epoch boyunca bu değerin altına hiç inememişse eğitim 55. epoch'un sonunda durur. `restore_best_weights=True` modelin ağırlıklarını 55. epoch'taki hâlinden 35. epoch'taki en iyi hâline geri çevirir.

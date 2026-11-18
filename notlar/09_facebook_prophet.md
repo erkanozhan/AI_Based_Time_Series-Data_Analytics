@@ -64,7 +64,17 @@ Değişim noktalarını elle vermemiz gerekmez. Prophet varsayılan olarak verin
 
 > **Simge notu:** $`\approx`$ *(yaklaşık eşit)*: değerin neredeyse aynı olduğunu gösterir
 
-Bu esnekliği `changepoint_prior_scale` parametresi (varsayılan 0.05) belirler. Parametre, yukarıdaki cezanın ne kadar gevşek olduğunu ayarlar:
+Bu esnekliği `changepoint_prior_scale` parametresi (varsayılan 0.05) belirler. Parametre, Laplace önselinin ölçeğidir:
+
+```math
+\underbrace{\delta_j}_{\substack{j\text{'inci noktadaki}\\\text{eğim değişimi}}} \sim \text{Laplace}\big(0,\ \underbrace{\tau}_{\substack{\text{esneklik ayarı}\\\text{(ölçek)}}}\big)
+```
+
+**Ne anlatıyor?** Her eğim değişimi, sıfır çevresinde sivri bir tepe yapan bir dağılımdan gelir; $\tau$ bu dağılımın genişliğidir. $\tau$ küçükse büyük $\delta_j$'ler çok olasılık dışı sayılır ve ceza ağırdır; $\tau$ büyüdükçe büyük eğim değişimleri "ucuzlar" ve ceza gevşer.
+
+> **Simge notu:** $`\sim`$: "şu dağılımdan gelir" · $`\tau`$ *(tau)*: dağılımın ölçeği, yani `changepoint_prior_scale`
+
+Kısacası parametre, yukarıdaki cezanın ne kadar gevşek olduğunu ayarlar:
 
 - **Büyük değer** (ör. 0.5): Ceza hafifler, trend daha esnek olur, her kıvrımı izler. Aşırı öğrenme (overfitting) riski artar.
 - **Küçük değer** (ör. 0.01): Ceza ağırlaşır, trend katılaşır, gerçek yön değişimlerini kaçırabilir.
@@ -91,7 +101,41 @@ $C = 100$, $k = 1$, $m = 5$ alıp birkaç noktada hesaplayalım:
 | 7 | −2 | ≈ 0.135 | $`100 / 1.135 \approx 88.1`$ |
 | 10 | −5 | ≈ 0.0067 | $`100 / 1.0067 \approx 99.3`$ |
 
-Tablo eğrinin hikâyesini anlatır: Başta neredeyse sıfır, orta noktada ($t = m$) tam olarak üst sınırın yarısı (50), sonra 100'e yaklaşır ama onu hiç aşmaz. Prophet'ta bu seçenek `Prophet(growth='logistic')` ile kullanılır; üst sınırı gösteren bir `cap` sütununun hem eğitim veri çerçevesine hem de `make_future_dataframe()` ile üretilen gelecek tablosuna eklenmesi gerekir (ör. `future['cap'] = 100`). Gelecek tablosunda `cap` sütunu yoksa `predict()` hata verir. Lojistik trendde de büyüme hızı $k$ değişim noktalarında ayarlanabilir.
+Tablo eğrinin hikâyesini anlatır: Başta neredeyse sıfır, orta noktada ($t = m$) tam olarak üst sınırın yarısı (50), sonra 100'e yaklaşır ama onu hiç aşmaz. Prophet'ta bu seçenek `Prophet(growth='logistic')` ile kullanılır; üst sınırı gösteren bir `cap` sütununun hem eğitim veri çerçevesine hem de `make_future_dataframe()` ile üretilen gelecek tablosuna eklenmesi gerekir (ör. `future['cap'] = 100`). Gelecek tablosunda `cap` sütunu yoksa `predict()` hata verir. Lojistik trendde de büyüme hızı $k$ değişim noktalarında ayarlanabilir. İstenirse alt sınır için bir `floor` sütunu da verilebilir.
+
+`AirPassengers` için varsayımsal bir 700 bin yolcu sınırıyla (ör. havalimanı kapasitesi) kısa bir örnek:
+
+```python
+import pandas as pd
+from prophet import Prophet
+import logging; logging.getLogger("cmdstanpy").disabled = True
+
+df = pd.read_csv('data/AirPassengers.csv')
+df.columns = ['ds', 'y']
+df['ds'] = pd.to_datetime(df['ds'])
+df['cap'] = 700                                   # üst sınır, eğitim tablosunda
+m = Prophet(growth='logistic', seasonality_mode='multiplicative', daily_seasonality=False)
+m.fit(df)
+future = m.make_future_dataframe(periods=240, freq='MS')   # 20 yıl ileri (1980 sonuna kadar)
+future['cap'] = 700                               # ... ve gelecek tablosunda
+fc = m.predict(future).set_index('ds')
+print(fc['trend'].iloc[[0, 143, 263, 383]].round(1))
+print("en büyük yhat:", round(fc['yhat'].max(), 1))
+```
+
+Çıktı (depo kök dizininden çalıştırıldığında):
+
+```text
+ds
+1949-01-01    113.7
+1960-12-01    481.7
+1970-12-01    664.5
+1980-12-01    695.6
+Name: trend, dtype: float64
+en büyük yhat: 879.7
+```
+
+Trend 1960'tan sonra yavaşlar ve 700'e yaklaşır ama onu aşmaz. Buna karşılık `yhat` 879.7'ye çıkar: Sınır yalnızca trende uygulanır, çarpımsal mevsim etkisi yaz aylarında tahmini sınırın üstüne taşıyabilir. `cap` sütunu eğitim tablosunda unutulursa `fit()`, gelecek tablosunda unutulursa `predict()` aynı hatayı verir: `ValueError: Capacities must be supplied for logistic growth in column "cap"`.
 
 > **Hemen deneyin 9.1.1 · Lojistik eğriyi Excel'de çizin** (Excel / LibreOffice Calc, ~4 dk)
 >
@@ -170,7 +214,7 @@ Bölüm 2.3'teki ayrımı hatırlayalım: Prophet'ın $s(t)$ bileşeni sabit ve 
 
 #### 9.1.3. Tatil ve Özel Gün Etkileri: h(t)
 
-Bayramlar, Kara Cuma, okul tatilleri veya kampanya günleri gibi olaylar her yıl aynı takvim gününe denk gelmeyebilir (ör. Ramazan Bayramı her yıl yaklaşık 11 gün öne kayar). Bu yüzden periyodu sabit olan Fourier serisiyle yakalanamazlar. Prophet bu günleri kullanıcıdan bir liste olarak alır ve her olay için ayrı bir etki katsayısı öğrenir:
+Bayramlar, Kara Cuma, okul tatilleri veya kampanya günleri gibi olaylar her yıl aynı takvim gününe denk gelmeyebilir (ör. Ramazan Bayramı her yıl yaklaşık 11 gün öne kayar). Bu yüzden periyodu sabit olan Fourier serisiyle yakalanamazlar. Her yıl aynı güne düşen yılbaşı gibi olaylar bile tek günlük ani bir sıçrama yaratır; yavaş salınan birkaç dalga böyle dar bir sıçramayı temsil edemez. Prophet bu günleri kullanıcıdan bir liste olarak alır ve her olay için ayrı bir etki katsayısı öğrenir:
 
 ```math
 h(t) = \underbrace{\sum_{i=1}^{L}}_{L\text{ olayı topla}} \underbrace{\kappa_i}_{\substack{i\text{'inci olayın}\\\text{etkisi}}} \cdot \underbrace{\mathbf{1}\big[t \in D_i\big]}_{\substack{t\text{ o olayın gününde mi?}\\\text{evet: 1, hayır: 0}}}
@@ -559,13 +603,34 @@ m.fit(df)                                    # df: 1949-1960, 144 ay
 df_cv = cross_validation(m, initial='2922 days', period='365 days', horizon='365 days')
 print(df_cv.groupby('cutoff').size())        # her kesim noktası için 12 test ayı
 print(performance_metrics(df_cv, rolling_window=1)[['mae', 'rmse', 'mape']])
+mae_yil = (df_cv['y'] - df_cv['yhat']).abs().groupby(df_cv['cutoff']).mean()
+print(mae_yil.round(2))                      # her test yılının MAE'si
 ```
 
 - `horizon='365 days'`: Her turda kesim noktasından (*cutoff*) sonraki bir yıl tahmin edilir. Süreler pandas `Timedelta` biçiminde verilir; "ay" ve "yıl" birimi kabul edilmediği için aylık veride de gün cinsinden yazılır.
 - `period='365 days'`: Kesim noktası her turda bir yıl kaydırılır.
 - `initial='2922 days'` (8 yıl): İlk turdaki eğitim dönemi en az bu kadar uzun olur.
 
-Prophet kesim noktalarını serinin sonundan geriye doğru yerleştirir. Bu ayarlarla üç tur oluşur: 108 ayla eğitilip 1958'i, 120 ayla eğitilip 1959'u ve 132 ayla eğitilip 1960'ı tahmin eden modeller. Son tur, 9.3'teki değerlendirmenin aynısıdır. Her turda model yalnızca kesim noktasına kadarki veriyle yeniden eğitilir. `performance_metrics(..., rolling_window=1)` üç turun bütün test aylarını tek satırda özetler; `rolling_window` verilmezse metrikler ufkun her uzunluğu için ayrı satırlarda raporlanır. (Bu kodun çıktısı burada verilmemiştir; kendi bilgisayarınızda çalıştırıp üç yılın hatalarını 9.3'teki tek yıllık sonuçla karşılaştırın.)
+Prophet kesim noktalarını serinin sonundan geriye doğru yerleştirir. Bu ayarlarla üç tur oluşur: 108 ayla eğitilip 1958'i, 120 ayla eğitilip 1959'u ve 132 ayla eğitilip 1960'ı tahmin eden modeller. Son tur, 9.3'teki değerlendirmenin aynısıdır. Her turda model yalnızca kesim noktasına kadarki veriyle yeniden eğitilir. `performance_metrics(..., rolling_window=1)` üç turun bütün test aylarını tek satırda özetler; `rolling_window` verilmezse metrikler ufkun her uzunluğu için ayrı satırlarda raporlanır. Son satır, `df_cv` tablosundaki gerçek (`y`) ve tahmin (`yhat`) sütunlarından her kesim noktasının MAE'sini ayrı ayrı hesaplar.
+
+Çıktı (Prophet 1.5; ilerleme çubuğu ve bilgi satırları hariç):
+
+```text
+cutoff
+1957-12-02    12
+1958-12-02    12
+1959-12-02    12
+dtype: int64
+         mae       rmse      mape
+0  23.627236  27.716889  0.057455
+cutoff
+1957-12-02    32.58
+1958-12-02    16.43
+1959-12-02    21.87
+dtype: float64
+```
+
+Kesim noktaları ayın 2'sine düşer (serinin son tarihi olan 1960-12-01'den 365 gün geri), ama her turun test dönemi tam bir takvim yılıdır. Son turun MAE'si (21.87), 9.3'teki çarpımsal modelinkiyle aynıdır. Üç yıl birbirinden belirgin biçimde farklıdır: 1958'de 32.58, 1959'da 16.43. Üç yılın ortalaması MAE ≈ 23.6, RMSE ≈ 27.7'dir; yani 1960 sonucu modelin tipik başarısını biraz iyimser gösterir. **Dikkat:** `performance_metrics()` `mape` sütununu yüzde olarak değil **oran** olarak verir: 0.0575, %5.75 demektir (9.3'teki tablo ise yüzdeyle yazılmıştı).
 
 > **Hemen deneyin 9.3a · 1960'ın gerçek değerleri %80'lik bandın içinde mi?** (Python, ~4 dk)
 >

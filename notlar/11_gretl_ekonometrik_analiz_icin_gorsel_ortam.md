@@ -125,6 +125,8 @@ Bu aşamadan sonra grafiklerde tarih ekseni doğru görünür, mevsimsel fark gi
 
 ### 11.3. Keşifsel Analiz ve Modelleme
 
+**Not —** Bu bölümün anlatımı `data/AirPassengers.csv` dosyasındaki `Passengers` değişkeniyle, "Hemen deneyin" kutuları ise Gretl'in `bjg` örnek dosyasıyla yapılır. İkisi aynı seridir: `Passengers` = bjg'deki `g`; türetilen değişkenler de buna göre adlanır (`l_Passengers` = `l_g`, `d_Passengers` = `d_g`, `sd_Passengers` = `sd_g`).
+
 #### 11.3.1. Grafikler, Özet İstatistikler ve Dönüşümler
 
 *   **View → Graph specified vars → Time series plot…** ile seçilen değişkenlerin zaman grafiği çizilir (ya da değişkene sağ tıklayıp **Time series plot**).
@@ -465,7 +467,7 @@ Bu betik çalıştırıldığında Gretl önce gecikme seçim tablosunu, ardınd
 
 IRF grafiklerini ve ters kök grafiğini görmek için betik çalıştıktan sonra model penceresindeki **Graphs** menüsü kullanılabilir.
 
-**Not —** Bölüm 10'daki Python uygulamasında olduğu gibi, VAR'a girmeden önce serilerin durağanlığı ADF/KPSS ile kontrol edilmeli (Bölüm 11.4), gerekirse **Add → First differences of selected variables** ile farkları alınmalıdır. Betikte bunu denemek için `var` satırlarından önce `diff inflation interest exchange` yazıp modeli `d_inflation d_interest d_exchange` değişkenleriyle kurabilirsiniz. Seriler I(1) ise farka geçmeden önce aralarında eşbütünleşme olup olmadığı da sınanmalıdır (Bölüm 10.3.3): **Model → Multivariate time series → Cointegration test (Johansen)** menüsü ya da `coint2 2 inflation interest exchange` komutu Johansen testini yapar. Bu veride "eşbütünleşme yok" hipotezi reddedilir (rank 0 için trace testi p = 0.0064, rank 1 için p = 0.22): bir eşbütünleşme ilişkisi vardır ve farklarla kurulan VAR yerine VECM uygundur (Bölüm 10.9'daki Not).
+**Not —** Bölüm 10'daki Python uygulamasında olduğu gibi, VAR'a girmeden önce serilerin durağanlığı ADF/KPSS ile kontrol edilmeli (Bölüm 11.4), gerekirse **Add → First differences of selected variables** ile farkları alınmalıdır. Betikte bunu denemek için `var` satırlarından önce `diff inflation interest exchange` yazıp modeli `d_inflation d_interest d_exchange` değişkenleriyle kurabilirsiniz. Seriler I(1) ise farka geçmeden önce aralarında eşbütünleşme olup olmadığı da sınanmalıdır (Bölüm 10.3.3): **Model → Multivariate time series → Cointegration test (Johansen)** menüsü ya da `coint2 2 inflation interest exchange` komutu Johansen testini yapar. Bu veride "eşbütünleşme yok" hipotezi reddedilir (rank 0 için trace testi p = 0.0064, rank 1 için p = 0.22): bir eşbütünleşme ilişkisi vardır ve farklarla kurulan VAR yerine VECM uygundur (Bölüm 10.9'un sonundaki VECM örneği).
 
 Durağanlık kontrolünün ve stabilitenin Gretl'deki karşılığı şöyle yazılabilir:
 

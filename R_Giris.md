@@ -32,7 +32,7 @@ print("Merhaba")
 #> [1] "Merhaba"
 ```
 
-`#` işaretinden sonra gelen metin **yorumdur** (*comment*). Yorumlar kodun ne yaptığını açıklamak için yazılır; birkaç ay sonra kodu yeniden okuyan kişi için büyük kolaylık sağlar. Ders notlarında `#>` ile başlayan satırlar ise R'ın ekrana yazdığı çıktıyı gösterir; konsola yazılmaz.
+`#` işaretinden sonra gelen metin **yorumdur** (*comment*). Yorumlar kodun ne yaptığını açıklamak için yazılır; birkaç ay sonra kodu yeniden okuyan kişi için büyük kolaylık sağlar. Ders notlarında `#>` ile başlayan satırlar ise R'ın ekrana yazdığı çıktıyı gösterir; konsola yazılmaz. Çıktının başındaki `[1]` bir sıra numarasıdır: satırın, sonucun 1. elemanıyla başladığını gösterir. Sonuç bir satıra sığmazsa alt satırlar, o satırdaki ilk elemanın sırasıyla (`[26]` gibi) başlar (bkz. A.5.1).
 
 ### A.3. Değişken Atama
 
@@ -133,6 +133,20 @@ isimler   <- c("Ali", "Ayşe", "Mehmet")
 mantiksal <- c(TRUE, FALSE, TRUE, TRUE)
 ```
 
+Düzenli sayı dizileri için `:` işleci ve `seq()` (*sequence*, dizi) fonksiyonu kullanılır:
+
+```r
+1:5                  # 1'den 5'e kadar tam sayılar
+#> [1] 1 2 3 4 5
+seq(1, 10, by = 2)   # 1'den başla, 2'şer artır, 10'u geçme
+#> [1] 1 3 5 7 9
+1:30                 # sonuç bir satıra sığmazsa
+#>  [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+#> [26] 26 27 28 29 30
+```
+
+Son çıktıdaki `[26]`, ikinci satırın vektörün 26. elemanıyla başladığını gösterir (A.2).
+
 Vektör işlemleri eleman eleman yapılır (*vektörel işlem*); döngü yazmaya gerek kalmaz:
 
 ```r
@@ -184,16 +198,23 @@ Sütun ve satır seçimi:
 ogrenciler$not                    # sütun adıyla (en yaygın yol)
 #> [1] 85 92 78 88
 ogrenciler[, "not"]               # [satır, sütun] biçiminde, sütun adıyla
+#> [1] 85 92 78 88
 ogrenciler[, 3]                   # aynı sütun, sıra numarasıyla
+#> [1] 85 92 78 88
 ogrenciler[1, ]                   # ilk satır
+#>    ad yas not gecti
+#> 1 Ali  20  85  TRUE
 ogrenciler[1:2, c("ad", "not")]   # ilk iki satırın iki sütunu
+#>     ad not
+#> 1  Ali  85
+#> 2 Ayşe  92
 ogrenciler[ogrenciler$not > 85, ] # koşula göre süzme
 #>      ad yas not gecti
 #> 2  Ayşe  22  92  TRUE
 #> 4 Fatma  23  88  TRUE
 ```
 
-Köşeli parantez içinde virgülün solu satırları, sağı sütunları seçer; boş bırakılan taraf "hepsi" anlamına gelir.
+Köşeli parantez içinde virgülün solu satırları, sağı sütunları seçer; boş bırakılan taraf "hepsi" anlamına gelir. Sonucun türü seçime bağlıdır: tek bir sütun seçilirse sonuç bir vektördür (çıktı `[1]` ile başlar), satır seçilirse sonuç yine bir veri çerçevesidir (satır numaraları ve sütun adlarıyla yazılır). `class(ogrenciler[, "not"])` bunun için `"numeric"`, `class(ogrenciler[1, ])` ise `"data.frame"` verir.
 
 Aylık bir satış tablosunda hedefi aşan aylar ve hedeften sapma oranı şöyle bulunur:
 
@@ -254,6 +275,8 @@ head(ap, 3)
 #> 2 1949-02        118
 #> 3 1949-03        132
 ```
+
+`"data/AirPassengers.csv"` göreli bir yoldur: R dosyayı *çalışma dizinine* (o an içinde çalışılan klasöre) göre arar. Çalışma dizini `getwd()` ile görülür. Depo kök dizini değilse `cannot open file 'data/AirPassengers.csv': No such file or directory` uyarısı ve `cannot open the connection` hatası alınır. Bu durumda RStudio'da **Session → Set Working Directory → Choose Directory…** ile ya da `setwd()` ile depo kök dizinine geçilir.
 
 R 4.0'dan beri `read.csv()` metin sütunlarını karakter (`chr`) olarak okur. Daha eski sürümlerde metinler varsayılan olarak faktöre (`factor`) çevrildiği için eski kaynaklarda `stringsAsFactors = FALSE` argümanı sıkça görülür; güncel sürümlerde bu argüman gerekmez.
 

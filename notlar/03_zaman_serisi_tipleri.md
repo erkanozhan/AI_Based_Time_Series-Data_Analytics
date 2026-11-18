@@ -143,7 +143,7 @@ Tanımda üç istatistiksel kavram kullanılır. Üçünü de basit örneklerle 
 
 - **Beklenen değer** $E[x_t]$, bir rastgele büyüklüğün "uzun vadede ortalaması"dır. Hilesiz bir zarın beklenen değeri $(1 + 2 + 3 + 4 + 5 + 6)/6 = 3.5$'tir. Tek bir atışta 3.5 gelmez ama çok sayıda atışın ortalaması 3.5'e yaklaşır. Durağan bir seride bu kuramsal ortalama ($\mu$, "mü") her $t$ için aynıdır.
 - **Varyans** $\mathrm{Var}(x_t)$, değerlerin ortalama etrafındaki yayılımıdır (hesabı Bölüm 2.2'de). Değeri $\sigma^2$ ile gösterilir.
-- **Kovaryans** $\mathrm{Cov}(x_t, x_{t+h})$, iki değerin birlikte hareket etme eğilimidir. Hesabı varyansa benzer: Her çiftte iki değerin kendi ortalamasından farkları **çarpılır** ve bu çarpımların ortalaması alınır. Örneğin bir yukarı bir aşağı giden 4, 6, 4, 6, 4 serisinde ardışık çiftler ($h = 1$) şunlardır: (4, 6), (6, 4), (4, 6), (6, 4). Her iki konumun ortalaması 5'tir. Her çiftte farklar zıt işaretlidir, örneğin $(4-5)(6-5) = (-1)(+1) = -1$. Dört çarpımın hepsi $-1$ olduğu için kovaryans $-1$ çıkar. Negatif kovaryans, "bugün yüksekse yarın düşük" düzenini yakalamıştır. Değerler birlikte yükselip birlikte düşseydi çarpımlar pozitif, kovaryans pozitif olurdu.
+- **Kovaryans** $\mathrm{Cov}(x_t, x_{t+h})$, iki değerin birlikte hareket etme eğilimidir. Hesabı varyansa benzer: Her çiftte iki değerin kendi ortalamasından farkları **çarpılır** ve bu çarpımların ortalaması alınır. Örneğin bir yukarı bir aşağı giden 4, 6, 4, 6, 4 serisinde ardışık çiftler ($h = 1$) şunlardır: (4, 6), (6, 4), (4, 6), (6, 4). Çiftlerin birinci elemanlarının (4, 6, 4, 6) ve ikinci elemanlarının (6, 4, 6, 4) ortalaması 5'tir. Her çiftte farklar zıt işaretlidir, örneğin $(4-5)(6-5) = (-1)(+1) = -1$. Dört çarpımın hepsi $-1$ olduğu için toplamları $-4$, ortalamaları, yani kovaryans, $-4/4 = -1$ çıkar. Negatif kovaryans, "bugün yüksekse yarın düşük" düzenini yakalamıştır. Değerler birlikte yükselip birlikte düşseydi çarpımlar pozitif, kovaryans pozitif olurdu.
 
 **Tanım 1 (zayıf / kovaryans durağanlığı):** Bir $\lbrace x_t\rbrace$ süreci aşağıdaki üç koşulu sağlıyorsa *zayıf durağandır*:
 
@@ -349,7 +349,9 @@ Adın kaynağı da buradadır: Matematikte 1 sayısına **birim** denir. $\phi =
 
 *Şekil 3.6 — Üst sayı doğrusu katsayıyı ($`\phi`$), alttaki kökü ($`z = 1/\phi`$) gösterir. Katsayı −1 ile 1 arasındaysa (yeşil bölge) kök bu aralığın dışına düşer ve seri durağandır. $`\phi = 1`$ iken kök tam sınırdadır (birim kök). Sağda, karmaşık sayılarda aynı sınırın bir çember olduğu gösterilir: birim çember.*
 
-Bu kural kaynaklarda çoğu zaman "**kökler birim çemberin dışında olmalıdır**" diye yazılır. Gerçel sayılarla çalışırken bu cümle Şekil 3.6'daki sayı doğrusu üzerinde okunabilir: Sıfıra uzaklığı tam 1 olan yalnızca iki nokta vardır, −1 ve +1. "Birim çemberin içi" −1 ile 1 arasındaki aralık, "dışı" bu aralığın ötesidir. *Yan not:* Daha uzun modellerde kökler karmaşık sayı çıkabilir (örneğin $1.2 + 0.9i$ gibi, gerçel ve sanal kısmı olan sayılar). Karmaşık sayılar bir doğruya değil bir düzleme yerleştirilir. O düzlemde sıfıra uzaklığı 1 olan noktalar bir çember oluşturur: **birim çember**. Kural aynıdır; örnekteki kökün sıfıra uzaklığı $\sqrt{1.2^2 + 0.9^2} = \sqrt{2.25} = 1.5 > 1$ olduğu için durağanlık koşulunu sağlar.
+Bu kural kaynaklarda çoğu zaman "**kökler birim çemberin dışında olmalıdır**" diye yazılır. Gerçel sayılarla çalışırken bu cümle Şekil 3.6'daki sayı doğrusu üzerinde okunabilir: Sıfıra uzaklığı tam 1 olan yalnızca iki nokta vardır, −1 ve +1. "Birim çemberin içi" −1 ile 1 arasındaki aralık, "dışı" bu aralığın ötesidir.
+
+> **Yan not — karmaşık kökler:** Daha uzun modellerde kökler karmaşık sayı çıkabilir (örneğin $`1.2 + 0.9i`$ gibi, gerçel ve sanal kısmı olan sayılar). Karmaşık sayılar bir doğruya değil bir düzleme yerleştirilir. O düzlemde sıfıra uzaklığı 1 olan noktalar bir çember oluşturur: **birim çember**. Kural aynıdır; örnekteki kökün sıfıra uzaklığı $`\sqrt{1.2^2 + 0.9^2} = \sqrt{2.25} = 1.5 > 1`$ olduğu için durağanlık koşulunu sağlar.
 
 VAR bölümünde (10.5) aynı koşul katsayılar üzerinden yazılır: "öz değerler birim çemberin içinde". Kök katsayının tersi olduğu için bu, "kökler dışarıda" cümlesiyle aynı şeydir.
 
@@ -555,13 +557,13 @@ Beyaz gürültüde (−5.64, p = 0.01) ve farkı alınmış seride (−6.09, p =
 >
 > Menüden yapmak isterseniz: **File → Open data → Sample file…** → **Gretl** sekmesi → `djclose`; değişkeni seçip **Variable → Unit root tests → Augmented Dickey-Fuller test**. Pencerede gecikme sayısını 10 yapın, "test down" seçeneğini ve yalnızca "with constant" kutusunu işaretleyin; başka seçeneklerle sayılar biraz farklı çıkar.
 >
-> **Ne göreceksiniz:** Fiyat serisi için `test statistic: tau_c(1) = 0.185532`, `asymptotic p-value 0.9718`: Birim kök reddedilemez. Getiri serisi için `tau_c(1) = -22.7267`, `asymptotic p-value 4.301e-51` (yani neredeyse sıfır): Birim kök açıkça reddedilir, getiri durağandır. Bu, Bölüm 3.5'teki tablonun "hisse fiyatı durağan değil, getirisi yaklaşık durağan" satırının ve "Kendinizi test edin" 3. sorunun uygulamadaki karşılığıdır. Gretl'de `L`, metindeki $`B`$ operatörüdür; `(1-L)y` birinci farktır.
+> **Ne göreceksiniz:** Fiyat serisi için `test statistic: tau_c(1) = 0.185532`, `asymptotic p-value 0.9718`: Birim kök reddedilemez. Getiri serisi için `tau_c(1) = -22.7267`, `asymptotic p-value 4.301e-51` (yani neredeyse sıfır): Birim kök açıkça reddedilir, getiri durağandır. Bu, Bölüm 3.5'teki tablonun "hisse fiyatı durağan değil, getirisi yaklaşık durağan" satırının ve "Kendinizi test edin" 3. sorunun uygulamadaki karşılığıdır. Gretl'de `L`, metindeki $`B`$ operatörüdür; `(1-L)y` birinci farktır. Çıktıdaki `unit-root null hypothesis: a = 1` satırında `a`, metindeki $`\phi`$'dir; `estimated value of (a - 1)` ise 3.2.5'teki $`(\phi - 1)`$ katsayısının kestirimidir (fiyat serisinde 0.000127, getiride −1.04414).
 >
 > **Şimdi siz:** `summary` çıktısında getirinin en küçük değeri kaçtır? Hangi güne ait olabilir? (İpucu: 1987 sonbaharı.)
 >
 > <details><summary>Cevap</summary>
 >
-> `Minimum -25.6320`: Endeks tek günde yaklaşık %25.6 (log ölçeğinde) düşmüştür. Bu 19 Ekim 1987, "Kara Pazartesi"dir; betiğe `smpl getiri < -20 --restrict` ve `print getiri --byobs` eklerseniz `1987-10-19 -25.63196` satırını görürsünüz. Böyle bir gözlem 1.3'teki **anomali** kavramının örneğidir.
+> `Minimum -25.6320`: Log getiri tek günde −25.6'dır; bu, endeksin yaklaşık %22.6 düşmesine karşılık gelir ($e^{-0.256} \approx 0.774$). Bu 19 Ekim 1987, "Kara Pazartesi"dir; betiğe `smpl getiri < -20 --restrict` ve `print getiri --byobs` eklerseniz `1987-10-19 -25.63196` satırını görürsünüz. Böyle bir gözlem 1.3'teki **anomali** kavramının örneğidir.
 >
 > </details>
 
@@ -690,7 +692,7 @@ Büyük harf $X_t$ ile küçük harf $x_t$ arasındaki fark, zar ile zarın gös
 
 **Önemli kavram — gerçekleşme (realization):** Elimizdeki gözlenmiş seri (ör. 1949–1960 yolcu sayıları), olası sonsuz sayıda yoldan **yalnızca biridir**. Tarihi geri sarıp yeniden oynatabilseydik, biraz farklı bir seri görecektik. Bu bakış açısı iki önemli sonuç doğurur:
 
-1. Tahminler her zaman **belirsizlik** içerir. Bu nedenle `forecast()` çıktılarında %80 ve %95'lik **tahmin aralıkları** görürüz.
+1. Tahminler her zaman **belirsizlik** içerir. Bu nedenle `forecast` paketinin `forecast()` fonksiyonunun çıktılarında (Bölüm 7.6.7) %80 ve %95'lik **tahmin aralıkları** görürüz.
 2. Sürecin özelliklerini (ortalama, varyans, ACF) **tek bir gerçekleşmeden** tahmin etmek zorundayız. Bu ancak süreç durağan (ve ergodik) ise mümkündür. **Ergodik** süreçte, tek bir uzun gerçekleşmenin zaman içindeki ortalaması, sürecin kuramsal ortalamasına yaklaşır: Bir zarı 1000 kez atıp ortalamayı almak, 1000 zarı birer kez atmakla aynı bilgiyi verir. İşte durağanlığın bu kadar önemli olmasının asıl nedeni budur. Durağan olmayan bir seride ise ortalama (trendli seride) ya da yayılım (rastgele yürüyüşte) dönemden döneme değiştiği için geçmişten hesaplanan ortalama ve varyans geleceği temsil etmez.
 
 > **Gerçek dünyada** serilerin neredeyse tamamı stokastiktir. Deterministik bileşenler (trend, mevsimsellik) genellikle stokastik bir gürültüyle birlikte bulunur. Bölüm 2.2'deki $`x_t = T_t + S_t + C_t + I_t`$ ayrıştırması tam olarak bu fikre dayanır: $`T_t`$ ve $`S_t`$ büyük ölçüde sistematik, $`I_t`$ ise stokastik kısımdır.
@@ -730,11 +732,18 @@ Büyük harf $X_t$ ile küçük harf $x_t$ arasındaki fark, zar ile zarın gös
 >
 > **Ne göreceksiniz:** `[1] 3` ve `[1] 3.514`. On atışın ortalaması kuramsal değerden (3.5) belirgin biçimde uzaktır; tek bir uzun "gerçekleşmenin" zaman ortalaması ise 3.5'e çok yakındır. Durağan ve ergodik bir süreçte tek bir uzun seriden ortalama öğrenebilmemizin nedeni budur.
 >
-> **Şimdi siz:** İlk 100 atışın ortalaması 3.5'e 10 atışınkinden daha mı yakın olur? Tahmin edip `mean(atislar[1:100])` ile kontrol edin.
+> **Şimdi siz:** (1) İlk 100 atışın ortalaması 3.5'e 10 atışınkinden daha mı yakın olur? Tahmin edip `mean(atislar[1:100])` ile kontrol edin. (2) Aynı karşılaştırmayı durağan olmayan bir seriyle yapalım. Kuramsal ortalaması 0 olan 1000 günlük bir rastgele yürüyüş üç farklı tohumla üretilip her birinin zaman ortalaması alınır; karşılaştırma için aynı tohumlarla beyaz gürültünün ortalamaları da hesaplanır:
+>
+> ```r
+> for (s in 1:3) { set.seed(s); print(mean(cumsum(rnorm(1000)))) }   # rastgele yürüyüş
+> for (s in 1:3) { set.seed(s); print(mean(rnorm(1000))) }           # beyaz gürültü
+> ```
+>
+> Zaman ortalamaları 0'a yakın mı çıkar?
 >
 > <details><summary>Cevap</summary>
 >
-> `[1] 3.52`: 10 atıştaki 3'ten çok daha yakındır. Gözlem sayısı arttıkça zaman ortalaması kuramsal ortalamaya yaklaşır.
+> (1) `[1] 3.52`: 10 atıştaki 3'ten çok daha yakındır. Gözlem sayısı arttıkça zaman ortalaması kuramsal ortalamaya yaklaşır. (2) Rastgele yürüyüşte `2.000265`, `36.93651` ve `5.848899`; beyaz gürültüde `-0.01164814`, `0.06199874` ve `0.006396535` çıkar. Beyaz gürültüde her gerçekleşmenin zaman ortalaması 0'a çok yakındır. Rastgele yürüyüşte ise 1000 gözleme rağmen ortalamalar 0'dan uzaktır ve gerçekleşmeden gerçekleşmeye çok değişir: Durağan olmayan bir seride tek bir gerçekleşmeden hesaplanan ortalama, sürecin ortalamasını temsil etmez.
 >
 > </details>
 

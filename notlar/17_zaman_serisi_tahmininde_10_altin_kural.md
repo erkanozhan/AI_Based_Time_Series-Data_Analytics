@@ -204,7 +204,7 @@ Prophet'ta tatil etkileri Bölüm 9'da, gecikme ve takvim özellikleriyle özell
 Zaman serilerinde veri sızıntısı sinsi olabilir. Model eğitilirken tahmin anında bilinemeyecek bir gelecek bilgisi kullanılırsa, model doğrulama ve testte çok başarılı görünür ama üretimde (production) başarısız olur.
 
 - *Örnek:* Ocak 2024'ün günlük satışlarını tahmin etmek için Ocak 2024'ün "aylık ortalama sıcaklığını" kullanmak. (Ay bitene kadar aylık ortalamayı bilemezsiniz!)
-- *Diğer sık hatalar:* Ölçekleyiciyi tüm veriyle uydurmak (Bölüm 12.1.4, 15.1.1 ve 16.4), hareketli ortalamayı `shift(1)` olmadan hesaplamak, sıradan K-katlı çapraz doğrulama (*K-fold*) kullanmak (Bölüm 16.1).
+- *Diğer sık hatalar:* Ölçekleyiciyi tüm veriyle uydurmak (Bölüm 12.1.4, 15.1.1 ve 16.4), hareketli ortalamayı `shift(1)` olmadan hesaplamak, sıradan K-katlı çapraz doğrulama (*K-fold*) kullanmak (Bölüm 16.1; `cv=5` gibi bir tamsayı da karıştırmasız K-fold demektir, 16.4b), erken durdurma ya da hiperparametre seçiminde hatası raporlanan doğrulama dönemini kullanmak (Bölüm 16.4'teki Not, Hemen deneyin 16.5c).
 
 `shift(1)` unutulursa hareketli ortalama tahmin edilen değeri içerir (sayısal örnek 12.1.5'te).
 
@@ -305,6 +305,7 @@ Yalnızca R² (Bölüm 10.3.3) değerine güvenmeyin. Trendli serilerde bu ölç
 - **RMSE:** Büyük hataları ağır cezalandırır (büyük sapmaların kritik olduğu tahminler için iyidir).
 - **MAE:** Yorumlaması daha kolaydır (hataların ortalama büyüklüğü, serinin kendi biriminde).
 - **MAPE:** Yüzdelik olduğu için farklı ölçekteki serileri karşılaştırmaya uygundur, ancak gerçek değerler sıfır ya da sıfıra çok yakınsa kullanılamaz.
+- **MASE:** Modelin test MAE'sini mevsimsel naive yöntemin eğitimdeki ortalama hatasına böler; böylece 17.3'teki referans kıyası metriğin içine yerleşir. 1'den küçük olması, modelin hatasının naive yöntemin eğitimdeki tipik hatasından küçük olduğunu gösterir; testte naive'i yendiği anlamına gelmez (Bölüm 8.2.5).
 
 *Sayısal örnek:* Beş günün mutlak hataları 1, 1, 1, 1 ve 10 ise MAE $= 14 / 5 = 2.8$, RMSE $= \sqrt{104 / 5} \approx 4.56$ olur: Tek bir büyük hata RMSE'yi MAE'nin 1.6 katına çıkarır. Büyük hatalar sizin için özellikle pahalıysa (ör. hastane yatak planlaması) RMSE'ye bakmak bu yüzden anlamlıdır. MAPE'nin sıfıra yakın değerlerde nasıl patladığı Bölüm 8.2.3'te sayılarla gösterilmiştir.
 
@@ -350,7 +351,7 @@ Her problem için en yeni Transformer veya derin öğrenme modelini kullanma eğ
 
 - Basit başlayın; karmaşıklığı ancak basit modeller yetersiz kaldığında artırın.
 
-Bu dersin kendi sonuçları da bunu gösterir: Bölüm 15.5'teki karşılaştırmada yalnızca birkaç parametresi olan ARIMA modeli, 60 ay ileriye tahmin gibi çok daha zor bir görevde bile, her ay gerçek geçmişi gören 10 binden fazla parametreli LSTM ile aynı düzeyde hata verdi. Aynı GRU mimarisi tohum değiştiğinde 47 ile 184 arasında değişen hatalar üretti; 1D-CNN'de iki evrişim katmanının arkasına birer `BatchNormalization` katmanı eklemek ise test hatasını 32'den 248'e çıkardı. Karmaşık model daha fazla veri, daha fazla ayar ve daha fazla denetim ister; bunlar yoksa üstünlüğü kâğıt üzerinde kalır.
+Bu dersin kendi sonuçları da bunu gösterir: Bölüm 15.5'teki karşılaştırmada yalnızca birkaç parametresi olan ARIMA modeli, 60 ay ileriye tahmin gibi çok daha zor bir görevde bile, her ay gerçek geçmişi gören 10 binden fazla parametreli LSTM ile aynı düzeyde hata verdi. Aynı GRU mimarisi tohum değiştiğinde 47 ile 184 arasında değişen hatalar üretti; 1D-CNN'de iki evrişim katmanının arkasına birer `BatchNormalization` katmanı eklemek ise test hatasını 32'den 248'e çıkardı. Bölüm 16.5'te beş ayrı test yılında da GRU ile XGBoost berabere kaldı; 1958'de ikisini de hiçbir şey öğrenmeyen mevsimsel naive yendi. Karmaşık model daha fazla veri, daha fazla ayar ve daha fazla denetim ister; bunlar yoksa üstünlüğü kâğıt üzerinde kalır.
 
 Klasik, makine öğrenmesi ve derin öğrenme yaklaşımlarının karşılaştırması Bölüm 12.3'te, derin öğrenme modellerinin karşılaştırmalı uygulaması Bölüm 15'te yer almaktadır.
 

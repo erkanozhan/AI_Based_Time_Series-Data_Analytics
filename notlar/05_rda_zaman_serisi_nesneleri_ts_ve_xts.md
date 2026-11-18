@@ -133,7 +133,7 @@ Bu kod, on iki aylık satış değerini zaman bilgisi taşıyan bir `ts` nesnesi
 Çıktıları sırayla okuyalım:
 
 - `print()` çıktısında üst satır sütun başlıklarıdır (aylar), soldaki `2024` satır başlığıdır (yıl); tablonun içi değerlerdir.
-- `[1] 2024    1`: Baştaki `[1]`, satırın vektörün 1. elemanıyla başladığını gösteren sıra numarasıdır (Hemen deneyin 1.1a). `2024 1` Ocak 2024 demektir; sayılar arasındaki fazla boşluklar yalnızca hizalama içindir. `[1] 2024   12` aynı biçimde Aralık 2024'tür. `[1] 12` frekanstır.
+- `[1] 2024    1`: Baştaki `[1]`, satırın vektörün 1. elemanıyla başladığını gösteren sıra numarasıdır (Ek A.2). `2024 1` Ocak 2024 demektir; sayılar arasındaki fazla boşluklar yalnızca hizalama içindir. `[1] 2024   12` aynı biçimde Aralık 2024'tür. `[1] 12` frekanstır.
 - `[1] 2024.000 2024.917   12.000`: Başlangıç (2024.000, yani Ocak 2024), bitiş ve frekans. `2024.917` değeri, Aralık 2024'ün ondalıklı yıl karşılığıdır ($`2024 + 11/12`$). R aynı vektördeki sayıları aynı ondalık basamak sayısıyla yazdığı için frekans da `12.000` görünür; değeri 12'dir.
 - `cycle()` çıktısı, `print()` tablosuyla aynı düzendedir; yalnızca değerlerin yerinde ay numaraları (1–12) vardır.
 - `tapply()` çıktısında `[1]` yoktur, çünkü sonuç **adlandırılmış** bir vektördür (teknik olarak tek boyutlu bir dizi, `array`): üst satır grup adlarını (ay numaraları 1–12), alt satır her grubun ortalamasını gösterir.
@@ -625,6 +625,18 @@ Bu kod, günlük `xts` verisini daha kaba dönemlere özetler: önce haftalara, 
 > </details>
 
 Özetle: düzenli ve boşluksuz seriler için `ts` (klasik modellerle doğrudan uyumlu), düzensiz ya da gün içi veriler için `xts`. Sık izlenen yol: ön işleme `xts` ile yapılır, modellemeden önce seri `ts`'ye çevrilir.
+
+```r
+# xts → ts: değerler coredata() ile alınır, start ve frequency elle verilir
+ap_xts <- as.xts(AirPassengers)
+ap_ts  <- ts(as.numeric(coredata(ap_xts)), start = c(1949, 1), frequency = 12)
+tsp(ap_ts)
+#> [1] 1949.000 1960.917   12.000
+all.equal(ap_ts, AirPassengers)   # baştaki ts ile aynı mı?
+#> [1] TRUE
+```
+
+`xts` nesnesi `ts`'nin frekans bilgisini taşımaz; bu yüzden geri dönerken `coredata()` ile yalın değerler alınır, `as.numeric()` bu tek sütunlu matrisi vektöre çevirir, `start` ve `frequency` ise 5.1'deki gibi elle verilir. `all.equal()` iki nesnenin değerleri ve zaman bilgisi aynıysa `TRUE` verir. Düzensiz bir seri (ör. iş günü verisi) ancak önce düzenli bir döneme toplandıktan sonra (ör. `apply.monthly()` ile aylığa) `ts`'ye anlamlı biçimde çevrilebilir.
 
 <details>
 <summary><b>Kendinizi test edin (cevaplar için tıklayın)</b></summary>

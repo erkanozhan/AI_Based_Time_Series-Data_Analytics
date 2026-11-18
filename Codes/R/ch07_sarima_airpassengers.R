@@ -81,6 +81,12 @@ print(fit)
 checkresiduals(fit)
 #> Q* = 26.446, df = 22, p-value = 0.233
 
+# Aynı test Box.test() ile: model artıklarında fitdf = kestirilen katsayı sayısı
+Box.test(residuals(fit), lag = 24, type = "Ljung-Box", fitdf = 2)
+#> X-squared = 26.446, df = 22, p-value = 0.233
+Box.test(residuals(fit), lag = 24, type = "Ljung-Box")   # fitdf unutulursa
+#> X-squared = 26.446, df = 24, p-value = 0.3309
+
 # ---- 7.6.7 Tahmin (Öngörü) ----
 # Gelecek 24 ay için tahmin (log ölçekte)
 fc <- forecast(fit, h = 24)

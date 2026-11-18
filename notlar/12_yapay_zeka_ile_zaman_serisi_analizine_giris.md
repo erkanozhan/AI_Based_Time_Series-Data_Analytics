@@ -288,13 +288,6 @@ Yukarıdaki tablo **tek adımlı (one-step-ahead)** bir tahmin kurar: Bilinen ge
 
 ```math
 \begin{aligned}
-\text{Özyinelemeli:}\quad & \hat{y}_{t+1} = f(y_t, y_{t-1}, \dots, y_{t-p+1}), \quad \hat{y}_{t+2} = f(\hat{y}_{t+1}, y_t, \dots, y_{t-p+2}), \quad \dots \\
-\text{Doğrudan:}\quad & \hat{y}_{t+h} = f_h(y_t, y_{t-1}, \dots, y_{t-p+1}), \qquad h = 1, 2, \dots, H
-\end{aligned}
-```
-
-```math
-\begin{aligned}
 \underbrace{\text{Özyinelemeli:}}_{\substack{\text{tek model, tahminler}\\\text{girdiye geri beslenir}}}\quad & \hat{y}_{t+1} = f(y_t, y_{t-1}, \dots, y_{t-p+1}), \quad \hat{y}_{t+2} = f(\underbrace{\hat{y}_{t+1}}_{\substack{\text{gözlem yerine}\\\text{önceki tahmin}}}, y_t, \dots, y_{t-p+2}), \quad \dots \\[18pt]
 \underbrace{\text{Doğrudan:}}_{\substack{\text{her ufuk için}\\\text{ayrı model}}}\quad & \hat{y}_{t+h} = \overbrace{f_h}^{\substack{h\text{ adım için}\\\text{eğitilmiş model}}}(\underbrace{y_t, y_{t-1}, \dots, y_{t-p+1}}_{\text{yalnızca gözlenmiş değerler}}), \qquad h = 1, 2, \dots, H
 \end{aligned}
@@ -673,10 +666,6 @@ Denklemdeki `tanh` ile LSTM'de kullanacağımız `sigmoid`, girdiyi dar bir aral
 
 Örneğin çarpan 0.5 ise 10 adım sonra $0.5^{10} = 0.5 \cdot 0.5 \cdot \ldots \cdot 0.5$ (10 kez) $= 1/1024 \approx 0.001$ olur: 10 ay önceki bir gözlemin hataya katkısı binde bire iner. 20 adımda $0.5^{20} \approx 0.000001$, yani neredeyse sıfırdır ve ağ bu uzak ilişkiyi **öğrenemez**. Aynı fikrin matematiksel yazımı şöyledir:
 
-$$
-\frac{\partial h_t}{\partial h_{t-k}} = \prod_{j=0}^{k-1} \frac{\partial h_{t-j}}{\partial h_{t-j-1}}
-$$
-
 ```math
 \underbrace{\frac{\partial h_t}{\partial h_{t-k}}}_{\substack{k\text{ adım önceki durumun}\\\text{bugüne etkisi}}} = \underbrace{\prod_{j=0}^{k-1}}_{k\text{ çarpanın çarpımı}} \overbrace{\frac{\partial h_{t-j}}{\partial h_{t-j-1}}}^{\substack{\text{tek adımlık}\\\text{duyarlılık}}}
 ```
@@ -810,10 +799,6 @@ Başlangıçta doğal dil işleme (NLP) için geliştirilen **Transformer** mima
 Fikri bir kütüphane benzetmesiyle anlatabiliriz: Aradığınız konuyu bir fişe yazarsınız (**sorgu**), raflardaki her kitabın sırtında bir etiket vardır (**anahtar**), kitabın içeriği ise **değerdir**. Fişiniz hangi etiketlere çok benziyorsa o kitaplardan daha çok, az benziyorsa daha az yararlanırsınız. Dikkat mekanizması bu "benzerliğe göre ağırlıklı yararlanma" işini sayılarla yapar.
 
 **Tanım (ölçekli nokta çarpımı dikkati):**
-
-$$
-\mathrm{Attention}(Q, K, V) = \mathrm{softmax}\left(\frac{Q K^{\top}}{\sqrt{d_k}}\right) V
-$$
 
 ```math
 \underbrace{\mathrm{Attention}(Q, K, V)}_{\text{dikkat çıktısı}} = \underbrace{\mathrm{softmax}}_{\substack{\text{puanları toplamı 1}\\\text{olan ağırlıklara çevirir}}}\left(\frac{\overbrace{Q K^{\top}}^{\substack{\text{sorgu-anahtar}\\\text{benzerlikleri}}}}{\underbrace{\sqrt{d_k}}_{\text{ölçekleme}}}\right) \overbrace{V}^{\text{değerler}}

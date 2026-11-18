@@ -159,3 +159,12 @@ length(egitim)
 #> [1] 120
 length(test)
 #> [1] 24
+
+# ---- 5.3.2 sonu: xts nesnesini yeniden ts nesnesine çevirmek ----
+# xts → ts: değerler coredata() ile alınır, start ve frequency elle verilir
+ap_xts <- as.xts(AirPassengers)
+ap_ts  <- ts(as.numeric(coredata(ap_xts)), start = c(1949, 1), frequency = 12)
+tsp(ap_ts)
+#> [1] 1949.000 1960.917   12.000
+all.equal(ap_ts, AirPassengers)   # baştaki ts ile aynı mı?
+#> [1] TRUE

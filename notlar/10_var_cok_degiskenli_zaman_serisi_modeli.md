@@ -337,7 +337,7 @@ Durağanlık ADF ve KPSS testleriyle sınanır (ayrıntısı Bölüm 3.2 ve 7.5'
 
 Durağan olmayan serilerde en yaygın çözüm, Bölüm 2.1 ve 7.1.4'teki $\nabla$ operatörüyle **fark almaktır**: $\nabla y_t = y_t - y_{t-1}$, yani bu dönemin değeri eksi bir önceki dönemin değeri. Örneğin faiz üç ay boyunca 40, 45, 45 ise fark serisi 5, 0 olur: artık faizin düzeyini değil, her ay ne kadar değiştiğini modelleriz. Birinci fark alındığında çoğu ekonomik seri durağan hâle gelir; ikinci fark nadiren gerekir. Bir kez fark alınınca durağanlaşan seriye **birinci dereceden bütünleşik** (*integrated of order one*) denir ve **I(1)** diye yazılır; zaten durağan olan seri I(0)'dır.
 
-**Not —** Seriler aynı mertebeden bütünleşikse (ör. hepsi I(1)) ve aralarında uzun dönemli bir denge ilişkisi (**eşbütünleşme**, *cointegration*) varsa, farkları alınmış bir VAR bu uzun dönem bilgisini kaybeder. Bilinen bir benzetme: tasmalı köpeğiyle yürüyen bir kişinin ve köpeğin yolları ayrı ayrı rastgele görünür, ama aralarındaki mesafe tasmanın boyunu aşamaz. Farkları alınmış VAR yalnızca adımları modeller, "tasmayı" görmez. Bu durumda VAR yerine **VECM** (Vector Error Correction Model, hata düzeltme modeli) kullanmak daha uygundur: VECM, farklar için kurulan VAR'a "tasma ne kadar gerildi?" bilgisini taşıyan bir düzeltme terimi ekler. Eşbütünleşmenin olup olmadığı **Johansen testi** ile sınanır (Gretl'deki karşılığı: Bölüm 11.6.2). VECM bu dersin kapsamı dışındadır; bu bölümde VAR çerçevesinde kalıyoruz.
+**Not —** Seriler aynı mertebeden bütünleşikse (ör. hepsi I(1)) ve aralarında uzun dönemli bir denge ilişkisi (**eşbütünleşme**, *cointegration*) varsa, farkları alınmış bir VAR bu uzun dönem bilgisini kaybeder. Bilinen bir benzetme: tasmalı köpeğiyle yürüyen bir kişinin ve köpeğin yolları ayrı ayrı rastgele görünür, ama aralarındaki mesafe tasmanın boyunu aşamaz. Farkları alınmış VAR yalnızca adımları modeller, "tasmayı" görmez. Bu durumda VAR yerine **VECM** (Vector Error Correction Model, hata düzeltme modeli) kullanmak daha uygundur: VECM, farklar için kurulan VAR'a "tasma ne kadar gerildi?" bilgisini taşıyan bir düzeltme terimi ekler. Eşbütünleşmenin olup olmadığı **Johansen testi** ile sınanır (Gretl'deki karşılığı: Bölüm 11.6.2). VECM'in ayrıntısı bu dersin kapsamı dışındadır; bu bölümde VAR çerçevesinde kalıyor, yalnızca 10.9'un sonunda kısa bir VECM uygulaması gösteriyoruz.
 
 > **Hemen deneyin 10.3.3 · Sahte regresyonu kendi gözünüzle görün** (R, ~4 dk)
 >
@@ -693,7 +693,7 @@ Kararsızlığın en yaygın nedenleri durağan olmayan (farkı alınmamış) se
 
 **Açıklama:** VAR'da sık sorulan sorulardan biri şudur: "Faizin geçmiş değerleri, enflasyonun kendi geçmişinin ötesinde ek bir bilgi taşıyor mu?" Taşıyorsa faiz, enflasyonun **Granger nedenidir** denir (bu kavrama **Granger nedenselliği**, *Granger causality*, adı verilir). Buradaki "nedensellik" günlük dildeki neden-sonuç ilişkisi değil, **öngörü üstünlüğüdür**: $x$'in geçmişi $y$'nin tahminini iyileştiriyorsa "$`x`$, $y$'nin Granger nedenidir".
 
-Bilinen bir örnek: Aralık başındaki yılbaşı süsü satışları, birkaç hafta sonra gelecek yılbaşı alışverişi yoğunluğunu iyi öngörür; ama süs satışları yılbaşına **neden olmaz**. Öngörü gücü ile neden-sonuç ilişkisi farklı şeylerdir.
+Bilinen bir örnek: Aralık başındaki yılbaşı süsü satışları, birkaç hafta sonra gelecek yılbaşı alışverişi yoğunluğunu iyi öngörür; ama süs satışları alışveriş yoğunluğuna **neden olmaz**: ikisini de yaklaşan yılbaşı tetikler (aşağıdaki "üçüncü değişken" uyarısı). Öngörü gücü ile neden-sonuç ilişkisi farklı şeylerdir.
 
 **Tanım:** İki değişkenli VAR(p) modelinde enflasyon ($y_1$) denklemi
 
@@ -1052,10 +1052,48 @@ Dosya bu satırlara ek olarak serilerin grafiklerini, her denklemin Durbin-Watso
 
 **Neden BIC?** AIC'nin önerdiği VAR(7) her denklemde 22 parametre taşır ve stabil değildir (en büyük öz değer modülü ≈ 1.02). HQ'nun önerdiği VAR(3) da stabil değildir (en büyük öz değer modülü ≈ 1.019); bu düzey veride gecikmeyi artırmak artıklardaki otokorelasyonu gidermenin yolu değildir. BIC'nin VAR(2)'si hem sade hem stabildir. Önerilen model stabil değilse IRF, FEVD ve tahminler güvenilmez (kriterlerin neden ayrıştığı için bkz. 10.4).
 
-**Not —** Bu ana uygulama, düzey serilerle kurulduğu için öğretici bir örnektir. Seriler I(1) olduğundan doğru kurulum eşbütünleşmeye bağlıdır: eşbütünleşme yoksa model farkı alınmış serilerle kurulur (aşağıdaki 2. alıştırma ve Hemen deneyin 10.6), varsa VECM gerekir (10.3.3'teki Not). Bu veride Johansen testi bir eşbütünleşme ilişkisine işaret eder (Bölüm 11.6.2); farklarla kurulan model bu yüzden yalnızca kısa dönem ilişkilerini gösterir. En büyük öz değerin 1'e bu kadar yakın çıkması (0.996) tesadüf değildir: seriler durağan olmadığı için model neredeyse bir birim kök taşır. Bu durumda IRF'ler çok yavaş söner ve uzun ufuklu yorumlar dikkatle yapılmalıdır. Portmanteau testinin reddi (p ≈ 0.000004) de aynı soruna işaret eder. Kod eğitim amaçlı olarak düzey serilerle devam eder. Alıştırma olarak:
+**Not —** Bu ana uygulama, düzey serilerle kurulduğu için öğretici bir örnektir. Seriler I(1) olduğundan doğru kurulum eşbütünleşmeye bağlıdır: eşbütünleşme yoksa model farkı alınmış serilerle kurulur (aşağıdaki 2. alıştırma ve Hemen deneyin 10.6), varsa VECM gerekir (10.3.3'teki Not; kısa bir uygulaması aşağıda). Bu veride Johansen testi bir eşbütünleşme ilişkisine işaret eder (Bölüm 11.6.2); farklarla kurulan model bu yüzden yalnızca kısa dönem ilişkilerini gösterir. En büyük öz değerin 1'e bu kadar yakın çıkması (0.996) tesadüf değildir: seriler durağan olmadığı için model neredeyse bir birim kök taşır. Bu durumda IRF'ler çok yavaş söner ve uzun ufuklu yorumlar dikkatle yapılmalıdır. Portmanteau testinin reddi (p ≈ 0.000004) de aynı soruna işaret eder. Kod eğitim amaçlı olarak düzey serilerle devam eder. Alıştırma olarak:
 
 1. Kodun 4. adımında `'bic'` yerine `'aic'` yazıp VAR(7)'nin stabil çıkmadığını görün.
 2. Serilerin birinci farkını alıp (`df_var = df_var.diff().dropna()`) modeli yeniden kurun. Farkı alınmış serilerde ADF p-değerleri 0.05'in altına iner, BIC 1 gecikme önerir ve en büyük öz değer modülü 0.996'dan yaklaşık 0.55'e düşer; model artık sınırda değil, rahatça stabildir. Granger sonuçlarındaki değişimi Hemen deneyin 10.6'da gördünüz: "enflasyon → faiz" ilişkisi anlamlılığını yitirir; döviz kurunun enflasyona (p < 0.001) ve faize (p ≈ 0.007) etkisi ise sürer.
+
+**VECM: tasmayı modele eklemek.** Seriler I(1) ve eşbütünleşik olduğunda (10.3.3'teki Not; bu veride Johansen testi bir ilişki bulur, Bölüm 11.6.2) ne düzey VAR'ı ne de farklarla kurulan VAR tam doğrudur: ilkinde testlerin dağılımı standart değildir (10.6'daki uyarı), ikincisi uzun dönem dengesini ("tasmayı") atar. VECM, farklar için kurulan VAR'a geçen dönemin dengeden sapmasını ekler:
+
+```math
+\underbrace{\nabla \mathbf{y}_t}_{\substack{\text{bu ayki}\\\text{değişimler}}} = \mathbf{c} + \underbrace{\alpha}_{\substack{\text{ayarlanma}\\\text{hızları}}} \, \overbrace{\beta^\top \mathbf{y}_{t-1}}^{\substack{\text{geçen ay dengeden sapma}\\\text{(tasmanın gerginliği)}}} + \underbrace{\Gamma_1 \nabla \mathbf{y}_{t-1}}_{\substack{\text{kısa dönem}\\\text{dinamik}}} + \mathbf{u}_t
+```
+
+**Ne anlatıyor?** Her değişkenin bu ayki değişimi iki kaynaktan gelir: geçen ayki değişimlerin etkisi (farklarla kurulan VAR'ın yakaladığı kısım) ve geçen ay uzun dönem dengesinden ne kadar uzaklaşıldığı. Denge ilişkisi $\beta^\top \mathbf{y}_{t-1}$ sıfırdan saptıkça, $\alpha$ katsayıları değişkenleri dengeye geri çeker; köpek tasmayı gerdikçe adımlar sahibe doğru yön değiştirir.
+
+> **Simge notu:** $`\nabla \mathbf{y}_t = \mathbf{y}_t - \mathbf{y}_{t-1}`$: değişkenlerin birinci farkları · $`\beta`$ *(beta)*: eşbütünleşme vektörü, yani uzun dönem denge ilişkisinin katsayıları · $`\alpha`$ *(alfa)*: her değişkenin dengeden sapmaya tepki hızı · $`\Gamma_1`$ *(büyük gama 1)*: kısa dönem katsayı matrisi
+
+Gretl'de aynı veriyle (**Model → Multivariate time series → VECM** ya da betikte; ilk sayı düzey VAR'ın gecikme sayısı, ikincisi eşbütünleşme ilişkisi sayısıdır):
+
+```gretl
+open "data/macro.csv"
+setobs 12 2015:01 --time-series
+vecm 2 1 inflation interest exchange    # VAR(2) düzeyinde, 1 eşbütünleşme ilişkisi
+```
+
+Çıktının kilit kısmı:
+
+```text
+beta (cointegrating vectors, standard errors in parentheses)
+inflation       1.0000
+               (0.0000)
+interest       -2.6212
+               (1.4928)
+exchange        6.4396
+               (2.0538)
+alpha (adjustment vectors)
+inflation    -0.018506
+interest     0.0025171
+exchange     0.0019403
+Equation 1: d_inflation
+  EC1             -0.0185058    0.00410353   -4.510    1.60e-05 ***
+```
+
+`EC1` (*error correction*, hata düzeltme terimi) $\text{enflasyon}_ {t-1} - 2.62 \cdot \text{faiz}_ {t-1} + 6.44 \cdot \text{kur}_ {t-1}$ ifadesinin (artı bir sabitin) değeridir. Enflasyon denklemindeki kestirimi −0.0185 ve çok anlamlıdır (p < 0.001): geçen ay bu ifade denge değerinin üstündeyse bu ay enflasyon düşer; enflasyondaki düzeltme, sapmanın her ay yaklaşık %1.9'unu kapatır. Faiz denkleminde aynı katsayı anlamsızdır (p = 0.35); dengeyi düzelten yük esas olarak enflasyonun üzerindedir. Model düzey verinin sınırlılıklarını (yapısal kırılmalar, kısa örneklem) taşıdığı için bu sayılar ders amaçlı okunmalıdır.
 
 > **Uygulama dosyası:** [`Codes/python/ch10_var.py`](../Codes/python/ch10_var.py) · [Notebook](../Codes/notebooks/ch10_var.ipynb) · [![Colab'da aç](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/Codes/notebooks/ch10_var.ipynb)
 >

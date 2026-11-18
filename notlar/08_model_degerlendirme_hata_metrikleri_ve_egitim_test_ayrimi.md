@@ -188,7 +188,13 @@ Her zaman $\mathrm{RMSE} \ge \mathrm{MAE}$'dir ("büyük ya da eşittir"); eşit
 
 > **Simge notu:** $`\approx`$ *(yaklaşık eşittir)*: iki değerin yaklaşık olarak eşit olduğunu belirtir · $`\ge`$: "büyük ya da eşittir"
 
-Model B'nin hata büyüklüklerinin ortalaması (MAE) 10'dur; yedisi ortalamadan 8 aşağıda, biri 56 yukarıdadır. Bu sapmaların karelerinin ortalaması, yani hata büyüklüklerinin **dağınıklığı**, $(7 \cdot 64 + 56^2)/8 = 448$'dir ve $\mathrm{MSE} = 10^2 + 448 = 548$ bulunur. Bu tesadüf değildir; genel kural şudur: **MSE = MAE² + hata büyüklüklerinin dağınıklığı**. Dağınıklık hiçbir zaman eksi olamayacağı için MSE en az MAE² kadardır, karekökü alınınca da RMSE en az MAE kadar çıkar. Model A'da bütün hatalar eşit olduğundan dağınıklık 0'dır ve RMSE = MAE olur. Hatalar ne kadar düzensizse (birkaç büyük, çok sayıda küçük hata) RMSE, MAE'den o kadar uzaklaşır.
+Model B'nin hata büyüklüklerinin ortalaması (MAE) 10'dur; yedisi ortalamadan 8 aşağıda, biri 56 yukarıdadır. Bu sapmaların karelerinin ortalaması, yani hata büyüklüklerinin **dağınıklığı**, $(7 \cdot 64 + 56^2)/8 = 448$'dir ve $\mathrm{MSE} = 10^2 + 448 = 548$ bulunur. Bu tesadüf değildir; genel kural şudur: **MSE = MAE² + hata büyüklüklerinin dağınıklığı**. Dağınıklık hiçbir zaman eksi olamayacağı için MSE en az MAE² kadardır, karekökü alınınca da RMSE en az MAE kadar çıkar. Model A'da bütün hatalar eşit olduğundan dağınıklık 0'dır ve RMSE = MAE olur. Hatalar ne kadar düzensizse (birkaç büyük, çok sayıda küçük hata) RMSE, MAE'den o kadar uzaklaşır. Kuralın formülle yazılışı şöyledir:
+
+```math
+\mathrm{MSE} = \mathrm{MAE}^2 + \underbrace{\frac{1}{n} \sum_{t=1}^{n} \big(\lvert e_t \rvert - \mathrm{MAE}\big)^2}_{\substack{\text{hata büyüklüklerinin dağınıklığı}\\\text{(}n\text{'ye bölünen varyans)}}}
+```
+
+**Ne anlatıyor?** Kareli hataların ortalaması iki parçaya ayrılır: ortalama hata büyüklüğünün karesi ve tek tek hata büyüklüklerinin bu ortalamadan sapmalarının kareli ortalaması. İkinci parça hiçbir zaman eksi olmadığı için MSE en az MAE² kadardır. Dağınıklık burada $n - 1$'e değil, $n$'ye bölünerek hesaplanır; Model B için $448$ bu yüzden çıkar.
 
 Yani **RMSE, MAE'den belirgin biçimde büyükse, model genel olarak iyi gitse de bazı noktalarda büyük sapmalar yapıyor demektir.**
 
@@ -600,7 +606,7 @@ SARIMA'nın hatası, mevsimsel naive yönteminkinin yaklaşık dörtte biri ile 
 
 **Not —** `forecast` paketindeki `accuracy(fc_test, test)` fonksiyonu tüm bu metrikleri (ME, RMSE, MAE, MPE, MAPE, MASE, ACF1; test satırında ayrıca Theil's U) hem eğitim hem test seti için tek seferde verir. Ancak burada modeli log ölçekte kurduğumuz için `accuracy()` sonuçları da **log ölçekte** olur (örneğin test seti MASE'si 0.23 çıkar, yukarıdaki 0.44 değil); orijinal yolcu birimindeki hatayı görmek için yukarıdaki gibi `exp()` ile geri dönüp elle hesaplamak daha anlaşılırdır.
 
-**Not —** Bu metriklerin hepsi nokta tahminini ölçer. Tahmin aralıklarının güvenilirliği, gerçek değerlerin aralığa düşme oranıyla ayrıca kontrol edilir (Bölüm 17.8). Bu örnekte kontrol tek satırdır: `sum(actual >= exp(fc_test$lower[, 2]) & actual <= exp(fc_test$upper[, 2]))` sonucu 11'dir, yani 1960'ın 12 ayından 11'i %95 aralığının içindedir; `[, 1]` ile %80 aralığı için de sonuç 11'dir. Aralığın dışında kalan tek ay, en büyük hatanın görüldüğü Mart'tır: Gerçek değer 419, %95 aralığı ise yaklaşık 423.2–514.3'tür. %95'lik bir aralıkta 12 aydan birinin dışarıda kalması olağandır; %80 aralığında ise ortalamada $12 \times 0.2 = 2.4$ ayın dışarıda kalması beklenir.
+**Not —** Bu metriklerin hepsi nokta tahminini ölçer. Tahmin aralıklarının güvenilirliği, gerçek değerlerin aralığa düşme oranıyla ayrıca kontrol edilir (Bölüm 17.8). Bu örnekte kontrol tek satırdır: `sum(actual >= exp(fc_test$lower[, 2]) & actual <= exp(fc_test$upper[, 2]))` sonucu 11'dir, yani 1960'ın 12 ayından 11'i %95 aralığının içindedir; `[, 1]` ile %80 aralığı için de sonuç 11'dir. Aralığın dışında kalan tek ay, en büyük hatanın görüldüğü Mart'tır: Gerçek değer 419, %95 aralığı ise yaklaşık 423.2–514.3'tür. %95'lik bir aralıkta 12 aydan birinin dışarıda kalması olağandır; %80 aralığında ise ortalamada $12 \times 0.2 = 2.4$ ayın dışarıda kalması beklenir; burada yalnızca 1 ay dışarıda kaldığı için bu yılki aralık biraz temkinli (geniş) çıkmıştır. 12 ay küçük bir örneklemdir; bu farkı tek başına bir kusur saymamak gerekir.
 
 **Görselleştirme.** Son olarak eğitim dönemini, test yılının gerçek değerlerini ve tahminleri orijinal ölçekte aynı grafikte gösterelim:
 

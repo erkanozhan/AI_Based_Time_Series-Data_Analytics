@@ -429,6 +429,9 @@ Programın tamamı (yaklaşık 430 satır) uygulama dosyasındadır; aşağıda 
 
 ```python
 # XGBoost ile AirPassengers — kilit satırlar (tam kod: Codes/python/ch13_xgboost.py)
+# Tam dosyada önceden tanımlı olanlar: SEED = 42; df_features = tarih indeksli 'Passengers' tablosunun kopyası;
+# X = df_features[feature_cols] (21 özellik), y = df_features['Passengers']; test_size = val_size = 12;
+# calculate_metrics(gercek, tahmin, ad): MAE, RMSE ve MAPE'yi yazdırıp bu üç değeri döndürür.
 # 2) Özellik mühendisliği: her özellik yalnızca geçmiş bilgiden (shift) üretilir
 for lag in range(1, 13):
     df_features[f'lag_{lag}'] = df_features['Passengers'].shift(lag)
@@ -469,6 +472,8 @@ Bu satırların her biri belirli bir iş görür:
 8. **Yeniden eğitim ve tahmin:** `XGBRegressor(n_estimators=best_n, **params)` aynı ayarlarla, ama tam 214 ağaçlık yeni bir model kurar ve `fit(X_train, y_train)` ile doğrulama yılı dahil bütün eğitim verisinde eğitir. `model.predict(X_test)` 12 test ayı için 12 sayılık bir NumPy dizisi döndürür. `calculate_metrics` ise üç değer döndürür; `a, b, c = ...` yazımı bu üç değeri sırayla üç değişkene atar.
 
 Dosyadaki tam program bu satırlara ek olarak 3/6/12 aylık hareketli ortalamaları, 3 ve 12 aylık hareketli standart sapmaları, çeyreği ve normalize yılı, yani (yıl − 1949) / 11 değerini üretir (toplam 21 özellik). Ayrıca özellik önemi ve test grafiklerini çizer ve eğitim verisinde 5 fold'lu `TimeSeriesSplit` ile çapraz doğrulama yapar (Bölüm 16).
+
+**Not —** Normalize yıldaki 1949 ve 11 değerleri test yılı 1960 dahil bütün seriden alınmıştır. Bu, 12.1.4'teki "ölçekleyici yalnızca eğitim verisiyle uydurulur" ilkesine uymaz. Ağaçlar yalnızca "eşikten büyük mü?" diye sorduğu için bu sıra koruyan dönüşüm sonucu değiştirmez: Eğitim yıllarıyla (1950–1959) ölçeklendiğinde 1960'ın değeri 1 yerine 1.11 olur, ama ağaç sayısı (214) ve bütün test tahminleri aynı kalır. Yine de doğru alışkanlık en küçük ve en büyük değeri yalnızca eğitim döneminden almaktır; sinir ağları gibi ölçeğe duyarlı modellerde bu fark sonucu değiştirebilir.
 
 Programın ekran çıktısının önemli kısımları (xgboost 3.2.0, Windows; aradaki satırlar `...` ile kısaltılmıştır). Model satır ve sütun alt örneklemesi (`subsample`, `colsample_bytree`) kullanmadığı için aynı xgboost sürümüyle her çalıştırmada aynı sonuç alınır; farklı bir sürümde sayılar küçük farklarla değişebilir:
 

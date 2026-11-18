@@ -23,6 +23,23 @@ def veri_yolu(dosya):
     return DATA_URL + dosya
 
 # %% [markdown]
+# ## 9.1.1 Lojistik büyüme trendi (kısa örnek)
+# Varsayımsal 700 bin yolcu üst sınırı; `cap` sütunu hem eğitim hem gelecek tablosunda olmalıdır.
+
+# %%
+df = pd.read_csv(veri_yolu('AirPassengers.csv'))
+df.columns = ['ds', 'y']
+df['ds'] = pd.to_datetime(df['ds'])
+df['cap'] = 700                                   # üst sınır, eğitim tablosunda
+m = Prophet(growth='logistic', seasonality_mode='multiplicative', daily_seasonality=False)
+m.fit(df)
+future = m.make_future_dataframe(periods=240, freq='MS')   # 20 yıl ileri (1980 sonuna kadar)
+future['cap'] = 700                               # ... ve gelecek tablosunda
+fc = m.predict(future).set_index('ds')
+print(fc['trend'].iloc[[0, 143, 263, 383]].round(1))
+print("en büyük yhat:", round(fc['yhat'].max(), 1))
+
+# %% [markdown]
 # ## 9.2 Python ile uygulama
 # Prophet, tarih sütununun `ds`, değer sütununun `y` adını taşımasını bekler.
 # Önce varsayılan (toplamsal) modeli tüm veriyle eğitip 12 ay ileriye tahmin yapıyoruz.
@@ -121,3 +138,19 @@ for mod in ['additive', 'multiplicative']:
 
 # İki modelin metriklerini tablo hâlinde yazdıralım
 print(pd.DataFrame(sonuclar).T.round(2))
+
+# %% [markdown]
+# ### Kayan test penceresi: `cross_validation()`
+# Çarpımsal model 1958, 1959 ve 1960 yıllarında ayrı ayrı sınanır.
+# Not: `performance_metrics()` mape sütununu oran olarak verir (0.0575 = %5.75).
+
+# %%
+from prophet.diagnostics import cross_validation, performance_metrics
+
+m = Prophet(seasonality_mode='multiplicative', daily_seasonality=False)
+m.fit(df)                                    # df: 1949-1960, 144 ay
+df_cv = cross_validation(m, initial='2922 days', period='365 days', horizon='365 days')
+print(df_cv.groupby('cutoff').size())        # her kesim noktası için 12 test ayı
+print(performance_metrics(df_cv, rolling_window=1)[['mae', 'rmse', 'mape']])
+mae_yil = (df_cv['y'] - df_cv['yhat']).abs().groupby(df_cv['cutoff']).mean()
+print(mae_yil.round(2))                      # her test yılının MAE'si
