@@ -20,10 +20,6 @@ Bunu bir müzik parçasına benzetebiliriz: Kulağımıza tek bir ses gelir, ama
 
 **Tanım:** 1.1'deki tanımı, gözlemleri tek tek sayarak şöyle de yazabiliriz:
 
-$$
-\lbrace x_t\rbrace _{t=1}^{T} = \lbrace x_1, x_2, \dots, x_T\rbrace 
-$$
-
 ```math
 \underbrace{\lbrace x_t\rbrace_{t=1}^{T}}_{\substack{t = 1\text{'den }T\text{'ye kadar}\\\text{gözlemlerin dizisi}}} = \lbrace \overbrace{x_1}^{\text{ilk gözlem}}, x_2, \dots, \overbrace{x_T}^{\text{son gözlem}} \rbrace
 ```
@@ -282,10 +278,6 @@ Bileşenler her zaman toplanarak bir araya gelmez. Bazı serilerde birbirleriyle
 *Şekil 2.4 — (a) Toplamsal modelde mevsimsel dalgaların yüksekliği trendden bağımsızdır. (b) Çarpımsal modelde dalgalar seviyeyle birlikte büyür: seri "huni" gibi açılır.*
 
 **Tanım 1 (toplamsal model):**
-
-$$
-x_t = T_t + S_t + I_t
-$$
 
 ```math
 \underbrace{x_t}_{\text{gözlenen değer}} = \overbrace{T_t}^{\text{trend}} + \underbrace{S_t}_{\substack{\text{mevsimsel etki}\\\text{(sabit miktar)}}} + \overbrace{I_t}^{\text{düzensiz bileşen}}

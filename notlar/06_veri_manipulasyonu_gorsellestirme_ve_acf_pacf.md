@@ -1150,10 +1150,6 @@ ACF ve PACF grafiklerinin asıl gücü, **durağan** bir seri için uygun model 
 
 **Tanım 1 (Beyaz gürültü):** Ortalaması sıfır, varyansı sabit ve farklı zamanlardaki değerleri birbiriyle ilişkisiz olan seriye beyaz gürültü denir:
 
-$$
-\varepsilon_t \sim WN(0, \sigma^2): \quad E[\varepsilon_t] = 0, \quad \mathrm{Var}(\varepsilon_t) = \sigma^2, \quad \mathrm{Cov}(\varepsilon_t, \varepsilon_s) = 0 \quad (t \neq s)
-$$
-
 ```math
 \underbrace{\varepsilon_t \sim WN(0, \sigma^2)}_{\text{beyaz gürültü}}: \quad \underbrace{E[\varepsilon_t] = 0}_{\text{ortalama sıfır}}, \quad \overbrace{\mathrm{Var}(\varepsilon_t) = \sigma^2}^{\text{varyans sabit}}, \quad \underbrace{\mathrm{Cov}(\varepsilon_t, \varepsilon_s) = 0 \quad (t \neq s)}_{\substack{\text{farklı zamanlardaki}\\\text{değerler ilişkisiz}}}
 ```
@@ -1166,10 +1162,6 @@ Formüldeki üç koşul sözle şöyledir: Şokların uzun vadeli ortalaması s�
 
 **Tanım 2 (Otoregresif model, AR(p)):** Bugünkü değer, kendi son $p$ değerinin doğrusal bir bileşimi (her birinin bir katsayıyla çarpılıp toplanması) ile yeni bir şokun toplamıdır:
 
-$$
-x_t = c + \phi_1 x_{t-1} + \phi_2 x_{t-2} + \dots + \phi_p x_{t-p} + \varepsilon_t
-$$
-
 ```math
 \underbrace{x_t}_{\text{bugünkü değer}} = \overbrace{c}^{\text{sabit}} + \underbrace{\phi_1 x_{t-1} + \phi_2 x_{t-2} + \dots + \phi_p x_{t-p}}_{\substack{\text{son }p\text{ değerin}\\\text{doğrusal bileşimi}}} + \overbrace{\varepsilon_t}^{\text{yeni şok}}
 ```
@@ -1181,10 +1173,6 @@ $$
 Sezgi: "Bugün, dünün (ve önceki $p - 1$ günün) bir kısmıdır, üstüne yeni bir sürpriz eklenir." En basit örnek AR(1): $x_t = \phi x_{t-1} + \varepsilon_t$. Bölüm 3.2'de gördüğümüz gibi $\phi = 0.5$ için 100 birimlik bir şok 100 → 50 → 25 → 12.5 diye söner. $\lvert \phi \rvert < 1$ olduğunda süreç durağandır ve bir şokun etkisi her adımda $\phi$ ile çarpılarak geometrik biçimde (her adımda aynı oranda) azalır, ama hiçbir zaman tam sıfıra inmez.
 
 **Tanım 3 (Hareketli ortalama modeli, MA(q)):** Bugünkü değer, bugünkü şok ile son $q$ şokun ağırlıklı toplamıdır:
-
-$$
-x_t = \mu + \varepsilon_t + \theta_1 \varepsilon_{t-1} + \dots + \theta_q \varepsilon_{t-q}
-$$
 
 ```math
 \underbrace{x_t}_{\text{bugünkü değer}} = \underbrace{\mu}_{\text{ortalama}} + \overbrace{\varepsilon_t}^{\text{bugünkü şok}} + \underbrace{\theta_1 \varepsilon_{t-1} + \dots + \theta_q \varepsilon_{t-q}}_{\substack{\text{son }q\text{ şokun}\\\text{ağırlıklı toplamı}}}

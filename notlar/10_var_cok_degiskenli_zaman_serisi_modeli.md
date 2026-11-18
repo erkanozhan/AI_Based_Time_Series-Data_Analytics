@@ -192,10 +192,6 @@ u_{2,t}
 
 Bu gösterimle iki denklem tek satıra iner:
 
-$$
-\mathbf{y}_t = \mathbf{c} + A_1 \mathbf{y}_{t-1} + \mathbf{u}_t
-$$
-
 ```math
 \underbrace{\mathbf{y}_t}_{\substack{\text{bugünkü değerler}\\\text{vektörü}}} = \overbrace{\mathbf{c}}^{\text{sabitler}} + \underbrace{A_1}_{\substack{\text{katsayı}\\\text{matrisi}}} \overbrace{\mathbf{y}_{t-1}}^{\text{geçen dönem}} + \underbrace{\mathbf{u}_t}_{\text{şoklar}}
 ```
@@ -523,10 +519,6 @@ A_1 \begin{bmatrix} -1 \\ 1 \end{bmatrix}
 
 **Öz değerler nasıl bulunur?** Aradığımız şey, $A_1 \mathbf{v} = \lambda \mathbf{v}$ eşitliğini sağlayan bir $\lambda$ sayısı ve sıfır olmayan bir $\mathbf{v}$ yönüdür. Her şeyi bir tarafa toplarsak $(A_1 - \lambda I)\mathbf{v} = \mathbf{0}$ olur. Burada $I$ **birim matristir** (*identity matrix*): köşegeninde 1, geri kalanında 0 olan ve matris dünyasında "1 sayısı" gibi davranan tablodur ($I \mathbf{v} = \mathbf{v}$). Sıfır olmayan bir yönü sıfıra götüren matrislerin determinantı sıfırdır (bunu kabul edelim). Öyleyse öz değerler şu denklemin kökleridir:
 
-$$
-\det(A_1 - \lambda I) = 0
-$$
-
 ```math
 \underbrace{\det}_{\text{determinant}}\big(\underbrace{A_1}_{\substack{\text{katsayı}\\\text{matrisi}}} - \overbrace{\lambda}^{\text{öz değer}} \underbrace{I}_{\text{birim matris}}\big) = 0
 ```
@@ -702,10 +694,6 @@ Bilinen bir örnek: Aralık başındaki yılbaşı süsü satışları, birkaç 
 ```
 
 olsun. $\sum$ işareti "toplam" demektir: altındaki $i = 1$'den üstündeki $p$'ye kadar her $i$ için terimi yazıp toplarız. Örneğin $p = 2$ için ikinci toplam açık hâliyle $a_{12}^{(1)} y_{2,t-1} + a_{12}^{(2)} y_{2,t-2}$'dir: faizin bir ve iki önceki dönemdeki değerleri, her biri kendi katsayısıyla. "$`y_2`$, $y_1$'in Granger nedeni değildir" hipotezi, $y_2$'nin tüm gecikme katsayılarının sıfır olmasıdır:
-
-$$
-H_0: a_{12}^{(1)} = a_{12}^{(2)} = \dots = a_{12}^{(p)} = 0
-$$
 
 ```math
 H_0: \underbrace{a_{12}^{(1)} = a_{12}^{(2)} = \dots = a_{12}^{(p)}}_{\substack{\text{faizin enflasyon denklemindeki}\\\text{bütün gecikme katsayıları}}} = \overbrace{0}^{\substack{\text{faizin geçmişi}\\\text{katkı yapmaz}}}

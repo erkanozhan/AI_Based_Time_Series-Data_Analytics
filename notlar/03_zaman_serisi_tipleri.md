@@ -29,10 +29,6 @@ Zaman serilerini sınıflandırırken **dört bağımsız eksen** kullanırız. 
 
 - **Tek değişkenli (univariate) seri:** Her $t$ anında tek bir skaler gözlem vardır.
 
-$$
-\lbrace x_t\rbrace _{t=1}^{T}, \qquad x_t \in \mathbb{R}
-$$
-
 ```math
 \underbrace{\lbrace x_t\rbrace_{t=1}^{T}}_{\substack{T\text{ gözlemlik}\\\text{seri}}}, \qquad \underbrace{x_t \in \mathbb{R}}_{\substack{\text{her anda tek bir}\\\text{gerçel sayı}}}
 ```
@@ -44,10 +40,6 @@ $$
 $x_t \in \mathbb{R}$ ifadesi yalnızca "her an elimizde tek bir gerçel sayı vardır" demektir (örneğin $x_t = 432$ yolcu).
 
 - **Çok değişkenli (multivariate) seri:** Her $t$ anında $k$ değişkenden oluşan bir **gözlem vektörü** vardır.
-
-$$
-\mathbf{x}_t = (x_{1,t}, x_{2,t}, \dots, x_{k,t})^\top \in \mathbb{R}^k
-$$
 
 ```math
 \underbrace{\mathbf{x}_t}_{\substack{t\text{ anındaki}\\\text{gözlem vektörü}}} = (\overbrace{x_{1,t}}^{\text{1. değişken}}, x_{2,t}, \dots, \overbrace{x_{k,t}}^{k\text{. değişken}})^\top \in \underbrace{\mathbb{R}^k}_{\substack{k\text{ gerçel sayıdan}\\\text{oluşan vektörler}}}
@@ -315,10 +307,6 @@ Grafik üzerinde kök, ifadenin grafiğinin yatay ekseni (sıfır çizgisini) ke
 
 Parantezin içi, modelin iskeletidir: "Bugünkü değerden, dünkü değerin $\phi$ katını çıkar; geriye yalnızca bugünün şoku kalır." Ancak $B$ bir sayı değil, "bir adım geri git" **komutudur**. "$`1 - \phi B = 0`$ olsun, $B$'yi çözelim" diyemeyiz; bir komutun sayısal değeri olmaz. Matematikçiler bu tür zaman içinde ilerleyen sistemleri (*fark denklemlerini*) incelerken şu yolu izler: Komut olan $B$'nin yerine geçici olarak sıradan bir bilinmeyen koyarlar, genellikle $z$ harfini. Bu $z$ gökten inmemiştir; $B$'nin yerine konmuş bir **kukla değişkendir**. Böylece iskelet, kökü bulunabilen sıradan bir denkleme dönüşür. Bu denkleme modelin **karakteristik denklemi** denir:
 
-$$
-1 - \phi z = 0
-$$
-
 ```math
 \underbrace{1 - \phi z}_{\substack{B\text{ yerine kukla}\\\text{değişken }z\text{ konmuş iskelet}}} = 0
 ```
@@ -577,10 +565,6 @@ Beyaz gürültüde (−5.64, p = 0.01) ve farkı alınmış seride (−6.09, p =
 
 - **Sürekli zamanlı seri:** $\lbrace x(t) : t \in \mathbb{R}\rbrace$. Zaman ekseni kesintisizdir.
 - **Kesikli zamanlı seri:** $\lbrace x_t : t \in \mathbb{Z}\rbrace$. Gözlemler yalnızca belirli anlarda vardır. Sürekli bir süreçten $\Delta t$ aralıklarla **örnekleme (sampling)** yapılarak elde edilir:
-
-$$
-x_t = x(t \cdot \Delta t), \qquad t = 0, 1, 2, \dots
-$$
 
 ```math
 \underbrace{x_t}_{\substack{t\text{'nci}\\\text{gözlem}}} = \overbrace{x(t \cdot \Delta t)}^{\substack{\text{sürekli sürecin}\\t \cdot \Delta t\text{ anındaki değeri}}}, \qquad \underbrace{t = 0, 1, 2, \dots}_{\text{örnek numarası}}

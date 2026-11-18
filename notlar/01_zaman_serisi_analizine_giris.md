@@ -19,10 +19,6 @@ Bu bölümde zaman serisinin ne olduğunu, onu sıradan veri setlerinden ayıran
 
 **Tanım:** Zaman serisi, bir büyüklüğün zaman dizinine göre sıralanmış gözlemler dizisidir:
 
-$$
-\lbrace x_t : t \in \mathcal{T} \rbrace
-$$
-
 ```math
 \lbrace \underbrace{x_t}_{\substack{t\text{ anındaki}\\\text{gözlem}}} : \overbrace{t \in \mathcal{T}}^{\substack{t\text{, gözlem anları}\\\text{kümesinin elemanı}}} \rbrace
 ```
@@ -93,10 +89,6 @@ Zaman serisinde durum tamamen farklıdır. Bu ayın yolcu sayısı, geçen ayın
 *Şekil 1.2 — Solda `AirPassengers` serisinin orijinal hâli, sağda aynı 144 değerin rastgele karıştırılmış hâli. İki grafikteki sayılar aynıdır; ortalama ve varyans değişmez. Ancak trend, mevsimsellik ve "komşu aylar birbirine benzer" bilgisi tamamen kaybolur.*
 
 **Tanım:** Klasik istatistik yöntemlerinin çoğu, gözlemlerin **bağımsız ve özdeş dağılımlı** (*independent and identically distributed*, kısaca iid) olduğunu varsayar. Bunu art arda atılan bir zarla düşünebiliriz: Her atış bir öncekinden habersizdir (bağımsız) ve her atışta aynı zar kullanılır, yani hangi sayının hangi olasılıkla geleceği hep aynıdır (özdeş dağılımlı). Zaman serisinde ise yakın zamanlı gözlemler genellikle birbiriyle ilişkilidir:
-
-$$
-\mathrm{Cov}(x_t, x_{t-h}) \neq 0 \quad \text{(en azından bazı } h \text{ gecikmeleri için)}
-$$
 
 ```math
 \underbrace{\mathrm{Cov}(x_t, x_{t-h})}_{\substack{\text{bugün ile }h\text{ adım önceki}\\\text{gözlemin kovaryansı}}} \overbrace{\neq 0}^{\substack{\text{sıfır değil:}\\\text{ilişkili}}} \quad \text{(en azından bazı } h \text{ gecikmeleri için)}
