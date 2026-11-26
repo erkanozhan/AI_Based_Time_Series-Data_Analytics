@@ -49,7 +49,7 @@ Kurulum yapmadan çalışmak için `Codes/README.md` tablosundaki Colab bağlant
 
 ## Yazım kuralları
 
-- Ondalık ayırıcı olarak nokta kullanılır (R ve Python çıktılarıyla uyum için). Türkçe arayüzlü Excel ya da LibreOffice Calc çıktıları anlatılırken ekranda görünen virgüllü yazım korunur.
+- Ondalık ayırıcı olarak nokta kullanılır (R ve Python çıktılarıyla uyum için). Türkçe arayüzlü programların ekran çıktıları anlatılırken ekranda görünen virgüllü yazım korunur.
 - Terimlerin İngilizce karşılıkları ilk geçtikleri yerde parantez içinde verilir.
 
 ## Lisans

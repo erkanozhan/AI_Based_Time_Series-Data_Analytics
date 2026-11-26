@@ -15,8 +15,6 @@ library(tseries)
 
 # ---- 7.2 Karakteristik denklemin kökleri ----
 # Katsayılar küçük üsten büyüğe: 1 - 0.6z - 0.16z^2 = 0
-round(polyroot(c(1, -0.6, -0.16)), 4)   # 1 - 0.6z - 0.16z^2 = 0 denkleminin kökleri
-#> [1]  1.25+0i -5.00+0i
 Mod(polyroot(c(1, -0.6, -0.16)))        # köklerin mutlak değerleri
 #> [1] 1.25 5.00
 

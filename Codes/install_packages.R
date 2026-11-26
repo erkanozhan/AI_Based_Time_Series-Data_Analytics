@@ -10,8 +10,7 @@ paketler <- c(
   "TSstudio",   # Bölüm 5, 6: USgas veri seti ve ts_info()
   "ggplot2",    # Bölüm 6, 8: grafikler
   "tseries",    # Bölüm 3, 7: adf.test(), kpss.test()
-  "forecast",   # Bölüm 7, 8: auto.arima(), forecast(), accuracy()
-  "vars"        # Bölüm 10: VARselect(), VAR(), roots(), serial.test(), causality() ve Canada veri seti
+  "forecast"    # Bölüm 7, 8: auto.arima(), forecast(), accuracy()
 )
 
 eksik <- paketler[!paketler %in% rownames(installed.packages())]

@@ -179,10 +179,6 @@ Tablonun son satırındaki **birim kök**, ADF testinin sınadığı ve ders boy
 **AR(1) denklemini kelime kelime okumak.** Bir dondurma dükkânının günlük satışlarını düşünelim. Bugünkü satış büyük ölçüde dünkü satışa benzer: Dün kalabalık olan dükkân bugün de büyük olasılıkla kalabalıktır. Ama her gün bir de önceden bilinemeyen bir sürpriz vardır: ani bir sağanak satışları düşürür, bir okul gezisi artırır. Bu iki fikir tek bir denklemde toplanır. Bu denkleme **birinci dereceden otoregresif model**, kısaca **AR(1)** denir ("oto": kendi, "regresif": geçmişine dayanan, "1": yalnızca bir önceki döneme bakılır):
 
 ```math
-x_t = \phi \, x_{t-1} + \varepsilon_t
-```
-
-```math
 \underbrace{x_t}_{\text{bugünkü değer}} = \underbrace{\phi}_{\substack{\text{katsayı:}\\\text{serinin hafızası}}} \, \overbrace{x_{t-1}}^{\text{dünkü değer}} + \underbrace{\varepsilon_t}_{\substack{\text{bugüne özgü}\\\text{şok (sürpriz)}}}
 ```
 
@@ -294,10 +290,6 @@ Grafik üzerinde kök, ifadenin grafiğinin yatay ekseni (sıfır çizgisini) ke
 1. Denklemi yazıp $x_{t-1}$ terimini sol tarafa geçiririz: $x_t - \phi x_{t-1} = \varepsilon_t$.
 2. $x_{t-1}$ yerine $B x_t$ yazarız: $x_t - \phi B x_t = \varepsilon_t$.
 3. Her iki terimde ortak olan $x_t$'yi paranteze alırız:
-
-```math
-(1 - \phi B)\, x_t = \varepsilon_t
-```
 
 ```math
 \underbrace{(1 - \phi B)}_{\substack{\text{modelin iskeleti: bugün}\\\text{eksi dünün }\phi\text{ katı}}}\, \overbrace{x_t}^{\text{seri}} = \underbrace{\varepsilon_t}_{\text{bugünün şoku}}
@@ -429,10 +421,6 @@ Karar için önceden bir eşik seçilir, genellikle **0.05** (yüzde 5). Bu eşi
 İkinci durumdaki ince nokta özellikle önemlidir: **"Reddedilemedi", "kanıtlandı" demek değildir.** Mahkemede beraat eden sanık için "masum olduğu kanıtlandı" denmez, "suçu kanıtlanamadı" denir. p = 0.40 sonucu "birim kök olduğu kanıtlandı" anlamına gelmez; yalnızca durağanlığı gösterecek kadar güçlü delil yoktur. Kısa serilerde ADF'nin $H_0$'ı reddetmesi zordur. Bu yüzden ADF, hipotezleri tam ters kuran **KPSS** testiyle ($H_0$: seri durağandır) ve grafikle birlikte kullanılır.
 
 ADF, $\phi = 1$ olup olmadığını küçük bir cebir hilesiyle sınar. AR(1) denkleminin iki tarafından $x_{t-1}$ çıkarıldığında şu eşitlik elde edilir:
-
-```math
-x_t - x_{t-1} = (\phi - 1)\, x_{t-1} + \varepsilon_t, \qquad \text{yani} \qquad \nabla x_t = (\phi - 1)\, x_{t-1} + \varepsilon_t
-```
 
 ```math
 \underbrace{x_t - x_{t-1}}_{\substack{\text{bugünkü}\\\text{değişim}}} = \overbrace{(\phi - 1)}^{\substack{\text{sınanan}\\\text{katsayı}}}\, \underbrace{x_{t-1}}_{\substack{\text{dünkü}\\\text{seviye}}} + \overbrace{\varepsilon_t}^{\text{şok}}, \qquad \text{yani} \qquad \underbrace{\nabla x_t}_{\text{birinci fark}} = (\phi - 1)\, x_{t-1} + \varepsilon_t

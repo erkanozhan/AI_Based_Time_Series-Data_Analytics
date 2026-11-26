@@ -37,7 +37,7 @@ Bu gösterimi bir kez okumayı öğrenmek dersin geri kalanını çok kolaylaşt
 
 Şekil 1.1'deki iki seri, ileride ayrıntılı inceleyeceğimiz kavramların neredeyse hepsini şimdiden gösterir. `AirPassengers` serisinde yolcu sayısı yıllar içinde **artar** (trend), her yaz **zirve** yapar (mevsimsellik, *seasonality*) ve bu yaz tepeleri seviye yükseldikçe **büyür**. Elektrik yükünde ise iki ayrı tekrar eden desen vardır: 24 saatlik günlük döngü ve 7 günlük haftalık döngü. Bu bileşenler Bölüm 2'de sistematik olarak ele alınacaktır.
 
-> **Hemen deneyin 1.1a · İlk zaman serinizi R'da görün** (R, ~3 dk)
+> **Hemen deneyin 1.1 · İlk zaman serinizi R'da görün** (R, ~3 dk)
 >
 > R'ı ilk kez açıyorsanız: RStudio'yu açın, sol alttaki **Console** (konsol) paneline satırları tek tek yazın ve her satırdan sonra `Enter`'a basın. `#` işaretinden sonrasını yazmanız gerekmez; o kısım açıklamadır, R onu okumaz. `AirPassengers` R ile birlikte gelir, hiçbir şey indirmeniz gerekmez. R'ın temel yapıları (atama, vektör, veri çerçevesi, paket) için bkz. [Ek A: R'a Giriş](../R_Giris.md).
 >
@@ -55,24 +55,6 @@ Bu gösterimi bir kez okumayı öğrenmek dersin geri kalanını çok kolaylaşt
 > <details><summary>Cevap</summary>
 >
 > `AirPassengers[12]` → `[1] 118` (Aralık 1949), `AirPassengers[144]` → `[1] 432` (Aralık 1960). Temmuz 1960, $`11 \times 12 + 7 = 139`$. gözlemdir: `AirPassengers[139]` → `[1] 622`. Bu, serinin en büyük değeridir.
->
-> </details>
-
-> **Hemen deneyin 1.1b · Bir yılı elle çizin** (Excel / LibreOffice Calc, ~5 dk)
->
-> R kullanmadan da bir zaman serisini görebilirsiniz.
->
-> 1. Boş bir sayfada A1 hücresine `Ay`, B1 hücresine `Yolcu` yazın. A2:A13 hücrelerine 1'den 12'ye kadar sayıları, B2:B13 hücrelerine 1949 değerlerini girin: 112, 118, 132, 129, 121, 135, 148, 148, 136, 119, 104, 118.
-> 2. B1:B13 aralığını seçin. Excel'de **Ekle → Grafikler → Çizgi** (İngilizce: **Insert → Charts → Line**), LibreOffice Calc'ta **Ekle → Grafik… → Çizgi** (İngilizce: **Insert → Chart… → Line**) seçin.
-> 3. D2 hücresine `=MAK(B2:B13)` (İngilizce: `=MAX(B2:B13)`), D3'e `=MİN(B2:B13)` (İngilizce: `=MIN(B2:B13)`), D4'e `=ORTALAMA(B2:B13)` (İngilizce: `=AVERAGE(B2:B13)`) yazın. Arayüzünüz İngilizceyse İngilizce adları kullanın.
->
-> **Ne göreceksiniz:** Grafik 7. ve 8. aylarda (Temmuz, Ağustos) tepe, 11. ayda (Kasım) dip yapar. D2'de 148, D3'te 104, D4'te 126,6666667 görünür (Türkçe arayüz ondalık ayracı olarak virgül kullanır; değer yaklaşık 126.67'dir). Yalnızca 12 gözlemle bile yaz zirvesi fark edilir; ama trendi görmek için birkaç yıl gerekir.
->
-> **Şimdi siz:** C sütununa 1950 değerlerini girin (115, 126, 141, 135, 125, 149, 170, 170, 158, 133, 114, 140) ve grafiğe ikinci çizgi olarak ekleyin. Tepe ve dip ayları değişti mi? 1950'nin ortalaması 1949'dan büyük mü?
->
-> <details><summary>Cevap</summary>
->
-> Tepe yine Temmuz–Ağustos (170), dip yine Kasım (114). Ortalama yaklaşık 139.67'dir; 1949'daki 126.67'den büyüktür. Aynı desen bir üst seviyede tekrar eder: mevsimsellik + artan trend.
 >
 > </details>
 

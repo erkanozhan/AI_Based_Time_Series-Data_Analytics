@@ -317,31 +317,6 @@ Buradan:
 
 **Yorum:** RMSE (16.01), MAE'den (11.25) belirgin biçimde büyüktür. Sebep 4. aydaki 30'luk hatadır: Bu tek hata, karelerin toplamının %88'ini (900/1025) oluşturur. MAE'ye katkısı ise %67'dir (30/45). Büyük hatalar RMSE'de her zaman daha çok ağırlık taşır.
 
-> **Hemen deneyin 8.2.4 · Aynı tabloyu Excel'de formülle kurun** (Excel / LibreOffice Calc, ~5 dk)
->
-> Boş bir çalışma sayfası açın ve 8.2.4'teki tabloyu kurun:
->
-> 1. **A1**'e `Gerçek`, **B1**'e `Tahmin`, **C1**'e `Hata`, **D1**'e `Mutlak`, **E1**'e `Kare`, **F1**'e `Oran` yazın.
-> 2. **A2:A5** hücrelerine 100, 120, 130, 150; **B2:B5** hücrelerine 110, 115, 130, 120 girin.
-> 3. **C2**'ye `=A2-B2`, **D2**'ye `=MUTLAK(C2)` (İngilizce: `=ABS(C2)`), **E2**'ye `=C2^2`, **F2**'ye `=D2/A2` yazın. **C2:F2** hücrelerini seçip sağ alt köşedeki küçük kareden (doldurma tutamacı) 5. satıra kadar aşağı sürükleyin.
-> 4. Metrikler için:
->    - **H2** (MAE): `=ORTALAMA(D2:D5)` (İngilizce: `=AVERAGE(D2:D5)`)
->    - **H3** (RMSE): `=KAREKÖK(ORTALAMA(E2:E5))` (İngilizce: `=SQRT(AVERAGE(E2:E5))`)
->    - **H4** (MAPE, %): `=ORTALAMA(F2:F5)*100`
->    - **H5** (yanlılık): `=ORTALAMA(C2:C5)`
->
-> LibreOffice Calc'ta fonksiyon adları arayüz diline göre değişebilir; İngilizce adları kullanmak isterseniz **Tools → Options → LibreOffice Calc → Formula** altında "Use English function names" kutusunu işaretleyin.
->
-> **Ne göreceksiniz:** H2 = 11,25; H3 = 16,00781 (hücre biçimine göre 16,01); H4 = 8,541667; H5 = 6,25. Bunlar 8.2.4'te elle bulduğumuz MAE = 11.25, RMSE ≈ 16.01, MAPE ≈ %8.54 ve yanlılık = 6.25'in aynısıdır. (Türkçe Excel ondalık ayırıcı olarak virgül gösterir.)
->
-> **Şimdi siz:** 4. ayın tahminini (**B5**) 120'den 145'e değiştirin. Formüllere dokunmadan dört metrik kendiliğinden güncellenir. Önce tahmin edin: RMSE ile MAE arasındaki fark büyür mü, küçülür mü?
->
-> <details><summary>Cevap</summary>
->
-> Hatalar −10, +5, 0, +5 olur. MAE = 5; RMSE = $\sqrt{(100 + 25 + 0 + 25)/4} = \sqrt{37.5} \approx 6.12$; MAPE = 4.375; yanlılık = 0. Büyük hata (30) ortadan kalktığı için RMSE/MAE oranı 16.01/11.25 ≈ 1.42'den 6.12/5 ≈ 1.22'ye düşer: Hatalar artık birbirine daha yakındır. Yanlılığın 0 olması, eksik ve fazla tahminlerin birbirini dengelediğini gösterir; ama MAE'nin 0 olmadığına dikkat edin (8.2'deki Not).
->
-> </details>
-
 #### 8.2.5. Ek Metrikler: sMAPE ve MASE
 
 MAPE'nin sorunlarını hafifletmek için önerilmiş iki metrik de literatürde ve tahmin yarışmalarında (ör. M4 yarışması) sıkça kullanılır.
@@ -695,7 +670,6 @@ Grafikte mavi tahmin çizgisinin kırmızı gerçek çizgiyi yakından izlediği
 > **Uygulama dosyası:** [`Codes/python/ch08_model_degerlendirme.py`](../Codes/python/ch08_model_degerlendirme.py) · [Notebook](../Codes/notebooks/ch08_model_degerlendirme.ipynb) · [![Colab'da aç](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/Codes/notebooks/ch08_model_degerlendirme.ipynb)
 >
 > Bu bölümdeki kodların tamamı bu dosyada. Dosya, depo kök dizininde `python Codes/python/ch08_model_degerlendirme.py` komutuyla ya da VS Code'da hücre hücre çalıştırılabilir. Kurulum yapmadan denemek için Colab bağlantısı kullanılabilir.
-
 
 Farklı modellerin performansını karşılaştırırken her seferinde aynı metrik kodunu yeniden yazmak yerine standart bir fonksiyon kullanmak hem zaman kazandırır hem de hataları önler.
 

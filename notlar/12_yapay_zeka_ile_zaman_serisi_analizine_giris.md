@@ -96,26 +96,9 @@ Dönüşümün en temel yolu **kayan penceredir**: $p$ uzunluğunda bir pencere 
 
 Pencere boyutu $p$ bir hiperparametredir, yani modelin veriden öğrenmediği, bizim önceden seçtiğimiz bir ayardır. Bölüm 6'daki PACF grafiği hangi gecikmelerin anlamlı olduğu konusunda ipucu verir. Aylık mevsimsel verilerde $p = 12$ (bir tam yıl) iyi bir başlangıç noktasıdır.
 
-> **Hemen deneyin 12.1.1a · Şekil 12.1'deki tabloyu hücre kaydırarak kurun** (Excel / LibreOffice Calc, ~5 dk)
+> **Hemen deneyin 12.1.1 · Şekil 12.1'deki tabloyu `shift` ile kurun** (Python, ~3 dk)
 >
-> 1. Boş bir sayfada `A1` hücresine `seri`, `B1`–`E1` hücrelerine sırayla `y_t-3`, `y_t-2`, `y_t-1`, `y` başlıklarını yazın.
-> 2. `A2:A11` hücrelerine `AirPassengers`'ın ilk 10 ayını alt alta yazın: 112, 118, 132, 129, 121, 135, 148, 148, 136, 119.
-> 3. İlk hedef 4. gözlemdir (129, `A5` hücresi). Bu yüzden 5. satıra şu formülleri yazın: `B5` hücresine `=A2`, `C5` hücresine `=A3`, `D5` hücresine `=A4`, `E5` hücresine `=A5`.
-> 4. `B5:E5` aralığını seçin ve seçimin sağ alt köşesindeki küçük kareyi (doldurma tutamacı) 11. satıra kadar aşağı sürükleyin.
->
-> **Ne göreceksiniz:** 5–11. satırlarda 7 satırlık bir tablo oluşur. İlk satır `112 | 118 | 132 | 129`, son satır `148 | 148 | 136 | 119`'dur; tablo Şekil 12.1'dekinin aynısıdır. Formüllerdeki adresler göreli olduğu için her satırda bir aşağı kayar; pencerenin "kayması" tam olarak budur. 2–4. satırlar boş kalır, çünkü ilk üç gözlemin önünde üç aylık geçmiş yoktur ($10 - 3 = 7$ satır).
->
-> **Şimdi siz:** (1) `B8` hücresine tıklayın; formül çubuğunda ne yazdığını önce tahmin edin. (2) Pencereyi $p = 4$'e büyütseydik tablo kaçıncı satırdan başlar ve kaç satır olurdu?
->
-> <details><summary>Cevap</summary>
->
-> (1) `B8` hücresinde `=A5` yazar: Her satır bir öncekine göre bir hücre aşağıyı gösterir. (2) İlk hedef 5. gözlem olur (`A6`, 121); tablo 6. satırdan başlar ve $10 - 4 = 6$ satır olur. Son satır `135 | 148 | 148 | 136` → 119'dur.
->
-> </details>
-
-> **Hemen deneyin 12.1.1b · Aynı tabloyu `shift` ile kontrol edin** (Python, ~3 dk)
->
-> Excel'de elle kurduğunuz tabloyu pandas ile tek komutta üretelim:
+> Şekil 12.1'deki tabloyu pandas ile tek komutta üretelim:
 >
 > ```python
 > import numpy as np
@@ -143,7 +126,7 @@ Pencere boyutu $p$ bir hiperparametredir, yani modelin veriden öğrenmediği, b
 > (7, 4)
 > ```
 >
-> Satırlar Excel tablonuzla birebir aynıdır. Soldaki 3, 4, ... sayıları satırın serideki sıra numarasıdır (0'dan sayılır); ilk üç satır (0, 1, 2) `dropna()` ile atılmıştır.
+> Satırlar Şekil 12.1'deki tabloyla birebir aynıdır. Soldaki 3, 4, ... sayıları satırın serideki sıra numarasıdır (0'dan sayılır); ilk üç satır (0, 1, 2) `dropna()` ile atılmıştır.
 >
 > **Şimdi siz:** 10 gözlemlik bu seride $p = 12$ seçseydik kaç satır kalırdı? Önce tahmin edin, sonra sözlüğe `"y_t-4": s.shift(4)`, …, `"y_t-12": s.shift(12)` sütunlarını ekleyip `shape`'e bakın.
 >
@@ -313,16 +296,9 @@ Yukarıdaki tablo **tek adımlı (one-step-ahead)** bir tahmin kurar: Bilinen ge
 
 **Not —** Bölüm 7'deki ARIMA'nın `forecast(h = 24)` çağrısı da arka planda özyinelemeli çalışır: Her adımın tahmini bir sonrakinde girdi olarak kullanılır. Belirsizlik bu şekilde biriktiği için ARIMA'nın tahmin aralıkları ufuk uzadıkça genişler.
 
-> **Hemen deneyin 12.1.3 · Özyinelemeli tahmini "aşağı sürükleyerek" izleyin** (Excel / LibreOffice Calc ve Python, ~5 dk)
+> **Hemen deneyin 12.1.3 · Özyinelemeli tahmini adım adım izleyin** (Python, ~5 dk)
 >
-> Notun "son üç değerin ortalaması" modelini gerçek verilerle deneyelim: Ekim–Aralık 1959 değerlerinden (407, 362, 405) yola çıkıp Ocak–Mart 1960'ı tahmin edeceğiz. Bu ayların gerçek değerleri 417, 391 ve 419'dur.
->
-> 1. `A1:A3` hücrelerine 407, 362, 405 yazın.
-> 2. `A4` hücresine `=ORTALAMA(A1:A3)` (İngilizce: `=AVERAGE(A1:A3)`) yazın.
-> 3. `A4` hücresini `A6`'ya kadar aşağı sürükleyin. `A5` hücresine tıklayın: formül `=ORTALAMA(A2:A4)` olmuştur, yani pencereye `A4`'teki **tahmin** girmiştir.
-> 4. `B4:B6` hücrelerine gerçek değerleri (417, 391, 419), `C4` hücresine `=B4-A4` yazıp `C6`'ya kadar sürükleyin.
->
-> Aynı hesabın Python karşılığı (kontrol için):
+> Notun "son üç değerin ortalaması" modelini gerçek verilerle deneyelim: Ekim–Aralık 1959 değerlerinden (407, 362, 405) yola çıkıp Ocak–Mart 1960'ı tahmin edeceğiz. Bu ayların gerçek değerleri 417, 391 ve 419'dur. Her adımda tahmin pencereye eklenir ve bir sonraki adımın girdisi olur:
 >
 > ```python
 > pencere = [407, 362, 405]            # Ekim, Kasım, Aralık 1959
@@ -333,7 +309,7 @@ Yukarıdaki tablo **tek adımlı (one-step-ahead)** bir tahmin kurar: Bilinen ge
 >     pencere.append(tahmin)           # özyinelemeli: tahmin pencereye girer
 > ```
 >
-> **Ne göreceksiniz:** Excel'de `A4:A6` = 391,33; 386,11; 394,15 ve hatalar 25,67; 4,89; 24,85 (Türkçe Excel ondalık ayırıcı olarak virgül kullanır). Python çıktısı:
+> **Ne göreceksiniz:**
 >
 > ```text
 > 1 391.33 gercek: 417 hata: 25.67
@@ -341,11 +317,11 @@ Yukarıdaki tablo **tek adımlı (one-step-ahead)** bir tahmin kurar: Bilinen ge
 > 3 394.15 gercek: 419 hata: 24.85
 > ```
 >
-> **Şimdi siz:** (1) `A4` hücresini `A15`'e kadar sürükleyin. Tahminler nereye yerleşir? (2) Şubat ve Mart 1960'ı bu kez **tek adımlı** tahmin edin: Pencereye tahmin yerine bilinen gerçek değeri koyun, ör. Şubat için `=ORTALAMA(362;405;417)`. Hatalar özyinelemeli tahmindekilerle nasıl karşılaştırılır?
+> **Şimdi siz:** (1) Döngüyü `range(12)` ile 12 adım çalıştırın (`gercek` listesi yalnızca 3 değer içerdiği için 4. adımdan sonra yalnızca tahmini yazdırın). Tahminler nereye yerleşir? (2) Şubat ve Mart 1960'ı bu kez **tek adımlı** tahmin edin: Pencereye tahmin yerine bilinen gerçek değeri koyun, ör. Şubat için `(362 + 405 + 417) / 3`. Hatalar özyinelemeli tahmindekilerle nasıl karşılaştırılır?
 >
 > <details><summary>Cevap</summary>
 >
-> (1) İlk birkaç adımdan sonra tahminler 390 ile 392 arasında kalır ve 391 civarına yerleşir (ör. `A15` ≈ 391,02); tahmin düz bir çizgiye dönüşür: Model bir süre sonra yalnızca kendi tahminlerinin ortalamasını alır, pencereye yeni bilgi girmez. (2) Şubat: $(362 + 405 + 417) / 3 \approx 394.67$, hata $391 - 394.67 = -3.67$. Mart: $(405 + 417 + 391) / 3 \approx 404.33$, hata $419 - 404.33 = 14.67$. Mart'ın özyinelemeli hatası (24.85) belirgin biçimde daha büyüktür; gerçek değer yerine tahmin kullanıldıkça hata birikir.
+> (1) İlk birkaç adımdan sonra tahminler 390 ile 392 arasında kalır ve 391 civarına yerleşir (12. adımda ≈ 391.02); tahmin düz bir çizgiye dönüşür: Model bir süre sonra yalnızca kendi tahminlerinin ortalamasını alır, pencereye yeni bilgi girmez. (2) Şubat: $(362 + 405 + 417) / 3 \approx 394.67$, hata $391 - 394.67 = -3.67$. Mart: $(405 + 417 + 391) / 3 \approx 404.33$, hata $419 - 404.33 = 14.67$. Mart'ın özyinelemeli hatası (24.85) belirgin biçimde daha büyüktür; gerçek değer yerine tahmin kullanıldıkça hata birikir.
 >
 > </details>
 
@@ -409,11 +385,13 @@ Sözle: Değerden en küçük değeri çıkarırız (en küçük değer 0'a geli
 - 300 → $(300 - 104) / 455 = 196 / 455 \approx 0.431$
 - Test dönemindeki 622 (Temmuz 1960) → $(622 - 104) / 455 = 518 / 455 \approx 1.138$. Değer 1'i aşar; bu bir hata değildir, test döneminde eğitimde görülmemiş bir seviyeye çıkıldığını gösterir.
 
-Model 0–1 ölçeğinde tahmin üretir. Sonucu yolcu sayısı olarak okumak için formülü tersine çeviririz (**ters dönüşüm**, `inverse_transform`): $y_t = y'_ t \cdot (y_{\max} - y_{\min}) + y_{\min}$. Örneğin 0.5 tahmini $0.5 \cdot 455 + 104 = 331.5$ bin yolcuya karşılık gelir.
+Model 0–1 ölçeğinde tahmin üretir. Sonucu yolcu sayısı olarak okumak için formülü tersine çeviririz (**ters dönüşüm**, `inverse_transform`):
 
 ```math
 \underbrace{y_t}_{\substack{\text{yolcu sayısı}\\\text{(özgün ölçek)}}} = \underbrace{y'_t}_{\substack{\text{modelin 0--1}\\\text{ölçeğindeki tahmini}}} \cdot \overbrace{(y_{\max} - y_{\min})}^{\text{aralığın genişliği}} + \overbrace{y_{\min}}^{\text{en küçük değer}}
 ```
+
+Örneğin 0.5 tahmini $0.5 \cdot 455 + 104 = 331.5$ bin yolcuya karşılık gelir.
 
 **Ne anlatıyor?** Ölçeklemenin iki adımı ters sırayla geri alınır: Önce aralığın genişliğiyle çarpılır, sonra en küçük değer eklenir. Böylece modelin 0–1 ölçeğindeki tahmini yeniden yolcu sayısına çevrilir.
 
@@ -610,7 +588,7 @@ Gerçek bir ağda $h_t$ onlarca sayıdan oluşan bir vektör, $W_h$ gibi ağırl
 
 $h_2$ hem $x_2$'yi hem de $h_1$ üzerinden $x_1$'i içerir: Hafıza, geçmişi bu zincirleme toplamla taşır.
 
-> **Hemen deneyin 12.2.2a · Bir RNN'in hafızasını adım adım izleyin** (Python, ~4 dk)
+> **Hemen deneyin 12.2.2 · Bir RNN'in hafızasını adım adım izleyin** (Python, ~4 dk)
 >
 > Notteki iki adımlık örneği numpy ile hesaplayıp üç adım daha sürdürelim; bu üç adımda girdi 0'dır, yani ağa yeni bilgi gelmez.
 >
@@ -677,29 +655,6 @@ Denklemdeki `tanh` ile LSTM'de kullanacağımız `sigmoid`, girdiyi dar bir aral
 Günlük hayattan bir benzetme: Kulaktan kulağa oyununda mesaj her kişide biraz bozulur; zincir uzadıkça ilk söylenen cümle sona hiç ulaşmaz. Çarpanlar 1'den büyükse bunun tersi olur ve gradyan kontrolsüzce büyür (tablodaki 1.5 sütunu: 10 adımda yaklaşık 58 kat); buna **patlayan gradyan** (*exploding gradient*) denir. Bu durum genellikle gradyanı bir üst sınırla kırparak (*gradient clipping*) önlenir: Gradyanın büyüklüğü belirlenen eşiği (ör. 1) aşarsa eşiğe indirilir.
 
 Zaman serisinde bunun anlamı şudur: Basit bir RNN, geçen ayın etkisini öğrenebilir ama 12 ay önceki mevsimsel etkiyi öğrenmekte zorlanır ($0.5^{12} \approx 0.00024$).
-
-> **Hemen deneyin 12.2.2b · tanh, sigmoid ve çarpan tablosunu Excel'de üretin** (Excel / LibreOffice Calc, ~5 dk)
->
-> 1. `A1`'e `x`, `B1`'e `tanh`, `C1`'e `sigmoid` yazın. `A2:A8` hücrelerine −4, −2, −1, 0, 1, 2, 4 yazın.
-> 2. `B2` hücresine `=TANH(A2)` (İngilizce de `=TANH(A2)`), `C2` hücresine `=1/(1+ÜS(-A2))` (İngilizce: `=1/(1+EXP(-A2))`) yazın ve ikisini 8. satıra kadar sürükleyin.
-> 3. `E1`'e `k`, `F1`'e `0,5^k`, `G1`'e `0,99^k` yazın. `E2:E6` hücrelerine 1, 5, 10, 12, 20 yazın. `F2` hücresine `=0,5^E2`, `G2` hücresine `=0,99^E2` yazıp (İngilizce Excel'de `=0.5^E2` ve `=0.99^E2`) 6. satıra kadar sürükleyin.
->
-> **Ne göreceksiniz:**
->
-> - `tanh` sütunu: −0,9993; −0,964; −0,7616; 0; 0,7616; 0,964; 0,9993
-> - `sigmoid` sütunu: 0,018; 0,1192; 0,2689; 0,5; 0,7311; 0,8808; 0,982
-> - `0,5^k`: 0,5; 0,03125; yaklaşık 0,000977; 0,000244; 9,54E-07 (Excel çok küçük sayıları bilimsel gösterimle yazar: 9,54 × 10⁻⁷)
-> - `0,99^k`: 0,99; 0,951; 0,904; 0,886; 0,818
->
-> Sayılar Şekil 12.3'teki değerlerle (tanh(1) ≈ 0.762, sigmoid(4) ≈ 0.982) ve yukarıdaki çarpan tablosuyla aynıdır. Sütun genişliği dar ise daha az ondalık görebilirsiniz.
->
-> **Şimdi siz:** (1) `A9` hücresine 400 yazıp `B` ve `C` formüllerini 9. satıra uzatın. (2) `H` sütununa `=1,5^E2` ekleyip `E2:E6` için patlayan gradyanı görün.
->
-> <details><summary>Cevap</summary>
->
-> (1) `tanh(400)` = 1 ve `sigmoid(400)` = 1: İki fonksiyon da sınıra yapışmıştır; ölçekleme yapılmazsa büyük girdiler arasındaki farklar kaybolur. (2) 1,5; 7,59; 57,67; 129,75; 3325,26. 10 adımda yaklaşık 58 kat, 20 adımda 3325 kat büyür.
->
-> </details>
 
 #### 12.2.3. LSTM Hücresi
 

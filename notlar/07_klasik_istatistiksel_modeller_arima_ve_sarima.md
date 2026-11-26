@@ -71,30 +71,6 @@ $p$ değeri modelin "hafızasının" ne kadar geriye gittiğini belirtir. Örne�
 
 **Not —** AR(1) sürecinin durağan olması için $\lvert \phi_1 \rvert < 1$ olmalıdır ($\lvert \cdot \rvert$ **mutlak değer**dir: sayının işaretini atıp yalnızca büyüklüğüne bakar, örneğin $\lvert -0.7 \rvert = 0.7$). $\phi_1 = 1$ olursa süreç rastgele yürüyüşe (birim kök, Bölüm 3.2) dönüşür ve şoklar hiç sönmez. AR(p) için koşul tek tek katsayılara bakarak değil, 7.2'de göreceğimiz karakteristik denklemin kökleriyle kontrol edilir.
 
-> **Hemen deneyin 7.1.1 · Çay modelini tabloda çalıştırın** (Excel / LibreOffice Calc, ~5 dk)
->
-> Kafedeki AR(2) modelini ($c = 12$, $\phi_1 = 0.6$, $\phi_2 = 0.16$) şoksuz, yani "tahmin" olarak ileri doğru yürütelim.
->
-> 1. A1'e `gün`, B1'e `çay` yazın. E1:G1'e `c`, `fi1`, `fi2`; E2:G2'ye `12`, `0,6`, `0,16` girin (İngilizce Excel'de `0.6`, `0.16`).
-> 2. A2:A21'e 1'den 20'ye kadar gün numaralarını yazın. B2'ye `40` (evvelsi gün), B3'e `50` (dün) girin.
-> 3. B4'e şu formülü yazıp B21'e kadar aşağı çekin:
->
-> ```text
-> =$E$2+$F$2*B3+$G$2*B2
-> ```
->
-> Formül "bugün = c + fi1 × dün + fi2 × evvelsi gün" demektir; şok yerine 0 koyduğumuz için bu, modelin tahminidir.
->
-> **Ne göreceksiniz:** B4'te 48,4 (metindeki hesapla aynı), ardından 49,04; 49,17; 49,35 … ve 20. günde 49,97. Seri, 50 olan uzun dönem ortalamasına yavaşça yaklaşır.
->
-> **Şimdi siz:** (1) G2'yi `0,4` yapın ($\phi_1 + \phi_2 = 1$). Ne olur? (2) G2'yi `0,3` yapın. Seri hangi değere doğru gidiyor? $\mu = c / (1 - \phi_1 - \phi_2)$ ile kontrol edin.
->
-> <details><summary>Cevap</summary>
->
-> (1) Seri hiç durmadan büyür: 20. günde 203,88'e ulaşır ve birkaç günden sonra her gün yaklaşık 8,57 artar. $\phi_1 + \phi_2 = 1$ olduğunda karakteristik denklemin (7.2'de göreceğiz) bir kökü tam 1'dir (birim kök); $\mu$ formülünün paydası sıfır olur, yani geri çekilecek bir ortalama yoktur. (2) $\mu = 12/(1 - 0.9) = 120$. Seri 120'ye doğru gider ama bu kez yavaş: 20. günde henüz 102,71'dir. Katsayıların toplamı 1'e yaklaştıkça ortalamaya dönüş yavaşlar.
->
-> </details>
-
 #### 7.1.2. MA(q): Hareketli Ortalama Modeli
 
 **Açıklama:** Buradaki "hareketli ortalama", `decompose()`'un trendi bulmak için kullandığı düzleştirmeyle aynı şey değildir: Burada gözlemlerin değil, geçmiş şokların ağırlıklı toplamı alınır (bkz. 6.7.1). MA modeli, önceki adımlardaki öngörülemeyen "şokları" bugünkü değeri açıklamak için kullanır.
@@ -273,7 +249,7 @@ Mevsimsel seriler için ayrıca **mevsimsel fark** alınır: $\nabla_s x_t = x_t
 
 > **Simge notu:** $`B`$ *(be)*: gecikme operatörü, seriyi bir adım geriye kaydırır · $`B^k`$ *(be üzeri k)*: $`k`$ adım geri kaydırma
 
-Önce AR ve MA kısımlarını birer **polinom** olarak tanımlarız. Polinom Bölüm 3.2'de tanımlanmıştı: Örneğin $1 - 0.6z - 0.16z^2$, en büyük üssü 2 olduğu için **2. dereceden** bir polinomdur. Bilinmeyenin yerinde $B$ durduğunda ortaya bir "gecikme polinomu" çıkar:
+Önce AR ve MA kısımlarını birer **polinom** (Bölüm 3.2.3) olarak tanımlarız. Bilinmeyenin yerinde $B$ durduğunda ortaya bir "gecikme polinomu" çıkar:
 
 ```math
 \begin{aligned}
@@ -307,29 +283,7 @@ Son satırı okuyalım: $(1 - B)^d$ çarpanı seriye $d$ kez fark uygular (çün
 
 Fark alındığında sabit terimin anlamı da değişir. $d = 0$ iken $c$ serinin seviyesini belirler (7.1.1). $d = 1$ iken ise farkı alınmış serinin, yani dönemden döneme değişimin ortalamasını belirler: $c \neq 0$ seriye sabit eğimli bir trend ekler. Bu terime **kayma** (*drift*) denir. $d = 2$ iken sabit terim ikinci dereceden (eğri) bir trend anlamına gelir; bu, geleceğe taşınması riskli bir varsayımdır. R'daki `auto.arima()` bu yüzden toplam fark sayısı $d + D$ 2 ya da daha büyükse sabit terim eklemez; $d + D = 1$ ise `drift` adlı bir terimi aday olarak dener.
 
-**Örnek: ARIMA(1,1,1)'i adım adım açmak.** Model kısaltılmış hâliyle şöyledir:
-
-```math
-\underbrace{(1 - \phi_1 B)}_{\text{AR(1) kısmı}}\, \overbrace{(1 - B)}^{\text{bir kez fark al}}\, x_t = \underbrace{(1 + \theta_1 B)}_{\text{MA(1) kısmı}}\, \overbrace{\varepsilon_t}^{\text{şok}}
-```
-
-**Ne anlatıyor?** Serinin bir kez farkı alınır; farkı alınmış seri bir AR(1) ve bir MA(1) terimiyle modellenir.
-
-Sol tarafı iki yoldan açabiliriz.
-
-*Yol 1 (içten dışa):* Önce $x_t$'ye en yakın parantezi uygularız: $(1 - B)x_t = x_t - x_{t-1}$. Bu, bu ayın değişimidir; ona $w_t$ diyelim. Sonra soldaki parantezi bu yeni seriye uygularız: $(1 - \phi_1 B)\thinspace  w_t = w_t - \phi_1 w_{t-1}$. $w$'lerin yerine karşılıklarını yazınca sol taraf $(x_t - x_{t-1}) - \phi_1 (x_{t-1} - x_{t-2})$ olur.
-
-*Yol 2 (önce parantezleri çarpmak):* Gecikme polinomları sıradan cebirdeki gibi çarpılır: Birinci parantezin her terimi ikincinin her terimiyle çarpılır ve $B \cdot B = B^2$ olur.
-
-```math
-\begin{aligned}
-(1 - \phi_1 B)(1 - B) &= 1 \cdot 1 - 1 \cdot B - \phi_1 B \cdot 1 + \phi_1 B \cdot B \\
-&= 1 - B - \phi_1 B + \phi_1 B^2 \\
-&= 1 - (1 + \phi_1) B + \phi_1 B^2
-\end{aligned}
-```
-
-Bunu $x_t$'ye uygularsak $x_t - (1 + \phi_1) x_{t-1} + \phi_1 x_{t-2}$ çıkar; terimler yeniden gruplanınca Yol 1'deki ifadeyle aynıdır. Sağ taraf ise $(1 + \theta_1 B)\thinspace  \varepsilon_t = \varepsilon_t + \theta_1 \varepsilon_{t-1}$'dir. Hepsini birleştirip $\phi_1$'li terimi sağa taşırsak:
+**Örnek: ARIMA(1,1,1)'in açık hâli.** Bu modelde AR(1) kısmı $(1 - \phi_1 B)$, fark çarpanı $(1 - B)$, MA(1) kısmı $(1 + \theta_1 B)$'dir. Önce $(1 - B)x_t = x_t - x_{t-1}$ ile bu ayın değişimi bulunur, AR(1) kısmı bu değişim serisine uygulanır; sağ taraf $\varepsilon_t + \theta_1 \varepsilon_{t-1}$ olur. $\phi_1$'li terim sağa taşınınca sonuç şudur:
 
 ```math
 \begin{aligned}
@@ -358,15 +312,7 @@ $p$. dereceden bir polinom denkleminin $p$ tane kökü vardır (bazıları aynı
 
 Kökler sıradan (gerçel) sayılar olduğunda kural "kök, sayı doğrusunda −1 ile 1 arasında (uçlar dahil) olmamalı" demektir; karmaşık köklerde bu sınırın neden bir çembere dönüştüğü Bölüm 3.2'de (Şekil 3.6) gösterilmişti. AR(p)'de yeni olan, **tek bir kökün değil, bütün köklerin** bu koşulu sağlaması gerektiğidir.
 
-**Günlük hayattan bir örnek:** Bir otobüs bir durakta 10 dakika gecikirse gecikmenin bir kısmı sonraki durağa taşınır. Her durakta gecikme $1/z$ katına iniyorsa (örneğin $z = 1.25$ için 0.8 katına) otobüs birkaç durak sonra tarifesine yetişir: Bu durağanlıktır. $z = 1$ ise gecikme hiç erimez ve her yeni aksilik üstüne eklenir (birim kök); $\lvert z \rvert < 1$ ise gecikme her durakta büyür (patlayan seri). Kökün tersi ($1/z$), şokun her adımda çarpıldığı sayıdır.
-
-**Örnek 1 (durağan AR(2)).** 7.1.1'deki modelin ($\phi_1 = 0.6$, $\phi_2 = 0.16$) karakteristik denklemi şudur:
-
-$$
-1 - 0.6z - 0.16z^2 = 0
-$$
-
-Sol taraf iki basit parantezin çarpımı olarak yazılabilir: $(1 - 0.8z)(1 + 0.2z)$. Çarparak kontrol edelim: $1 + 0.2z - 0.8z - 0.16z^2 = 1 - 0.6z - 0.16z^2$. İki sayının çarpımı ancak biri sıfırsa sıfır olabileceği için kökler, parantezleri tek tek sıfır yapan değerlerdir:
+**Örnek (durağan AR(2)).** 7.1.1'deki modelin ($\phi_1 = 0.6$, $\phi_2 = 0.16$) karakteristik denklemi $1 - 0.6z - 0.16z^2 = 0$'dır. Sol taraf $(1 - 0.8z)(1 + 0.2z)$ biçiminde çarpanlarına ayrılır; kökler parantezleri tek tek sıfır yapan değerlerdir:
 
 ```math
 \begin{aligned}
@@ -375,40 +321,21 @@ Sol taraf iki basit parantezin çarpımı olarak yazılabilir: $(1 - 0.8z)(1 + 0
 \end{aligned}
 ```
 
-Yerine koyarak doğrulayalım: $z = 1.25$ için $1 - 0.6 \cdot 1.25 - 0.16 \cdot 1.5625 = 1 - 0.75 - 0.25 = 0$; $z = -5$ için $1 + 0.6 \cdot 5 - 0.16 \cdot 25 = 1 + 3 - 4 = 0$. İki kökün de mutlak değeri 1'den büyüktür (1.25 ve 5), dolayısıyla model durağandır. 7.1.1'de serinin 50'lik ortalama çevresinde dolaştığını görmemiz bununla tutarlıdır.
+İki kökün de mutlak değeri 1'den büyüktür (1.25 ve 5), dolayısıyla model durağandır. 7.1.1'de serinin 50'lik ortalama çevresinde dolaştığını görmemiz bununla tutarlıdır.
 
-**Örnek 2 (birim köklü AR(2)).** Bölüm 3.2'deki $x_t = 1.5\thinspace  x_{t-1} - 0.5\thinspace  x_{t-2} + \varepsilon_t$ modelini yeniden ele alalım: Karakteristik denklemi $1 - 1.5z + 0.5z^2 = (1 - z)(1 - 0.5z) = 0$, kökleri $z = 1$ ve $z = 2$'dir; köklerden biri tam 1 olduğu için seri birim köklüdür. Orada "bir kez farkı alındığında kalan kısım $\phi = 0.5$ olan durağan bir AR(1) gibi davranır" demiştik. Gecikme polinomlarıyla bu cümle tek satırda görülür. Aynı çarpanlara ayırmayı $z$ yerine $B$ ile yazarsak model şu hâli alır:
+**Birim kök ve fark.** Bölüm 3.2.3'teki birim köklü AR(2) örneğinde ($1 - 1.5z + 0.5z^2 = (1 - z)(1 - 0.5z) = 0$, kökler 1 ve 2) aynı çarpanlara ayırma $B$ ile yazılınca model $(1 - 0.5B)(1 - B)\, x_t = \varepsilon_t$ olur: $(1 - B)$ çarpanı bir kez fark alır, geriye $\phi_1 = 0.5$ olan durağan bir AR(1) kalır; yani bu "AR(2)" aslında bir **ARIMA(1,1,0)** modelidir. Genel ders şudur: Karakteristik denklemdeki her birim kök, modelden bir $(1 - B)$ çarpanı olarak ayrılır ve bir fark alma işlemine karşılık gelir. ARIMA'daki $d$, serideki birim kök sayısıdır.
 
-```math
-\underbrace{(1 - 0.5B)}_{\substack{\text{durağan AR(1)}\\\text{kısmı}}}\, \underbrace{(1 - B)}_{\substack{\text{birim kök:}\\\text{bir kez fark}}}\, x_t = \overbrace{\varepsilon_t}^{\text{şok}}
-```
-
-**Ne anlatıyor?** Model iki çarpana ayrılır: Biri seriye bir kez fark uygular, diğeri farkı alınmış seriyi durağan bir AR(1) olarak modeller.
-
-Bu, yukarıdaki ARIMA(1,1,1) açılımından tanıdık gelen yapıdır: $(1 - B)$ çarpanı bir kez fark alır, geriye $\phi_1 = 0.5$ olan durağan bir AR(1) kalır. Yani bu "AR(2)" aslında bir **ARIMA(1,1,0)** modelidir. Genel ders şudur: Karakteristik denklemdeki her birim kök, modelden bir $(1 - B)$ çarpanı olarak ayrılır ve bir fark alma işlemine karşılık gelir. ARIMA'daki $d$, serideki birim kök sayısıdır.
-
-Şekil 7.2 bu örneklerin köklerini sayı doğrusu üzerinde gösterir.
+Şekil 7.2 bu iki AR(2) modelinin ve üç AR(1) modelinin köklerini sayı doğrusu üzerinde gösterir.
 
 ![Karakteristik kökler ve birim çember](../images/ch07_karakteristik_kokler.svg)
 
 *Şekil 7.2 — Karakteristik denklemin kökleri. Gri bant, mutlak değeri 1'den küçük sayıları (birim çemberin içini) gösterir. Durağan modellerin bütün kökleri bandın dışındadır; birim köklü modellerde bir kök tam 1'dedir; patlayan AR(1)'in ($`\phi = 1.2`$) kökü ($`z = 1/1.2 \approx 0.83`$) bandın içindedir.*
 
-Kökleri elle bulmak yalnızca bu tür basit örneklerde kolaydır; yüksek dereceli polinomlarda Bölüm 3.2'de tanıdığımız `polyroot()` fonksiyonu kullanılır. Fonksiyon polinomun katsayılarını **küçük üsten büyüğe** doğru bir vektör olarak alır:
-
-```r
-round(polyroot(c(1, -0.6, -0.16)), 4)   # 1 - 0.6z - 0.16z^2 = 0 denkleminin kökleri
-#> [1]  1.25+0i -5.00+0i
-Mod(polyroot(c(1, -0.6, -0.16)))        # köklerin mutlak değerleri
-#> [1] 1.25 5.00
-```
-
-Kodu okuyalım: `c(1, -0.6, -0.16)` katsayıları sabit terimden başlayarak sıralar (1 sabit terim, −0.6 $z$ ve −0.16 $z^2$ katsayısı; ters sıra başka bir polinom olur). `polyroot()` kökleri her zaman karmaşık sayı olarak döndürür; `round(..., 4)` sanal kısımdaki `4.49e-15i` gibi hesap kırıntılarını temizler (`1.25+0i` sıradan 1.25 demektir). `Mod()` köklerin sıfıra uzaklığını verir: `1.25 5.00` değerlerinin ikisi de 1'den büyük olduğu için model durağandır (kodun okunuşu 3.2'deki gibidir). Birim köklü Örnek 2 için `Mod(polyroot(c(1, -1.5, 0.5)))` yazsaydık `[1] 1 2` görürdük.
+Kökleri elle bulmak yalnızca bu tür basit örneklerde kolaydır; yüksek dereceli polinomlarda Bölüm 3.2.3'te tanıdığımız `Mod(polyroot(...))` kullanılır (örneğin `Mod(polyroot(c(1, -0.6, -0.16)))` → `1.25 5.00`).
 
 **Not —** MA kısmı için de benzer bir koşul vardır: $\theta(z) = 0$ denkleminin kökleri de birim çemberin dışında olmalıdır. Bu koşula **tersinirlik** (*invertibility*) denir ve geçmiş şokların gözlenen veriden tek bir şekilde geri hesaplanabilmesini sağlar. R ve Python model kurarken bu koşulları kendileri denetler.
 
 Koşul neden gerekli? $\theta = 0.5$ ve $\theta = 2$ olan iki MA(1)'in ACF'si aynıdır: $\rho_1 = \theta / (1 + \theta^2) = 0.4$. Veri ikisini ayırt edemez; yazılım tersinir olanı (0.5) seçer.
-
-**Günlük hayattan bir örnek:** 7.1.2'deki yankı benzetmesini sürdürelim. Elde yalnızca duyulan sesler vardır ve her anki bağırış ayrılmak istenmektedir. Bunun için duyulan sesten bir önceki bağırışın yankısı çıkarılır; ama o bağırışı bulmak için de ondan öncekinin yankısı çıkarılmalıdır. Yankı sesten zayıfsa ($\lvert \theta \rvert < 1$) eski bağırışların bu zincirdeki payı hızla küçülür ve bugünkü bağırış tek biçimde bulunur; yankı daha güçlü olsaydı hesap hiç oturmazdı.
 
 > **Hemen deneyin 7.2 · AR(1) üret, $\phi$'yi ve kökü geri bul** (R, ~5 dk)
 >
@@ -480,7 +407,7 @@ Formül uzun görünse de yalnızca 7.2'deki parçaların yan yana yazılmasıd�
 
 **Ne anlatıyor?** Log serinin hem aylık hem yıllık farkı alınır; kalan seri, geçen ayın ve geçen yılın aynı ayının şoklarıyla açıklanır. Modelde yalnızca iki MA katsayısı bulunur.
 
-Bu denklemi 7.2'deki gibi parantezleri çarparak açalım. Tek yeni kural üslerin toplanmasıdır: $B \cdot B^{12} = B^{13}$, çünkü önce 1 adım, sonra 12 adım geri gitmek toplam 13 adım geri gitmek demektir.
+Bu denklemi parantezleri çarparak açalım. Gecikme polinomları sıradan cebirdeki gibi çarpılır: Birinci parantezin her terimi ikincinin her terimiyle çarpılır. Tek yeni kural üslerin toplanmasıdır: $B \cdot B^{12} = B^{13}$, çünkü önce 1 adım, sonra 12 adım geri gitmek toplam 13 adım geri gitmek demektir.
 
 *Sağ taraf (şoklar):*
 
@@ -707,19 +634,9 @@ Kısacası ilk $h$ gecikmedeki otokorelasyonlar toplu olarak sıfıra yakınsa $
 
 ADF testinin mantığı, hipotezleri ve p-değerinin okunuşu Bölüm 3.2.5'te anlatıldı. Burada yalnızca modellemede gereken ayrıntılara bakacağız: ADF regresyonunun tam biçimi, test istatistiğinin dağılımı ve kritik değerler, yazılımlar arasındaki farklar ve hipotezleri ADF'nin tersine kuran KPSS testi.
 
-**ADF'nin çekirdeği.** 3.2.5'te AR(1) denklemini $\nabla x_t = (\phi - 1)\thinspace x_{t-1} + \varepsilon_t$ biçiminde yazmıştık. Parantezdeki sayıya $\gamma$ adını verirsek ADF'nin çekirdek denklemi $\nabla x_t = \gamma\thinspace x_{t-1} + \varepsilon_t$ olur: $\gamma = 0$ ise seri birim köklüdür, $\gamma < 0$ ise ortalamasına geri çekilir.
+**ADF'nin çekirdeği.** 3.2.5'te AR(1) denklemini $\nabla x_t = (\phi - 1)\thinspace x_{t-1} + \varepsilon_t$ biçiminde yazmıştık. Parantezdeki sayıya $\gamma$ adını verirsek ADF'nin çekirdek denklemi $\nabla x_t = \gamma\thinspace x_{t-1} + \varepsilon_t$ olur: $\gamma = 0$ ise seri birim köklüdür, $\gamma < 0$ ise ortalamasına geri çekilir. Daha kesin olarak $-2 < \gamma < 0$ (yani $-1 < \phi < 1$) durağanlık demektir; pratikte $\phi$'nin −1'in altına indiği seriler çok nadir olduğundan test yalnızca $\gamma < 0$ yönüne bakar ($\phi$, kök ve $\gamma$ arasındaki ilişki için bkz. 3.2.2–3.2.5).
 
 > **Simge notu:** $`\gamma`$ *(gama)*: $`\phi - 1`$; ADF'nin sınadığı "birim kök katsayısı". Bölüm 3.2.1 ve 6.3.3'teki otokovaryans fonksiyonu $`\gamma(h)`$ ile karıştırılmamalıdır; burada parantez ve $`h`$ yoktur
-
-Bu denklem aynı modeli başka bir soruyla yazar: "Bugünkü değişim, dünkü seviyeye bağlı mı?" $\gamma$ ile $\phi$ arasında birebir bir ilişki vardır:
-
-| $`\phi`$ (AR katsayısı) | Kök $`z = 1/\phi`$ (3.2.3) | $`\gamma = \phi - 1`$ | Anlamı | Örnek: dün $`x_{t-1} = 100`$, bugün şok yok |
-| --- | --- | --- | --- | --- |
-| 0.5 | 2 | −0.5 | Durağan: seri geri çekilir | Değişim $`-0.5 \cdot 100 = -50`$ → bugün 50 |
-| 1 | 1 | 0 | Birim kök (rastgele yürüyüş) | Değişim $`0 \cdot 100 = 0`$ → bugün 100 |
-| 1.2 | ≈ 0.83 | 0.2 | Patlayan seri | Değişim $`0.2 \cdot 100 = 20`$ → bugün 120 |
-
-Tablo, Bölüm 3.2'deki üç bakışı (katsayı, karakteristik kök ve şokun seyri) ADF'nin $\gamma$'sıyla birleştirir; 100 → 50, 100 → 100 ve 100 → 120 sayıları 3.2.2'deki örneklerle aynıdır; yalnızca "seviye" yerine "değişim" üzerinden okunurlar. Böylece $\gamma = 0$ (yani $\phi = 1$) birim kök demektir; $-2 < \gamma < 0$ (yani $-1 < \phi < 1$) ise seri durağandır. Pratikte $\phi$'nin −1'in altına indiği seriler çok nadir olduğundan test yalnızca $\gamma < 0$ yönüne bakar. Bölüm 3.2'deki lastik bant benzetmesi burada da geçerlidir: $\gamma < 0$ lastiğin seriyi ortalamaya geri çekmesi, $\gamma = 0$ lastiğin kopmuş olmasıdır; Şekil 7.5'teki eğim bu çekişin gücünü gösterir.
 
 "$`\phi`$ 1'e eşit mi?" sorusunu "$\gamma$ sıfır mı?" biçiminde sormanın pratik nedeni, regresyon yazılımlarının her katsayı için "bu katsayı sıfır mı?" sorusuna hazır bir ölçü (t istatistiği) üretmesidir.
 
@@ -763,17 +680,14 @@ Sıradan bir regresyonda bu oran t-tablosuyla karşılaştırılır; tek yönlü
 
 İstatistik kritik değerden daha negatifse $H_0$ reddedilir. −7.32, −4.03'ten de küçük olduğu için birim kök %1 düzeyinde reddedilir. Sıradan t-tablosunu kullansaydık −1.65 gibi çok daha "kolay" bir sınırla, birim köklü serileri gereğinden sık durağan sanırdık. (Trend terimi olmayan, yalnızca sabitli regresyonda %5 kritik değeri yaklaşık −2.88'dir; Python'un `adfuller()` fonksiyonu varsayılan olarak bu biçimi kullanır, 7.7.2.)
 
-R'daki `tseries::adf.test()` p-değerini bu tablodan **doğrusal ara değerleme** (*interpolation*) ile hesaplar: İstatistik örneğin −3.44 (%5) ile −3.14 (%10) arasında kalsaydı, p-değeri 0.05 ile 0.10 arasında, uzaklıkla orantılı bir sayı olurdu. Tablo uçlarda 0.01 ve 0.99 olasılıklarında biter; istatistik %1 kritik değerinden de negatifse p-değeri 0.01'de sabitlenir. (KPSS için `kpss.test()` aynı yöntemi 0.01–0.10 aralığında kullanır; bu yüzden 7.6.3'te `p-value = 0.1` ve "greater than" uyarısı görülür.) Bu sınırlarda R'ın verdiği uyarıların okunuşu 3.2.5'te anlatılmıştı.
-
-**Aynı test, üç yazılım.** ADF testinin varsayılan ayarları yazılıma göre değişir. Aynı seri için farklı sonuçlar görülmesinin başlıca nedeni budur (7.6.2 ve 7.7.2):
+**Aynı test, iki yazılım.** ADF testinin varsayılan ayarları yazılıma göre değişir. Aynı seri için farklı sonuçlar görülmesinin başlıca nedeni budur (7.6.2 ve 7.7.2):
 
 | Yazılım | Deterministik terimler (varsayılan) | Gecikme sayısı $k$ (varsayılan) | p-değeri |
 | --- | --- | --- | --- |
-| R, `tseries::adf.test()` | Sabit + trend; değiştirilemez | $(n-1)^{1/3}$'ün tam sayı kısmı; `k =` ile elle verilir | Tablodan ara değerleme; 0.01–0.99 aralığına kırpılır |
+| R, `tseries::adf.test()` | Sabit + trend; değiştirilemez | $(n-1)^{1/3}$'ün tam sayı kısmı; `k =` ile elle verilir | Kritik değer tablosundan; 0.01–0.99 aralığına kırpılır |
 | Python, `statsmodels` `adfuller()` | Yalnızca sabit (`regression="c"`); `"ct"` ile sabit + trend | AIC ile seçilir (`autolag="AIC"`); `autolag=None` ile `maxlag` aynen kullanılır | MacKinnon yaklaşımı; kırpılmaz |
-| Gretl, `adf` | Seçenekle belirlenir: `--nc`, `--c`, `--ct`, `--ctt` | Komutta verilen gecikme; `--test-down` ile bilgi kriterine göre küçültülür | Asimptotik (MacKinnon) p-değeri |
 
-Örneğin ham `AirPassengers` serisinde sabit + trend ve 5 gecikmeyle istatistik −7.3186, sabit + trend ve 13 gecikmeyle −2.1008, yalnızca sabit ve 13 gecikmeyle 0.8154'tür (üç değer de R'da `urca::ur.df()` ile yeniden hesaplanmıştır). Ayarlar eşitlendiğinde yazılımlar aynı istatistiği verir (7.7.2'deki kutu).
+Örneğin ham `AirPassengers` serisinde sabit + trend ve 5 gecikmeyle istatistik −7.3186, sabit + trend ve 13 gecikmeyle −2.1008, yalnızca sabit ve 13 gecikmeyle 0.8154'tür. Ayarlar eşitlendiğinde iki yazılım aynı istatistiği verir (7.7.2'deki kutu).
 
 **Tanım 2 (KPSS testi — Kwiatkowski-Phillips-Schmidt-Shin):** KPSS bakış açısını tersine çevirir: "Seri durağandır" varsayımıyla başlar ve buna karşı kanıt arar.
 
@@ -782,15 +696,6 @@ R'daki `tseries::adf.test()` p-değerini bu tablodan **doğrusal ara değerleme*
 - Küçük p-değeri (< 0.05) → $H_0$ reddedilir → seri durağan **değildir**.
 
 Testin fikri şöyledir: Seriden ortalamasını (trend sürümünde trend çizgisini) çıkarırız ve geriye kalan sapmaları baştan itibaren **art arda toplarız** (kümülatif toplam, 7.1.4). Seri gerçekten durağansa sapmalar bir artı bir eksi gelir, birbirini götürür ve kümülatif toplam sıfır civarında kalır. Seviye bir yöne kayıyorsa sapmalar uzun süre aynı işaretli olur ve toplam sıfırdan uzaklaşır. Örneğin sapmalar $+2, -1, -2, +1$ ise kümülatif toplamlar $2, 1, -1, 0$'dır. Sapmalar $-3, -2, -1, +1, +2, +3$ ise (önce ortalamanın altında, sonra üstünde, yani kayan bir seviye) kümülatif toplamlar $-3, -5, -6, -5, -3, 0$ olur ve sıfırdan çok daha fazla uzaklaşır. KPSS istatistiği, bu kümülatif toplamların karelerinin büyüklüğünü serinin kendi oynaklığına göre ölçekleyerek tek sayıda özetler. **Büyük istatistik → $H_0$ (durağanlık) reddedilir.** Seviye durağanlığı için kritik değerler %10, %5 ve %1 düzeyinde sırasıyla 0.347, 0.463 ve 0.739'dur.
-
-```math
-\begin{aligned}
-\underbrace{S_t}_{\substack{\text{kümülatif}\\\text{toplam}}} &= \overbrace{e_1 + e_2 + \dots + e_t}^{\text{baştan }t\text{. döneme kadar sapmalar}} \\
-\mathrm{KPSS} &= \underbrace{\frac{1}{n^2} \sum_{t=1}^{n} S_t^2}_{\substack{\text{kümülatif toplamların}\\\text{karelerinin büyüklüğü}}} \bigg/ \underbrace{\hat{\sigma}^2}_{\substack{\text{sapmaların}\\\text{oynaklığı}}}
-\end{aligned}
-```
-
-**Ne anlatıyor?** Kümülatif toplam, sapmaların baştan $t$. döneme kadar art arda toplanmasıyla bulunur. KPSS istatistiği bu toplamların karelerini $n^2$ ile ölçekler ve sapmaların oynaklığına bölerek tek sayıda özetler; seviye bir yöne kaydıkça istatistik büyür. Burada $e_t$'ler, seriden ortalama (trend sürümünde trend çizgisi) çıkarılınca kalan sapmalardır; $\hat{\sigma}^2$ ise 7.6.2'deki `Truncation lag parameter` kadar gecikmenin otokorelasyonu hesaba katılarak bulunan oynaklıktır.
 
 İki testin sonuçları birlikte yorumlanır. Tablo okunurken önce her testin sonucu sade bir cümleye çevrilir: ADF'de $H_0$'ın reddi "durağan", KPSS'te $H_0$'ın reddi "durağan değil" demektir.
 

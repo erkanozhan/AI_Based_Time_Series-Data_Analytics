@@ -177,7 +177,7 @@ Bu iki satır, bilgisayarın saatini okuyarak bugünün tarihini ve şu anki zam
 
 Çıktıları okurken: yukarıdaki değerler yalnızca örnektir; kod çalıştırıldığında o anın tarihi ve saati, bilgisayarın saat diliminde gösterilir. İkinci çıktı `YYYY-MM-DD HH:MM:SS` düzenindedir; sondaki `+03`, saatin UTC'den 3 saat ileride olduğunu söyler. Türkiye 2016'dan beri yıl boyu UTC+3 kullanır ve R'ın kullandığı saat dilimi veritabanında bu saat için harfli bir kısaltma (`EET` gibi) bulunmadığından R kısaltma yerine `+03` yazar.
 
-> **Hemen deneyin 4.2a · Doğum gününüz R'ın içinde hangi sayı?** (R, ~3 dk)
+> **Hemen deneyin 4.2 · Doğum gününüz R'ın içinde hangi sayı?** (R, ~3 dk)
 >
 > Konsola yazın; tarih yerine kendi doğum tarihinizi ISO biçiminde (`YYYY-MM-DD`) yazabilirsiniz.
 >
@@ -194,25 +194,6 @@ Bu iki satır, bilgisayarın saatini okuyarak bugünün tarihini ve şu anki zam
 > <details><summary>Cevap</summary>
 >
 > (1) `[1] "2024-10-04"`: 20000 gün ≈ 20000 / 365.25 ≈ 54.8 yıl; 1970 + 54.8 ≈ 2024'ün son çeyreği. (2) Sonuç çalıştırdığınız güne bağlıdır; örneğin 2026-10-14 için `[1] 20740`.
->
-> </details>
-
-> **Hemen deneyin 4.2b · Excel de tarihi sayı olarak saklar** (Excel / LibreOffice Calc, ~3 dk)
->
-> Excel'in de tarihleri içeride gün sayısı olarak tuttuğunu, yalnızca sıfır noktasının farklı olduğunu görelim.
->
-> 1. Boş bir sayfada **A1** hücresine `01.02.2024` yazıp Enter'a basın. Türkçe ayarlı Excel bunu tarih olarak tanır (hücrede sağa yaslanır).
-> 2. A1 seçiliyken **Giriş → Sayı → Sayı Biçimi → Genel** seçin (İngilizce: **Home → Number → Number Format → General**). LibreOffice Calc'ta: **Biçim → Hücreler… → Sayılar → Kategori: Sayı**.
-> 3. **B1** hücresine `=A1-25569` yazın ve B1'in biçimini de **Genel** yapın.
-> 4. **C1** hücresine `=TARİH(1970;1;1)` (İngilizce: `=DATE(1970,1,1)`) yazın ve biçimini **Genel** yapın.
->
-> **Ne göreceksiniz:** A1'de `45323`, B1'de `19754`, C1'de `25569`. Excel (ve varsayılan ayarıyla LibreOffice) günleri fiilen 30 Aralık 1899'dan itibaren sayar; R ise 1970-01-01'den. Aradaki fark her tarih için sabit 25569 gündür, bu yüzden B1'deki `19754`, 4.2'deki `as.numeric(as.Date("2024-02-01"))` çıktısıyla aynıdır. Excel'den gelen bir sütun R'a sayı olarak geçerse `as.Date(x - 25569)` ile tarihe çevrilebilir.
->
-> **Şimdi siz:** A1'e kendi doğum tarihinizi yazın. B1'deki sayı, 4.2a'da R'da bulduğunuz sayıyla aynı mı?
->
-> <details><summary>Cevap</summary>
->
-> Evet, aynı olmalıdır. Örneğin 29.10.2001 için A1 `37193`, B1 `37193 − 25569 = 11624` olur; R'daki `as.numeric(as.Date("2001-10-29"))` de `11624` verir.
 >
 > </details>
 
@@ -629,25 +610,6 @@ Kodu satır satır okuyalım:
 
 Çıktıları okurken: ilk beş çıktı yeni tarihlerdir (hepsi `Date`). `Time difference of 365 days`, "zaman farkı: 365 gün" demektir. Neden 366 değil? İki tarihi çıkarmak, aradaki gün *adımlarının* sayısını verir: 1 Ocak'tan 2 Ocak'a 1 adım, ..., 31 Aralık'a 365 adım vardır. 2024 artık yıldır, yani 366 gün sürer; 366. adım bizi 2025'in 1 Ocak'ına götürürdü. Son çıktı aynı farkın hafta cinsinden değeridir: $`365 / 7 \approx 52.14286`$.
 
-> **Hemen deneyin 4.4a · Tarih farkı ve iş günü sayısı Excel'de** (Excel / LibreOffice Calc, ~5 dk)
->
-> 1. **A1** hücresine `01.01.2024`, **B1** hücresine `31.12.2024` yazın.
-> 2. **C1**: `=B1-A1` yazın. Sonuç tarih gibi görünürse C1'in sayı biçimini **Genel** yapın (4.2b'deki gibi).
-> 3. **D1**: `=HAFTANINGÜNÜ(A1;2)` (İngilizce: `=WEEKDAY(A1,2)`). İkinci argüman `2`, "Pazartesi = 1, ..., Pazar = 7" numaralandırmasını seçer.
-> 4. **E1**: `=TAMİŞGÜNÜ(A1;B1)` (İngilizce: `=NETWORKDAYS(A1,B1)`). İki uç dahil, cumartesi ve pazar hariç gün sayısını verir.
->
-> LibreOffice Calc'ta fonksiyon adları dil ayarına göre farklı görünebilir; emin değilseniz **Ekle → Fonksiyon…** (Ctrl+F2) penceresinde İngilizce adı arayın.
->
-> **Ne göreceksiniz:** C1'de `365` (R'daki `bitis - baslangic` ile aynı: aradaki gün adımları), D1'de `1` (1 Ocak 2024 Pazartesi), E1'de `262`. Bu 262, 2024'te borsa gibi yalnızca iş günlerinde kaydedilen bir serinin (resmî tatiller hariç tutulmadan) en fazla kaç gözlem içereceğidir; böyle iş günü serilerinin neden `ts` yerine `xts` ile tutulduğu 5.3'te ele alınır.
->
-> **Şimdi siz:** A1'i `01.01.2026`, B1'i `31.12.2026` yapın. Üç sonucu önce tahmin edin. Ayrıca D1'deki `;2`'yi silin: `=HAFTANINGÜNÜ(A1)` ne verir?
->
-> <details><summary>Cevap</summary>
->
-> C1 `364` (2026 artık yıl değil), D1 `4` (1 Ocak 2026 Perşembe), E1 `261`. İkinci argüman olmadan `=HAFTANINGÜNÜ(A1)` Pazar = 1 düzenini kullanır; 1 Ocak 2024 için `2`, 1 Ocak 2026 için `5` verir. Bu, R'daki `wday()`'in varsayılanıyla aynıdır.
->
-> </details>
-
 **Düzenli tarih dizileri:** Eksik günleri tespit etmek, bir veri çerçevesine zaman sütunu eklemek ya da tahmin dönemi için gelecekteki tarihleri üretmek için `seq()` kullanılır:
 
 ```r
@@ -673,7 +635,7 @@ Kodu satır satır okuyalım; dizi iki yoldan üretilir: başlangıç ve bitiş 
 
 Çıktıları okurken: ilk sonuç 12 tarihlik bir *vektördür*, yani aynı türden değerlerin sıralı bir listesidir (4.2'deki tek değerli sonuçlar da aslında bir elemanlı vektörlerdir). Çıktı ekrana sığmadığı için alt satırlara bölünmüştür; satır başlarındaki `[1]`, `[6]` ve `[11]`, o satırın vektörün 1., 6. ve 11. elemanıyla başladığını gösterir. İkinci çıktı 7'şer gün arayla 4 pazartesidir. Bir veri setindeki tarihler böyle bir tam diziyle karşılaştırılarak (`setdiff(tam_dizi, tarihler)`: ilk vektörde olup ikincide olmayan değerler) eksik dönemler bulunabilir.
 
-> **Hemen deneyin 4.4b · 2026'da kaç tane "13'ü Cuma" var?** (R, ~4 dk)
+> **Hemen deneyin 4.4 · 2026'da kaç tane "13'ü Cuma" var?** (R, ~4 dk)
 >
 > Yılın bütün günlerini `seq()` ile üretip içlerinden koşula uyanları seçeceğiz.
 >
@@ -687,11 +649,11 @@ Kodu satır satır okuyalım; dizi iki yoldan üretilir: başlangıç ve bitiş 
 >
 > **Ne göreceksiniz:** `[1] 365` ve `[1] "2026-02-13" "2026-03-13" "2026-11-13"`. `day(gunler) == 13` her gün için "ayın 13'ü mü?" sorusunu `TRUE`/`FALSE` olarak cevaplar; `wday(..., week_start = 1) == 5` "cuma mı?" sorusunu. `&` ikisinin de `TRUE` olduğu günleri bırakır. 2026'da üç tane 13'ü Cuma vardır; Şubat ile Mart'ın art arda gelmesinin nedeni, 2026 Şubat'ının tam 28 gün (4 hafta) sürmesidir.
 >
-> **Şimdi siz:** (1) Kodu 2027 için çalıştırın. (2) `sum(wday(gunler, week_start = 1) <= 5)` 2026'daki hafta içi günlerini sayar (`sum()` `TRUE`'ları sayar). Sonuç, 4.4a'daki Excel `TAMİŞGÜNÜ` sonucuyla aynı mı?
+> **Şimdi siz:** (1) Kodu 2027 için çalıştırın. (2) `sum(wday(gunler, week_start = 1) <= 5)` 2026'daki hafta içi günlerini sayar (`sum()` `TRUE`'ları sayar). 365 günün kaçı hafta içidir?
 >
 > <details><summary>Cevap</summary>
 >
-> (1) 2027'de yalnızca bir tane vardır: `[1] "2027-08-13"`. (2) `[1] 261`; 4.4a'nın "Şimdi siz" kısmında Excel'in 2026 için verdiği `261` ile aynıdır.
+> (1) 2027'de yalnızca bir tane vardır: `[1] "2027-08-13"`. (2) `[1] 261`: 52 tam hafta 260 iş günü eder; 2026 bir perşembe başladığı için artan bir gün (1 Ocak) de hafta içidir.
 >
 > </details>
 

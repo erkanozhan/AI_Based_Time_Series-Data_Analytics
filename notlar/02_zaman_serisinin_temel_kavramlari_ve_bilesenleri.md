@@ -62,7 +62,7 @@ Operatörlerin işe yarayan özelliği, komutları sayılar gibi parantez içind
 
 > **Simge notu:** $`B`$ *(be)*: gecikme (backshift) operatörü, seriyi bir adım geriye kaydırır · $`L`$ *(le, lag)*: aynı operatörün birçok kaynaktaki adı · $`B^h`$ *(be üzeri h)*: B'nin h kez uygulanması, yani h adım geri kaydırma · $`\nabla`$ *(nabla, ters üçgen)*: birinci fark operatörü. Büyük delta $`\Delta`$ ile karıştırılmamalıdır; $`\Delta t`$ yukarıda iki gözlem arasındaki süreyi gösteriyor · $`\nabla_s`$ *(nabla s)*: s adımlık mevsimsel fark operatörü
 
-> **Hemen deneyin 2.1a · Fark operatörünü R'a hesaplatın** (R, ~3 dk)
+> **Hemen deneyin 2.1 · Fark operatörünü R'a hesaplatın** (R, ~3 dk)
 >
 > RStudio'da **Console** paneline yazın:
 >
@@ -80,22 +80,6 @@ Operatörlerin işe yarayan özelliği, komutları sayılar gibi parantez içind
 > <details><summary>Cevap</summary>
 >
 > (1) `[1] 143` ve `[1] 132`: Birinci fark 1, mevsimsel fark 12 gözlem kaybettirir. (2) `[1] 1`: $`x_3 - x_1 = 6 - 5 = 1`$, yani $`(1 - B^2)x_3 = x_3 - B^2 x_3`$.
->
-> </details>
-
-> **Hemen deneyin 2.1b · Gecikme ve fark sütunları** (Excel / LibreOffice Calc, ~4 dk)
->
-> 1. A1'e `Yolcu` yazın, A2:A14 hücrelerine Ocak 1949'dan Ocak 1950'ye 13 değeri girin: 112, 118, 132, 129, 121, 135, 148, 148, 136, 119, 104, 118, 115.
-> 2. B1'e `Fark` yazın. B2'yi **boş** bırakın, B3'e `=A3-A2` yazın ve hücrenin sağ alt köşesinden tutup B14'e kadar aşağı sürükleyin.
-> 3. C1'e `MevsimselFark` yazın, C14'e `=A14-A2` yazın.
->
-> **Ne göreceksiniz:** B sütunu 6, 14, −3, −8, 14, 13, 0, −12, −17, −15, 14, −3 olur; C14'te 3 görünür. Bu sayılar 2.1a'daki R çıktısıyla aynıdır. Formül hücreden hücreye kaydırıldıkça "bu satır eksi bir üst satır" kuralı korunur: Bu tam olarak $`x_t - x_{t-1}`$ ya da $`(1 - B)x_t`$'dir.
->
-> **Şimdi siz:** B2 neden boş kalmak zorunda? Fark sütununun en büyük düşüşü hangi aydadır?
->
-> <details><summary>Cevap</summary>
->
-> A1 bir başlık olduğu için Ocak 1949'un (A2) bir önceki gözlemi yoktur; $`x_0`$ gözlenmemiştir, bu yüzden ilk fark tanımsızdır. En büyük düşüş −17'dir (B11): Ekim 1949 (119) eksi Eylül 1949 (136).
 >
 > </details>
 
@@ -191,7 +175,7 @@ Bu tür bir gürültüye "beyaz" denmesinin nedeni bir benzetmedir: Beyaz ışı
 >
 > </details>
 
-> **Hemen deneyin 2.2b · Varyansı elle ve fonksiyonla hesaplayın** (R ve Excel / LibreOffice Calc, ~3 dk)
+> **Hemen deneyin 2.2b · Varyansı elle ve fonksiyonla hesaplayın** (R, ~3 dk)
 >
 > Metindeki 2, 4, 6 örneğini R'da adım adım tekrarlayalım:
 >
@@ -204,9 +188,7 @@ Bu tür bir gürültüye "beyaz" denmesinin nedeni bir benzetmedir: Beyaz ışı
 > sd(v)                        # standart sapma: var(v)'nin karekökü
 > ```
 >
-> Excel'de: A1:A3'e 2, 4, 6 yazın; B1'e `=VAR.P(A1:A3)` (İngilizce de `=VAR.P(A1:A3)`), B2'ye `=VAR.S(A1:A3)` (İngilizce de `=VAR.S(A1:A3)`), B3'e `=STDSAPMA.S(A1:A3)` (İngilizce: `=STDEV.S(A1:A3)`) yazın.
->
-> **Ne göreceksiniz:** R'da sırasıyla `4`, `-2 0 2`, `2.666667`, `4` ve `2`. Excel'de B1 = 2.666667 (Türkçe arayüzde ondalık ayracı virgül olduğu için 2,666667 görünür; n'ye böler, metindeki $`8/3`$), B2 = 4 (n − 1'e böler, R'ın `var()`'ı ile aynı), B3 = 2.
+> **Ne göreceksiniz:** Sırasıyla `4`, `-2 0 2`, `2.666667` (n'ye bölen varyans, metindeki $`8/3`$), `4` (n − 1'e bölen varyans) ve `2`. Python'da da aynı ayrım vardır: NumPy'ın `np.var` fonksiyonu varsayılan olarak n'ye, pandas'ın `.var()` metodu n − 1'e böler (`ddof` argümanı).
 >
 > **Şimdi siz:** 1, 4, 7 için iki varyansı ve `sd()`'yi önce kâğıtta hesaplayın, sonra kontrol edin.
 >

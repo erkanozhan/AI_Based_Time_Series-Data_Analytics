@@ -365,14 +365,12 @@ round(USgas_ayristir$figure)
 
 Bu kod `USgas` serisini trend, mevsimsel etki ve kalan olarak üç bileşene ayırır, bileşenleri çizer ve her ayın tipik mevsimsel etkisini sayı olarak yazdırır. Kodu satır satır okuyalım:
 
-1. `USgas_ayristir <- decompose(USgas)`: `decompose()` seriyi hareketli ortalamalarla bileşenlerine ayırır (yöntem aşağıda). `type` argümanı yazılmadığı için varsayılan `type = "additive"` (toplamsal model) kullanılır; çarpımsal model için `type = "multiplicative"` yazılırdı. Fonksiyon bir **liste** döndürür (sınıfı `decomposed.ts`) ve bu liste `USgas_ayristir` adına kaydedilir; parçalar `$trend`, `$seasonal`, `$random`, `$figure` (bkz. 2.5).
+1. `USgas_ayristir <- decompose(USgas)`: `decompose()` seriyi hareketli ortalamalarla bileşenlerine ayırır. `type` argümanı yazılmadığı için varsayılan `type = "additive"` (toplamsal model) kullanılır; çarpımsal model için `type = "multiplicative"` yazılırdı. Fonksiyon bir **liste** döndürür (sınıfı `decomposed.ts`) ve bu liste `USgas_ayristir` adına kaydedilir; parçalar `$trend`, `$seasonal`, `$random`, `$figure` (bkz. 2.5).
 2. `plot(USgas_ayristir)`: `plot()` yine nesnenin sınıfına bakar; `decomposed.ts` gördüğünde bileşenleri alt alta dört panel hâlinde, "Decomposition of additive time series" başlığıyla çizer.
 
 Çıktı, `round()` ile tam sayıya yuvarlanmış `$figure` vektörüdür (12 aylık mevsimsel desen). Çıktıdaki `[1]`, satırın vektörün 1. elemanıyla başladığını gösterir. 12 sayı sırasıyla Ocak, Şubat, …, Aralık aylarının tipik etkisidir: Pozitif sayı o ayda tüketimin trendin üzerinde, negatif sayı altında olduğunu söyler. Yuvarlanmamış 12 değerin toplamı sıfırdır (yuvarlanmış sayılarda −2 çıkar); yani mevsimsel etki yıl boyunca dengelenir. Sayıların ayrıntılı yorumu aşağıdadır.
 
-Grafik dört panelden oluşur: `observed` (orijinal seri), `trend` (12 aylık merkezî hareketli ortalama), `seasonal` (her yıl aynen tekrar eden mevsimsel desen) ve `random` (kalan). Bu dört panelin dikey eksenleri farklı ölçeklerdedir; bileşenlerin büyüklüğü karşılaştırılırken eksen değerlerine bakılmalıdır. Yöntem 2.5'tekiyle aynıdır, yalnızca toplamsal modelde bölme yerine çıkarma kullanılır: Trend 2×12 merkezî hareketli ortalamadır (13 aylık pencerede iki uç ay yarım ağırlıkla sayılır), Kalan = gözlem − trend − mevsimsel etki.
-
-**Günlük hayattan bir örnek:** Bir fakültenin çay ocağının aylık satışlarını düşünelim: Kışın sıcak çay çok satılır, yazın okul boşalınca satış düşer. Bir ayın "gerçek gidişatını" görmek için o ayı ortaya alan bir yıllık pencerenin ortalamasına bakarız. Pencerede hem kış hem yaz ayları bulunduğu için mevsim etkisi birbirini götürür ve geriye trend kalır; pencereyi her ay bir adım kaydırınca trend eğrisi çıkar. Benzetmenin sınırı: Serinin başında ve sonunda pencere dolmadığı için trend `NA` kalır.
+Grafik dört panelden oluşur: `observed` (orijinal seri), `trend`, `seasonal` (her yıl aynen tekrar eden mevsimsel desen) ve `random` (kalan); panellerin dikey eksenleri farklı ölçeklerdedir. Yöntem Bölüm 2.5'tekiyle aynıdır (trend 12 aylık merkezî hareketli ortalamadır); toplamsal modelde yalnızca bölme yerine çıkarma kullanılır: Kalan = gözlem − trend − mevsimsel etki.
 
 Ocak 2001 için: Gözlem 2677.0, trend 1896.7, Ocak'ın mevsimsel etkisi 766.4'tür. Kalan $2677.0 - 1896.7 - 766.4 = 13.9$ olur. Yani Ocak 2001'deki tüketim, "trendin o dönemdeki düzeyi + tipik bir Ocak artışı" toplamından yalnızca 13.9 birim fazla gerçekleşmiştir. Toplamsal modelde üç bileşen toplandığında gözlem geri elde edilir: $1896.7 + 766.4 + 13.9 = 2677.0$.
 
@@ -451,26 +449,6 @@ Bu beş adımın formül hâli şudur:
 > **Simge notu:** $`r`$: korelasyon katsayısı · $`\bar{x}`$ *(x bar)*: x'in ortalaması · $`\sum`$ *(büyük sigma, toplam)*: "yanındaki ifadeyi her gözlem için hesapla ve hepsini topla" · $`\sqrt{\thickspace}`$ *(karekök)*: karesi içindeki sayıyı veren sayı; $`\sqrt{100} = 10`$ · $`(\cdot)^2`$ *(kare)*: sayının kendisiyle çarpımı
 
 Payın büyüklüğü, işareti ne olursa olsun, hiçbir zaman paydayı aşamaz (bu matematiksel bir kuraldır); bu yüzden $r$ her zaman −1 ile +1 arasında kalır. Sonuç olan 0.8 güçlü ve pozitif bir ilişkidir. R'da `cor(c(18, 19, 21, 22), c(9, 8, 12, 11))` komutu aynı 0.8 değerini verir.
-
-> **Hemen deneyin 6.3.1 · Korelasyonu tabloda hesaplayın** (Excel / LibreOffice Calc, ~4 dk)
->
-> Boş bir çalışma sayfası açın. A1:C1 hücrelerine `Gün`, `Sıcaklık`, `Satış` yazın; A2:C5'e yukarıdaki tablonun dört satırını girin (sıcaklık 18, 19, 21, 22; satış 9, 8, 12, 11). Boş bir hücreye şu formülü yazın:
->
-> ```text
-> =KORELASYON(B2:B5;C2:C5)        (İngilizce Excel: =CORREL(B2:B5,C2:C5))
-> ```
->
-> LibreOffice Calc'ta da aynı fonksiyon vardır (İngilizce adı `CORREL`, ayırıcı `;`); adını bulamazsanız **Insert → Function…** sihirbazında arayın.
->
-> **Ne göreceksiniz:** `0,8` (İngilizce Excel'de `0.8`): elle bulduğumuz değerle aynı.
->
-> **Şimdi siz:** (1) 4. günün satışını 11 yerine 5 yapın. Korelasyonun işareti ne olur? (2) Satışı 5'e çevirmeden önceki hâline döndürün ve bu kez bütün satışları 100 ile çarpın (9 → 900 …). Korelasyon değişir mi?
->
-> <details><summary>Cevap</summary>
->
-> (1) Yaklaşık −0,25 çıkar: En sıcak günde satış düşünce ilişki zayıf ve negatif olur. Tek bir uç değer korelasyonu tersine çevirebilir. (2) Değişmez, yine 0,8 çıkar: Korelasyon birimlerden bağımsızdır (kovaryans ise 100 kat büyürdü).
->
-> </details>
 
 ##### Sezgi: serinin hafızası
 
@@ -1189,27 +1167,6 @@ Sezgi: "Bugün, son $q$ dönemde yaşanan sürprizlerin yankısıdır." Bir şok
 ![AR ve MA süreçlerinde şokun yankısı](../images/ch06_sok_yankisi.svg)
 
 *Şekil 6.10 — Bir şokun yankısı ve teorik korelogramlar. Üstte AR(1) ($`\phi = 0.5`$): Şokun etkisi her gün yarıya iner ama hiç sıfırlanmaz; ACF $`0.5^h`$ olarak söner, PACF 1. gecikmeden sonra sıfırdır. Altta MA(1) ($`\theta = 0.8`$): Şok yalnızca bir gün sonraya taşınır; ACF 1. gecikmeden sonra sıfırdır, PACF işaret değiştirerek söner.*
-
-> **Hemen deneyin 6.7.1 · MA yankısını tabloda izleyin** (Excel / LibreOffice Calc, ~4 dk)
->
-> Şekil 6.10'un alt kısmındaki MA(1) yankısını kendiniz üretin (AR yankısı için bkz. Hemen deneyin 3.2a).
->
-> 1. A1:C1'e `t`, `şok`, `MA(1)`; F1 ve G1'e `teta1` ve `teta2` yazın. F2'ye `0,8`, G2'ye `0` girin (Türkçe Excel'de ondalık ayırıcı virgüldür; İngilizce Excel'de `0.8`).
-> 2. A2:A12'ye 0'dan 10'a kadar sayıları yazın. B2'ye `100`, B3:B12'ye `0` girin (yalnızca t = 0'da şok var).
-> 3. C2'ye `=B2`, C3'e `=B3+$F$2*B2` (bugünkü şok + teta1 × dünkü şok) yazın.
-> 4. C4'e `=B4+$F$2*B3+$G$2*B2` (ikinci katsayı için evvelsi günün şoku da eklenir) yazın ve 12. satıra kadar aşağı çekin.
->
-> `$F$2` gibi dolarlı adresler formül aşağı çekilince kaymaz; her satır aynı katsayıyı kullanır.
->
-> **Ne göreceksiniz:** MA(1) sütunu 100, 80, 0, 0, … verir: Şok bir gün sonra tamamen kaybolur. AR(1)'de ise aynı şok 100, 50, 25, … diye yarılanır ve hiç sıfırlanmaz.
->
-> **Şimdi siz:** (1) F2'yi `-0,5` yapın; sütun ne olur? (2) F2'yi yeniden `0,8`, G2'yi `0,5` yapın (MA(2)). Şok kaç gün sürer?
->
-> <details><summary>Cevap</summary>
->
-> (1) 100, −50, 0, 0, …: Şok ertesi gün ters işaretle yankılanır, sonra kaybolur. (2) 100, 80, 50, 0, 0, …: Şok tam iki gün sürer, yani q = 2.
->
-> </details>
 
 AR ve MA terimlerini birlikte içeren modele ARMA(p, q) denir (Bölüm 7.1.3).
 

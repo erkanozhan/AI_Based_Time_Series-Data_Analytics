@@ -46,35 +46,23 @@ g(t) = \overbrace{\Big(\underbrace{k}_{\substack{\text{başlangıç}\\\text{eği
 
 > **Simge notu:** $`k`$: başlangıç eğimi (büyüme hızı) · $`m`$: başlangıç seviyesi (doğrunun $`t = 0`$'daki değeri, kesişim) · $`s_j`$: j'inci değişim noktasının zamanı (buradaki $`s`$, mevsim uzunluğu değil; $`S`$ de değişim noktalarının sayısıdır) · $`\delta_j`$ *(delta j)*: j'inci değişim noktasında eğime eklenen miktar · $`\gamma_j`$ *(gama j)*: doğru parçalarının kopmadan birleşmesini sağlayan düzeltme terimi · $`\sum_{j: s_j \le t}`$ *(büyük sigma = toplam)*: "$`s_j \le t`$ olan, yani $`t`$ anına kadar geçilmiş bütün değişim noktaları için topla"; henüz gelinmemiş değişim noktaları toplama girmez
 
-**Yorum:** $t$ anındaki eğim, başlangıç eğimi $k$'ye o ana kadar geçilen tüm değişim noktalarındaki $\delta_j$ ayarlamalarının eklenmesiyle bulunur. İlk değişim noktasından sonra eğim $k + \delta_1$, ikincisinden sonra $k + \delta_1 + \delta_2$ olur (Şekil 9.2). $\gamma_j$ terimleri ise trend çizgisinin değişim noktalarında "kırılıp" kopmamasını, sürekli kalmasını sağlar.
-
-Bunu sayılarla görelim. Başlangıç eğimi $k = 2$ (her ay 2 birim artış), başlangıç seviyesi $m = 100$ olsun ve $s_1 = 10$. ayda tek bir değişim noktası bulunsun; burada eğim $\delta_1 = +1$ kadar artsın.
-
-1. **Değişim noktasından önce** ($t < 10$): Toplamlara hiçbir terim girmez, $g(t) = 2t + 100$'dür. $g(0) = 100$, $g(5) = 110$ ve değişim anında $g(10) = 2 \cdot 10 + 100 = 120$.
-2. **Değişim noktasından sonra** ($t \ge 10$): Eğim $2 + 1 = 3$ olur. $\gamma_1$ olmasaydı, yani $g(t) = 3t + 100$ deseydik, $g(10) = 130$ çıkardı: Trend 10. ayda 120'den 130'a aniden sıçrardı. Bu kopukluğu önlemek için kesişim $\gamma_1 = -s_1 \cdot \delta_1 = -10 \cdot 1 = -10$ kadar düzeltilir ve $g(t) = 3t + 90$ olur.
-3. **Sağlama:** $g(10) = 3 \cdot 10 + 90 = 120$ (sıçrama yok), $g(12) = 3 \cdot 12 + 90 = 126$. Yani 10. aydan sonra trend her ay 2 değil 3 birim artmaktadır.
-
-Genel kural $\gamma_j = -s_j \cdot \delta_j$'dir. $\gamma_j$'ler veriden ayrıca öğrenilmez; $\delta_j$'ler bulununca Prophet onları bu kuralla kendisi hesaplar.
+**Yorum:** $t$ anındaki eğim, başlangıç eğimi $k$'ye o ana kadar geçilen tüm değişim noktalarındaki $\delta_j$ ayarlamalarının eklenmesiyle bulunur. İlk değişim noktasından sonra eğim $k + \delta_1$, ikincisinden sonra $k + \delta_1 + \delta_2$ olur (Şekil 9.2). $\gamma_j$ terimleri ise trend çizgisinin değişim noktalarında "kırılıp" kopmamasını, sürekli kalmasını sağlar; veriden ayrıca öğrenilmezler, $\delta_j$'lerden hesaplanırlar.
 
 ![Değişim noktaları ile parçalı doğrusal trend](../images/ch09_degisim_noktalari.svg)
 
 *Şekil 9.2 — Parçalı doğrusal trend: Eğim yalnızca değişim noktalarında ($`s_1, s_2, s_3`$) değişir. Tahmin döneminde trend son eğimle uzatılır ve belirsizlik aralığı (*uncertainty interval*) giderek genişler.*
 
-Değişim noktalarını elle vermemiz gerekmez. Prophet varsayılan olarak verinin **ilk %80'lik** kısmına eşit aralıklı 25 **aday** değişim noktası yerleştirir (`n_changepoints=25`, `changepoint_range=0.8`). Ardından her $`\delta_j`$ için sıfıra yakın değerleri ödüllendiren bir **ön dağılım** (önsel, *prior*; Laplace önseli) kullanır. Ön dağılım, veriye bakmadan önce bir parametre hakkındaki varsayımımızdır. Buradaki varsayım "eğim değişikliklerinin çoğu sıfırdır, arada bir büyük olabilir" şeklindedir ve bir ceza gibi çalışır: Eğimi değiştirmek modele "pahalıya" mal olur, bu yüzden model eğimi ancak veri bunu açıkça gerektiriyorsa değiştirir. Sonuçta adayların çoğunda $`\delta_j \approx 0`$ kalır; yalnızca gerçekten yön değişimi olan yerlerde eğim anlamlı biçimde değişir. 9.2'deki `AirPassengers` modelinde 25 adayın yalnızca 5'inde (Ağustos 1953 ile Şubat 1955 arasındaki adaylarda) eğim belirgin biçimde artmıştır; bunu Şekil 9.5'teki trend panelinde 1954 civarındaki hafif bükülme olarak görebilirsiniz.
-
-> **Simge notu:** $`\approx`$ *(yaklaşık eşit)*: değerin neredeyse aynı olduğunu gösterir
-
-Bu esnekliği `changepoint_prior_scale` parametresi (varsayılan 0.05) belirler. Parametre, Laplace önselinin ölçeğidir:
+Değişim noktalarını elle vermemiz gerekmez. Prophet varsayılan olarak verinin **ilk %80'lik** kısmına eşit aralıklı 25 **aday** değişim noktası yerleştirir (`n_changepoints=25`, `changepoint_range=0.8`). Her adaydaki eğim değişimi için bir **ön dağılım** (önsel, *prior*), yani veriye bakmadan önceki varsayımımız kullanılır:
 
 ```math
 \underbrace{\delta_j}_{\substack{j\text{'inci noktadaki}\\\text{eğim değişimi}}} \sim \text{Laplace}\big(0,\ \underbrace{\tau}_{\substack{\text{esneklik ayarı}\\\text{(ölçek)}}}\big)
 ```
 
-**Ne anlatıyor?** Her eğim değişimi, sıfır çevresinde sivri bir tepe yapan bir dağılımdan gelir; $\tau$ bu dağılımın genişliğidir. $\tau$ küçükse büyük $\delta_j$'ler çok olasılık dışı sayılır ve ceza ağırdır; $\tau$ büyüdükçe büyük eğim değişimleri "ucuzlar" ve ceza gevşer.
+**Ne anlatıyor?** Laplace dağılımı sıfırda sivri bir tepe yapar; yani varsayım "eğim değişikliklerinin çoğu sıfırdır, arada bir büyük olabilir" şeklindedir ve bir ceza gibi çalışır: Model eğimi ancak veri bunu açıkça gerektiriyorsa değiştirir, adayların çoğunda $\delta_j \approx 0$ kalır. 9.2'deki `AirPassengers` modelinde 25 adayın yalnızca 5'inde (Ağustos 1953 ile Şubat 1955 arası) eğim belirgin biçimde artmıştır; Şekil 9.5'teki trend panelinde 1954 civarındaki hafif bükülme budur.
 
-> **Simge notu:** $`\sim`$: "şu dağılımdan gelir" · $`\tau`$ *(tau)*: dağılımın ölçeği, yani `changepoint_prior_scale`
+> **Simge notu:** $`\sim`$: "şu dağılımdan gelir" · $`\tau`$ *(tau)*: dağılımın ölçeği, yani `changepoint_prior_scale` · $`\approx`$ *(yaklaşık eşit)*
 
-Kısacası parametre, yukarıdaki cezanın ne kadar gevşek olduğunu ayarlar:
+Cezanın ne kadar gevşek olduğunu `changepoint_prior_scale` parametresi ($\tau$, varsayılan 0.05) ayarlar:
 
 - **Büyük değer** (ör. 0.5): Ceza hafifler, trend daha esnek olur, her kıvrımı izler. Aşırı öğrenme (overfitting) riski artar.
 - **Küçük değer** (ör. 0.01): Ceza ağırlaşır, trend katılaşır, gerçek yön değişimlerini kaçırabilir.
@@ -137,22 +125,6 @@ en büyük yhat: 879.7
 
 Trend 1960'tan sonra yavaşlar ve 700'e yaklaşır ama onu aşmaz. Buna karşılık `yhat` 879.7'ye çıkar: Sınır yalnızca trende uygulanır, çarpımsal mevsim etkisi yaz aylarında tahmini sınırın üstüne taşıyabilir. `cap` sütunu eğitim tablosunda unutulursa `fit()`, gelecek tablosunda unutulursa `predict()` aynı hatayı verir: `ValueError: Capacities must be supplied for logistic growth in column "cap"`.
 
-> **Hemen deneyin 9.1.1 · Lojistik eğriyi Excel'de çizin** (Excel / LibreOffice Calc, ~4 dk)
->
-> 1. **A1**'e `t`, **B1**'e `g(t)` yazın. **A2:A12** hücrelerine 0'dan 10'a kadar sayıları girin (A2'ye 0, A3'e 1 yazıp ikisini seçin ve aşağı sürükleyin).
-> 2. **B2**'ye `=100/(1+ÜS(-1*(A2-5)))` yazın (İngilizce: `=100/(1+EXP(-1*(A2-5)))`). `ÜS(x)`, formüldeki $\exp(x) = e^x$'tir. B2'yi B12'ye kadar aşağı sürükleyin.
-> 3. **A1:B12**'yi seçin ve **Ekle → Grafik** menüsünden bir dağılım (çizgili) grafiği ekleyin.
->
-> **Ne göreceksiniz:** t = 0, 3, 5, 7, 10 satırlarında 0,67; 11,92; 50; 88,08; 99,33 değerleri (yuvarlanmış hâlde; Türkçe Excel ondalık ayırıcı olarak virgül gösterir): 9.1.1'deki tablonun aynısı. Grafik S biçimindedir: Önce yavaş, t = 5 civarında en hızlı yükselir, sonra 100'e yaklaşıp yatıklaşır ve 100'ü hiç aşmaz.
->
-> **Şimdi siz:** Büyüme hızını bir hücreye taşıyın: **E1**'e `1` yazın ve B2'deki formülü `=100/(1+ÜS(-$E$1*(A2-5)))` yapıp yeniden aşağı sürükleyin (`$E$1`, sürüklerken hep E1'e bakılmasını sağlar). Şimdi E1'e `2` yazın. t = 3 ve t = 7'de değerler nasıl değişti, eğri nasıl görünüyor?
->
-> <details><summary>Cevap</summary>
->
-> $k = 2$ iken t = 3'te 1,80, t = 7'de 98,20 olur (t = 5'te yine tam 50). Eğri orta noktada çok daha dik yükselir; doygunluğa daha çabuk ulaşır. $k$, "S"nin ne kadar dik olacağını belirler; orta noktanın yeri ($m = 5$) ve üst sınır ($C = 100$) değişmez.
->
-> </details>
-
 #### 9.1.2. Mevsimsellik Bileşeni: s(t)
 
 Mevsimsel desen, her yıl aynı biçimde tekrar eden bir dalgadır. Prophet bu dalgayı **Fourier serisi** ile, yani farklı hızlarda salınan basit dalgaların toplamıyla kurar. Fikir, bir müzik akorunun birkaç saf sesin üst üste binmesiyle oluşmasına benzer: Tek bir düzgün dalga kaba bir şekil verir; ona daha hızlı salınan küçük dalgalar eklendikçe karmaşık şekiller de elde edilebilir.
@@ -193,24 +165,6 @@ Tek bir dalga bile "kış düşük, yaz yüksek" desenini yakalar. Ancak gerçek
 **Yorum:** $n = 1$ terimi periyot başına tek bir tepe ve tek bir çukur üreten en kaba dalgadır. $n$ büyüdükçe daha hızlı salınan dalgalar eklenir; bunların toplamı, yaz tepesi ve kış çukuru gibi düzgün olmayan desenleri de yakalayabilir. $N$ (Prophet'taki adı `fourier_order`) büyüdükçe mevsimsel eğri daha esnek olur; varsayılan değer yıllık mevsimsellik için 10, haftalık için 3'tür. Esneklik bedelsiz değildir: Çok büyük $N$, veriye değil gürültüye uyan, aşırı dalgalı bir eğri üretebilir (9.2.1'deki bileşen grafiğinde bunun bir örneğini göreceğiz). Katsayılar $a_n, b_n$ regresyona benzer biçimde kestirilir: Her $\cos$ ve $\sin$ terimi bir girdi sütunu gibi davranır. Fark şudur: Prophet katsayıların aşırı büyümesini bir ön dağılımla sınırlar (`seasonality_prior_scale`, varsayılan 10) ve onları trendle birlikte kestirir.
 
 Bölüm 2.3'teki ayrımı hatırlayalım: Prophet'ın $s(t)$ bileşeni sabit ve bilinen periyotlu **mevsimselliği** modeller; süresi belirsiz **döngüsel** dalgalanmalar ise çoğunlukla trend bileşenine karışır.
-
-> **Hemen deneyin 9.1.2 · İlk Fourier dalgasını Excel'de hesaplayın** (Excel / LibreOffice Calc, ~5 dk)
->
-> 9.1.2'deki $a_1 = -44$, $b_1 = 3.6$ katsayılı dalgayı 12 ay için hesaplayalım.
->
-> 1. **A1**'e `Ay`, **B1**'e `t`, **C1**'e `s(t)` yazın. **A2:A13**'e Ocak ... Aralık, **B2:B13**'e 0'dan 11'e kadar sayıları girin.
-> 2. **C2**'ye `=-44*COS(2*Pİ()*B2/12)+3,6*SİN(2*Pİ()*B2/12)` yazın (İngilizce: `=-44*COS(2*PI()*B2/12)+3.6*SIN(2*PI()*B2/12)`) ve C13'e kadar aşağı sürükleyin. `Pİ()` π sayısını (3.14159...) verir.
-> 3. **C14**'e `=TOPLA(C2:C13)` (İngilizce: `=SUM(C2:C13)`) yazın. Sonra **A1:A13** ve **C1:C13**'ü (Ctrl tuşuyla) seçip bir çizgi grafiği ekleyin.
->
-> **Ne göreceksiniz:** C sütununda yuvarlanmış olarak −44; −36,3; −18,9; 3,6; 25,1; 39,9; 44; 36,3; 18,9; −3,6; −25,1; −39,9. Ocak, Nisan, Temmuz ve Ekim değerleri 9.1.2'deki elle hesapla (−44, 3.6, +44, −3.6) aynıdır. Grafik tek tepeli (Temmuz) ve tek çukurlu (Ocak) düzgün bir dalgadır. C14 0'dır (ya da `1E-14` gibi sıfıra çok yakın bir sayı): Bir tam periyot boyunca dalganın artıları ve eksileri birbirini götürür, yani mevsim etkileri yıl içinde toplamda seviyeyi değiştirmez.
->
-> **Şimdi siz:** Yılda iki tur atan ikinci bir dalga ekleyin: C2'deki formülün sonuna `+10*COS(2*Pİ()*2*B2/12)` (İngilizce: `+10*COS(2*PI()*2*B2/12)`) ekleyip yeniden sürükleyin. Temmuz ve Ocak değerleri ne oldu? Grafiğin biçimi nasıl değişti?
->
-> <details><summary>Cevap</summary>
->
-> Temmuz 44'ten 54'e çıkar, Ocak −44'ten −34'e yükselir; değerler sırasıyla yaklaşık −34; −31,3; −23,9; −6,4; 20,1; 44,9; 54; 41,3; 13,9; −13,6; −30,1; −34,9 olur. Yaz tepesi daha dar ve sivri, kış çukuru ise daha geniş ve yayvan hâle gelir. Tek dalga tepesi ve çukuru birbirinin aynası olan bir şekil verirken ikinci dalga tepe ile çukur arasındaki bu simetriyi bozar; 9.1.2'deki "daha hızlı dalgalar eklendikçe daha karmaşık şekiller" fikri budur.
->
-> </details>
 
 #### 9.1.3. Tatil ve Özel Gün Etkileri: h(t)
 
@@ -300,22 +254,6 @@ Toplamsal modelde yaz artışı seviye ne olursa olsun 60 yolcudur. Çarpımsal 
 **Günlük hayattan bir örnek:** Bu fark iki tür yaz ikramiyesine benzer. Toplamsal modelde herkese, maaşı ne olursa olsun, aynı tutar eklenir (+60 yolcu). Çarpımsal modelde ise ikramiye maaşın %20'sidir: Maaş (trend) büyüdükçe aynı oran daha büyük bir tutara karşılık gelir. Benzetmenin sınırı: İkramiye hep eklenir; mevsim etkisi ise yıl içinde artıları ve eksileri birbirini götüren geçici bir sapmadır (kış aylarında trendin altına iner).
 
 **Not —** Bölüm 7'de SARIMA'yı `log(AirPassengers)` üzerine kurarak aynı sorunu log dönüşümüyle çözmüştük. Prophet'ta iki yol da mümkündür: Ya seriyi `np.log()` ile dönüştürüp toplamsal model kurarsınız (tahminleri sonra `np.exp()` ile geri çevirirsiniz), ya da doğrudan `seasonality_mode='multiplicative'` kullanırsınız.
-
-> **Hemen deneyin 9.1.4 · Toplamsal mı, çarpımsal mı? Excel'de karşılaştırın** (Excel / LibreOffice Calc, ~3 dk)
->
-> 1. **A1**'e `Trend`, **B1**'e `Toplamsal`, **C1**'e `Çarpımsal`, **D1**'e `Yaz artışı (çarpımsal)` yazın.
-> 2. **A2:A6**'ya 100, 200, 300, 400, 500 girin.
-> 3. **B2**'ye `=A2+60`, **C2**'ye `=A2*1,2` (İngilizce Excel'de `=A2*1.2`), **D2**'ye `=C2-A2` yazıp 6. satıra kadar sürükleyin.
->
-> **Ne göreceksiniz:** B sütunu 160, 260, 360, 460, 560; C sütunu 120, 240, 360, 480, 600; D sütunu 20, 40, 60, 80, 100. Toplamsal modelde yaz artışı her seviyede 60'tır; çarpımsal modelde trendle birlikte büyür. İki model trend = 300'de aynı sonucu (360) verir; trend bunun altındayken toplamsal, üstündeyken çarpımsal model daha büyük bir yaz tepesi üretir.
->
-> **Şimdi siz:** Çarpımsal yaz etkisi %20 değil %30 olsaydı ($s(t) = 0.30$), iki model hangi trend seviyesinde aynı sonucu verirdi? Önce kâğıtta $g + 60 = 1.30 \cdot g$ denklemini çözün, sonra C2'deki 1,2'yi 1,3 yapıp kontrol edin.
->
-> <details><summary>Cevap</summary>
->
-> $60 = 0.30 \cdot g$, yani $g = 200$. Excel'de trend 200 satırında B ve C sütunlarının ikisi de 260 olur.
->
-> </details>
 
 ---
 

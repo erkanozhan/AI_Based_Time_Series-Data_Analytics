@@ -60,24 +60,6 @@ Her denklemde:
 
 Enflasyon tahmininin 1.6 puanı faizden gelir ($a_{12} = 0.2$ çarpı geçen ayın faizi 8). Tek değişkenli bir AR(1) modelinde bu parça hiç olmazdı. (Sayılar yalnızca hesabı göstermek için seçildi; ekonomik bir iddia taşımaz. Aynı katsayıları bölüm boyunca kullanacağız.)
 
-> **Hemen deneyin 10.1 · VAR(1)'i Excel'de 20 ay ileri yürütün** (Excel / LibreOffice Calc, ~5 dk)
->
-> Yukarıdaki iki denklemi Excel'e yazıp tahmini ay ay ilerletelim. Her ayın tahmini, bir önceki ayın değerlerinden hesaplanır (şoklar 0 alınır).
->
-> 1. **A1**'e `Ay`, **B1**'e `Enflasyon`, **C1**'e `Faiz` yazın. **A2**'ye 0, **B2**'ye 10, **C2**'ye 8 girin (geçen ay).
-> 2. **A3**'e `=A2+1`, **B3**'e `=1+0,5*B2+0,2*C2`, **C3**'e `=0,5+0,1*B2+0,4*C2` yazın. (İngilizce Excel'de ondalık ayırıcı noktadır: `=1+0.5*B2+0.2*C2` ve `=0.5+0.1*B2+0.4*C2`.)
-> 3. **A3:C3**'ü seçip 22. satıra kadar aşağı sürükleyin (20 ay).
->
-> **Ne göreceksiniz:** 3. satırda 7,6 ve 4,7 (10.1'deki elle hesap), sonra 5,74 ve 3,14; 4,498 ve 2,33 ... 10. ayda yaklaşık 2,557 ve 1,279; 20. ayda 2,5003 ve 1,2502. Tahminler giderek **2,5** (enflasyon) ve **1,25** (faiz) değerlerine yerleşir. Sağlama: $1 + 0.5 \cdot 2.5 + 0.2 \cdot 1.25 = 2.5$ ve $0.5 + 0.1 \cdot 2.5 + 0.4 \cdot 1.25 = 1.25$; bu iki sayı denklemlere konunca kendilerini verir. Bu, modelin uzun dönem ortalamasıdır (10.7'deki $\boldsymbol{\mu}$).
->
-> **Şimdi siz:** Başlangıç değerlerini değiştirin: **B2**'ye 0, **C2**'ye 0 yazın. 20. aydaki değerler ne olur? Sonuç başlangıca bağlı mı?
->
-> <details><summary>Cevap</summary>
->
-> 1. ayda 1 ve 0,5; 2. ayda 1,6 ve 0,8; 20. ayda yaklaşık 2,4999 ve 1,25. Seri bu kez aşağıdan yukarı çıkar ama yine aynı yere, 2,5 ve 1,25'e yerleşir. Stabil bir VAR'da uzun dönem tahmini başlangıç noktasını "unutur"; neden böyle olduğunu 10.5'te (öz değerler) göreceğiz.
->
-> </details>
-
 #### 10.1.1. Matris Biçimi
 
 Denklemleri tek tek yazmak değişken sayısı arttıkça zahmetli hâle gelir: 5 değişkenli bir VAR(1)'de 5 denklem ve 25 katsayı vardır. Bu yüzden VAR **vektör** ve **matris** adı verilen iki araçla kısaca yazılır. İkisini sıfırdan kuralım.
@@ -411,10 +393,6 @@ Bu dengeyi kurmak için **bilgi kriterleri** kullanılır. Hepsi aynı felsefeye
 **Determinant nedir?** Bir kare matristen (satır ve sütun sayısı eşit) hesaplanan tek bir sayıdır. 2 × 2'lik bir matris için kural "çapraz çarpımların farkı"dır:
 
 ```math
-\det \begin{bmatrix} a & b \\ c & d \end{bmatrix} = a \cdot d - b \cdot c
-```
-
-```math
 \det \begin{bmatrix} a & b \\ c & d \end{bmatrix} = \underbrace{a \cdot d}_{\substack{\text{ana köşegenin}\\\text{çarpımı}}} - \underbrace{b \cdot c}_{\substack{\text{öteki köşegenin}\\\text{çarpımı}}}
 ```
 
@@ -440,9 +418,9 @@ VAR(2)'den VAR(7)'ye çıkmak (5 ek gecikme) uyum terimini yaklaşık 1.18 azalt
 
 Pratikte kriterler farklı gecikme önerebilir. Böyle durumlarda BIC'nin önerdiği daha düşük gecikme genellikle güvenli bir başlangıçtır; ancak seçilen modelin artıklarında otokorelasyon kalıp kalmadığı da (Bölüm 10.9'daki artık analizi) mutlaka kontrol edilmelidir. Artıklar otokorelasyonluysa gecikme artırılır. (statsmodels tablosunda bir de **FPE**, *Final Prediction Error*, "nihai tahmin hatası" sütunu görürsünüz; çoğunlukla AIC ile aynı gecikmeyi önerir.)
 
-> **Hemen deneyin 10.4 · `maxlags` değişince seçim değişir mi?** (R ve Python, ~6 dk)
+> **Hemen deneyin 10.4 · `maxlags` değişince seçim değişir mi?** (Python, ~3 dk)
 >
-> **Python:** 10.9'daki `macro.csv` verisiyle gecikme seçimini üç farklı üst sınırla tekrarlayalım (depo kök dizininden).
+> 10.9'daki `macro.csv` verisiyle gecikme seçimini üç farklı üst sınırla tekrarlayalım (depo kök dizininden).
 >
 > ```python
 > import pandas as pd
@@ -464,32 +442,7 @@ Pratikte kriterler farklı gecikme önerebilir. Böyle durumlarda BIC'nin önerd
 > 12 {'aic': np.int64(12), 'bic': np.int64(2), 'hqic': np.int64(3), 'fpe': np.int64(12)}
 > ```
 >
-> (`np.int64(4)` NumPy'ın 4 tam sayısını yazma biçimidir.) BIC her durumda 2'de kalır. AIC ise neredeyse hep izin verilen en büyük gecikmeyi (4 ve 12) seçer: Hafif cezası, uyumdaki küçük kazançları bile ödüllendirir. Bir kriterin hep üst sınırı seçmesi, o kriterin seçimine güvenmemek için bir uyarıdır.
->
-> **R:** `vars` paketinin yerleşik `Canada` verisiyle (Kanada'da istihdam `e`, verimlilik `prod`, reel ücret `rw`, işsizlik `U`; 1980–2000, üç aylık) aynı işi yapalım.
->
-> ```r
-> library(vars)                                  # VARselect() ve Canada verisi
-> data(Canada)                                   # 4 değişken, 84 çeyrek
-> VARselect(Canada, lag.max = 8, type = "const")$selection
-> ```
->
-> **Ne göreceksiniz:**
->
-> ```text
-> AIC(n)  HQ(n)  SC(n) FPE(n) 
->      3      2      1      3 
-> ```
->
-> `SC` (Schwarz) BIC'nin diğer adıdır. AIC 3, HQ 2, BIC 1 gecikme önerir; sıralama yine "AIC ≥ HQ ≥ BIC"dir.
->
-> **Şimdi siz:** R'da `lag.max = 4` ve `lag.max = 12` ile tekrarlayın. BIC (SC) hep aynı gecikmeyi mi seçiyor?
->
-> <details><summary>Cevap</summary>
->
-> `lag.max = 4`: AIC 3, HQ 2, SC **2**, FPE 3. `lag.max = 12`: AIC 3, HQ **1**, SC 1, FPE 3. BIC bile değişebilir. Nedeni, kriterlerin bütün gecikmeler için **aynı ortak örnekle** hesaplanmasıdır: `lag.max` büyüdükçe baştan daha çok gözlem atılır ($T$ küçülür) ve hem uyum terimi hem ceza değişir. 84 çeyreklik kısa bir seride bu etki belirgindir. Seçimin `lag.max`'a duyarlı olup olmadığını denemek iyi bir alışkanlıktır.
->
-> </details>
+> (`np.int64(4)` NumPy'ın 4 tam sayısını yazma biçimidir.) BIC her durumda 2'de kalır. AIC ise neredeyse hep izin verilen en büyük gecikmeyi (4 ve 12) seçer: Hafif cezası, uyumdaki küçük kazançları bile ödüllendirir. Bir kriterin hep üst sınırı seçmesi, o kriterin seçimine güvenmemek için bir uyarıdır. Kriterler bütün gecikmeler için **aynı ortak örnekle** hesaplanır: `maxlags` büyüdükçe serinin başından daha çok gözlem atılır ($T$ küçülür), bu yüzden seçimin `maxlags`'e duyarlı olup olmadığını denemek iyi bir alışkanlıktır.
 
 ---
 
@@ -581,17 +534,6 @@ VAR'da da aynısı geçerlidir: karakteristik denklem $\det(I - A_1 z) = 0$'ın 
 *Şekil 10.2 — (a) Örnek matrisin öz değerleri (0.6 ve 0.3, mavi) birim çemberin içinde, kökleri ($`z = 1/\lambda`$: 1.67 ve 3.33, kırmızı) dışındadır; turuncu halka birim kökün (1) yeridir. (b) Bölüm 10.9'daki VAR(2) modelinin altı öz değeri: hepsi içeride; ancak karmaşık eşlenik bir çift oluşturan ikisinin modülü 0.996'dır ve bu iki öz değer çembere neredeyse değer.*
 
 **Tanım 2 (VAR(p) için stabilite):** VAR(2) ya da daha fazla gecikmeli bir modelde tek bir $A_1$ matrisi yoktur. Bu durumda şu dönüşüme başvurulur: bu ayın ve geçen ayın değerleri alt alta yazılarak daha uzun bir vektör oluşturulur ve model bu uzun vektör için bir VAR(1)'e dönüştürülür. Bu VAR(1)'in katsayı matrisine **eşlik (companion) matrisi** denir ve $kp \times kp$ boyutludur:
-
-```math
-\mathbf{F} =
-\begin{bmatrix}
-A_1 & A_2 & \cdots & A_{p-1} & A_p \\
-I   & 0   & \cdots & 0       & 0   \\
-0   & I   & \cdots & 0       & 0   \\
-\vdots & & \ddots & & \vdots \\
-0   & 0   & \cdots & I       & 0
-\end{bmatrix}
-```
 
 ```math
 \underbrace{\mathbf{F}}_{\substack{\text{eşlik matrisi}\\kp \times kp}} =
@@ -803,7 +745,7 @@ $\Phi_h$ matrisinin $(j, m)$ elemanı, $m$. değişkene $t$ anında gelen bir bi
 
 > **Simge notu:** $`\boldsymbol{\mu}`$ *(kalın mü)*: sürecin ortalama vektörü · $`\infty`$ *(sonsuz)*: toplamın sonsuza kadar sürdüğü, ama terimlerin giderek küçüldüğü · $`\Phi_i`$ *(büyük fi)*: $`i`$. dönem tepki (MA katsayı) matrisi; küçük $`\phi`$ ile aynı harfin büyük yazılışıdır (Bölüm 7.3'te büyük $`\Phi`$ mevsimsel AR katsayısıydı; burada anlamı farklıdır) · $`\min(i,p)`$: iki değerden küçüğü · $`A_1^h`$: $`A_1`$'in kendisiyle $`h`$ kez çarpımı
 
-**Ortalama vektörü:** Stabil bir VAR(p) sürecinin uzun dönem ortalaması kapalı biçimde hesaplanabilir: $\boldsymbol{\mu} = (I - A_1 - \dots - A_p)^{-1}\mathbf{c}$. 10.1'deki örnekte $\mathbf{c} = (1,\ 0.5)$ ve $I - A_1$ matrisinin satırları $(0.5,\ -0.2)$ ile $(-0.1,\ 0.6)$'dır; determinantı $0.5 \cdot 0.6 - 0.2 \cdot 0.1 = 0.28$'dir. Ters matrisle çarpım $(0.7,\ 0.35) / 0.28 = (2.5,\ 1.25)$ verir. Bu sonuç, Hemen deneyin 10.1'de Excel tahminlerinin yerleştiği 2.5 ve 1.25 değerlerinin kapalı formdaki sağlamasıdır.
+**Ortalama vektörü:** Stabil bir VAR(p) sürecinin uzun dönem ortalaması kapalı biçimde hesaplanabilir: $\boldsymbol{\mu} = (I - A_1 - \dots - A_p)^{-1}\mathbf{c}$. 10.1'deki örnekte $\mathbf{c} = (1,\ 0.5)$ ve $I - A_1$ matrisinin satırları $(0.5,\ -0.2)$ ile $(-0.1,\ 0.6)$'dır; determinantı $0.5 \cdot 0.6 - 0.2 \cdot 0.1 = 0.28$'dir. Ters matrisle çarpım $(0.7,\ 0.35) / 0.28 = (2.5,\ 1.25)$ verir. Sağlama: $1 + 0.5 \cdot 2.5 + 0.2 \cdot 1.25 = 2.5$ ve $0.5 + 0.1 \cdot 2.5 + 0.4 \cdot 1.25 = 1.25$; bu iki değer denklemlere konunca kendilerini verir. Tahmini (şokları 0 alarak) ay ay ileri yürütürsek, $A_1^h$ sıfıra gittiği için (Hemen deneyin 10.5'teki matris kuvvetleri) başlangıç noktasının etkisi söner ve tahminler hangi değerden başlarsa başlasın 2.5 ile 1.25'e yerleşir.
 
 **Ortogonal (Cholesky) şoklar:** Gerçek verilerde şoklar çoğu zaman birlikte gelir: $\Sigma_u$ köşegen değilse, yani aynı dönemdeki şoklar birbiriyle ilişkiliyse, "yalnızca faize şok verip diğerlerini sabit tutmak" gerçekçi değildir. Bu yüzden genellikle $\Sigma_u = P P^\top$ **Cholesky ayrıştırması** ile ilişkisiz (ortogonal) şoklar elde edilir ve tepkiler $\Theta_i = \Phi_i P$ ile hesaplanır. Sade bir dille: değişkenler bir sıraya dizilir ve listede önce gelen değişkenin şokunun, sonrakileri **aynı dönemde** etkilemesine izin verilir, tersine izin verilmez. Bu yöntemde **değişkenlerin sırası sonucu etkiler**. Bölüm 11.6'daki Gretl çıktısında enflasyon listede ilk sırada olduğu için, faiz şokuna enflasyonun ilk dönemdeki tepkisi tam olarak 0'dır. Sıralama ekonomik mantığa göre (ör. yavaş tepki verenler önce) seçilmeli ve raporlanmalıdır. Cholesky şokları genellikle "bir standart sapmalık" büyüklükte verilir: yani o değişkende tipik olarak görülen büyüklükte bir sürpriz.
 
@@ -1106,7 +1048,7 @@ Kodun ürettiği her çıktı bölümünün bu veride (`data/macro.csv`, VAR(2))
 
 **Not —** Koddaki IRF grafikleri `orth=False` ile bir birimlik (ortogonal olmayan) şoklara göre çizilir. Cholesky şoklarına göre tepki için `irf.plot(orth=True)` kullanılabilir; bu durumda sonuç `df_var` sütunlarının sırasına bağlıdır (Bölüm 10.7). `fevd()` her zaman Cholesky şoklarını kullanır.
 
-> **Hemen deneyin 10.9a · VAR naive'i yenebiliyor mu? Bölüm 8'i VAR'a uygulayın** (Python, ~5 dk)
+> **Hemen deneyin 10.9 · VAR naive'i yenebiliyor mu? Bölüm 8'i VAR'a uygulayın** (Python, ~5 dk)
 >
 > 10.9.1'deki tahmin satırında "doğruluk ölçümü için Bölüm 8'deki eğitim-test ayrımı" önerilmişti. 2024'ü test seti olarak ayırıp VAR(2)'yi naive yöntemle karşılaştıralım (depo kök dizininden).
 >
@@ -1153,41 +1095,6 @@ Kodun ürettiği her çıktı bölümünün bu veride (`data/macro.csv`, VAR(2))
 > ```
 >
 > VAR yine yalnızca kurda açıkça kazanır (1.95'e karşı 5.27); enflasyonda başa baş, faizde ise kötüdür. Tek bir test yılına bakarak karar vermemek, birkaç farklı kesim noktası denemek gerekir (8.1.1'deki Not).
->
-> </details>
-
-> **Hemen deneyin 10.9b · Aynı adımlar R'da: `vars` paketi ve `Canada`** (R, ~5 dk)
->
-> 10.4'te gecikme seçimini yaptığımız `Canada` verisiyle VAR(2) kurup 10.9'daki kontrolleri R'da tekrarlayalım.
->
-> ```r
-> library(vars)
-> data(Canada)
-> model <- VAR(Canada, p = 2, type = "const")       # 4 değişkenli VAR(2), sabitli
-> round(roots(model), 3)                            # eşlik matrisinin öz değer modülleri (< 1 olmalı)
-> serial.test(model, lags.pt = 12)$serial$p.value   # portmanteau testi p-değeri (H0: otokorelasyon yok)
-> causality(model, cause = "U")$Granger$p.value     # U, diğer üçünün Granger nedeni mi?
-> round(predict(model, n.ahead = 4)$fcst$U[, "fcst"], 2)   # işsizlik: 4 çeyrek tahmin
-> ```
->
-> **Ne göreceksiniz:**
->
-> ```text
-> [1] 0.995 0.908 0.908 0.738 0.738 0.186 0.143 0.143
-> Chi-squared 
->   0.8331585 
->            [,1]
-> [1,] 0.01125507
-> [1] 6.43 5.90 5.40 4.95
-> ```
->
-> 4 değişken × 2 gecikme olduğu için eşlik matrisi 8 × 8'dir ve 8 öz değer vardır (10.5). Hepsi 1'den küçüktür, model stabildir; ama en büyüğü 0.995 ile `macro.csv`'deki gibi sınıra çok yakındır: `Canada` serileri de düzeyde durağan değildir. Portmanteau p-değeri 0.83'tür; `macro.csv`'nin aksine artıklarda otokorelasyon kalmamıştır. Granger testi p = 0.011 ile "işsizlik, diğer üç değişkeni öngörmeye yardım eder" der. R'daki `causality()` bir değişkenin **diğer bütün** değişkenler üzerindeki etkisini tek testte sınar.
->
-> **Şimdi siz:** `cause = "U"` yerine `cause = "rw"` (reel ücret) yazın. Sonuç ne?
->
-> <details><summary>Cevap</summary>
->
-> p ≈ 0.018: Reel ücretin geçmişi de diğer üç değişkeni öngörmeye yardım eder (p < 0.05). (Karşılaştırma için: `cause = "e"` ile p ≈ 0.0000032, `cause = "prod"` ile p ≈ 0.012.)
 >
 > </details>
 

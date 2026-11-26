@@ -347,11 +347,11 @@ Hareketli standart sapma (standart sapma: Bölüm 2.2), son birkaç ayın ne kad
 >
 > Mayıs 1949 satırındaki 7.37, Şubat–Nisan 1949'un (118, 132, 129) standart sapmasıdır (notta ≈ 7.4). Ocak 1960 satırında temiz yıllık değişim 68, sızıntılı fark 57'dir; 57'nin içinde tahmin etmeye çalıştığımız 417 vardır.
 >
-> **Şimdi siz:** Ocak 1960 satırındaki `rolling_std_3` = 25.42 değerini elle ya da Excel'de doğrulayın. Ekim–Aralık 1959 değerleri 407, 362 ve 405'tir. Excel'de: `=STDSAPMA.S(407;362;405)` (İngilizce: `=STDEV.S(407,362,405)`).
+> **Şimdi siz:** Ocak 1960 satırındaki `rolling_std_3` = 25.42 değerini elle doğrulayın. Ekim–Aralık 1959 değerleri 407, 362 ve 405'tir; sonucu `np.std([407, 362, 405], ddof=1)` ile kontrol edebilirsiniz.
 >
 > <details><summary>Cevap</summary>
 >
-> Ortalama $1174 / 3 \approx 391.33$; sapmalar $15.67, -29.33, 13.67$; kareleri toplamı $\approx 245.4 + 860.4 + 186.8 = 1292.7$; $1292.7 / (3 - 1) \approx 646.3$; $\sqrt{646.3} \approx 25.42$. Excel de 25,42 verir (Türkçe Excel ondalık ayırıcı olarak virgül kullanır). Son çeyrekteki büyük dalgalanma (Ekim'den Kasım'a 45'lik düşüş) oynaklığı yükseltmiştir.
+> Ortalama $1174 / 3 \approx 391.33$; sapmalar $15.67, -29.33, 13.67$; kareleri toplamı $\approx 245.4 + 860.4 + 186.8 = 1292.7$; $1292.7 / (3 - 1) \approx 646.3$; $\sqrt{646.3} \approx 25.42$. `np.std(..., ddof=1)` de 25.42 verir (`ddof=1`: pandas'ın `rolling().std()`'u gibi n − 1'e böler). Son çeyrekteki büyük dalgalanma (Ekim'den Kasım'a 45'lik düşüş) oynaklığı yükseltmiştir.
 >
 > </details>
 
