@@ -35,7 +35,23 @@ Bir veri kümesini zaman serisi olarak kullanmak için frekansını (aylık, çe
 
 *Şekil 11.1 — Gretl'de tipik iş akışı: veri yükle → zaman serisi olarak tanımla → grafik ve keşif → model kur → test ve tahmin. Her adımın menü yolu ve eşdeğer betik komutu gösterilmiştir.*
 
-**Not —** Menü adları sürümden sürüme küçük farklılıklar gösterebilir. Bu bölümde güncel sürümlerdeki adlar kullanılmıştır; eski sürümlerde ARIMA ve VAR, **Model → Time series** altında yer alır.
+Bu bölümde kullanılan menülerin komut karşılıkları aşağıdaki tabloda toplanmıştır; her işlemin ne yaptığı, son sütundaki alt bölümde anlatılır. Örnek veri açma, zaman grafiği, log dönüşümü, ARIMA, gözlem ekleme, öngörü ve artık kaydetme satırları Ek B.6'daki tabloda, korelogram ve testler 11.4'teki tabloda yer alır. Menülerin adım adım kullanımı (pencerelerdeki seçenekler dahil) Ek B'dedir.
+
+| İşlem | Menü yolu | Komut | Bölüm |
+| --- | --- | --- | --- |
+| Kendi dosyanızı açma (CSV, Excel, `.gdt`) | **File → Open data → User file…** | `open "data/AirPassengers.csv"` | 11.2.1, Ek B.2 |
+| Zaman serisi yapısı (frekans, başlangıç) | **Data → Dataset structure…** | `setobs 12 1949:01 --time-series` | 11.2.2, Ek B.2 |
+| Özet istatistikler | **View → Summary statistics** | `summary g` | 11.3.1 |
+| Birinci / mevsimsel fark | **Add → First differences of selected variables** / **Seasonal differences of selected variables** | `diff g` / `sdiff g` | 11.3.1 |
+| Zaman trendi, mevsim kuklaları, gecikmeler | **Add → Time trend** / **Periodic dummies** / **Lags of selected variables** | `genr time` / `genr dummy` / `lags 2 ; g` | 11.3.2 |
+| OLS regresyonu | **Model → Ordinary Least Squares…** | `ols g const time` | 11.3.2 |
+| VAR gecikme seçimi | **Model → Multivariate time series → VAR lag selection…** | `var 8 y1 y2 y3 --lagselect` | 11.6.1 |
+| VAR kurma | **Model → Multivariate time series → Vector Autoregression…** | `var 2 y1 y2 y3` | 11.6.1 |
+| Ters kökler (stabilite) | VAR penceresi → **Graphs → VAR inverse roots** | `eval abs(eigen($compan))` | 11.6.1 |
+| IRF ve FEVD | VAR penceresi → **Analysis → Impulse responses** / **Forecast variance decomposition** | `var` satırına `--impulse-responses` / `--variance-decomp` | 11.6.1 |
+| Johansen eşbütünleşme testi | **Model → Multivariate time series → Cointegration test (Johansen)** | `coint2 2 y1 y2 y3` | 11.6.2 |
+
+Menü adları sürümden sürüme küçük farklılıklar gösterebilir; tabloda güncel adlar kullanılmıştır (eski sürümlerde ARIMA ve VAR, **Model → Time series** altındadır).
 
 > **Hemen deneyin 11.1 · AirPassengers Gretl'in içinde zaten var** (Gretl menüleri ve konsol, ~3 dk)
 >
@@ -61,14 +77,7 @@ Bir veri kümesini zaman serisi olarak kullanmak için frekansını (aylık, çe
 
 #### 11.2.1. Veri Yükleme
 
-AirPassengers gibi bir CSV dosyasını Gretl'e aktarmak için:
-
-1.  **File → Open data → User file…** seçilir.
-2.  Dosya türü olarak CSV (ya da "all files") seçilip `AirPassengers.csv` işaretlenir.
-3.  Sütun ayırıcı (virgül, noktalı virgül) genellikle otomatik algılanır; gerekirse elle seçilir.
-4.  Sütun adlarının doğru okunduğu kontrol edilir (ör. `Month`, `Passengers`).
-
-Gretl ayrıca Excel, Stata, SPSS ve kendi biçimi olan `.gdt` dosyalarını da aynı menüden açabilir. Gretl'in tarihleri kendiliğinden tanıması için iki koşul gerekir: ilk sütunun başlığı boş ya da `obs` veya `date` gibi bir gözlem etiketi adı olmalı ve tarihler `1949-01`, `1949:01`, `1949-01-01` gibi tanınan bir biçimde yazılmalıdır. Bölüm 10'daki `macro.csv` dosyası (`date` başlığı, `2015-01-01` biçimi) bu yüzden doğrudan aylık seri olarak açılır. `AirPassengers.csv`'de ise ilk sütunun başlığı `Month` olduğu için Gretl bu sütunu sıradan bir metin değişkeni sayar ve veriyi tarihsiz (*undated*) bir tablo olarak açar; bu durumda bir sonraki adım gerekir.
+AirPassengers gibi bir CSV dosyası **File → Open data → User file…** ile açılır (adımlar: Ek B.2); Gretl Excel, Stata, SPSS ve kendi biçimi olan `.gdt` dosyalarını da aynı menüden açabilir. Gretl'in tarihleri kendiliğinden tanıması için iki koşul gerekir: ilk sütunun başlığı boş ya da `obs` veya `date` gibi bir gözlem etiketi adı olmalı ve tarihler `1949-01`, `1949:01`, `1949-01-01` gibi tanınan bir biçimde yazılmalıdır. Bölüm 10'daki `macro.csv` dosyası (`date` başlığı, `2015-01-01` biçimi) bu yüzden doğrudan aylık seri olarak açılır. `AirPassengers.csv`'de ise ilk sütunun başlığı `Month` olduğu için Gretl bu sütunu sıradan bir metin değişkeni sayar ve veriyi tarihsiz (*undated*) bir tablo olarak açar; bu durumda bir sonraki adım gerekir.
 
 > **Hemen deneyin 11.2.1 · Kendi CSV dosyanızı yazın: ilk sütunun başlığı neden önemli?** (Not Defteri ve Gretl menüleri, ~5 dk)
 >
@@ -98,12 +107,7 @@ Gretl ayrıca Excel, Stata, SPSS ve kendi biçimi olan `.gdt` dosyalarını da a
 
 #### 11.2.2. Zaman Serisi Olarak Tanımlama
 
-1.  **Data → Dataset structure…** seçilir.
-2.  Açılan sihirbazda sırasıyla:
-    *   **Time series** seçilir,
-    *   **Frequency** olarak *monthly* seçilir,
-    *   **Starting observation** olarak `1949:01` girilir.
-3.  Onaylandığında Gretl her satırı bir aya karşılık gelen bir gözlem olarak kabul eder; ana pencerenin altındaki durum satırında `Monthly: Full range 1949:01 - 1960:12` bilgisi görünür.
+Tarihsiz açılan bir veriye zaman yapısı **Data → Dataset structure…** sihirbazında üç bilgiyle verilir: verinin **Time series** olduğu, frekansı (**Frequency**: AirPassengers için *monthly*) ve ilk gözlemin tarihi (**Starting observation**: `1949:01`); sihirbazın adımları Ek B.2'dedir. Komut karşılığı `setobs 12 1949:01 --time-series` satırıdır (11.5). Onaylandığında Gretl her satırı bir aya karşılık gelen bir gözlem olarak kabul eder; ana pencerenin altındaki durum satırında `Monthly: Full range 1949:01 - 1960:12` bilgisi görünür.
 
 Bu aşamadan sonra grafiklerde tarih ekseni doğru görünür, mevsimsel fark gibi işlemler ve ARIMA modelleri ek bir ayar gerektirmeden çalışır. Gretl'de tarihler `yıl:dönem` biçiminde yazılır: `1949:01` 1949'un 1. ayı, çeyreklik veride `2015:3` 2015'in 3. çeyreğidir.
 
@@ -129,9 +133,7 @@ Bu aşamadan sonra grafiklerde tarih ekseni doğru görünür, mevsimsel fark gi
 
 #### 11.3.1. Grafikler, Özet İstatistikler ve Dönüşümler
 
-*   **View → Graph specified vars → Time series plot…** ile seçilen değişkenlerin zaman grafiği çizilir (ya da değişkene sağ tıklayıp **Time series plot**).
-*   **View → Summary statistics** ile ortalama, standart sapma, minimum, maksimum gibi özet istatistikler görülür. `Passengers` için ortalama yaklaşık 280, en küçük değer 104, en büyük değer 622'dir (bin yolcu).
-*   **Add** menüsünden yeni değişkenler türetilir: **Add → Logs of selected variables** (log dönüşümü), **Add → First differences of selected variables** (birinci fark), **Add → Seasonal differences of selected variables** (mevsimsel fark: bu ayın değeri eksi bir yıl önceki aynı ayın değeri). Gretl bunları `l_Passengers`, `d_Passengers`, `sd_Passengers` gibi adlarla listeye ekler.
+Zaman grafiği değişkene sağ tıklayıp **Time series plot** ile çizilir (Ek B.2). **View → Summary statistics** ortalama, standart sapma, minimum ve maksimumu verir: `Passengers` için ortalama yaklaşık 280, en küçük değer 104, en büyük değer 622'dir (bin yolcu). Log dönüşümü, birinci fark ve mevsimsel fark (bu ayın değeri eksi bir yıl önceki aynı ayın değeri) **Add** menüsünden türetilir (menü adları: 11.1'deki tablo ve Ek B.6); Gretl bunları `l_Passengers`, `d_Passengers`, `sd_Passengers` gibi adlarla listeye ekler.
 
 `Passengers` değişkeninin grafiğinde AirPassengers'ın bilinen yapısı görülür: artan trend, her yıl tekrarlayan mevsimsellik ve zamanla büyüyen dalgalanmalar (Bölüm 2.5).
 
@@ -245,7 +247,7 @@ Bu testler, ARIMA kurarken ya da daha sonra LSTM/GRU gibi modellere (Bölüm 15)
 
 Menülerle yapılan her işlem Gretl'in komut dilinde de yazılabilir. Betik kullanmanın avantajı, analizin **tekrarlanabilir** olmasıdır: veri güncellendiğinde aynı adımlar tek tuşla yeniden çalıştırılır. Aşağıdaki betik, AirPassengers üzerinde Bölüm 7'deki Box-Jenkins adımlarını (dönüşüm → durağanlık → korelogram → model seçimi → artık kontrolü → tahmin) ve Bölüm 8'deki eğitim-test değerlendirmesini uygular.
 
-Betiği çalıştırmak için **File → Script files → New script → gretl script** ile açılan pencereye yapıştırıp **Run** (dişli simgesi) düğmesine basabilir ya da `.inp` dosyası olarak kaydedip komut satırından `gretlcli -b betik.inp` ile çalıştırabilirsiniz (`gretlcli` Gretl'in komut satırı sürümüdür, `-b` "batch", yani betiği baştan sona soru sormadan çalıştır demektir).
+Betiği çalıştırmak için betik penceresine (11.1) yapıştırıp **Run** (dişli simgesi) düğmesine basabilir ya da `.inp` dosyası olarak kaydedip komut satırından `gretlcli -b betik.inp` ile çalıştırabilirsiniz (`gretlcli` Gretl'in komut satırı sürümüdür, `-b` "batch", yani betiği baştan sona soru sormadan çalıştır demektir).
 
 Tam betik yaklaşık 175 satır olduğu için ayrı bir dosyaya taşındı. Aşağıda her adımın kilit komutları yer alıyor; adım numaraları (1–8), dosyadaki bölüm başlıklarıyla ve aşağıdaki "Betik çıktılarının yorumlanması" listesiyle aynıdır.
 
@@ -343,18 +345,12 @@ VAR modelinin teorisi (tanım, gecikme seçimi, stabilite, Granger nedenselliği
 
 #### 11.6.1. Menü ile VAR
 
-1.  **Gecikme seçimi:** **Model → Multivariate time series → VAR lag selection…** seçilir; değişkenler ve en büyük gecikme (ör. 8) girilir. Gretl her gecikme için AIC, BIC ve HQC değerlerini listeler ve her kriterin en iyi değerini yıldızla işaretler (Bölüm 10.4).
-2.  **Modeli kurma:** **Model → Multivariate time series → Vector Autoregression…** seçilir.
-    *   **Endogenous variables** (içsel değişkenler, yani modelin birbirini açıklayan değişkenleri) listesine değişkenler eklenir (ör. `inflation`, `interest`, `exchange`). Bu sıra, Cholesky şoklarına dayalı IRF ve FEVD'de kullanılan sıradır (Bölüm 10.7).
-    *   **Lag order** kutusuna seçilen gecikme (ör. 2) yazılır.
-    *   Deterministik terimler (sabit, trend, mevsimsel kuklalar) işaretlenir.
-    *   **OK** dendiğinde her denklem için katsayılar ve **F-tests of zero restrictions** tabloları gösterilir.
-3.  **Sonuç penceresinden:**
-    *   **Graphs → VAR inverse roots** ile ters köklerin (yani öz değerlerin) birim çember içindeki konumu (stabilite, Bölüm 10.5 ve Şekil 10.2),
-    *   **Graphs → Impulse responses (combined)** ya da **Analysis → Impulse responses** ile etki-tepki fonksiyonları,
-    *   **Analysis → Forecast variance decomposition** ile FEVD tabloları,
-    *   **Tests → Autocorrelation** ile artıklarda otokorelasyon testi,
-    *   **Analysis → Forecasts…** ile tahminler elde edilir.
+Menüden VAR iki adımda kurulur (menü yolları ve komut karşılıkları 11.1'deki tabloda, uygulaması Hemen deneyin 11.6.1a'dadır):
+
+1.  **Gecikme seçimi (VAR lag selection):** Değişkenler ve en büyük gecikme (ör. 8) girilir. Gretl her gecikme için AIC, BIC ve HQC değerlerini listeler ve her kriterin en iyi değerini yıldızla işaretler (Bölüm 10.4).
+2.  **Modeli kurma (Vector Autoregression):** **Endogenous variables** (içsel değişkenler, yani modelin birbirini açıklayan değişkenleri) listesine değişkenler eklenir (ör. `inflation`, `interest`, `exchange`); bu sıra, Cholesky şoklarına dayalı IRF ve FEVD'de kullanılan sıradır (Bölüm 10.7). **Lag order** kutusuna seçilen gecikme (ör. 2) yazılır, deterministik terimler (sabit, trend, mevsimsel kuklalar) işaretlenir. Çıktıda her denklem için katsayılar ve **F-tests of zero restrictions** tabloları yer alır.
+
+Sonuç penceresinin menüleri modeli denetlemek ve kullanmak içindir: ters köklerin, yani öz değerlerin birim çember içindeki konumu (**Graphs → VAR inverse roots**; stabilite, Bölüm 10.5 ve Şekil 10.2), etki-tepki fonksiyonları (**Analysis → Impulse responses**; grafikleri **Graphs → Impulse responses (combined)**), FEVD tabloları, artıklarda otokorelasyon testi (**Tests → Autocorrelation**, 11.4) ve tahminler (**Analysis → Forecasts…**).
 
 **Granger nedenselliği nerede?** Gretl VAR çıktısında her denklemin altında yer alan **"F-tests of zero restrictions"** bölümündeki "All lags of interest" satırı, enflasyon denkleminde faizin tüm gecikme katsayılarının sıfır olduğu hipotezini sınar. Bu, Bölüm 10.6'daki Granger nedensellik testinin ta kendisidir: p-değeri 0.05'ten küçükse faiz, enflasyonun Granger nedenidir. Bu veride satır `F(2, 111) = 0.18509 [0.8313]` şeklindedir: köşeli parantezdeki 0.8313 p-değeridir ve faiz enflasyonun Granger nedeni değildir. Aynı denklemdeki "All lags of exchange" satırı ise `F(2, 111) = 33.509 [0.0000]` verir.
 

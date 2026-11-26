@@ -1,7 +1,7 @@
 # =============================================================================
 # Bölüm 4 — R'da Tarih ve Zaman Nesneleri
 # Ders notu: notlar/04_rda_tarih_ve_zaman_nesneleri.md, Bölüm 4 (Date, POSIXct, POSIXlt, saat dilimleri,
-#            lubridate, tarih aritmetiği, pratik lubridate örnekleri)
+#            lubridate, tarih aritmetiği)
 #
 # Çalıştırma: depo kök dizininden  Rscript Codes/R/ch04_tarih_zaman.R
 #             ya da RStudio'da dosyayı açıp satır satır (Ctrl+Enter) çalıştırın.
@@ -9,7 +9,7 @@
 #   (Kurulum için bir kez: source("Codes/install_packages.R"))
 #
 # Not: "#>" ile başlayan yorumlar, notta verilen beklenen çıktılardır.
-#      Sys.Date(), Sys.time(), today() ve now() kullanan satırların çıktısı
+#      Sys.Date() ve Sys.time() kullanan satırların çıktısı
 #      çalıştırdığınız güne göre değişir. Notta gösterilen çıktılar saat
 #      dilimi "Europe/Istanbul" ve tarih dili Türkçe olan bir bilgisayarda
 #      üretilmiştir. Ay ve gün adları (%B, %A, wday(label = TRUE))
@@ -229,48 +229,10 @@ ymd("2024-02-29") + years(1)     # 29 Şubat 2025 yok
 ymd("2024-02-29") + dyears(1)    # 365.25 gün sonrası
 #> [1] "2025-02-28 06:00:00 UTC"
 
-# ---- 4.5.1 Örnek 1: Kaç Gündür Hayattasınız? ----
-# Sembolik doğum günü ve bugün
-dogum <- ymd("2021-06-29")
-bugun <- today()
-
-# Kaç gün geçti?
-yasanan_gun_sayisi <- bugun - dogum
-cat("Ben", as.numeric(yasanan_gun_sayisi), "gündür hayattayım.\n")
-
-# Kaç kış gördü? Aralığı (interval) 1 yıllık period'a tam bölerek tam yıl sayısını buluruz
-yas_araligi <- interval(dogum, bugun)
-gorulen_kis_sayisi <- yas_araligi %/% years(1)
-cat("Ben", gorulen_kis_sayisi, "kış gördüm.\n")
-
-# ---- 4.5.2 Örnek 2: Atatürk Kaç Gün Yaşadı ve Hangi Gün Vefat Etti? ----
-# Atatürk'ün doğum ve vefat tarihleri
-ataturk_dogum <- ymd("1881-05-19")
-ataturk_vefat <- ymd("1938-11-10")
-
-# Toplam yaşadığı gün sayısı
-yasadigi_gun <- ataturk_vefat - ataturk_dogum
-cat("Mustafa Kemal Atatürk", as.numeric(yasadigi_gun), "gün yaşamıştır.\n")
-#> Mustafa Kemal Atatürk 20993 gün yaşamıştır.
-
-# Yıl-ay-gün olarak yaşam süresi
-as.period(interval(ataturk_dogum, ataturk_vefat))
-#> [1] "57y 5m 22d 0H 0M 0S"
-
-# Vefat ettiği günün adı (sistemin dil ayarına göre Türkçe ya da İngilizce yazılır)
-vefat_gunu <- wday(ataturk_vefat, label = TRUE, abbr = FALSE)
-cat("Vefat ettiği gün:", as.character(vefat_gunu), "\n")
-#> Vefat ettiği gün: Perşembe
-
-# ---- 4.5.3 Örnek 3: Toplam Kaç Saat Yaşadınız? ----
-# Örnek bir doğum tarihi ve saati (saat dilimini açıkça belirtiyoruz)
-dogum_zamani <- ymd_hms("1995-04-23 14:30:00", tz = "Europe/Istanbul")
-
-# Şimdiki zaman
-simdi <- now(tzone = "Europe/Istanbul")
-
-# İki zaman arasındaki farkı saat cinsinden hesaplama
-yasanan_saat <- as.numeric(difftime(simdi, dogum_zamani, units = "hours"))
-
-cat("1995-04-23 14:30'da doğan bir kişi, yaklaşık olarak",
-    round(yasanan_saat), "saattir hayattadır.\n")
+# Tam yaş: interval() + %/% (tam sayı bölmesi)
+dogum <- ymd("2001-10-29")
+bitis <- ymd("2026-10-25")
+interval(dogum, bitis) %/% years(1)     # kaç tam takvim yılı
+#> [1] 24
+as.numeric(bitis - dogum) %/% 365       # gün / 365: artık günler yüzünden YANLIŞ
+#> [1] 25

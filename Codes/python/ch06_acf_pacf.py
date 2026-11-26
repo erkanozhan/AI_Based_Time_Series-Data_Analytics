@@ -6,7 +6,6 @@
 # veya VS Code'da hücre hücre (# %%) ya da Colab'da notebook sürümü.
 
 # %%
-import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
@@ -23,21 +22,13 @@ def veri_yolu(dosya):
     return DATA_URL + dosya
 
 # %% [markdown]
-# ## 6.4.3 Python ile ACF
-# `[20, 22, 21, 23, 24]` serisi için lag-1 otokorelasyonu. Elle hesap: 1 / 10 = 0.1.
-
-# %%
-data = np.array([20, 22, 21, 23, 24])   # örnek zaman serisi
-acf_values = acf(data, nlags=2)         # lag-0, lag-1, lag-2: [1.0, 0.1, 0.0]
-print(f"Lag-1 ACF: {acf_values[1]:.3f}")  # Python 0'dan sayar: [1] lag-1'dir -> 0.100
-
-# %% [markdown]
-# ### ACF grafiği (korelogram)
+# ## 6.4.3 Python ile ACF grafiği (korelogram)
 # Python'daki `plot_acf()` bandı varsayılan olarak Bartlett formülüyle çizer: bant gecikme arttıkça genişler.
 # R'daki sabit ±1.96/√T bandını görmek için `bartlett_confint=False` yazın.
 
 # %%
 seri = pd.read_csv(veri_yolu("AirPassengers.csv"), index_col=0)["Passengers"]
+print(acf(seri, nlags=12)[[1, 12]].round(3))           # lag-1 ve lag-12 (R ile aynı formül): yaklaşık 0.948 ve 0.760
 plot_acf(seri, lags=36, title="AirPassengers ACF")    # lags: kaç gecikme çizileceği (R'da lag.max)
 plot_acf(seri, lags=36, bartlett_confint=False,
          title="AirPassengers ACF (sabit bant, R ile aynı)")
@@ -45,14 +36,12 @@ plt.show()
 
 # %% [markdown]
 # ## 6.5.3 Python ile PACF
-# Aynı seri için lag-2 kısmi otokorelasyonu. Elle hesap (R ile aynı): (0 − 0.1²) / (1 − 0.1²) ≈ −0.0101.
+# `pacf()` varsayılan olarak `method="ywadjusted"` (T - h bölenli) kullanır; R ile aynı değerler için `method="ywm"` (T bölenli) yazılır.
+# Python 0'dan sayar ve sonuç lag-0'ı içerir: [1] lag-1, [2] lag-2'dir.
 
 # %%
-pacf_values = pacf(data, nlags=2)       # nlags en fazla gözlem sayısının yarısı: 5 // 2 = 2
-print(f"Lag-2 PACF: {pacf_values[2]:.3f}")  # varsayılan method="ywadjusted" -> -0.016
-
-# R ile aynı sonuç için otokovaryansları T ile bölen yöntem:
-print(f"Lag-2 PACF (ywm): {pacf(data, nlags=2, method='ywm')[2]:.3f}")  # -> -0.010
+print("Varsayılan (ywadjusted):", pacf(seri, nlags=2).round(4))
+print("R ile aynı (ywm):       ", pacf(seri, nlags=2, method="ywm").round(4))
 
 # %% [markdown]
 # ### PACF grafiği

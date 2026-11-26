@@ -18,7 +18,6 @@ Elimizde artık bir `ts` nesnesi var (Bölüm 5). Bu bölümde üç soruyu yanı
 >
 > Bu bölümdeki R kodlarının tamamı bu dosyada. Dosya RStudio'da açılıp satır satır ya da depo kök dizininde `Rscript Codes/R/ch06_manipulasyon_acf.R` komutuyla çalıştırılabilir. Bölüm 6.4.3 ve 6.5.3'teki Python kodları [`Codes/python/ch06_acf_pacf.py`](../Codes/python/ch06_acf_pacf.py) dosyasındadır; *Hemen deneyin* kutularındaki kodlar doğrudan konsolda çalıştırılır.
 
-
 İlk kural: **Veri her zaman çizilir.** Grafiğe bakmadan analize başlamak, gözü kapalı araba kullanmaya benzer. Bir zaman serisi grafiğinde şu dört soruya cevap ararız:
 
 - **Trend** var mı? Seri uzun vadede yükseliyor ya da düşüyor mu?
@@ -582,7 +581,7 @@ Pay: $3 + (-2) + (-4) + (-8) = -11$. Payda: $9 + 1 + 4 + 4 + 16 = 34$.
 \end{aligned}
 ```
 
-Pay 4 terimden ($t = 2, \dots, 5$), payda 5 terimden oluşur; bu, Tanım 2'deki toplam sınırlarının doğrudan uygulamasıdır. R'da `acf(c(10, 12, 15, 11, 17), plot = FALSE)$acf[2]` aynı sonucu (−0.3235) verir; bu yazımın parçaları (`plot = FALSE`, `$acf`, neden `[2]`) Bölüm 6.4.3'te satır satır açıklanır.
+Pay 4 terimden ($t = 2, \dots, 5$), payda 5 terimden oluşur; bu, Tanım 2'deki toplam sınırlarının doğrudan uygulamasıdır. R'da `acf(c(10, 12, 15, 11, 17), plot = FALSE)$acf[2]` aynı sonucu (−0.3235) verir: `plot = FALSE` grafik çizmeden yalnızca değerleri döndürür, `$acf` sonuç listesinin korelasyon değerlerini tutan parçasıdır; R saymaya 1'den başladığı ve 1. eleman lag-0 olduğu için lag-1 değeri `[2]`'dedir (Bölüm 6.5.3'teki **İndeks tuzağı** notu).
 
 Aynı dört çiftin (12, 10), (15, 12), (11, 15), (17, 11) sıradan Pearson korelasyonu ise −0.448'dir (R'da `cor(c(12, 15, 11, 17), c(10, 12, 15, 11))`). Fark, Bölüm 6.3.3'teki notta anlatılan iki ayrıntıdan gelir: ACF formülü her iki sütun için de beş günün ortalamasını (13) kullanır ve paydada beş terim toplar. Bu kadar kısa bir seride fark büyüktür; yüzlerce gözlemde önemsizleşir.
 
@@ -774,64 +773,9 @@ Tek tek çubuklardan çok, çubukların oluşturduğu **desen** önemlidir. Prat
 >
 > Python dosyası 6.4.3 ve 6.5.3'teki Python kodlarının tamamını içerir. Dosya, depo kök dizininde `python Codes/python/ch06_acf_pacf.py` komutuyla ya da VS Code'da hücre hücre çalıştırılabilir; kurulum yapmadan denemek için Colab bağlantısı kullanılabilir. Dosyadaki `veri_yolu()` yardımcı fonksiyonu, `data/` klasörü bulunamazsa (ör. Colab'da) veriyi doğrudan GitHub'dan okur. Dosya, aşağıdaki kodlara ek olarak notta yalnızca sözü geçen iki seçeneği de çalıştırır: sabit bantlı ACF grafiği (`bartlett_confint=False`) ve R ile aynı PACF sonucunu veren `method="ywm"`.
 
-Aşağıda `[20, 22, 21, 23, 24]` serisi için lag-1 otokorelasyonunu iki dilde hesaplıyoruz.
+ACF değerlerini tek tek hesaplamak için R'da `acf(x, plot = FALSE)$acf`, Python'da `statsmodels.tsa.stattools.acf(x, nlags=...)` kullanılır (Bölüm 6.3.4'teki örnek ve kutu); ikisi de Bölüm 6.3.3'teki Tanım 2'yi uygular. Uygulamada çoğu zaman sayılar yerine grafik istenir ve onu çizmek için tek bir komut yeterlidir.
 
-**Python ile ACF:**
-
-```python
-from statsmodels.tsa.stattools import acf  # ACF fonksiyonunu içeri aktar
-import numpy as np                          # Numpy kütüphanesini içeri aktar
-
-data = np.array([20, 22, 21, 23, 24])  # Örnek bir zaman serisi verisi oluştur
-acf_values = acf(data, nlags=2)        # 2 gecikmeye kadar ACF değerlerini hesapla
-print(f"Lag-1 ACF: {acf_values[1]:.3f}")  # 1. gecikmedeki (lag-1) ACF değerini yazdır
-```
-
-**Çıktı:**
-
-```
-Lag-1 ACF: 0.100
-```
-
-`from statsmodels.tsa.stattools import acf` satırı, `statsmodels` kütüphanesinin `tsa.stattools` modülünden yalnızca `acf` fonksiyonunu alır. `import numpy as np` ise `numpy` kütüphanesini kısa adı `np` ile yükler (`import ... as ...`, "bu kütüphaneyi şu kısa adla kullanacağım" demektir). `np.array([...])` köşeli parantez içindeki sayılardan bir dizi oluşturur. `acf(data, nlags=2)` lag-0, lag-1 ve lag-2 için üç değerlik bir dizi döndürür: `[1.0, 0.1, 0.0]`. Python'da sayma 0'dan başladığı için `acf_values[0]` lag-0'ı, `acf_values[1]` lag-1'i verir. Son satırdaki `f"..."` bir *f-string*'dir: Süslü parantez içindeki değer metnin içine yerleştirilir, `:.3f` de bu değeri üç ondalık basamakla yazar.
-
-**R ile ACF:**
-
-```r
-data <- c(20, 22, 21, 23, 24)          # Örnek bir zaman serisi vektörü oluştur
-acf_result <- acf(data, plot = FALSE)  # Grafik çizmeden ACF değerlerini hesapla
-# R'da acf() çıktısının ilk elemanı lag-0'dır (her zaman 1), bu yüzden lag-1 için 2. elemanı alırız.
-cat("Lag-1 ACF:", round(acf_result$acf[2], 3))
-```
-
-**Çıktı:**
-
-```
-Lag-1 ACF: 0.1
-```
-
-Bu R kodu, Python kodunun yaptığını yapar: Beş sayılık seri için örneklem otokorelasyonlarını hesaplar ve bunlardan yalnızca lag-1 değerini ekrana yazar. Kodu satır satır okuyalım:
-
-1. `data <- c(20, 22, 21, 23, 24)`: `c()` (2.1) beş sayıyı bir vektörde toplar; sonuç `data` adına kaydedilir. Bu sıradan bir vektördür, `ts` nesnesi değildir; `acf()` ikisiyle de çalışır. (`data`, R'daki `data()` fonksiyonuyla aynı adı taşır. R, parantezli kullanımda fonksiyonu, parantezsiz kullanımda bu vektörü bulduğu için sorun çıkmaz; yine de `veri` gibi ayrı bir ad seçmek karışıklığı önler.)
-2. `acf_result <- acf(data, plot = FALSE)`: `acf()` otokorelasyonları Bölüm 6.3.3'teki Tanım 2 ile hesaplar. Argümanlar:
-   - `data`: Otokorelasyonu hesaplanacak seri (konumsal argüman).
-   - `plot = FALSE`: Varsayılan `plot = TRUE` grafiği çizer; `FALSE` grafik çizmeden yalnızca sonuçları döndürür, çünkü burada sayıya ihtiyacımız var.
-   - `lag.max` (yazılmamış): Kaç gecikmeye kadar hesaplanacağı. Verilmezse yaklaşık $10 \log_{10} T$ alınır, ama bu sayı hiçbir zaman $T - 1$'i aşamaz; beş gözlemde en fazla 4 gecikme hesaplanabilir. Sonuç lag-0'dan lag-4'e beş değerdir: 1.0, 0.1, 0.0, −0.2, −0.4.
-
-   Dönen nesne `acf` sınıfında bir **liste**dir ve `acf_result` adına kaydedilir. Parçalarından `$acf` korelasyon değerlerini, `$lag` bunların hangi gecikmeye ait olduğunu, `$n.used` kullanılan gözlem sayısını (5) tutar.
-3. `cat("Lag-1 ACF:", round(acf_result$acf[2], 3))`: İçten dışa okunur:
-   - `acf_result$acf`: Listenin korelasyon değerlerini içeren parçası. `acf()` birden fazla seriyi birlikte de işleyebildiği için bu parça 5 × 1 × 1 boyutlu bir dizi (*array*) olarak saklanır; tek seride bu parça sıradan bir sayı listesi gibi düşünülebilir.
-   - `[2]`: Köşeli parantez, bir vektörden sıra numarasıyla eleman seçer. R'da sayma 1'den başlar ve 1. eleman lag-0 olduğu için lag-1 değeri 2. sıradadır.
-   - `round(..., 3)`: Sayıyı üç ondalık basamağa yuvarlar.
-   - `cat()`: Kendisine virgülle verilen parçaları (burada tırnak içindeki metin ve sayı) aralarına birer boşluk koyarak ekrana yazar. Satır sonuna kendiliğinden yeni satır eklemez; uygulama dosyasında bu yüzden sona `"\n"` (yeni satır karakteri) eklenmiştir.
-
-Çıktı `Lag-1 ACF: 0.1` satırıdır. `round(..., 3)` üç basamak bıraksa da R sondaki sıfırları yazmadığı için değer `0.100` yerine `0.1` olarak görünür; Python ise `:.3f` biçimiyle sıfırları da yazmıştı. Sonucun tamamı `acf_result` yazılarak görülebilir: R, "Autocorrelations of series 'data', by lag" başlığının altına gecikmeleri (0, 1, 2, 3, 4) ve değerlerini iki satır hâlinde basar.
-
-**Yorum:** Elle kontrol edelim: $\bar{x} = 110/5 = 22$, sapmalar $[-2, 0, -1, 1, 2]$. Pay, ardışık sapmaların çarpımlarının toplamıdır: $(0)(-2) + (-1)(0) + (1)(-1) + (2)(1) = 0 + 0 - 1 + 2 = 1$. Payda, sapmaların karelerinin toplamıdır: $4 + 0 + 1 + 1 + 4 = 10$. Dolayısıyla $\hat{\rho}_ 1 = 1/10 = 0.1$. Her iki dil de aynı formülü kullandığı için aynı sonucu verir. Değer 0'a çok yakındır: Dünkü değer bugünkü değer hakkında neredeyse hiç doğrusal bilgi taşımaz. 5 gözlemde güven sınırı $\pm 0.88$ olduğundan bu korelasyon da anlamsızdır.
-
-**ACF grafiğini çizmek:** Yukarıdaki kodlar yalnızca sayıları verir. Grafiği çizmek için tek bir komut yeterlidir.
-
-R'da `acf()` grafiği varsayılan olarak çizer:
+**ACF grafiğini çizmek:** R'da `acf()` grafiği varsayılan olarak çizer:
 
 ```r
 acf(AirPassengers, lag.max = 36, main = "AirPassengers ACF")
@@ -858,7 +802,7 @@ plot_acf(seri, lags=36, title="AirPassengers ACF")  # lags: kaç gecikme çizile
 plt.show()
 ```
 
-`pd.read_csv("data/AirPassengers.csv", index_col=0)` CSV dosyasını bir tabloya (pandas *DataFrame*) okur ve ilk sütunu (`Month`) satır etiketi (indeks) yapar; sonundaki `["Passengers"]` tablodan yolcu sayısı sütununu tek bir seri olarak seçer. `plot_acf()` korelogramı çizer; `lags=36` R'daki `lag.max` argümanının karşılığıdır. `plt.show()` (`matplotlib` kütüphanesinin çizim modülü `pyplot`, kısa adıyla `plt`) çizilen grafiği ekranda gösterir.
+`import pandas as pd` satırı `pandas` kütüphanesini kısa adı `pd` ile yükler (`import ... as ...`); `from ... import ...` ise bir kütüphaneden yalnızca belirli bir fonksiyonu alır. `pd.read_csv("data/AirPassengers.csv", index_col=0)` CSV dosyasını bir tabloya (pandas *DataFrame*) okur ve ilk sütunu (`Month`) satır etiketi (indeks) yapar; sonundaki `["Passengers"]` tablodan yolcu sayısı sütununu tek bir seri olarak seçer. `plot_acf()` korelogramı çizer; `lags=36` R'daki `lag.max` argümanının karşılığıdır. `plt.show()` (`matplotlib` kütüphanesinin çizim modülü `pyplot`, kısa adıyla `plt`) çizilen grafiği ekranda gösterir.
 
 > **Not —** İki dilin çizdiği bantlar farklı görünür. R, Bölüm 6.3.5'teki sabit $`\pm 1.96/\sqrt{T}`$ bandını çizer. Python'daki `plot_acf()` ise varsayılan olarak **Bartlett formülünü** kullanır: Bu formül, $`h`$. gecikmedeki bandı hesaplarken ondan önceki gecikmelerde bulunan korelasyonları da hesaba katar (önceki korelasyonlar ne kadar büyükse bant o kadar geniş olur). Önceki gecikmelerde güçlü korelasyon varsa ardışık gözlemler birbirinin tekrarı gibidir; 144 gözlem 144 bağımsız bilgi taşımaz, şans dalgalanması büyür ve bant genişler. Bu yüzden bant gecikme arttıkça genişler ve açık mavi bir huni gibi görünür. `AirPassengers` için ($`T = 144`$) bant, 1. gecikmede ±0.16 iken 12. gecikmede ±0.60'a çıkar. R ile aynı sabit bant `plot_acf(seri, lags=36, bartlett_confint=False)` ile çizilir. Bu fark bilinmezse aynı seri için iki dilde farklı sonuçlar okunduğu sanılabilir.
 
@@ -966,61 +910,9 @@ Daha büyük $h$ değerleri için PACF, Yule-Walker denklemleri ya da Durbin-Lev
 
 #### 6.5.3. Python ve R ile PACF
 
-Aynı `[20, 22, 21, 23, 24]` serisi için lag-2 PACF değerini hesaplayalım.
+PACF grafiği, ACF grafiğiyle aynı biçimde çizilir: R'da `pacf(AirPassengers, lag.max = 36)`, Python'da `from statsmodels.graphics.tsaplots import plot_pacf` ile `plot_pacf(seri, lags=36)`. Python'un PACF bandı, R'ınki gibi sabit $\pm 1.96/\sqrt{T}$ bandıdır. Değerlerin kendisi R'da `pacf(x, plot = FALSE)$acf` ile (parçanın adı `acf` olsa da içindekiler kısmi otokorelasyonlardır), Python'da `statsmodels.tsa.stattools.pacf(x, nlags=...)` ile alınır.
 
-**Python ile PACF:**
-
-```python
-from statsmodels.tsa.stattools import pacf  # PACF fonksiyonunu içeri aktar
-import numpy as np
-
-data = np.array([20, 22, 21, 23, 24])
-pacf_values = pacf(data, nlags=2)  # nlags, gözlem sayısının yarısını aşamaz
-print(f"Lag-2 PACF: {pacf_values[2]:.3f}")
-```
-
-**Çıktı:**
-
-```
-Lag-2 PACF: -0.016
-```
-
-`pacf()` de `acf()` gibi lag-0'dan başlayan bir dizi döndürür (`[1.0, 0.125, -0.016]`), bu yüzden lag-2 değeri `pacf_values[2]`'dedir. `nlags` en fazla gözlem sayısının yarısı olabilir: 5 gözlemde `5 // 2 = 2` (`//` Python'da kalanı atan tam sayı bölmesidir); `nlags=3` yazılırsa fonksiyon hata verir.
-
-**R ile PACF:**
-
-```r
-data <- c(20, 22, 21, 23, 24)
-pacf_result <- pacf(data, plot = FALSE)
-# Dikkat: pacf() çıktısı lag-1'den başlar (lag-0 yoktur), bu yüzden lag-2 için 2. elemanı alırız.
-cat("Lag-2 PACF:", round(pacf_result$acf[2], 3))
-```
-
-**Çıktı:**
-
-```
-Lag-2 PACF: -0.01
-```
-
-Kod 6.4.3'teki ACF koduyla aynı yapıdadır. `pacf()` kısmi otokorelasyonları ACF değerlerinden (Durbin-Levinson) hesaplar ve sonucu yine `$acf` adlı parçada saklar (ad yanıltıcıdır, içindekiler kısmi otokorelasyonlardır). Tek fark: `pacf()` sonucunda lag-0 yoktur, bu yüzden lag-2 değeri `[2]`'dedir (aşağıdaki **İndeks tuzağı** notu). Lag-1…4 değerleri 0.100, −0.010, −0.201, −0.379'dur. R sondaki sıfırı yazmadığı için −0.010, −0.01 görünür. Python'un −0.016 vermesinin nedeni aşağıda.
-
-**Yorum:** Önce elle hesaplayalım. Bu seride $\hat{\rho}_ 1 = 0.1$ (Bölüm 6.4.3) ve $\hat{\rho}_ 2 = 0$'dır: Sapmalar $[-2, 0, -1, 1, 2]$ için iki adım arayla eşleşen çarpımlar $(-1)(-2) + (1)(0) + (2)(-1) = 2 + 0 - 2 = 0$'dır. Formülden:
-
-$$
-\hat{\phi}_{22} = \frac{0 - 0.1^2}{1 - 0.1^2} = \frac{-0.01}{0.99} \approx -0.0101
-$$
-
-R bu sonucu verir. Python'un farklı çıkmasının nedeni varsayılan yöntemdir: `statsmodels` `pacf()` fonksiyonu $T-h$ bölenli bir yöntem (`method="ywadjusted"`) kullanır; R ile aynı sonuç için `method="ywm"` yazılır: `pacf(data, nlags=2, method="ywm")`. Grafik çizen `plot_pacf()` ise (statsmodels 0.14 ve sonrası) varsayılan olarak zaten `method="ywm"` kullanır; yani PACF grafiklerinde iki dil aynı değerleri gösterir. Uzun serilerde iki yöntem arasındaki fark ihmal edilebilir düzeydedir.
-
-<details><summary>Ayrıntı: −0.016 nasıl çıkar?</summary>
-
-`ywadjusted` yönteminde çarpımlar toplamı $T$ yerine $T - h$ ile bölünür: Lag-1 çarpımlarının toplamı olan 1, $T - h = 5 - 1 = 4$'e bölünür ve 0.25 olur. Varyans $10/5 = 2$ olduğundan $\hat{\rho}_ 1 = 0.25/2 = 0.125$ çıkar; dolayısıyla $\hat{\phi}_ {22} = -0.125^2/(1 - 0.125^2) = -0.015625/0.984375 \approx -0.016$ olur.
-
-</details>
-
-Sonucun yorumu ise nettir: Lag-1 bilindikten sonra lag-2'nin bugüne ek bir doğrudan katkısı yoktur.
-
-PACF grafiği, ACF grafiğiyle aynı biçimde çizilir: R'da `pacf(AirPassengers, lag.max = 36)`, Python'da `from statsmodels.graphics.tsaplots import plot_pacf` ile `plot_pacf(seri, lags=36)`. Python'un PACF bandı, R'ınki gibi sabit $\pm 1.96/\sqrt{T}$ bandıdır.
+**R ile Python'un PACF değerleri neden biraz farklı çıkabilir?** R, PACF'i ACF değerlerinden (Durbin-Levinson) hesaplarken çarpım toplamlarını her gecikmede $T$'ye böler. `statsmodels` `pacf()` fonksiyonunun varsayılanı (`method="ywadjusted"`) ise $T - h$'ye böler; R ile aynı sonuç için `method="ywm"` yazılır. Grafik çizen `plot_pacf()` (statsmodels 0.14 ve sonrası) zaten `method="ywm"` kullandığı için PACF grafiklerinde iki dil aynı değerleri gösterir. Fark yalnızca çok kısa serilerde belirgindir; uzun serilerde ihmal edilebilir düzeydedir.
 
 > **Not — İndeks tuzağı.** Sonuç dizisinden belirli bir gecikme seçilirken iki şeye dikkat edilmelidir: dizinin lag-0'ı içerip içermediği ve dilin saymaya 0'dan mı 1'den mi başladığı.
 >
@@ -1031,7 +923,7 @@ PACF grafiği, ACF grafiğiyle aynı biçimde çizilir: R'da `pacf(AirPassengers
 > | Python `acf()` | Evet | 0 | `[1]` | `[2]` |
 > | Python `pacf()` | Evet | 0 | `[1]` | `[2]` |
 >
-> R'da `acf_result$acf[2]` lag-1'i, `pacf_result$acf[2]` ise lag-2'yi verir. Bu indeks farkı sık yapılan bir hatadır.
+> R'da `acf(x, plot = FALSE)$acf[2]` lag-1'i, `pacf(x, plot = FALSE)$acf[2]` ise lag-2'yi verir. Bu indeks farkı sık yapılan bir hatadır.
 
 > **Hemen deneyin 6.5.3 · PACF = regresyondaki son katsayı** (Python, ~5 dk)
 >

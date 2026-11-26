@@ -116,19 +116,12 @@ cat("Standart sapma:", round(sd(r1), 3), " 1/sqrt(T):", round(1 / sqrt(238), 3),
 cat("Bant içindeki oran:", mean(abs(r1) <= 1.96 / sqrt(238)), "\n")  # yaklaşık 0.95
 
 # ---- 6.4.3 Python ve R ile ACF ----
-data <- c(20, 22, 21, 23, 24)          # Örnek bir zaman serisi vektörü oluştur
-acf_result <- acf(data, plot = FALSE)  # Grafik çizmeden ACF değerlerini hesapla
-# R'da acf() çıktısının ilk elemanı lag-0'dır (her zaman 1), bu yüzden lag-1 için 2. elemanı alırız.
-cat("Lag-1 ACF:", round(acf_result$acf[2], 3), "\n")
-
 # ACF grafiğini çizmek: acf() grafiği varsayılan olarak çizer
 acf(AirPassengers, lag.max = 36, main = "AirPassengers ACF")
 
 # ---- 6.5.3 Python ve R ile PACF ----
-data <- c(20, 22, 21, 23, 24)
-pacf_result <- pacf(data, plot = FALSE)
-# Dikkat: pacf() çıktısı lag-1'den başlar (lag-0 yoktur), bu yüzden lag-2 için 2. elemanı alırız.
-cat("Lag-2 PACF:", round(pacf_result$acf[2], 3), "\n")
+# pacf() de grafiği varsayılan olarak çizer; çubuklar lag-1'den başlar (lag-0 yoktur)
+pacf(AirPassengers, lag.max = 36, main = "AirPassengers PACF")
 
 # ---- 6.6 Uygulama: USgas Serisinin ACF ve PACF Grafikleri ----
 # USgas verisinin ACF ve PACF grafiklerini alt alta çizelim

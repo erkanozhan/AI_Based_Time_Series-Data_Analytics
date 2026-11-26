@@ -32,6 +32,14 @@ Aynı işin komut karşılığı `open bjg` satırıdır (**Tools → Gretl cons
 
 Ana pencerede iki değişken görünür: `g` (aylık uluslararası havayolu yolcu sayısı, bin kişi) ve `lg` (`g`'nin doğal logaritması). Pencerenin alt kısmında verinin aylık (*Monthly*) olduğu ve 1949:01–1960:12 arasında 144 gözlem içerdiği okunur.
 
+**Kendi dosyanızı açmak ve zaman serisi yapısını tanımlamak:** Örnek dosyalar zaman yapısıyla birlikte gelir. Kendi CSV dosyanız (ör. depodaki `data/AirPassengers.csv`) için şu adımlar izlenir:
+
+1. **File → Open data → User file…** seçilir; dosya türü olarak CSV (ya da "all files") seçilip dosya işaretlenir.
+2. Sütun ayırıcı (virgül, noktalı virgül) genellikle otomatik algılanır; gerekirse elle seçilir. Sütun adlarının doğru okunduğu kontrol edilir (ör. `Month`, `Passengers`).
+3. Veri tarihsiz açılırsa (Gretl'in tarihleri ne zaman kendiliğinden tanıdığı Bölüm 11.2.1'de anlatılır) **Data → Dataset structure…** seçilir. Sihirbazda **Time series** işaretlenir, **Frequency** olarak *monthly* seçilir ve **Starting observation** kutusuna `1949:01` yazılır. Onaydan sonra durum satırında `Monthly: Full range 1949:01 - 1960:12` görünür.
+
+Komut karşılığı: `open "data/AirPassengers.csv"` ve `setobs 12 1949:01 --time-series` (Bölüm 11.2.2 ve 11.5).
+
 **Zaman grafiği:** `g` seçilip sağ tıklanır ve **Time series plot** seçilir (ya da **View → Graph specified vars → Time series plot…**). Grafikte Bölüm 2'de tanımlanan üç özellik görülür:
 
 - **Trend:** Yolcu sayısı yıllar içinde sürekli artar; serinin ortalaması sabit değildir.
@@ -156,7 +164,7 @@ print getiri u --byobs
 | Artık kaydetme | Save → Residuals | `series u = $uhat` | Artık analizi |
 | Yeni değişken | Add → Define new variable | `series x = ...` | Dönüşüm, kukla değişken |
 
-Durağanlık ve artık testlerinin (korelogram, ADF, KPSS, otokorelasyon, normallik) menü yolları ve komutları Bölüm 11.4'teki tabloda toplanmıştır.
+Durağanlık ve artık testlerinin (korelogram, ADF, KPSS, otokorelasyon, normallik) menü yolları ve komutları Bölüm 11.4'teki tabloda; kendi dosyasını açma, zaman serisi yapısı, fark alma, trend ve kukla değişkenler, OLS ve VAR menüleri ise Bölüm 11.1'deki tabloda toplanmıştır.
 
 Son olarak model seçiminde **tutumluluk ilkesi** (*principle of parsimony*) hatırlanmalıdır: Veriyi yeterince iyi açıklayan modeller arasında en az parametreli olan tercih edilir (Bölüm 7.4'teki AIC karşılaştırması).
 

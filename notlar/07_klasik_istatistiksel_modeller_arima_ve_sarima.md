@@ -823,27 +823,6 @@ Bu blok ekrana sayı yazmaz; çıktısı bir grafiktir (Şekil 7.1a). Grafikte �
 
 Bu üç özellik de serinin ortalamasının ve varyansının zamanla değiştiğini, yani durağan olmadığını gösterir.
 
-> **Hemen deneyin 7.6.1 · Başka bir aylık seriyi tanıyın** (R, ~3 dk)
->
-> `USAccDeaths`, ABD'de 1973–1978 arasındaki aylık kaza kaynaklı ölüm sayısıdır (72 gözlem). Bölüm 7.6'nın geri kalanındaki kutularda bu seriyi `AirPassengers`'ın yanında modelleyeceğiz.
->
-> ```r
-> plot(USAccDeaths, main = "ABD aylık kaza kaynaklı ölümler", col = "darkred")
-> round(tapply(USAccDeaths, cycle(USAccDeaths), mean))   # her takvim ayının ortalaması
-> ```
->
-> `cycle()` her gözlemin yıl içindeki sırasını (1 = Ocak, …, 12 = Aralık) verir; `tapply(değerler, grup, mean)` değerleri bu gruplara ayırıp her grubun ortalamasını alır.
->
-> **Ne göreceksiniz:** Grafikte her yaz tekrar eden belirgin tepeler. Konsolda 12 ortalama: en yüksek Temmuz (`10453`), en düşük Şubat (`7284`). Dalga boyu zamanla belirgin biçimde büyümez; log dönüşümüne gerek yok gibi görünür.
->
-> **Şimdi siz:** `round(aggregate(USAccDeaths, FUN = mean))` ile yıllık ortalamaları bulun. Trend `AirPassengers`'taki gibi düzenli mi?
->
-> <details><summary>Cevap</summary>
->
-> `9652 8718 8589 8395 8577 8802` (1973–1978): Seri 1976'ya kadar düşer, sonra yeniden yükselir. Düzenli bir yükseliş yoktur, ama ortalama da sabit değildir; bu yüzden yine fark almak gerekecektir.
->
-> </details>
-
 #### 7.6.2. Durağanlık Testleri
 
 Grafikten edindiğimiz "seri durağan değil" izlenimini şimdi 7.5'teki iki testle sınayalım.
@@ -958,13 +937,11 @@ Bu iki satır, fark sayılarına testlere tek tek bakarak karar vermek yerine `f
 >
 > ```r
 > library(forecast)
-> nsdiffs(USAccDeaths)                     # mevsimsel fark sayısı D
-> ndiffs(diff(USAccDeaths, lag = 12))      # mevsimsel farktan sonra normal fark sayısı d
-> nsdiffs(nottem)
-> ndiffs(diff(nottem, lag = 12))
+> nsdiffs(nottem)                      # mevsimsel fark sayısı D
+> ndiffs(diff(nottem, lag = 12))       # mevsimsel farktan sonra normal fark sayısı d
 > ```
 >
-> **Ne göreceksiniz:** Sırasıyla `[1] 1`, `[1] 1`, `[1] 1`, `[1] 0`. `USAccDeaths` için $D = 1$, $d = 1$ (`AirPassengers` ile aynı); Nottingham sıcaklıkları (`nottem`) için ise $D = 1$, $d = 0$: Yıllık desen silinince geriye trendsiz, durağan bir seri kalır (Bölüm 6.2.3'te trendin neredeyse düz olduğunu görmüştük).
+> **Ne göreceksiniz:** Sırasıyla `[1] 1` ve `[1] 0`. Nottingham sıcaklıkları (`nottem`) için $D = 1$, $d = 0$ (`AirPassengers`'ta $d = 1$ idi): Yıllık desen silinince geriye trendsiz, durağan bir seri kalır (Bölüm 6.2.3'te trendin neredeyse düz olduğunu görmüştük).
 >
 > **Şimdi siz:** Aynı iki satırı `co2` için çalıştırın. Sonucu tahmin edin: CO2 hem mevsimsel hem de sürekli yükselen bir seridir.
 >
@@ -999,28 +976,6 @@ Bu blok ekrana sayı yazmaz; çıktısı yan yana iki grafiktir. Okurken iki ayr
 - PACF'de de 1 ve 12'de anlamlı negatif çubuklar (yaklaşık −0.34) vardır, ancak PACF ACF kadar keskin kesilmez: 3. ve 13. gecikmelerde de küçük negatif çubuklar sürer. 9. gecikmedeki pozitif çubuk (yaklaşık 0.23) bandı aşsa da ACF'deki 9. gecikme gibi tek başına kalır ve tesadüf düzeyindedir. "ACF kesiliyor, PACF kesilmiyor" deseni MA yapısıyla tutarlıdır (Bölüm 6.7.2 ve 6.7.5).
 
 Bu okuma bizi ARIMA(0,1,1)(0,1,1)[12] adayına götürür. ACF/PACF okumak deneyim ister; bu yüzden elle bulduğumuz adayı otomatik aramayla karşılaştıracağız.
-
-> **Hemen deneyin 7.6.4 · `USAccDeaths` için aday model** (R, ~4 dk)
->
-> 7.6.3'teki kutuda $D = 1$, $d = 1$ bulmuştuk. Farkı alınmış serinin korelogramlarına bakalım:
->
-> ```r
-> w <- diff(diff(USAccDeaths, lag = 12))   # mevsimsel + normal fark: 59 gözlem
-> par(mfrow = c(1, 2))
-> acf(w,  lag.max = 24, main = "ACF")
-> pacf(w, lag.max = 24, main = "PACF")
-> par(mfrow = c(1, 1))
-> ```
->
-> **Ne göreceksiniz:** 59 gözlemde güven bandı $\pm 1.96/\sqrt{59} \approx \pm 0.255$'tir. ACF'de yalnızca iki çubuk bandın dışındadır: lag-1 (yaklaşık −0.35) ve lag-12 (eksende 1.0, yaklaşık −0.34). PACF'te lag-1 (−0.35) ve lag-12 (−0.29) dışında lag-2 (−0.26) de bandı kıl payı aşar; yani PACF ACF kadar keskin kesilmez.
->
-> **Şimdi siz:** Bu tabloya bakarak $q$ ve $Q$ için bir aday söyleyin. 7.6.4'teki `AirPassengers` okumasına benziyor mu?
->
-> <details><summary>Cevap</summary>
->
-> ACF 1'de kesiliyor → $q = 1$; ACF 12'de tek bir çubuk var, 24'te yok → $Q = 1$. Aday ARIMA(0,1,1)(0,1,1)[12], yani yine havayolu modeli. 7.6.5'teki kutuda `auto.arima()` ile kontrol edeceğiz.
->
-> </details>
 
 #### 7.6.5. Model Kurma: `auto.arima()` ve Seçilen Modelin Yorumu
 
@@ -1066,39 +1021,6 @@ Bu blok, Box-Jenkins'in 1. ve 2. adımlarını (tanımlama ve kestirim) otomatik
 **Sözlü özet:** `d = 1` ve `D = 1`, modelin aydan aya ve yıldan yıla değişime baktığını; `q = 1` ve `Q = 1`, tahminin geçen ayın ve geçen yılın aynı ayının sürprizleriyle düzeltildiğini; `p = P = 0` ise bunlardan sonra geçmiş değerlere ayrıca ihtiyaç kalmadığını söyler. Örneğin geçen Temmuz beklenenden yüksek çıktıysa mevsimsel fark bu sürprizi bu Temmuz'un tahminine olduğu gibi taşırdı; $\Theta_1 = -0.5569$ bunun yaklaşık %56'sını geri alır ve mevsimsel kısım üzerinden yalnızca yaklaşık %44'ü ($1 + \Theta_1$) taşınır. (Normal fark, sürprizin aradaki aylarda yükselttiği seviyeyi de taşıdığı için tahmine toplam etki sürprizin yaklaşık $2 + \theta_1 + \Theta_1 \approx 1.04$ katıdır.)
 
 Şimdi bu modelin gerçekten işe yarayıp yaramadığını kontrol etmeliyiz.
-
-> **Hemen deneyin 7.6.5 · `auto.arima()` başka bir seride** (R, ~3 dk)
->
-> ```r
-> library(forecast)
-> fit_us <- auto.arima(USAccDeaths)
-> fit_us
-> ```
->
-> **Ne göreceksiniz:**
->
-> ```text
-> Series: USAccDeaths 
-> ARIMA(0,1,1)(0,1,1)[12] 
->
-> Coefficients:
->           ma1     sma1
->       -0.4303  -0.5528
-> s.e.   0.1228   0.1784
->
-> sigma^2 = 102860:  log likelihood = -425.44
-> AIC=856.88   AICc=857.32   BIC=863.11
-> ```
->
-> `auto.arima()` 7.6.4'teki kutuda korelogramdan okuduğumuz havayolu modelini seçmiştir. Katsayılar da `AirPassengers`'takilere (−0.40, −0.56) çok yakındır. Bu sefer log almadık; `sigma^2` bu yüzden ölüm sayısının karesi biriminde büyük bir sayıdır.
->
-> **Şimdi siz:** Her katsayıyı standart hatasına bölün. "|katsayı| > 2 × s.e." kuralına göre ikisi de anlamlı mı?
->
-> <details><summary>Cevap</summary>
->
-> −0.4303/0.1228 ≈ −3.5 ve −0.5528/0.1784 ≈ −3.1. İkisinin de mutlak değeri 2'den büyüktür; iki katsayı da anlamlıdır. Standart hatalar `AirPassengers`'takinden büyüktür, çünkü seri yalnızca 72 gözlemdir.
->
-> </details>
 
 #### 7.6.6. Teşhis: Artıkların İncelenmesi
 
@@ -1162,14 +1084,6 @@ Box.test(residuals(fit), lag = 24, type = "Ljung-Box")   # fitdf unutulursa
 > `Arima()` dereceleri bizim verdiğimiz modeli kurar: `order` = (p, d, q), `seasonal` = (P, D, Q).
 >
 > **Ne göreceksiniz:** `Q* = 82.628, df = 24, p-value = 2.308e-08` ve `Model df: 0`. p-değeri sıfıra çok yakındır: Artıklarda otokorelasyon kalmıştır. Artıkların ACF grafiğinde lag-1 (yaklaşık −0.34) ve lag-12 (yaklaşık −0.39) çubukları bandı açıkça aşar. Bunlar 7.6.4'te `AP_stationary` için gördüğümüz çubuklardır: Bu modelin artıkları, farkı alınmış serinin neredeyse aynısıdır; modelin MA(1) ve mevsimsel MA(1) terimlerine ihtiyacı vardır.
->
-> **Şimdi siz:** 7.6.5'teki kutuda kurduğunuz `fit_us` modelini `checkresiduals(fit_us)` ile denetleyin. Kaç gecikme kullanıldı, sonuç ne?
->
-> <details><summary>Cevap</summary>
->
-> `Q* = 13.467, df = 12, p-value = 0.336`, `Total lags used: 14`. 72 gözlemlik seride gecikme sayısı $\min(24,\ 72/5 = 14.4)$, yani 14'tür; 2 katsayı düşülünce `df` 12 olur. p > 0.05: model teşhisten geçer.
->
-> </details>
 
 #### 7.6.7. Tahmin (Öngörü)
 
@@ -1211,30 +1125,39 @@ Gri alanların zamanla genişlemesi dikkat çekicidir: Ne kadar uzağı tahmin e
 
 **Not —** Bu tahminleri gerçek değerlerle karşılaştırıp modelin **başarısını sayısal olarak ölçmek** için veriyi eğitim ve test kısımlarına ayırmamız gerekir. Bunu, hata metrikleriyle birlikte Bölüm 8.3'te yapacağız.
 
-> **Hemen deneyin 7.6.7 · 1979 için kaza tahmini** (R, ~3 dk)
+> **Hemen deneyin 7.6 · Aynı akışı `USAccDeaths` ile tekrarlayın** (R, ~10 dk)
 >
-> 7.6.5'teki kutuda kurduğunuz `fit_us` modeliyle bir yıl ileriye tahmin yapın:
+> `USAccDeaths`, ABD'de 1973–1978 arasındaki aylık kaza kaynaklı ölüm sayısıdır (72 gözlem). 7.6.1–7.6.7'deki adımları bu seride sırayla uygulayın: (1) çizip log gerekip gerekmediğine karar verin, (2) fark sayılarını bulup farkı alınmış serinin ACF'sine bakın, (3) modeli kurun, (4) artıkları denetleyin, (5) son yılı (1978) ayırıp tahmin hatasını ölçün.
 >
 > ```r
-> fc_us <- forecast(fit_us, h = 12)
-> plot(fc_us)
-> round(fc_us$mean)
+> library(forecast)
+> plot(USAccDeaths)                                       # 1) dalga boyu büyüyor mu?
+> round(tapply(USAccDeaths, cycle(USAccDeaths), mean))    #    her takvim ayının ortalaması
+> nsdiffs(USAccDeaths); ndiffs(diff(USAccDeaths, lag = 12))   # 2) D ve d
+> acf(diff(diff(USAccDeaths, lag = 12)), lag.max = 24)    #    59 gözlem
+> fit_us <- auto.arima(USAccDeaths); fit_us               # 3) model
+> checkresiduals(fit_us)                                  # 4) teşhis
+> egitim <- window(USAccDeaths, end = c(1977, 12))        # 5) 1973-1977 eğitim
+> test   <- window(USAccDeaths, start = c(1978, 1))       #    1978 test
+> fc <- forecast(auto.arima(egitim), h = 12)
+> round(accuracy(fc, test)[, c("MAE", "RMSE", "MAPE")], 2)
 > ```
 >
-> **Ne göreceksiniz:** Grafikte 1979 tahmini, geçmiş yılların yaz tepesini tekrarlar. Konsolda:
+> `cycle()` her gözlemin yıl içindeki sırasını (1 = Ocak, …, 12 = Aralık) verir; `tapply(değerler, grup, mean)` her grubun ortalamasını alır. `accuracy(tahmin, test)` hata metriklerini eğitim ve test satırlarıyla verir (ayrıntısı Bölüm 8.2–8.3).
 >
-> ```text
->        Jan   Feb   Mar   Apr   May   Jun   Jul   Aug   Sep   Oct   Nov   Dec
-> 1979  8336  7532  8315  8617  9489  9860 10907 10087  9165  9384  8885  9377
-> ```
+> **Ne göreceksiniz:**
 >
-> En yüksek tahmin Temmuz (10907), en düşük Şubat'tır (7532). Model log ölçekte kurulmadığı için `exp()` gerekmez.
+> - Her yaz tekrar eden tepeler; en yüksek ortalama Temmuz (`10453`), en düşük Şubat (`7284`). Dalga boyu zamanla belirgin biçimde büyümez: Log gerekmez.
+> - `nsdiffs` ve `ndiffs` ikisi de `[1] 1`: $D = 1$, $d = 1$. Güven bandı $\pm 1.96/\sqrt{59} \approx \pm 0.255$'tir; ACF'de yalnızca lag-1 (yaklaşık −0.35) ve lag-12 (yaklaşık −0.34) bandı aşar → aday ARIMA(0,1,1)(0,1,1)[12].
+> - `auto.arima()` aynı havayolu modelini seçer: `ma1 = -0.4303` (s.e. 0.1228), `sma1 = -0.5528` (s.e. 0.1784), `sigma^2 = 102860`.
+> - `Q* = 13.467, df = 12, p-value = 0.336`, `Total lags used: 14`: Model teşhisten geçer.
+> - Test satırı: `MAE = 231.61`, `RMSE = 288.83`, `MAPE = 2.72`.
 >
-> **Şimdi siz:** Ocak ve Aralık 1979 için %95 aralıklarını bulun: `round(fc_us$lower[c(1, 12), 2])` ve `round(fc_us$upper[c(1, 12), 2])` (`[, 2]` ikinci sütun, yani %95 düzeyi). Aralık 11 ayda ne kadar genişliyor?
+> **Şimdi siz:** (a) Katsayılar `AirPassengers`'takilere (−0.40, −0.56) ne kadar yakın, ikisi de anlamlı mı? `sigma^2` neden bu kadar büyük? (b) Ljung-Box neden 24 değil 14 gecikme kullandı?
 >
 > <details><summary>Cevap</summary>
 >
-> Ocak: 7707–8965 (genişlik 1258), Aralık: 8032–10721 (genişlik 2689). Ufuk uzadıkça aralık iki katından fazla genişler.
+> (a) Çok yakındır. −0.4303/0.1228 ≈ −3.5 ve −0.5528/0.1784 ≈ −3.1: "|katsayı| > 2 × s.e." kuralıyla ikisi de anlamlıdır. Standart hatalar daha büyüktür, çünkü seri yalnızca 72 gözlemdir. Log almadığımız için `sigma^2` ölüm sayısının karesi birimindedir. (b) 72 gözlemde gecikme sayısı $\min(24,\ 72/5 = 14.4)$, yani 14'tür; 2 katsayı düşülünce `df` 12 olur. Test MAE'si (231.61), mevsimsel naive'in 259.50'sinden (8.2.6'daki kutu) yalnızca yaklaşık %11 düşüktür: Bu seride "geçen yılı kopyala" zaten güçlü bir rakiptir.
 >
 > </details>
 
@@ -1323,7 +1246,7 @@ Orijinal seri  -> ADF p = 0.992, KPSS p = 0.010
 Durağanlaştırılmış seri -> ADF p = 0.0002, KPSS p = 0.100
 ```
 
-`adfuller(data)` tek bir sayı değil, bir **demet** (*tuple*: parantez içinde sıralanmış, değiştirilemeyen bir değer listesi) döndürür. Sırasıyla şunları içerir: test istatistiği, p-değeri, kullanılan gecikme sayısı, regresyondaki gözlem sayısı, kritik değerler sözlüğü (`{'1%': ...}` biçiminde anahtar–değer çiftleri) ve gecikme seçiminde kullanılan en iyi bilgi kriteri değeri. Orijinal seri için bu demet yaklaşık olarak (0.815, 0.992, 13, 130, {'1%': −3.48, '5%': −2.88, '10%': −2.58}, …) biçimindedir. Python'da sıra numarası 0'dan başladığı için `[1]` ikinci elemanı, yani p-değerini alır. `kpss(data, regression='c', nlags='auto')` de benzer bir demet döndürür (istatistik, p-değeri, gecikme sayısı, kritik değerler); `regression='c'` seviye durağanlığını sınar (R'daki `null = "Level"`), `nlags='auto'` gecikme sayısını veriden seçer. `print(f"...")` satırı Bölüm 6.4.3'teki f-dizesidir; `:.3f` üç ondalık basamak gösterir.
+`adfuller(data)` tek bir sayı değil, bir **demet** (*tuple*: parantez içinde sıralanmış, değiştirilemeyen bir değer listesi) döndürür. Sırasıyla şunları içerir: test istatistiği, p-değeri, kullanılan gecikme sayısı, regresyondaki gözlem sayısı, kritik değerler sözlüğü (`{'1%': ...}` biçiminde anahtar–değer çiftleri) ve gecikme seçiminde kullanılan en iyi bilgi kriteri değeri. Orijinal seri için bu demet yaklaşık olarak (0.815, 0.992, 13, 130, {'1%': −3.48, '5%': −2.88, '10%': −2.58}, …) biçimindedir. Python'da sıra numarası 0'dan başladığı için `[1]` ikinci elemanı, yani p-değerini alır. `kpss(data, regression='c', nlags='auto')` de benzer bir demet döndürür (istatistik, p-değeri, gecikme sayısı, kritik değerler); `regression='c'` seviye durağanlığını sınar (R'daki `null = "Level"`), `nlags='auto'` gecikme sayısını veriden seçer. `print(f"...")` satırı bir *f-dizesi* (f-string) kullanır: süslü parantez içindeki değer metne yerleştirilir; `:.3f` onu üç ondalık basamakla gösterir.
 
 `np.log(data).diff(12).diff().dropna()` satırı R'daki `diff(diff(log(...), lag = 12))` ile aynı işi soldan sağa zincir hâlinde yapar: log al, 12 aylık farkı al, 1 aylık farkı al. Fark alınamayan ilk 13 ay boş değer (`NaN`) olarak kalır; `.dropna()` bunları atar.
 
