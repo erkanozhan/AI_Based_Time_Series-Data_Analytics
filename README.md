@@ -1,6 +1,6 @@
 # Yapay Zeka Tabanlı Zaman Serisi ve Veri Analizi
 
-Bu depo, zaman serisi analizini klasik istatistiksel yöntemlerden yapay zeka tabanlı modellere kadar adım adım ele alan bir üniversite dersinin ders notlarını, uygulama kodlarını ve veri setlerini içerir. Ders; zaman serisinin temel kavramlarını ve durağanlığı, R'da tarih ve zaman serisi nesnelerini, ACF/PACF ile model belirlemeyi, ARIMA/SARIMA, Prophet ve VAR modellerini, model değerlendirme yöntemlerini ve XGBoost, LSTM, GRU, 1D-CNN gibi makine öğrenmesi ve derin öğrenme yaklaşımlarını kapsar. Uygulamalarda R, Python, Gretl ve Weka kullanılır.
+Bu depo, zaman serisi analizini klasik istatistiksel yöntemlerden yapay zeka tabanlı modellere kadar adım adım ele alan bir üniversite dersinin ders notlarını, uygulama kodlarını ve veri setlerini içerir. Ders; zaman serisinin temel kavramlarını ve durağanlığı, R'da tarih ve zaman serisi nesnelerini, ACF/PACF ile model belirlemeyi, ARIMA/SARIMA, üstel düzeltme (ETS), Prophet ve VAR modellerini, model değerlendirme yöntemlerini ve XGBoost, LSTM, GRU, 1D-CNN gibi makine öğrenmesi ve derin öğrenme yaklaşımlarını kapsar. Uygulamalarda R, Python, Gretl ve Weka kullanılır.
 
 ## Ders notları
 

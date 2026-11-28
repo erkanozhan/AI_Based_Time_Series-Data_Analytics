@@ -1,6 +1,6 @@
 [İçindekiler](../Course_notes.md) · [← 6. Veri Manipülasyonu, Görselleştirme ve ACF/PACF](06_veri_manipulasyonu_gorsellestirme_ve_acf_pacf.md) · [8. Model Değerlendirme: Hata Metrikleri ve Eğitim-Test Ayrımı →](08_model_degerlendirme_hata_metrikleri_ve_egitim_test_ayrimi.md)
 
-## 7. Klasik İstatistiksel Modeller: ARIMA ve SARIMA
+## 7. Klasik İstatistiksel Modeller: ARIMA, SARIMA ve Üstel Düzeltme
 
 Önceki bölümlerde veriyi tanımayı, `ts` nesnesine dönüştürmeyi, görselleştirmeyi ve ACF/PACF grafiklerini okumayı öğrendik. Artık modelleme aşamasına geçebiliriz.
 

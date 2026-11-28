@@ -5,7 +5,7 @@
 - [4. R'da Tarih ve Zaman Nesneleri](/notlar/04_rda_tarih_ve_zaman_nesneleri.md)
 - [5. R'da Zaman Serisi Nesneleri: `ts` ve `xts`](/notlar/05_rda_zaman_serisi_nesneleri_ts_ve_xts.md)
 - [6. Veri Manipülasyonu, Görselleştirme ve ACF/PACF](/notlar/06_veri_manipulasyonu_gorsellestirme_ve_acf_pacf.md)
-- [7. Klasik İstatistiksel Modeller: ARIMA ve SARIMA](/notlar/07_klasik_istatistiksel_modeller_arima_ve_sarima.md)
+- [7. Klasik İstatistiksel Modeller: ARIMA, SARIMA ve Üstel Düzeltme](/notlar/07_klasik_istatistiksel_modeller_arima_ve_sarima.md)
 - [8. Model Değerlendirme: Hata Metrikleri ve Eğitim-Test Ayrımı](/notlar/08_model_degerlendirme_hata_metrikleri_ve_egitim_test_ayrimi.md)
 - [9. Facebook Prophet](/notlar/09_facebook_prophet.md)
 - [10. VAR: Çok Değişkenli Zaman Serisi Modeli](/notlar/10_var_cok_degiskenli_zaman_serisi_modeli.md)

@@ -1,4 +1,4 @@
-[İçindekiler](../Course_notes.md) · [← 7. Klasik İstatistiksel Modeller: ARIMA ve SARIMA](07_klasik_istatistiksel_modeller_arima_ve_sarima.md) · [9. Facebook Prophet →](09_facebook_prophet.md)
+[İçindekiler](../Course_notes.md) · [← 7. Klasik İstatistiksel Modeller: ARIMA, SARIMA ve Üstel Düzeltme](07_klasik_istatistiksel_modeller_arima_ve_sarima.md) · [9. Facebook Prophet →](09_facebook_prophet.md)
 
 ## 8. Model Değerlendirme: Hata Metrikleri ve Eğitim-Test Ayrımı
 
@@ -910,4 +910,4 @@ Bu bölümde öğrendiğimiz araçlarla artık farklı modelleri adil biçimde k
 
 ---
 
-[İçindekiler](../Course_notes.md) · [← 7. Klasik İstatistiksel Modeller: ARIMA ve SARIMA](07_klasik_istatistiksel_modeller_arima_ve_sarima.md) · [9. Facebook Prophet →](09_facebook_prophet.md)
+[İçindekiler](../Course_notes.md) · [← 7. Klasik İstatistiksel Modeller: ARIMA, SARIMA ve Üstel Düzeltme](07_klasik_istatistiksel_modeller_arima_ve_sarima.md) · [9. Facebook Prophet →](09_facebook_prophet.md)

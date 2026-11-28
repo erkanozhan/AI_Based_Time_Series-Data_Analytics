@@ -1,5 +1,5 @@
 # =============================================================================
-# Bölüm 7 — Klasik İstatistiksel Modeller: ARIMA ve SARIMA
+# Bölüm 7 — Klasik İstatistiksel Modeller: ARIMA, SARIMA ve Üstel Düzeltme
 # Ders notu: notlar/07_klasik_istatistiksel_modeller_arima_ve_sarima.md, Bölüm 7.2 (karakteristik kökler), 7.6 (R Uygulaması: AirPassengers ile SARIMA) ve 7.8 (ETS ve Theta)
 #
 # Çalıştırma: depo kök dizininden  Rscript Codes/R/ch07_sarima_airpassengers.R

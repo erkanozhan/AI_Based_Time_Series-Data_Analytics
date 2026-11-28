@@ -1,4 +1,4 @@
-[İçindekiler](../Course_notes.md) · [← 5. R'da Zaman Serisi Nesneleri: `ts` ve `xts`](05_rda_zaman_serisi_nesneleri_ts_ve_xts.md) · [7. Klasik İstatistiksel Modeller: ARIMA ve SARIMA →](07_klasik_istatistiksel_modeller_arima_ve_sarima.md)
+[İçindekiler](../Course_notes.md) · [← 5. R'da Zaman Serisi Nesneleri: `ts` ve `xts`](05_rda_zaman_serisi_nesneleri_ts_ve_xts.md) · [7. Klasik İstatistiksel Modeller: ARIMA, SARIMA ve Üstel Düzeltme →](07_klasik_istatistiksel_modeller_arima_ve_sarima.md)
 
 ## 6. Veri Manipülasyonu, Görselleştirme ve ACF/PACF
 
@@ -1312,4 +1312,4 @@ Bu kurallar model seçiminde güçlü bir başlangıç noktasıdır, ancak uygul
 
 ---
 
-[İçindekiler](../Course_notes.md) · [← 5. R'da Zaman Serisi Nesneleri: `ts` ve `xts`](05_rda_zaman_serisi_nesneleri_ts_ve_xts.md) · [7. Klasik İstatistiksel Modeller: ARIMA ve SARIMA →](07_klasik_istatistiksel_modeller_arima_ve_sarima.md)
+[İçindekiler](../Course_notes.md) · [← 5. R'da Zaman Serisi Nesneleri: `ts` ve `xts`](05_rda_zaman_serisi_nesneleri_ts_ve_xts.md) · [7. Klasik İstatistiksel Modeller: ARIMA, SARIMA ve Üstel Düzeltme →](07_klasik_istatistiksel_modeller_arima_ve_sarima.md)
