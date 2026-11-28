@@ -4,7 +4,7 @@
 
 Bölüm 8'de modeli eğitim ve test olarak ikiye ayırıp hata metrikleriyle değerlendirdik. Bölüm 15'te beş modeli aynı 60 aylık test dönemi üzerinden karşılaştırdık. Her iki durumda da sonuç **tek bir** test dönemine dayanıyordu. O dönem bir model için "şanslı", öteki için "şanssız" olabilir: Test dönemine denk gelen bir kriz, bir tatil kayması ya da olağandışı bir yıl sıralamayı tek başına değiştirebilir.
 
-Makine öğrenmesinde bu sorunun standart çözümü **çapraz doğrulamadır (cross-validation)**: Veri birkaç kez farklı biçimlerde bölünür, model her bölmede yeniden eğitilir ve performans bölmelerin ortalaması olarak raporlanır. Ancak alışılmış çapraz doğrulama zaman serisinde doğrudan kullanılamaz. Bu bölümde nedenini ve doğru yöntemi, `TimeSeriesSplit`'i ele alıyoruz.
+Makine öğrenmesinde bu sorunun standart çözümü **çapraz doğrulamadır (cross-validation)**: Veri birkaç kez farklı biçimlerde bölünür, model her bölmede yeniden eğitilir ve performans bölmelerin ortalaması olarak raporlanır. Ancak alışılmış çapraz doğrulama zaman serisinde doğrudan kullanılamaz. Bu bölümde nedenini ve doğru yöntemi, `TimeSeriesSplit`'i ele alıyoruz. Bölümün sonunda aynı fold'ları iki konu için daha kullanacağız: farklı modellerin tahminlerini birleştirmek (16.6) ve makine öğrenmesi modellerinde tahmin aralığı kurmak (16.7).
 
 ### 16.1. Neden Rastgele K-Fold Zaman Serisinde Yanlıştır?
 
@@ -734,6 +734,296 @@ rolling_mean_12    0.021985
 > `33.89 ± 9.71`, fold'lar `[22.9 29.4 30.5 51.7 35. ]`. Bu sayı "ayarı seçme dahil" yöntemin dürüst hatasıdır ve fold'lara bakarak seçilmiş ayarın 33.80'inden biraz büyüktür. Fark küçüktür, çünkü yalnızca sekiz aday denendi ve adayların hataları birbirine yakındır (iç fold ortalamaları 33.50 ile 37.16 arasında). Aday sayısı arttıkça iyimserlik de büyür. Son dış fold 1950–1959 ile ayar seçip 1960'ı ölçer; yukarıdaki işlemin aynısı olduğu için 35.0 (34.99) çıkar.
 >
 > </details>
+
+### 16.6. Tahminleri Birleştirmek
+
+16.5'te GRU ile XGBoost'u aynı fold'larda karşılaştırdık; beş farkın 2'ye 3 bölündüğünü, yani "hangisi daha iyi?" sorusunun bu veriyle cevaplanamadığını gördük. Böyle bir durumda ikinci bir soru sorulabilir: Neden seçelim? İki modelin tahminlerinin ortalamasını almak çoğu zaman ikisinden birini seçmekten daha iyi sonuç verir. **Tahmin birleştirme (forecast combination)** fikri 1960'ların sonundan beri bilinir (Bates ve Granger, 1969). Basit ortalamanın, veriden özenle kestirilmiş "en iyi" ağırlıklardan bile çoğu zaman daha iyi çalışması o kadar sık gözlenmiştir ki literatürde buna **birleştirme bilmecesi (forecast combination puzzle)** denir. 100000 gerçek seriyle yapılan M4 tahmin yarışmasında (2018) da en iyi sonuç veren yöntemlerin büyük çoğunluğu birden fazla modelin birleşimiydi.
+
+**Tanım (basit ortalama birleşimi):** $M$ modelin $t$ ayı için tahminlerinin eşit ağırlıklı ortalamasıdır:
+
+```math
+\underbrace{\hat{y}^{\,\mathrm{B}}_t}_{\substack{\text{birleşik}\\\text{tahmin}}} = \overbrace{\frac{1}{M}\sum_{j=1}^{M}}^{M\text{ modelin ortalaması}} \underbrace{\hat{y}^{(j)}_t}_{\substack{j\text{. modelin}\\t\text{ ayı tahmini}}}
+```
+
+**Ne anlatıyor?** Her ay için modellerin tahminleri toplanır ve model sayısına bölünür. Her model eşit söz hakkına sahiptir ve veriden hiçbir ağırlık kestirilmez.
+
+Neden işe yarar? İki modelin ortalamasının hatası, iki hatanın ortalamasıdır. Mutlak değer için üçgen eşitsizliği şunu söyler:
+
+```math
+\underbrace{\Big\lvert \tfrac{e^{(1)}_t + e^{(2)}_t}{2} \Big\rvert}_{\substack{\text{ortalama tahminin}\\\text{mutlak hatası}}} \le \underbrace{\tfrac{\lvert e^{(1)}_t \rvert + \lvert e^{(2)}_t \rvert}{2}}_{\substack{\text{iki modelin mutlak}\\\text{hatalarının ortalaması}}}
+```
+
+**Ne anlatıyor?** Ortalama tahminin hatası, iki modelin mutlak hatalarının ortalamasından büyük olamaz. İki hata aynı işaretliyse (ikisi de eksik ya da ikisi de fazla tahmin etmişse) eşitlik olur; ters işaretliyse birbirini kısmen götürür. Örneğin bir ayda A modeli 20 eksik ($e = +20$), B modeli 10 fazla ($e = -10$) tahmin ettiyse ortalamanın hatası $\lvert 20 - 10 \rvert / 2 = 5$'tir; iki modelin mutlak hatalarının ortalaması ise $(20 + 10) / 2 = 15$.
+
+> **Simge notu:** $`\hat{y}^{(j)}_t`$: $`j`$. modelin $`t`$ ayı için tahmini; üstteki parantezli sayı modelin sıra numarasıdır, üs değildir · $`\hat{y}^{\,\mathrm{B}}_t`$: birleşik (B) tahmin · $`M`$: birleştirilen model sayısı · $`e^{(j)}_t = y_t - \hat{y}^{(j)}_t`$: $`j`$. modelin hatası (pozitifse model eksik tahmin etmiştir)
+
+Eşitsizlik her ay için geçerli olduğu için her fold'un MAE'si için de geçerlidir: İki modelin ortalaması, iki MAE'nin ortalamasından kötü olamaz. Ama **en iyi** modelden kötü olabilir. Hangisinin olacağını iki şey belirler: modellerin doğruluğunun birbirine ne kadar yakın olduğu ve hatalarının ne sıklıkla ters işaretli olduğu.
+
+Aşağıda 16.5'in beş fold'unda üç modeli ve üç birleşimini karşılaştırıyoruz: XGBoost (16.5'teki model), mevsimsel naive ve **Holt-Winters** (toplamsal trend ve çarpımsal mevsimsellikli üstel düzeltme, Bölüm 7.8). GRU'yu dışarıda bırakıyoruz; birleştirme fikri her modelle aynıdır. Holt-Winters'ın parametreleri her fold'da **yalnızca o fold'un eğitim aylarıyla** kestirilir:
+
+```python
+from statsmodels.tsa.holtwinters import ExponentialSmoothing
+seri, hw_pred = df['Passengers'].values.astype(float), {}
+for k, (train_idx, val_idx) in enumerate(folds, 1):
+    hw = ExponentialSmoothing(seri[train_idx], trend='add', seasonal='mul', seasonal_periods=12,
+                              initialization_method='estimated').fit()   # yalnızca fold'un eğitimi
+    hw_pred[k] = hw.forecast(len(val_idx))                               # 12 adım ileri
+    uc = np.vstack([xgb_pred[k], naive_pred[k], hw_pred[k]])             # 3 x 12: her satır bir model
+    ort_xgb_hw = (xgb_pred[k] + hw_pred[k]) / 2                          # basit ortalama
+    ort_3, medyan_3 = uc.mean(axis=0), np.median(uc, axis=0)
+```
+
+`np.vstack` üç tahmin dizisini alt alta koyarak 3 satırlı bir tablo yapar; `axis=0` ortalamayı ve medyanı sütun sütun, yani her ay için ayrı ayrı alır. Üç tahminin medyanı ortadaki tahmindir ve uçta kalan tek bir modelin etkisini sınırlar. Programın tamamı (MAE tablosu ve hata işaretlerinin sayımı) uygulama dosyasındaki "16.6" hücresindedir. Fold başına MAE:
+
+| Doğrulama yılı | XGBoost | Mevs. naive | Holt-Winters | Ort(XGB, HW) | Ort(3 model) | Medyan(3 model) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1956 | 12.95 | 44.25 | 10.00 | **9.65** | 20.59 | 14.75 |
+| 1957 | 21.59 | 40.17 | **14.57** | 14.86 | 18.17 | 18.58 |
+| 1958 | 26.03 | **12.58** | 15.56 | 20.79 | 13.64 | 15.71 |
+| 1959 | 47.61 | 47.33 | **20.22** | 33.59 | 38.17 | 42.64 |
+| 1960 | 27.20 | 47.83 | **10.30** | 14.97 | 21.50 | 20.40 |
+| Ortalama ± std | 27.08 ± 11.42 | 38.43 ± 13.21 | **14.13 ± 3.77** | 18.77 ± 8.21 | 22.41 ± 8.34 | 22.42 ± 10.31 |
+
+**Çıktının yorumu:**
+
+- **Bu veride açık bir kazanan var:** Holt-Winters beş yılın beşinde de XGBoost'tan iyidir, en kararlı modeldir (std 3.77) ve yalnızca 1958'de naive'e yenilir. Üstelik karşılaştırma Holt-Winters'ın aleyhinedir: XGBoost tek adımlı tahmin yapar (doğrulama yılının gerçekleşen değerlerini gecikme olarak görür, Hemen deneyin 16.5b), Holt-Winters ise fold başında 12 ayı birden tahmin eder. Trendi ve büyüyen mevsimsel dalgaları doğrudan modelleyen bir yöntem, eğitimdeki rekorun üstüne çıkamayan ağaçları (13.3) bu kısa ve düzenli seride rahatça geçer.
+- **Ortalama en iyiyi geçemedi:** Ort(XGB, HW) 18.77'dir; XGBoost'tan (27.08) çok daha iyi, Holt-Winters'tan (14.13) kötü. Eşitsizliğin söylediği gibi her yıl iki MAE'nin ortalamasının altında ya da ona eşittir (1960: $(27.20 + 10.30) / 2 = 18.75$'e karşı 14.97). İki modelin hataları 60 ayın 23'ünde ters işaretlidir; bunların 8'i 1956'dadır ve o yıl ortalama her iki modelden de iyidir (9.65). 1958'de ise ters işaretli ay yoktur ve ortalamanın MAE'si iki MAE'nin ortalamasına eşittir (20.79). XGBoost'un hatası Holt-Winters'ınkinin yaklaşık iki katı olduğu için hataların birbirini götürmesi bu farkı kapatmaya yetmez.
+- **Yanlı bir modeli eklemek zarar verir:** Üç modelin ortalaması (22.41) ve medyanı (22.42), iki modelin ortalamasından kötüdür. Mevsimsel naive trendi izlemediği için 60 ayın hiçbirinde fazla tahmin etmez; ortalama hatası +38.43'tür. XGBoost (+9.94) ve Holt-Winters (+5.44) de ortalamada eksik tahmin eder; aynı yönde yanlı bir modeli eklemek hataları götürmez, üst üste koyar. Naive'in iyi olduğu durgun 1958'de (16.5) üç modelin ortalaması (13.64) en iyiye yaklaşır, diğer yıllarda geride kalır.
+- **Ne zaman ortalama, ne zaman seçim?** Birleştirmenin en çok kazandırdığı durum, 16.5'teki GRU ve XGBoost gibi fold'larda birbirinden ayırt edilemeyen ve farklı mantıkla çalışan modellerdir. Hangisinin daha iyi olduğunu bilmediğimizde birini seçmek yazı tura atmaya benzer; ortalama ise kötü seçimin riskini azaltan bir sigortadır. Buradaki gibi bir model fold'ların hepsinde açık farkla öndeyse onu seçmek savunulabilir. Her iki kararda da ölçüt tek bir doğrulama yılı değil, fold fold tablodur.
+
+**Ağırlıklı ortalama ve yığınlama (stacking):** Basit ortalama yerine $w \, \hat{y}^{(1)}_t + (1 - w) \, \hat{y}^{(2)}_t$ gibi ağırlıklar ya da tahminleri girdi olarak alan ikinci bir model (yığınlama) kullanılabilir. İki kural vardır. (1) Ağırlıklar, birleşik tahminin değerlendirileceği dönemden **ayrı** veriyle öğrenilmelidir. Fold'un doğrulama yılına bakarak seçilen ağırlık, Hemen deneyin 16.5'te `max_depth`'i raporlanan fold'larla seçmekle aynı sızıntıdır. Zamana saygılı yol, $k$. fold'un ağırlığını yalnızca önceki fold'ların fold dışı tahminleriyle seçmektir. Yığınlamada da ikinci modelin girdisi birinci modellerin **fold dışı** tahminleri olmalıdır; eğitim dönemindeki uyum değerleri neredeyse kusursuz göründüğü için ikinci model en çok ezberleyen modele güvenmeyi öğrenir. (2) Beş fold gibi az veriyle öğrenilen ağırlıklar gürültülüdür ve kestirim hatası ağırlıklandırmanın getirisini çoğu zaman yer; birleştirme bilmecesinin bilinen açıklaması budur. Fold sayısı azsa basit ortalama daha güvenli tercihtir.
+
+> **Hemen deneyin 16.6 · Hatalar ne zaman birbirini götürür?** (Python, ~5 dk)
+>
+> Hemen deneyin 16.5'teki sade XGBoost (12 gecikme) ile Holt-Winters'ı her fold'da birleştirin ve hataları ters işaretli olan ayları sayın.
+>
+> ```python
+> import numpy as np, pandas as pd, xgboost as xgb
+> from sklearn.model_selection import TimeSeriesSplit
+> from statsmodels.tsa.holtwinters import ExponentialSmoothing
+>
+> s = pd.read_csv("data/AirPassengers.csv")["Passengers"].astype(float)
+> X = pd.DataFrame({f"lag_{l}": s.shift(l) for l in range(1, 13)}).dropna()  # 12 gecikme
+> y = s.loc[X.index]
+> for k, (tr, va) in enumerate(TimeSeriesSplit(n_splits=5, test_size=12).split(X), 1):
+>     m = xgb.XGBRegressor(n_estimators=300, max_depth=3, learning_rate=0.05, random_state=42)
+>     p_xgb = m.fit(X.iloc[tr], y.iloc[tr]).predict(X.iloc[va])
+>     hw = ExponentialSmoothing(s.loc[:X.index[tr[-1]]].values, trend="add", seasonal="mul",
+>                               seasonal_periods=12).fit()                    # yalnızca fold'un eğitimi
+>     p_hw = hw.forecast(12)
+>     e_xgb, e_hw = y.iloc[va].values - p_xgb, y.iloc[va].values - p_hw
+>     ort = np.mean(np.abs((e_xgb + e_hw) / 2))      # ortalama tahminin hatası = hataların ortalaması
+>     zit = np.sum(np.sign(e_xgb) != np.sign(e_hw))  # hataların ters işaretli olduğu ay sayısı
+>     print(f"Fold {k} ({1955 + k}): MAE XGBoost {np.mean(np.abs(e_xgb)):5.2f}  HW {np.mean(np.abs(e_hw)):5.2f}  "
+>           f"ortalama {ort:5.2f}   ters işaretli ay: {zit}")
+> ```
+>
+> `s.loc[:X.index[tr[-1]]]` seriyi fold'un eğitiminin son ayına kadar keser; Holt-Winters gecikme sütunlarına ihtiyaç duymadığı için 1949'dan başlayabilir. `np.sign` pozitif hataya 1, negatif hataya −1 verir.
+>
+> **Ne göreceksiniz:**
+>
+> ```text
+> Fold 1 (1956): MAE XGBoost 13.32  HW 10.00  ortalama 10.25   ters işaretli ay: 6
+> Fold 2 (1957): MAE XGBoost 26.85  HW 14.57  ortalama 16.99   ters işaretli ay: 6
+> Fold 3 (1958): MAE XGBoost 27.42  HW 15.56  ortalama 21.49   ters işaretli ay: 0
+> Fold 4 (1959): MAE XGBoost 47.73  HW 20.22  ortalama 33.65   ters işaretli ay: 1
+> Fold 5 (1960): MAE XGBoost 31.52  HW 10.30  ortalama 15.27   ters işaretli ay: 9
+> ```
+>
+> 1958'de hiçbir ay ters işaretli değildir ve ortalamanın MAE'si tam olarak iki MAE'nin ortalamasıdır: $(27.42 + 15.56) / 2 = 21.49$. 1960'ta ise 12 ayın 9'unda hatalar ters işaretlidir ve ortalama (15.27), iki MAE'nin ortalamasının (20.91) çok altına iner. Yine de Holt-Winters tek başına her yıl daha iyidir; iki modelin doğruluğu arasındaki fark büyüktür.
+>
+> **Şimdi siz:** `ort` satırındaki `(e_xgb + e_hw) / 2` ifadesini `0.25 * e_xgb + 0.75 * e_hw` yapın (XGBoost'a 1/4, Holt-Winters'a 3/4 ağırlık). Ağırlıklı ortalama hangi yıllarda Holt-Winters'ı tek başına geçer? Bu ağırlığı bu beş fold'a bakarak seçseydik beş yılın ortalaması dürüst bir hata tahmini olur muydu?
+>
+> <details><summary>Cevap</summary>
+>
+> `ortalama` sütunu 9.56, 14.29, 18.52, 26.62 ve 9.86 olur (ortalaması 15.77). Ağırlıklı ortalama, hataların sık sık ters işaretli olduğu 1956, 1957 ve 1960'ta Holt-Winters'ı geçer; ters işaretli ayın hiç ya da neredeyse hiç olmadığı 1958 ve 1959'da geride kalır. Beş yılın ortalamasında (15.77) Holt-Winters (14.13) yine öndedir. Ağırlığı bu beş yıla bakarak ayarlasaydık bulduğumuz hata iyimser olurdu: Ağırlık da bir hiperparametredir ve raporlanan doğrulama yıllarıyla seçilmemelidir (Hemen deneyin 16.5c). Doğrusu, her yılın ağırlığını yalnızca önceki yılların hatalarıyla seçmektir.
+>
+> </details>
+
+**Kaynak:** J. M. Bates ve C. W. J. Granger (1969), "The Combination of Forecasts", *Operational Research Quarterly* 20(4); S. Makridakis, E. Spiliotis ve V. Assimakopoulos (2018), "The M4 Competition: Results, findings, conclusion and way forward", *International Journal of Forecasting* 34(4).
+
+### 16.7. Makine Öğrenmesi Modellerinde Tahmin Aralığı
+
+Şimdiye kadarki bütün karşılaştırmalar nokta tahminleri üzerineydi. Oysa karar verici "Bu sayıya ne kadar güvenebilirim?" diye de sorar (Bölüm 17.8). ARIMA (7.6.7), üstel düzeltme (7.8) ve Prophet (Bölüm 9) tahmin aralığını bir istatistiksel modelden türetir: Model hataların dağılımı hakkında bir varsayım yapar (çoğunlukla normal dağılım) ve aralık bu varsayımdan hesaplanır. XGBoost, rastgele orman ya da GRU ise yalnızca tek bir sayı döndürür; 12.3'teki tabloda belirtildiği gibi aralık için ek bir yöntem gerekir. Bu bölümde iki yöntemi, **konformal tahmini** ve **kantil kaybını**, 16.5'teki XGBoost üzerinde uygulayacağız ve sinir ağları için bir seçeneğe kısaca değineceğiz. Kodların tamamı uygulama dosyasının "16.7" hücrelerindedir.
+
+#### 16.7.1. Bir Aralık Nasıl Değerlendirilir?
+
+**Tanım (ampirik kapsama ve ortalama genişlik):** Test döneminin $m$ ayı için alt sınır $L_t$, üst sınır $U_t$ olsun:
+
+```math
+\underbrace{\mathrm{Kapsama}}_{\substack{\text{aralığın içine düşen}\\\text{ayların oranı}}} = \frac{1}{m}\sum_{t=1}^{m} \underbrace{\mathbf{1}\big[L_t \le y_t \le U_t\big]}_{\substack{\text{gerçek değer aralığın}\\\text{içindeyse 1, değilse 0}}}, \qquad \underbrace{\mathrm{Genişlik}}_{\substack{\text{ortalama}\\\text{aralık boyu}}} = \frac{1}{m}\sum_{t=1}^{m} \underbrace{(U_t - L_t)}_{t\text{ ayının aralık boyu}}
+```
+
+**Ne anlatıyor?** Kapsama (coverage), gerçek değerin aralığın içine düştüğü ayların oranıdır; genişlik, aralıkların ortalama boyudur. %80'lik bir aralığın kapsaması yaklaşık 0.80, %95'liğinki yaklaşık 0.95 olmalıdır.
+
+> **Simge notu:** $`L_t`$, $`U_t`$ *(lower, upper)*: $`t`$ ayı için aralığın alt ve üst sınırı · $`\mathbf{1}[\cdot]`$ *(gösterge fonksiyonu)*: köşeli parantezdeki koşul doğruysa 1, değilse 0 (9.1.3) · $`m`$: test dönemindeki ay sayısı
+
+İki ölçüt birlikte okunur. "Yolcu sayısı 0 ile 10 milyon arasında olacak" her zaman doğrudur ama işe yaramaz; çok dar bir aralık ise güven verir ama sık sık yanılır. Hemen deneyin 9.3a'da Prophet'ın %80'lik bandı 1960'ın 12 ayından yalnızca 4'ünü ya da 6'sını kapsamıştı: dar ama gerçeğe uymayan bir aralık. Önce hedef kapsama tutturulur, sonra aynı kapsamayı sağlayanlar arasından daha dar olan seçilir. 12 aylık bir testte kapsama 1/12'lik adımlarla değişir: %80'lik bir aralık için 9 ya da 10 ay (0.75 ya da 0.83) hedefle uyumludur; tek bir yıl kesin bir yargı için azdır.
+
+#### 16.7.2. Bölünmüş Konformal Tahmin
+
+Fikir basittir: Modelin **görmediği** veride ne kadar yanıldığını ölç ve gelecekte de aşağı yukarı o kadar yanılacağını varsay. **Bölünmüş konformal tahmin (split conformal prediction)** bunu hatalar hakkında hiçbir dağılım varsayımı yapmadan yapar:
+
+1. Veri zamana göre üç parçaya ayrılır: modelin eğitim kısmı, hemen ardından gelen **kalibrasyon** kısmı ve test. Kalibrasyon kümesi eğitim döneminin en yakın geçmişidir; asla rastgele seçilmez.
+2. Model eğitim kısmıyla kurulur. Kalibrasyondaki her ay için mutlak hata, yani **uyumsuzluk skoru (nonconformity score)** hesaplanır: $s_i = \lvert y_i - \hat{y}_i \rvert$.
+3. Bu skorlardan belirli bir sıradaki değer $q$ seçilir ve her test ayının aralığı $\hat{y}_t \pm q$ olur.
+
+```math
+\underbrace{q}_{\substack{\text{aralığın}\\\text{yarı genişliği}}} = \text{sıralı } s_i\text{'lerin } \underbrace{\big\lceil (n + 1)(1 - \alpha) \big\rceil}_{\substack{\text{sıra numarası}\\\text{(yukarı yuvarlanır)}}}\text{'incisi}, \qquad \underbrace{\big[\hat{y}_t - q,\; \hat{y}_t + q\big]}_{\substack{t\text{ ayı için }(1 - \alpha)\\\text{düzeyli aralık}}}
+```
+
+**Ne anlatıyor?** $n$ kalibrasyon skoru küçükten büyüğe sıralanır ve $\lceil (n + 1)(1 - \alpha) \rceil$'inci skor $q$ olarak seçilir; her test tahmininin altına ve üstüne bu kadar eklenir. $n + 1$'deki fazladan 1, küçük örneklem için bir düzeltmedir: Yeni test ayının skoru da kalibrasyon skorlarıyla birlikte $n + 1$ skorlu bir torbanın üyesi sayılır. Skorlar aşağıda anlatılan "değiştirilebilirlik" koşulunu sağlıyorsa bu kural, kapsamanın ortalamada en az $1 - \alpha$ olmasını garanti eder.
+
+> **Simge notu:** $`\alpha`$ *(alfa)*: aralığın dışında kalmasına izin verilen oran; $`\alpha = 0.2`$ %80'lik aralık demektir · $`\lceil \cdot \rceil`$ *(yukarı yuvarlama, ceiling)*: sayıyı bir üstteki tam sayıya yuvarlar; $`\lceil 39.2 \rceil = 40`$ · $`n`$: kalibrasyon skoru sayısı · $`s_i`$: $`i`$. kalibrasyon ayının skoru · $`\hat{y}_t`$: modelin test ayı tahmini
+
+**Sayısal örnek:** $n = 48$ ve $\alpha = 0.2$ için $(48 + 1) \cdot 0.8 = 39.2$, yukarı yuvarlanınca 40'tır; sıralanmış 48 skorun 40'ıncısı $q$ olur. $\alpha = 0.05$ için $49 \cdot 0.95 = 46.55$, yani 47'nci skor. Kalibrasyon yalnızca 12 aysa $13 \cdot 0.95 = 12.35$ yukarı yuvarlanınca 13 olur ve 12 skorun 13'üncüsü yoktur: Bu kadar az kalibrasyon verisiyle %95'lik aralık kurulamaz (aralık sonsuz genişlikte olur). %95'lik aralık için en az 19 skor gerekir.
+
+**Zaman serisinde değiştirilebilirlik sorunu.** Garantinin tek varsayımı, kalibrasyon skorları ile gelecekteki skorların **değiştirilebilir (exchangeable)** olmasıdır: Hepsi bir torbaya konup karıştırıldığında hangisinin hangi aydan geldiği önemsiz olmalıdır; skorların sırası bir bilgi taşımamalıdır. Zaman serisinde bu varsayım çoğu zaman tam tutmaz. Hatalar otokorelasyonludur (bir ay yüksekse sonraki ay da yüksek olur), seviye büyüdükçe hataların ölçeği büyür ve seri değiştiğinde model yanlı hâle gelebilir. Bu yüzden zaman serisinde garanti ancak yaklaşıktır. Pratik çare basittir: Kalibrasyon kümesini hep testin **hemen öncesindeki** dönemden seçin, pencere ilerledikçe skorları en son hatalarla yeniden hesaplayın (**kayan kalibrasyon**) ve kapsamayı her yeni dönemde yeniden ölçün.
+
+**Uygulama.** 16.5'in fold yapısı hazır bir kalibrasyon kümesi verir: 1956–1959 fold'larının her ayı, o ayı hiç görmemiş bir modelle tahmin edildi. Bu 48 **fold dışı (out-of-fold)** hata kalibrasyon skorlarıdır. 1960 ise Fold 5'in modeliyle (eğitim 1950-02 – 1959-12) tahmin edilir ve test olur:
+
+```python
+def konformal_q(skor, alpha):
+    """Skorların ceil((n+1)(1-alpha)). en küçüğü; n yetmezse sonsuz."""
+    n = len(skor)
+    r = int(np.ceil((n + 1) * (1 - alpha)))
+    return np.sort(skor)[r - 1] if r <= n else np.inf
+
+y_val = {k: values[val_idx].ravel() for k, (_, val_idx) in enumerate(folds, 1)}
+kal = np.concatenate([y_val[k] - xgb_pred[k] for k in range(1, 5)])   # 48 fold dışı hata (1956-1959)
+for alpha in [0.2, 0.1, 0.05]:
+    q = konformal_q(np.abs(kal), alpha)
+    alt, ust = xgb_pred[5] - q, xgb_pred[5] + q                       # 1960 aralığı
+    icinde = (y_val[5] >= alt) & (y_val[5] <= ust)
+    print(f"%{100 * (1 - alpha):.0f} aralık: q = {q:6.2f}  1960 kapsama {icinde.sum()}/12  genişlik {2 * q:6.2f}")
+```
+
+`np.ceil` yukarı yuvarlar. Python 0'dan saydığı için sıralanmış dizinin 40'ıncı elemanı `[39]` konumundadır; `r - 1` bunu sağlar.
+
+```text
+%80 aralık: q =  49.50  1960 kapsama 9/12  genişlik  99.00
+%90 aralık: q =  58.43  1960 kapsama 10/12  genişlik 116.87
+%95 aralık: q =  69.69  1960 kapsama 11/12  genişlik 139.39
+```
+
+**Çıktının yorumu:**
+
+- **Kapsamalar hedeflere yakındır:** %80'lik aralık 12 ayın 9'unu (0.75), %90'lık 10'unu (0.83), %95'lik 11'ini (0.92) kapsar; üçü de hedefin yalnızca bir ay kadar altındadır. %80'lik aralığın dışında kalan aylar Temmuz, Ağustos ve Kasım'dır. Yaz zirvesini model yine eksik tahmin eder (13.3'teki tavan sorunu).
+- **Güvenin bedeli genişliktir:** %80'den %95'e çıkmak aralığı yaklaşık %40 genişletir (99.00'dan 139.39'a).
+- **Aralık her ay aynı boydadır:** ±49.50, tahmini 410–465 arasında olan kış ve bahar ayları için görece geniş, 550 civarındaki yaz zirvesi için görece dar kalır.
+
+**Değiştirilebilirlik bozulunca: 1959.** Aynı yöntemi bir yıl önce uygulasaydık 1959'u 1956–1958'in 36 hatasıyla kalibre ederdik (kayan kalibrasyonun bir önceki adımı). %80'lik aralık için $q = 33.76$ çıkar ve aralık 1959'un 12 ayından yalnızca **3'ünü** kapsar. Nedeni 1959'un hatalarındadır: 12 hatanın hepsi pozitiftir (6.5 ile 93.0 arasında), yani model yıl boyunca eksik tahmin etmiştir (16.5'teki tavan sorunu). Önceki yıllarda hatalar iki yönlüydü; 1959'da hata dağılımı kaydı ve kalibrasyon yılları testi artık temsil etmedi. Konformal aralık modelin hatasını ölçer ama düzeltmez: Yanlı bir modelin aralığı da yanlı kalır.
+
+**Ölçek büyüyorsa: göreli skor.** AirPassengers'ta hataların büyüklüğü seviyeyle birlikte büyür (çarpımsal yapı, Bölüm 2.4). Sabit $\pm q$ bu durumda yüksek aylarda dar, düşük aylarda geniş kalır; seri büyüdükçe eski yılların küçük hataları $q$'yu da olduğundan küçük gösterebilir. Çare skoru ölçeksiz yapmaktır: $s_i = \lvert y_i - \hat{y}_i \rvert / \hat{y}_i$ (göreli hata) ve aralık $\hat{y}_t (1 \pm q)$. Logaritmik ölçekte çalışmak da benzer bir etki verir. Bu veride göreli skorla %80'lik aralık 1960'ın 12 ayının **12'sini** kapsar ($q = 0.1382$, yani ±%13.8; ortalama genişlik 129.65): Temmuz–Ağustos zirvesi artık içeridedir, ama aralık hedeften fazla kapsar ve daha geniştir. 1959'da ise kapsama yine 3/12'dir. Ölçek düzeltmesi büyüyen saçılmaya yardım eder, yanlılığa etmez.
+
+**Hangi hatalarla kalibre edilmez?** Skorlar mutlaka modelin görmediği aylardan gelmelidir. Fold 5 modelinin eğitim dönemi artıkları (örneklem içi hatalar) kullanılırsa, XGBoost eğitim verisine neredeyse kusursuz uyduğu için %80'lik $q$ yalnızca 0.10 çıkar ve aralık 1960'ın hiçbir ayını kapsamaz (0/12). Kalibrasyon aylarını rastgele seçmek de aynı nedenle yanlıştır: Eğitim aylarının arasına serpiştirilen kalibrasyon ayları komşularından "okunarak" tahmin edilir (16.1), hataları küçük çıkar ve aralık iyimser olur.
+
+#### 16.7.3. Kantil (Pinball) Kaybı
+
+İkinci yol, aralığın sınırlarını doğrudan tahmin eden modeller eğitmektir. Kare hatayı küçülten regresyon koşullu ortalamayı, mutlak hatayı küçülten regresyon medyanı öğrenir. **Kantil kaybı (quantile loss, pinball loss)** ise istenen bir $\tau$ kantilini öğretir.
+
+**Tanım:**
+
+```math
+L_{\tau}(y_t, \hat{q}_t) = \begin{cases} \underbrace{\tau}_{\substack{\text{eksik tahminin}\\\text{birim cezası}}} \cdot \, (y_t - \hat{q}_t), & y_t \ge \hat{q}_t \;\; \text{(gerçek değer tahminin üstünde)} \\[6pt] \underbrace{(1 - \tau)}_{\substack{\text{fazla tahminin}\\\text{birim cezası}}} \cdot \, (\hat{q}_t - y_t), & y_t < \hat{q}_t \;\; \text{(gerçek değer tahminin altında)} \end{cases}
+```
+
+**Ne anlatıyor?** Ceza asimetriktir. $\tau = 0.9$ için gerçek değerin tahminin üstünde kaldığı her birim 0.9, altında kaldığı her birim 0.1 ceza getirir. Model bu yüzden tahminini yukarı iter; denge, gözlemlerin yaklaşık %90'ının tahminin altında, %10'unun üstünde kaldığı noktada, yani %90 kantilinde kurulur. $\tau = 0.5$ iki yönü eşit cezalandırır; kayıp mutlak hatanın yarısıdır ve model medyanı öğrenir.
+
+> **Simge notu:** $`\tau`$ *(tau)*: hedeflenen kantil (ör. 0.1 ya da 0.9) · $`\hat{q}_t`$: modelin $`t`$ ayı için $`\tau`$ kantili tahmini · $`L_{\tau}`$: o ayın kaybı; eğitimde bütün ayların kayıpları toplanıp küçültülür
+
+**Sayısal örnek:** $y = 100$ ve $\tau = 0.9$ olsun. Tahmin 90 ise (10 eksik) ceza $0.9 \cdot 10 = 9$; tahmin 110 ise (10 fazla) ceza $0.1 \cdot 10 = 1$'dir. Aynı 10 birimlik yanılgı eksik tarafta 9 kat pahalıdır.
+
+%80'lik aralık için iki model eğitilir: $\tau = 0.1$ (alt sınır) ve $\tau = 0.9$ (üst sınır). scikit-learn'deki `GradientBoostingRegressor` (XGBoost'un dayandığı gradient boosting'in scikit-learn sürümü, 13.1.2) `loss="quantile"` ile bunu yapar. Ayarlar 16.5'teki XGBoost ile aynıdır; eğitim 1950-02 – 1959-12, test 1960:
+
+```python
+from sklearn.ensemble import GradientBoostingRegressor
+X_tr, y_tr = X.loc[:train_end], y.loc[:train_end]           # train_end = 1959-12
+X_1960 = X.loc[df.index[folds[-1][1]]]
+kantil = {}
+for tau in [0.1, 0.9]:                                       # alt ve üst sınır için iki ayrı model
+    m = GradientBoostingRegressor(loss='quantile', alpha=tau, n_estimators=500,
+                                  learning_rate=0.05, max_depth=4, random_state=SEED)
+    m.fit(X_tr, y_tr)
+    kantil[tau] = (m.predict(X_tr), m.predict(X_1960))       # (eğitim, 1960)
+```
+
+Dikkat: scikit-learn'de kantilin adı `alpha`'dır; konformal tahmindeki $\alpha$ (dışarıda kalma oranı) ile karıştırmayın. XGBoost'ta aynı iş `XGBRegressor(objective="reg:quantileerror", quantile_alpha=0.9)` ile yapılır. Kapsama ve genişliği yazdıran satırlar dosyadadır:
+
+```text
+Eğitim döneminde kapsama: %79.0  genişlik 32.14
+1960 kapsama: 7/12  ortalama genişlik 118.09  (altında kalan 0, üstüne çıkan 5)
+Alt sınır: [345.1 343.1 341.5 347.6 343.9 344.2 345.9 347.  345.5 382.5 386.5 388.2]
+Üst sınır: [387.8 422.4 458.8 482.6 480.6 507.9 540.6 543.3 494.1 467.3 446.5 446. ]
+Gerçek   : [417. 391. 419. 461. 472. 535. 622. 606. 508. 461. 390. 432.]
+```
+
+**Çıktının yorumu:**
+
+- **Eğitimde kusursuz, testte değil:** Eğitim döneminde aralık tam istendiği gibidir (%79.0). Ama bu, modelin kendi eğitim verisi üzerindeki ölçümdür; konformal tahmindeki "eğitim artıklarıyla kalibrasyon" tuzağının aynısıdır.
+- **1960'ta aralık yanlış yerde:** 12 ayın yalnızca 7'si içeridedir, oysa aralık konformal aralıktan (99.00) daha geniştir (118.09). Alt sınır yıl boyunca 340–390 arasında neredeyse sabit kalır; üst sınır ise Ocak, Haziran, Temmuz, Ağustos ve Eylül'de gerçek değerin altında kalır (Temmuz: 540.6'ya karşı 622). Ağaçların eğitimdeki rekorun (559) çok üstüne çıkamaması (13.3) üst kantil için de geçerlidir.
+- **Kantiller çaprazlanabilir:** Aynı deney XGBoost'un `reg:quantileerror` amacıyla (aynı ayarlarla, iki ayrı model) yapılınca 1960'ta kapsama 3/12'dir ve bir ayda alt sınır üst sınırın üstüne çıkar. Buna **kantil çaprazlaması (quantile crossing)** denir: İki kantil ayrı ayrı öğrenildiği için sıralarının korunacağının garantisi yoktur.
+
+**Konformal mi, kantil mi?** Kantil regresyonu aralığın genişliğini girdiye göre değiştirebilir (ör. yaz aylarında geniş, kışın dar); konformal aralık bu basit hâliyle her ay aynı genişliktedir. Buna karşılık kantil modeli kapsamayı eğitim verisinde öğrenir ve görmediği dönemde bu kapsamanın tutacağının bir garantisi yoktur; konformal tahmin ise kapsamayı doğrudan görülmemiş veride ayarlar. İkisi birleştirilebilir: **Konformal kantil regresyonu (conformalized quantile regression, CQR)** kantil modelinin sınırlarını kalibrasyon kümesindeki hatalarına göre genişletir ya da daraltır. Bu veride ve bu ayarlarla konformal aralık hem daha dar hem daha iyi kapsadı; ama bu tek bir test yılının sonucudur.
+
+#### 16.7.4. Sinir Ağlarında MC Dropout
+
+16.5'teki GRU'da bir `Dropout(0.2)` katmanı vardı. Dropout normalde yalnızca eğitimde açıktır, tahminde kapatılır. **MC dropout (Monte Carlo dropout)** yönteminde tahmin sırasında da açık bırakılır: Her tahminde nöronların farklı bir rastgele %20'si kapatıldığı için aynı girdinin tahmini her seferinde biraz değişir. Bu tekrarlı tahminlerin yayılımı belirsizliğin bir ölçüsü olarak kullanılır:
+
+```python
+# model: 16.5'teki gibi eğitilmiş, Dropout katmanlı GRU; X_va: doğrulama pencereleri
+ornekler = np.stack([model(X_va, training=True).numpy().ravel() for _ in range(100)])  # 100 tekrar
+alt, ust = np.percentile(ornekler, [10, 90], axis=0)           # %80'lik bant (ölçeklenmiş birimde)
+alt, ust = scaler.inverse_transform(alt.reshape(-1, 1)), scaler.inverse_transform(ust.reshape(-1, 1))
+```
+
+`training=True` Keras'a katmanları eğitim kipinde çalıştırmasını söyler; dropout açık kalır. `np.percentile` 100 tahminin her ay için %10 ve %90 yüzdeliklerini verir. Dikkat: Bu bant yalnızca modelin ağırlıklarındaki belirsizliği kabaca yansıtır, gözlemlerin kendi gürültüsünü içermez ve **kendiliğinden kalibre değildir**; çoğu zaman olduğundan dar çıkar. Kullanmadan önce kapsaması fold dışı veride ölçülmeli, gerekirse konformal bir adımla düzeltilmelidir.
+
+> **Hemen deneyin 16.7 · Konformal aralığı kendiniz kurun** (Python, ~5 dk)
+>
+> Hemen deneyin 16.5'teki sade XGBoost'un 1956–1959 fold dışı hatalarıyla kalibre edin ve 1960'ta üç farklı düzeyin kapsamasını ölçün.
+>
+> ```python
+> import numpy as np, pandas as pd, xgboost as xgb
+> from sklearn.model_selection import TimeSeriesSplit
+>
+> s = pd.read_csv("data/AirPassengers.csv")["Passengers"]
+> X = pd.DataFrame({f"lag_{l}": s.shift(l) for l in range(1, 13)}).dropna()  # 12 gecikme
+> y = s.loc[X.index]
+> hata = []                                          # fold dışı hatalar (1956-1960)
+> for tr, va in TimeSeriesSplit(n_splits=5, test_size=12).split(X):
+>     m = xgb.XGBRegressor(n_estimators=300, max_depth=3, learning_rate=0.05, random_state=42)
+>     tahmin = m.fit(X.iloc[tr], y.iloc[tr]).predict(X.iloc[va])
+>     hata.append(y.iloc[va].values - tahmin)
+> kal, test = np.abs(np.concatenate(hata[:4])), np.abs(hata[4])   # kalibrasyon 1956-1959, test 1960
+> for alpha in [0.2, 0.1, 0.05]:
+>     r = int(np.ceil((len(kal) + 1) * (1 - alpha)))   # kaçıncı en küçük skor?
+>     q = np.sort(kal)[r - 1]
+>     print(f"%{100 * (1 - alpha):.0f} aralık: q = {q:5.2f}  genişlik {2 * q:6.2f}  "
+>           f"kapsama {np.sum(test <= q)}/12")
+> ```
+>
+> `hata[:4]` ilk dört fold'un (1956–1959) hatalarıdır, `hata[4]` beşincinin (1960). Bir ay aralığın içindeyse mutlak hatası $q$'dan büyük değildir; `np.sum(test <= q)` bu ayları sayar.
+>
+> **Ne göreceksiniz:**
+>
+> ```text
+> %80 aralık: q = 50.02  genişlik 100.03  kapsama 9/12
+> %90 aralık: q = 60.91  genişlik 121.81  kapsama 9/12
+> %95 aralık: q = 70.78  genişlik 141.57  kapsama 10/12
+> ```
+>
+> Düzey yükseldikçe $q$ ve genişlik büyür. Kapsama ise 12 ayda adım adım değişir: %80'lik ve %90'lık aralıklar aynı 9 ayı kapsar. Sonuçlar 16.7.2'deki 21 özellikli modelinkine yakındır.
+>
+> **Şimdi siz:** `kal, test = ...` satırının hemen altına sırayla şu iki satırdan birini ekleyin ve her seferinde sonucu önce tahmin edin. (1) Kalibrasyon için son modelin eğitim artıkları: `kal = np.abs(y.iloc[tr].values - m.predict(X.iloc[tr]))` (döngüden çıkınca `m` ve `tr` son fold'a aittir). (2) Yalnızca 1959'un hataları: `kal = np.abs(hata[3])`.
+>
+> <details><summary>Cevap</summary>
+>
+> (1) $q$ değerleri 3.28, 3.97 ve 4.97'ye düşer; üç aralık da 1960'ın **hiçbir** ayını kapsamaz (0/12). Model eğitim aylarına neredeyse kusursuz uyduğu için örneklem içi artıklar, gelecekteki hataların büyüklüğü hakkında hiçbir şey söylemez. (2) %80: $q = 70.78$, kapsama 10/12, genişlik 141.57; %90: $q = 116.31$, kapsama 12/12, genişlik 232.62; %95 satırında ise `IndexError` alınır. 12 skorla $\lceil 13 \cdot 0.95 \rceil = 13$'üncü skor istenir ve böyle bir skor yoktur (16.7.2'deki sayısal örnek). Aralıklar da çok genişler, çünkü kalibrasyon yalnızca modelin en kötü yılını (16.5'teki tavan sorunu) görür: Kalibrasyon kümesi hem yeterince uzun hem de testi temsil eden bir dönem olmalıdır.
+>
+> </details>
+
+**Kaynak:** J. Lei, M. G'Sell, A. Rinaldo, R. J. Tibshirani ve L. Wasserman (2018), "Distribution-Free Predictive Inference for Regression", *Journal of the American Statistical Association* 113(523); A. N. Angelopoulos ve S. Bates (2021), "A Gentle Introduction to Conformal Prediction and Distribution-Free Uncertainty Quantification", arXiv:2107.07511; Y. Romano, E. Patterson ve E. Candès (2019), "Conformalized Quantile Regression", *NeurIPS*; R. Koenker ve G. Bassett (1978), "Regression Quantiles", *Econometrica* 46(1).
 
 ---
 

@@ -373,6 +373,20 @@ Kod, `AirPassengers` serisini aynı amaçla üç farklı yoldan bileşenlerine a
 8. `ayr_stl <- stl(log(AirPassengers), s.window = "periodic")`: `stl()` **STL** (*Seasonal-Trend decomposition using Loess*) yöntemini uygular. Loess, her noktanın çevresine küçük bir eğri uyduran yerel bir düzeltmedir. STL yalnızca toplamsal çalıştığı için önce `log()` alınır. `s.window` zorunludur: `"periodic"` mevsimsel desenin her yıl aynı kaldığını, `13` gibi bir sayı ise yavaşça değişebildiğini söyler. `decompose()`'dan farklı olarak uçlarda `NA` bırakmaz. `robust = TRUE` ile aykırı değerlere karşı daha dayanıklı hâle getirilebilir. Temmuz bileşeni 0.216'dır ($e^{0.216} \approx 1.24$); üç yol aynı sonuca varır.
 9. `plot(ayr_stl)`: `stl()` sonucu için de alt alta dört panel çizer: `data` (log alınmış seri), `seasonal`, `trend` ve `remainder`. Her panelin sağında açık gri bir çubuk bulunur. Bu çubukların hepsi veri biriminde aynı uzunluğu temsil eder; bu yüzden çubuğu kendi paneline göre uzun görünen bileşen, aslında küçük bir değişim aralığına sahiptir. Çubuklar, panellerin dikey ölçeklerinin farklı olduğunu unutmamak için konmuştur.
 
+**STL'nin asıl üstünlüğü: değişen mevsimsellik.** `s.window = "periodic"` ile STL, `decompose()` gibi her yıl için aynı mevsimsel deseni kullanır; yukarıdaki üç yolun aynı sonucu vermesi bu yüzden şaşırtıcı değildir. `s.window` bir tek sayı (en az 7) olarak verildiğinde ise her ayın mevsimsel etkisi, yalnızca komşu yıllardaki aynı ayların yerel bir düzeltmesiyle hesaplanır; desen yıldan yıla yavaşça değişebilir. Sayı büyüdükçe desen sabite yaklaşır, küçüldükçe daha esnek olur.
+
+```r
+sabit  <- stl(log(AirPassengers), s.window = "periodic")
+esnek  <- stl(log(AirPassengers), s.window = 13)
+temmuz <- cycle(AirPassengers) == 7        # TRUE: Temmuz ayları (cycle() ay numarasını verir)
+round(sabit$time.series[temmuz, "seasonal"], 3)
+#>  [1] 0.216 0.216 0.216 0.216 0.216 0.216 0.216 0.216 0.216 0.216 0.216 0.216
+round(esnek$time.series[temmuz, "seasonal"], 3)
+#>  [1] 0.190 0.192 0.194 0.197 0.201 0.211 0.221 0.228 0.235 0.238 0.240 0.242
+```
+
+Esnek ayrıştırmada Temmuz etkisi 1949'daki 0.190'dan ($e^{0.190} \approx 1.21$, trendin %21 üstü) 1960'taki 0.242'ye ($e^{0.242} \approx 1.27$) çıkar: Log alındıktan sonra bile yaz zirvesi yıllar içinde göreli olarak güçlenmiştir. Sabit desen bu değişimi kalan bileşene iter; kalanın standart sapması sabit desende 0.0328, esnek desende 0.0257'dir. Hangi `s.window`'un seçileceği bir yargı meselesidir: Çok küçük bir değer gürültüyü de mevsimsellik sanar. Pratikte 13 gibi tek sayılı, birkaç yıllık bir pencereyle başlanıp mevsimsel panelin düzgün kalıp kalmadığına bakılır.
+
 **Grafikleri yorumlarken:**
 
 - **trend** panelinde yolcu sayısının 1949–1960 arasında istikrarlı biçimde arttığını,

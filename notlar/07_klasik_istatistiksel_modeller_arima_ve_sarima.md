@@ -4,7 +4,7 @@
 
 Önceki bölümlerde veriyi tanımayı, `ts` nesnesine dönüştürmeyi, görselleştirmeyi ve ACF/PACF grafiklerini okumayı öğrendik. Artık modelleme aşamasına geçebiliriz.
 
-Bu bölümde zaman serisi analizinin "klasik" temelini oluşturan **ARIMA** ailesini inceleyeceğiz. Bu modellerin ortak fikri basittir: Bir serinin geleceğini, **yalnızca serinin kendi geçmişini** (geçmiş değerlerini ve geçmişte yapılan tahmin hatalarını) kullanarak tahmin etmek. Dışarıdan ek bir değişkene ihtiyaç duymazlar.
+Bu bölümde zaman serisi analizinin "klasik" temelini oluşturan **ARIMA** ailesini ve bölümün sonunda (7.8) onun güçlü bir alternatifi olan **üstel düzeltme (ETS)** ailesini inceleyeceğiz. Bu modellerin ortak fikri basittir: Bir serinin geleceğini, **yalnızca serinin kendi geçmişini** (geçmiş değerlerini ve geçmişte yapılan tahmin hatalarını) kullanarak tahmin etmek. Dışarıdan ek bir değişkene ihtiyaç duymazlar.
 
 Bölümün yol haritası şöyledir:
 
@@ -15,6 +15,7 @@ Bölümün yol haritası şöyledir:
 5. Durağanlık testleri: ADF ve KPSS (7.5)
 6. R ile `AirPassengers` uygulaması (7.6)
 7. Aynı analizin Python ile yapılması (7.7)
+8. Üstel düzeltme (ETS) ve Theta yöntemi; `AirPassengers` üzerinde SARIMA ile karşılaştırma (7.8)
 
 **Not —** Bu bölüm, Bölüm 3.2'deki temellerin üzerine kurulur: AR(1) denklemi $x_t = \phi x_{t-1} + \varepsilon_t$'nin nasıl okunduğu (alt indisler $t$ ve $t-1$, $\phi$ "fi" ve $\varepsilon$ "epsilon"), bir şokun $\phi$'nin değerine göre sönmesi ya da kalıcı olması, bir denklemin kökünün ne olduğu, gecikme operatörü $B$, birim kök kavramı, ADF testinin hipotezleri ve p-değerinin okunması. Bu konular için önce o bölüme başvurulması önerilir. Burada aynı fikirleri birer adım ileri taşıyacağız.
 
@@ -1443,6 +1444,334 @@ ARIMA Modeli RMSE Değeri: 47.87
 > </details>
 
 **Alıştırma:** Modeli `np.log(train_data)` üzerinde kurun, tahminleri `np.exp()` ile orijinal ölçeğe döndürün ve RMSE'yi yeniden hesaplayın. Bizim denememizde `auto_arima` log seride ARIMA(2,0,0)(0,1,1)[12] modelini seçti ve RMSE yaklaşık 49.0 çıktı; yani bu bölmede toplam hata azalmadı. Hataları yıllara göre inceleyin: Log model 1956–1957'de neredeyse isabetlidir (yıllık ortalama hata 3 bin yolcunun altında), 1958'den sonra ise fazla tahmin yapar, çünkü eğitim döneminin yüksek yüzde büyümesini sürdürürken gerçek büyüme 1958'de yaklaşık %3'e düşmüştür. Bu alıştırma, kuramsal olarak doğru bir dönüşümün her test döneminde daha düşük hata garanti etmediğini ve modelleri her zaman test verisi üzerinde karşılaştırmak gerektiğini gösterir.
+
+---
+
+### 7.8. Üstel Düzeltme (ETS) ve Theta
+
+ARIMA bir seriyi, geçmiş değerleri ve geçmiş şokları arasındaki korelasyon yapısıyla anlatır. Bu bölümde aynı probleme başka bir kapıdan gireceğiz: Seriyi Bölüm 2.2'deki bileşenlerine (düzey, trend, mevsimsellik) ayırıp her yeni gözlem geldiğinde bu bileşenleri **biraz** güncellemek. Bu fikre **üstel düzeltme** (*exponential smoothing*) denir. 1950'lerin sonunda Brown, Holt ve Winters'ın çalışmalarıyla doğan bu yöntemlerin hesabı çok basittir, ama tahmin yarışmalarında ARIMA ile omuz omuza yarışırlar (Bölüm 17.10). Bölüm 5.3'teki tabloda adı geçen `HoltWinters` da bu ailedendir. 7.8.1–7.8.3'te yöntemi parça parça kuracağız (yalnızca düzey; düzey ve trend; düzey, trend ve mevsim), 7.8.4'te hepsini tek bir istatistiksel çerçevede (ETS) toplayacağız, 7.8.5'te yakın akrabası Theta yöntemini tanıyacağız ve 7.8.6'da hepsini `AirPassengers` üzerinde SARIMA ile karşılaştıracağız.
+
+#### 7.8.1. Basit Üstel Düzeltme (SES)
+
+**Açıklama:** Yarının değerini tahmin etmenin iki uç yolu vardır. **Naive** yöntem yalnızca son gözleme bakar: "Yarın bugün gibi olacak." **Ortalama** yöntemi ise bütün geçmişe eşit ağırlık verir: Elli gün önceki gözlem de dünkü kadar önemlidir. Birincisi gürültüye fazla duyarlıdır, ikincisi değişime fazla kördür. Basit üstel düzeltme ikisinin arasında durur: Bütün geçmişi kullanır, ama yakın geçmişe daha çok, uzak geçmişe giderek daha az ağırlık verir.
+
+**Tanım:** Basit üstel düzeltme (*simple exponential smoothing*, SES), serinin o anki **düzeyini** (*level*) $\ell_t$ her yeni gözlemde şöyle günceller ve tahmini bu düzeye eşitler:
+
+```math
+\underbrace{\ell_t}_{\text{yeni düzey}} = \underbrace{\alpha\, x_t}_{\substack{\text{yeni gözlemin}\\\text{payı}}} + \underbrace{(1 - \alpha)\, \ell_{t-1}}_{\substack{\text{eski düzeyin}\\\text{payı}}}, \qquad \underbrace{\hat{x}_{t+h|t} = \ell_t}_{\substack{\text{her ufuk için}\\\text{aynı tahmin}}}
+```
+
+**Ne anlatıyor?** Yeni düzey, bugünkü gözlem ile dünkü düzeyin ağırlıklı ortalamasıdır; ağırlıkları düzeltme katsayısı $\alpha$ belirler. Kaç adım ileriye bakılırsa bakılsın tahmin son düzeydir, yani tahmin grafiği yatay bir çizgidir.
+
+> **Simge notu:** $`\ell_t`$ *(el; el yazısı "l")*: $`t`$ anındaki düzey · $`\alpha`$ *(alfa)*: düzeltme katsayısı (*smoothing parameter*), 0 ile 1 arasında · $`\hat{x}_{t+h|t}`$ *(x şapka)*: $`t`$ anına kadarki bilgiyle $`h`$ adım sonrası için yapılan tahmin; dikey çizgi "… bilindiğinde" diye okunur
+
+Aynı denklem $\ell_t = \ell_{t-1} + \alpha\,(x_t - \ell_{t-1})$ biçiminde de yazılabilir. Parantez içi, dünkü tahminin bugün yaptığı hatadır: Yeni düzey, eski tahmine bu hatanın $\alpha$ kadarı eklenerek bulunur. $\alpha = 0.3$ ise model her sürprizin %30'unu kalıcı sayar, %70'ini gürültü kabul eder.
+
+**"Üstel" adı nereden geliyor?** Denklemde $\ell_{t-1}$ yerine kendi formülünü, onun içindeki $\ell_{t-2}$ yerine yine kendi formülünü koymayı sürdürürsek düzey, geçmiş gözlemlerin ağırlıklı toplamına açılır:
+
+```math
+\ell_t = \underbrace{\alpha\, x_t}_{\text{bugün}} + \underbrace{\alpha (1 - \alpha)\, x_{t-1}}_{\text{dün}} + \underbrace{\alpha (1 - \alpha)^2\, x_{t-2}}_{\text{evvelsi gün}} + \dots + \underbrace{\alpha (1 - \alpha)^k\, x_{t-k}}_{k\text{ adım önce}} + \dots
+```
+
+**Ne anlatıyor?** $k$ adım önceki gözlemin ağırlığı $\alpha (1 - \alpha)^k$'dir: Geriye doğru her adımda ağırlık $(1 - \alpha)$ ile çarpılarak küçülür. Bu geometrik (üstel) sönüm yönteme adını verir; ağırlıkların toplamı 1'e yaklaşır.
+
+$\alpha = 0.3$ için ağırlıklar en yeniden geriye doğru 0.300, 0.210, 0.147, 0.103, … biçiminde yavaş azalır; $\alpha = 0.8$ için 0.800, 0.160, 0.032, … biçiminde hızla sıfıra iner. İki uç durum baştaki iki yöntemi verir: $\alpha = 1$ iken ağırlığın tamamı son gözleme gider ve SES naive yönteme dönüşür; $\alpha$ sıfıra yaklaştıkça ağırlıklar çok yavaş söner ve tahmin uzun dönem ortalamasına yaklaşır.
+
+**Sayısal örnek.** Bir kırtasiyenin dört günlük defter satışları 40, 46, 43 ve 49 olsun. $\alpha = 0.3$ alalım ve başlangıç düzeyini ilk gözleme eşitleyelim ($\ell_1 = x_1 = 40$):
+
+| Gün $`t`$ | Satış $`x_t`$ | Hesap: $`0.3\, x_t + 0.7\, \ell_{t-1}`$ | Düzey $`\ell_t`$ |
+| --- | --- | --- | --- |
+| 1 | 40 | başlangıç | 40 |
+| 2 | 46 | $`0.3 \cdot 46 + 0.7 \cdot 40 = 13.8 + 28`$ | 41.8 |
+| 3 | 43 | $`0.3 \cdot 43 + 0.7 \cdot 41.8 = 12.9 + 29.26`$ | 42.16 |
+| 4 | 49 | $`0.3 \cdot 49 + 0.7 \cdot 42.16 = 14.7 + 29.512`$ | 44.212 |
+
+Beşinci gün için tahmin $\hat{x}_ {5|4} = 44.21$'dir; altıncı ve yedinci gün için de aynıdır. Satışlar dört günde 40'tan 49'a çıkmış, ama tahmin 44.2'de kalmıştır: SES yükselişi kalıcı bir eğilim olarak değil, düzeyin biraz yukarı kayması olarak görür. Bu yüzden SES yalnızca belirgin trendi ve mevsimselliği olmayan seriler için uygundur; trendli bir seride hep geride kalır. 7.8.2'nin konusu budur.
+
+Gerçek uygulamada $\alpha$ ve başlangıç düzeyi elle seçilmez: Yazılım bunları, bir adım ileri tahmin hatalarının karelerinin toplamını en küçük ya da olabilirliği en büyük yapacak biçimde veriden **kestirir** (7.4).
+
+> **Hemen deneyin 7.8.1 · $`\alpha`$'yı değiştirip ağırlıkları izleyin** (R, ~3 dk)
+>
+> Yukarıdaki tabloyu bir döngüyle yeniden üretelim:
+>
+> ```r
+> x <- c(40, 46, 43, 49)               # dört günlük satış
+> alfa <- 0.3
+> duzey <- x[1]                        # başlangıç düzeyi: ilk gözlem
+> for (t in 2:4) {
+>   duzey <- alfa * x[t] + (1 - alfa) * duzey
+>   cat(t, round(duzey, 3), "\n")
+> }
+> round(alfa * (1 - alfa)^(0:5), 3)    # en yeni gözlemden geriye doğru ağırlıklar
+> ```
+>
+> `for (t in 2:4) { ... }` süslü parantezin içini `t` = 2, 3, 4 için sırayla çalıştırır; her turda `duzey` bir öncekinin üzerine yazılır. `0:5` 0'dan 5'e kadar tam sayılardır ve `^` her birini üs olarak kullanır.
+>
+> **Ne göreceksiniz:** `2 41.8`, `3 42.16`, `4 44.212` ve `[1] 0.300 0.210 0.147 0.103 0.072 0.050`: tablodaki düzeyler ve $`\alpha = 0.3`$ ağırlıkları. `forecast` paketindeki `ses(x, alpha = 0.3, initial = "simple", h = 2)$mean` aynı tahmini (`44.212 44.212`) verir.
+>
+> **Şimdi siz:** `alfa <- 0.8` yapıp tekrar çalıştırın. Düzeyler gözlemlere daha mı yakın? Kaç adım önceki gözlemin ağırlığı 0.01'in altına düşer?
+>
+> <details><summary>Cevap</summary>
+>
+> `2 44.8`, `3 43.36`, `4 47.872`: Düzey her gün son gözleme çok yaklaşır (49'a karşı 47.87); tahmin artık naive yönteme benzer. Ağırlıklar `0.800 0.160 0.032 0.006 0.001 0.000` olur: 3 adım önceki gözlemin ağırlığı (0.006) bile 0.01'in altındadır. Büyük $`\alpha`$ kısa hafıza, küçük $`\alpha`$ uzun hafıza demektir.
+>
+> </details>
+
+#### 7.8.2. Holt Yöntemi: Trend ve Sönümlü Trend
+
+**Açıklama:** Holt (1957), SES'e ikinci bir bileşen ekledi: serinin her adımda ne kadar arttığını gösteren **eğim** (*slope*) $b_t$. Artık iki şey güncellenir, düzey ve eğim; her birinin kendi düzeltme katsayısı vardır.
+
+```math
+\begin{aligned}
+\underbrace{\ell_t}_{\text{düzey}} &= \alpha\, x_t + (1 - \alpha)\, \underbrace{(\ell_{t-1} + b_{t-1})}_{\substack{\text{dünkü bilgiyle}\\\text{bugünün tahmini}}} \\
+\underbrace{b_t}_{\text{eğim}} &= \beta\, \underbrace{(\ell_t - \ell_{t-1})}_{\substack{\text{düzeydeki}\\\text{son değişim}}} + (1 - \beta)\, b_{t-1} \\
+\underbrace{\hat{x}_{t+h|t}}_{\text{tahmin}} &= \ell_t + \underbrace{h\, b_t}_{h\text{ adımlık artış}}
+\end{aligned}
+```
+
+**Ne anlatıyor?** İç içe iki SES vardır. Düzey, bugünkü gözlem ile "dünkü düzey artı bir adımlık eğim" tahmininin ağırlıklı ortalamasıdır. Eğim, düzeydeki son değişim ile eski eğimin ağırlıklı ortalamasıdır. Tahmin, son düzeyden son eğimle uzatılan bir doğrudur.
+
+> **Simge notu:** $`b_t`$: $`t`$ anındaki eğim (bir adımda beklenen artış) · $`\beta`$ *(beta)*: eğimin düzeltme katsayısı, 0 ile 1 arasında
+
+**Not —** R'ın `ets()` çıktısındaki `beta`, 7.8.4'teki durum uzayı yazımına aittir ve buradaki $\beta$ ile $\alpha$'nın çarpımına eşittir; bu yüzden hep `alpha`'dan küçüktür.
+
+Holt doğrusu sonsuza kadar aynı eğimle uzar. Uzun ufuklarda bu çoğu zaman fazla iyimserdir: Hiçbir büyüme sonsuza dek aynı hızla sürmez. Gardner ve McKenzie'nin (1985) önerdiği **sönümlü trend** (*damped trend*), eğimin tahmine katkısını her adımda bir $\phi$ oranıyla kısar:
+
+```math
+\hat{x}_{t+h|t} = \ell_t + \underbrace{(\phi + \phi^2 + \dots + \phi^h)}_{\substack{\text{her adımda azalan}\\\text{trend katkısı}}}\, b_t, \qquad 0 < \phi < 1
+```
+
+**Ne anlatıyor?** İlk adımda eğimin $\phi$ katı, ikinci adımda $\phi^2$ katı eklenir ve bu böyle sürer. Eklenen parçalar küçüldüğü için tahmin bir süre artar, sonra yataylaşır ve $\ell_t + \frac{\phi}{1 - \phi}\, b_t$ değerine yaklaşır. $\phi = 1$ Holt'un düz doğrusunu verir. (Düzey ve eğim denklemlerinde de $b_{t-1}$ yerine $\phi\, b_{t-1}$ yazılır.)
+
+> **Simge notu:** $`\phi`$ *(fi)*: sönüm katsayısı (*damping parameter*); 7.1.1'deki AR katsayısıyla aynı harfle yazılır ama başka bir şeydir
+
+Sayılarla: $\phi = 0.98$ ilk bakışta 1'e çok yakın görünür. Oysa 12 adımda eğimin toplam katkısı 12 değil, $0.98 + 0.98^2 + \dots + 0.98^{12} \approx 10.55$ eğimdir; 60 adımda 60 yerine yaklaşık 34.42, sonsuzda ise en fazla $0.98 / 0.02 = 49$ eğimdir. Küçük görünen bir sönüm, uzun ufukta trendin neredeyse yarısını siler. Bu sayılar 7.8.6'da önemli olacak.
+
+#### 7.8.3. Holt-Winters: Mevsimsellik Eklemek
+
+Winters (1960), Holt yöntemine üçüncü bir bileşen ekledi: **mevsim bileşeni** $s_t$. Bölüm 2.4'te gördüğümüz gibi mevsimsellik iki biçimde olabilir: **Toplamsal** (*additive*) modelde dalgaların boyu sabittir ve mevsim etkisi "ortalamanın 80 birim üstü" gibi bir farktır; **çarpımsal** (*multiplicative*) modelde dalgalar seviyeyle birlikte büyür ve etki "ortalamanın %20 üstü" gibi bir orandır. `AirPassengers` ikinci türdendir. 7.6'da bu büyümeyi log dönüşümüyle sabit boylu dalgalara çevirmiştik; Holt-Winters iki yol sunar: çarpımsal sürümle doğrudan orijinal seride çalışmak ya da log seride toplamsal sürümü kullanmak.
+
+Çarpımsal Holt-Winters'ın denklemleri şunlardır (mevsim uzunluğunu, mevsim bileşeni $s_t$ ile karışmasın diye 7.3'teki $s$ yerine $m$ ile gösteriyoruz):
+
+```math
+\begin{aligned}
+\ell_t &= \alpha\, \underbrace{\frac{x_t}{s_{t-m}}}_{\substack{\text{mevsimden arındırılmış}\\\text{gözlem}}} + (1 - \alpha)(\ell_{t-1} + b_{t-1}) \\
+b_t &= \beta\, (\ell_t - \ell_{t-1}) + (1 - \beta)\, b_{t-1} \\
+s_t &= \gamma\, \underbrace{\frac{x_t}{\ell_{t-1} + b_{t-1}}}_{\substack{\text{bu dönemin}\\\text{mevsim oranı}}} + (1 - \gamma)\, \underbrace{s_{t-m}}_{\substack{\text{bir mevsim önceki}\\\text{aynı dönem}}} \\
+\hat{x}_{t+h|t} &= (\ell_t + h\, b_t) \cdot \underbrace{s_{t+h-m}}_{\substack{\text{ilgili dönemin son}\\\text{mevsim çarpanı}}}
+\end{aligned}
+```
+
+**Ne anlatıyor?** Düzey ve eğim Holt'taki gibi güncellenir, ama gözlem düzeye girmeden önce mevsim çarpanına bölünerek mevsimden arındırılır; böylece Temmuz'un yüksekliği düzeyin yükselmesi sanılmaz. Mevsim çarpanı da kendi SES'iyle güncellenir: bu dönemin gözlenen oranı ile geçen yılın aynı dönemindeki çarpanın ağırlıklı ortalaması. Tahmin, Holt doğrusunun ilgili dönemin çarpanıyla çarpılmasıdır. Son satır $h \le m$ içindir; daha uzak ufuklarda aynı dönemin en son çarpanı kullanılır.
+
+> **Simge notu:** $`s_t`$: mevsim bileşeni (çarpımsal modelde oran, ör. 1.2 "%20 yukarı"; toplamsal modelde fark) · $`m`$: mevsim uzunluğu (aylık veride 12; `pmdarima`'daki `m` ile aynı, 7.7.4) · $`\gamma`$ *(gama)*: mevsim bileşeninin düzeltme katsayısı
+
+Toplamsal sürümde bölmeler çıkarmaya, son satırdaki çarpım toplamaya dönüşür: $\ell_t = \alpha (x_t - s_{t-m}) + (1 - \alpha)(\ell_{t-1} + b_{t-1})$, $s_t = \gamma (x_t - \ell_{t-1} - b_{t-1}) + (1 - \gamma)\, s_{t-m}$ ve $\hat{x}_ {t+h|t} = \ell_t + h\, b_t + s_{t+h-m}$. Küçük bir örnek farkı gösterir: Son düzey 400, eğim 3 ve 7 ay sonraki Temmuz'un çarpanı 1.2 olsun. Çarpımsal tahmin $(400 + 7 \cdot 3) \cdot 1.2 = 505.2$'dir. Çarpan düzeyin %20'si demektir: Düzey 400 iken Temmuz etkisi yaklaşık 80, 800 iken 160 yolcudur. Toplamsal modelde Temmuz etkisi +80 ise tahmin $400 + 21 + 80 = 501$ olur ve etki düzey ne olursa olsun +80 kalır.
+
+#### 7.8.4. ETS Çerçevesi: Hata, Trend, Mevsim
+
+7.8.1–7.8.3'teki yöntemler uzun yıllar yalnızca **tahmin kuralları** olarak kullanıldı: Nokta tahmini üretiyorlardı ama arkalarında bir olasılık modeli yoktu; bu yüzden tahmin aralığı hesaplamak ya da iki yöntemi bilgi kriteriyle karşılaştırmak mümkün değildi. 1990'ların sonu ile 2000'lerin başında Ord, Koehler, Snyder ve Hyndman gibi araştırmacılar her yöntemi bir **durum uzayı modeli** (*state space model*) olarak yazdı ve aileye **ETS** adını verdi. Ad iki şekilde okunur: *ExponenTial Smoothing* ve modelin üç harfi olan *Error, Trend, Seasonal* (hata, trend, mevsim).
+
+**Tanım:** Bir ETS modeli üç harfle adlandırılır: ETS(Hata, Trend, Mevsim). Hata A (*additive*, toplamsal) ya da M (*multiplicative*, çarpımsal); trend N (*none*, yok), A ya da Ad (*additive damped*, sönümlü toplamsal); mevsim N, A ya da M olabilir.
+
+| Gösterim | Trend | Mevsim | Karşılık gelen yöntem |
+| --- | --- | --- | --- |
+| ETS(A,N,N) | yok | yok | Basit üstel düzeltme (7.8.1) |
+| ETS(A,A,N) | toplamsal | yok | Holt (7.8.2) |
+| ETS(A,Ad,N) | sönümlü | yok | Sönümlü Holt (7.8.2) |
+| ETS(A,A,A) | toplamsal | toplamsal | Toplamsal Holt-Winters (7.8.3) |
+| ETS(M,A,M) | toplamsal | çarpımsal | Çarpımsal Holt-Winters (7.8.3) |
+| ETS(M,Ad,M) | sönümlü | çarpımsal | Sönümlü çarpımsal Holt-Winters |
+
+Ortadaki ve sondaki harf, 7.8.1–7.8.3'te kurduğumuz nokta tahmin denklemlerini belirler. İlk harf (hata) ise yenidir ve rastgeleliğin seriye nasıl girdiğini söyler. En basit örnek ETS(A,N,N)'dir:
+
+```math
+\begin{aligned}
+\underbrace{x_t}_{\text{gözlem}} &= \underbrace{\ell_{t-1}}_{\substack{\text{dünkü düzey}\\\text{(bir adım tahmin)}}} + \underbrace{\varepsilon_t}_{\text{şok}} \\
+\underbrace{\ell_t}_{\text{yeni düzey}} &= \ell_{t-1} + \underbrace{\alpha\, \varepsilon_t}_{\substack{\text{şokun düzeye}\\\text{geçen payı}}}
+\end{aligned}
+```
+
+**Ne anlatıyor?** İlk satır (gözlem denklemi), bugünkü değerin dünkü düzey artı bir şok olduğunu söyler; ikinci satır (durum denklemi), şokun $\alpha$ kadarının düzeye kalıcı olarak eklendiğini söyler. $\varepsilon_t = x_t - \ell_{t-1}$ ikinci satıra konursa 7.8.1'deki SES denklemi aynen çıkar: Nokta tahminleri değişmemiştir. Kazanılan şey, $\varepsilon_t$'nin artık bir olasılık dağılımına sahip olmasıdır ($\varepsilon_t \sim \mathrm{WN}(0, \sigma^2)$, normal dağılımlı).
+
+> **Simge notu:** $`\varepsilon_t`$: bir adım ileri tahmin hatası; 7.1'deki beyaz gürültü şoku · **durum** (*state*): modelin her adımda güncellediği gizli bileşenler ($`\ell_t`$, $`b_t`$, $`s_t`$)
+
+Olasılık modeli üç şey kazandırır:
+
+1. **Olabilirlik:** Katsayılar ($\alpha$, $\beta$, $\gamma$, $\phi$ ve başlangıç durumları) ARIMA'daki gibi en çok olabilirlik yöntemiyle kestirilir (7.4).
+2. **Model seçimi:** Her ETS modelinin bir AIC/AICc değeri vardır. R'daki `ets()` fonksiyonu, `auto.arima()` gibi uygun kombinasyonları dener ve AICc'si en küçük olanı seçer; toplamsal hatanın çarpımsal mevsimle birleştiği gibi sayısal olarak kararsız bazı kombinasyonları varsayılan olarak denemez. Python'da `statsmodels`'ın `ETSModel` sınıfı otomatik seçim yapmaz; adaylar tek tek kurulup `.aicc` değerleri karşılaştırılır.
+3. **Tahmin aralıkları:** 7.6.7'deki gibi kuramsal tahmin aralıkları hesaplanabilir. Hata türü burada fark yaratır: Toplamsal hatada şokun büyüklüğü seviyeden bağımsızdır; çarpımsal hatada ($x_t = \ell_{t-1}(1 + \varepsilon_t)$) şok bir yüzdedir ve seri büyüdükçe aralıklar da genişler. `AirPassengers` gibi büyüyen serilerde bu daha gerçekçidir.
+
+**ETS ile ARIMA'nın ilişkisi.** İki aile kısmen örtüşür. ETS(A,N,N)'de gözlem denklemini bir dönem öncesiyle farklayıp durum denklemini yerine koyarsak $x_t - x_{t-1} = \varepsilon_t + (\alpha - 1)\, \varepsilon_{t-1}$ buluruz: Bu, $\theta_1 = \alpha - 1$ olan bir ARIMA(0,1,1)'dir. Benzer şekilde Holt yöntemi ARIMA(0,2,2)'ye, sönümlü Holt ARIMA(1,1,2)'ye karşılık gelir; toplamsal Holt-Winters de özel bir SARIMA olarak yazılabilir. Ancak çarpımsal ETS modellerinin ARIMA karşılığı yoktur; tersine, AR terimli durağan ARIMA modellerinin de ETS karşılığı yoktur. Bu yüzden iki aile rakip değil, birbirini tamamlayan iki araç kutusudur.
+
+#### 7.8.5. Theta Yöntemi
+
+**Açıklama:** Theta yöntemi (Assimakopoulos ve Nikolopoulos, 2000), seriden eğrilikleri farklı ölçülerde büyütülmüş ya da küçültülmüş "çizgiler" türetir, her çizgiyi ona uygun basit bir yöntemle tahmin eder ve tahminleri birleştirir. Bu çizgilere **theta çizgileri** denir:
+
+```math
+\underbrace{Z_t(\theta)}_{\text{theta çizgisi}} = \theta\, x_t + (1 - \theta)\, \underbrace{(a + b\, t)}_{\substack{\text{seriye uydurulan}\\\text{regresyon doğrusu}}}
+```
+
+**Ne anlatıyor?** $\theta = 0$ iken çizgi, seriye uydurulan düz regresyon doğrusunun kendisidir: serinin uzun dönem eğilimi. $\theta = 1$ serinin kendisini verir. $\theta = 2$ iken serinin doğrudan sapmaları iki katına çıkar: Kısa dönemli iniş çıkışlar büyütülür. $Z_t(0)$ ile $Z_t(2)$'nin ortalaması tam olarak $x_t$'dir; yani bu iki çizgi seriyi "uzun dönem" ve "kısa dönem" parçalarına bölmenin bir yoludur.
+
+> **Simge notu:** $`\theta`$ *(teta)*: burada theta çizgisinin eğrilik katsayısıdır; 7.1.2'deki MA katsayısıyla aynı harfle yazılır ama başka bir şeydir · $`a`$, $`b`$: regresyon doğrusunun kesişimi ve eğimi · $`n`$: son gözlemin sırası
+
+Klasik Theta yöntemi bu iki çizgiyi kullanır:
+
+```math
+\hat{x}_{n+h|n} = \frac{1}{2}\, \underbrace{\big(a + b\, (n + h)\big)}_{\substack{\theta = 0\text{: doğru}\\\text{geleceğe uzatılır}}} + \frac{1}{2}\, \underbrace{\tilde{\ell}_n}_{\substack{\theta = 2\text{ çizgisine}\\\text{SES uygulanır}}}
+```
+
+**Ne anlatıyor?** Uzun dönem çizgisi düz bir doğru olarak geleceğe uzatılır, kısa dönem çizgisi 7.8.1'deki SES ile tahmin edilir ve iki tahminin ortalaması alınır. Mevsimsel serilerde önce seri mevsimden arındırılır (Bölüm 2.5'teki klasik çarpımsal ayrıştırmayla), yöntem arındırılmış seriye uygulanır, sonra mevsim çarpanları geri eklenir.
+
+> **Simge notu:** $`\tilde{\ell}_n`$ *(el tilda)*: $`\theta = 2`$ çizgisine uygulanan SES'in son düzeyi
+
+Bu kadar basit bir yöntem, 3003 serilik **M3 tahmin yarışmasında** (Makridakis ve Hibon, 2000) en başarılı yöntem olarak öne çıktı ve uzmanları şaşırttı. Hyndman ve Billah (2003) nedenini gösterdi: Klasik Theta tahmini, **sürüklenmeli** (*with drift*) bir SES'e eşittir ve sürüklenme, regresyon doğrusunun eğiminin yarısıdır ($b/2$). Yani Theta, trendi yarıya indirilmiş bir SES'tir: Gürültüye karşı SES kadar sakin, trende karşı temkinlidir. R'da `forecast::thetaf()`, Python'da `statsmodels.tsa.forecasting.theta.ThetaModel` bu yöntemi uygular; ikisi de $m$'inci gecikmedeki otokorelasyonu sınar ve mevsimsellik varsa seriyi kendiliğinden arındırır.
+
+#### 7.8.6. Uygulama: `AirPassengers` ile ETS, Holt-Winters ve Theta
+
+> **Uygulama dosyası:** [`Codes/R/ch07_sarima_airpassengers.R`](../Codes/R/ch07_sarima_airpassengers.R) (R kodları) ve [`Codes/python/ch07_sarima_airpassengers.py`](../Codes/python/ch07_sarima_airpassengers.py) · [Notebook](../Codes/notebooks/ch07_sarima_airpassengers.ipynb) · [![Colab'da aç](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/erkanozhan/AI_Based_Time_Series-Data_Analytics/blob/main/Codes/notebooks/ch07_sarima_airpassengers.ipynb) (Python kodları)
+>
+> Bu alt bölümün kodları iki dosyanın sonundaki "7.8" başlıklı kısımlardadır; 7.8.1'deki elle hesap da R dosyasındadır.
+
+Yöntemleri bu bölümdeki iki uygulamanın ayrımlarıyla deneyelim; böylece sonuçlar SARIMA ile doğrudan karşılaştırılabilir:
+
+- **R:** Bölüm 8.3'teki ayrım: 1949–1959 eğitim (132 ay), 1960 test (12 ay). SARIMA olarak 7.6'daki havayolu modeli, log ölçekte.
+- **Python:** 7.7.3'teki ayrım: 1949–1955 eğitim (84 ay), 1956–1960 test (60 ay). SARIMA olarak 7.7.5'teki model.
+
+ETS, Holt-Winters ve Theta modellerini orijinal ölçekte kuruyoruz; büyüyen mevsim dalgasını çarpımsal mevsim bileşeni karşılar. Başarıyı üç metrikle ölçüyoruz: MAE (ortalama mutlak hata), RMSE ve MAPE (ortalama mutlak yüzde hata). Formülleri Bölüm 8.2'dedir; şimdilik üçü için de "küçük olan daha iyi" demek yeterlidir.
+
+```r
+library(forecast)
+egitim <- window(AirPassengers, end = c(1959, 12))   # 1949-1959 (132 ay)
+test   <- window(AirPassengers, start = c(1960, 1))  # 1960 (12 ay)
+h <- length(test)
+
+fit_ets <- ets(egitim)               # E, T, S harflerini AICc ile kendisi seçer
+print(fit_ets)
+#> ETS(M,Ad,M)
+#>   Smoothing parameters:
+#>     alpha = 0.758
+#>     beta  = 0.0213
+#>     gamma = 1e-04
+#>     phi   = 0.98
+#>   ...
+
+fc_ets    <- forecast(fit_ets, h = h)
+fc_hw     <- hw(egitim, seasonal = "multiplicative", h = h)   # Holt-Winters çarpımsal
+fc_theta  <- thetaf(egitim, h = h)                            # Theta yöntemi
+fc_sarima <- forecast(auto.arima(log(egitim)), h = h)         # havayolu modeli (log ölçek)
+fc_snaive <- snaive(egitim, h = h)                            # mevsimsel naive
+
+metrikler <- function(a, p) c(MAE  = mean(abs(a - p)),
+                              RMSE = sqrt(mean((a - p)^2)),
+                              MAPE = mean(abs((a - p) / a)) * 100)
+a <- as.numeric(test)
+tablo <- rbind(`Mevsimsel naive`        = metrikler(a, as.numeric(fc_snaive$mean)),
+               `SARIMA (log)`           = metrikler(a, as.numeric(exp(fc_sarima$mean))),
+               `ETS(M,Ad,M)`            = metrikler(a, as.numeric(fc_ets$mean)),
+               `Holt-Winters çarpımsal` = metrikler(a, as.numeric(fc_hw$mean)),
+               Theta                    = metrikler(a, as.numeric(fc_theta$mean)))
+round(tablo, 2)
+#>                          MAE  RMSE MAPE
+#> Mevsimsel naive        47.83 50.71 9.99
+#> SARIMA (log)           13.26 18.59 2.90
+#> ETS(M,Ad,M)            22.80 27.40 4.66
+#> Holt-Winters çarpımsal 11.13 16.58 2.37
+#> Theta                  26.33 30.72 5.33
+```
+
+Kodu kısaca okuyalım:
+
+1. `ets(egitim)`: Model türü verilmediği için uygun ETS kombinasyonlarını dener, AICc'ye göre birini seçer ve katsayılarını kestirir. `forecast(fit_ets, h = h)` 7.6.7'deki gibi nokta tahminlerini ve %80/%95 tahmin aralıklarını üretir.
+2. `hw(egitim, seasonal = "multiplicative", h = h)`: Çarpımsal Holt-Winters. Arka planda ETS(M,A,M) kurar, ama katsayıları olabilirlik yerine bir adım ileri hataların karelerinin ortalamasını en küçük yapacak biçimde kestirir; bu yüzden sonucu `ets(egitim, model = "MAM")` ile birebir aynı değildir. Model kurmakla tahmin etmeyi tek adımda yapar ve doğrudan bir `forecast` nesnesi döndürür.
+3. `thetaf(egitim, h = h)`: 7.8.5'teki Theta yöntemi; mevsimsellik testini ve arındırmayı kendisi yapar.
+4. `auto.arima(log(egitim))` Bölüm 8.3'teki havayolu modelini yeniden kurar; tahminleri `exp()` ile yolcu sayısına çevrilir. `snaive()` her ayı 1959'un aynı ayıyla tahmin eder (8.1.2).
+5. `metrikler()` ve `rbind()` Bölüm 8.3'teki tabloyu kurar (ayrıntılı açıklaması oradadır); ters tırnak, boşluk içeren satır adları içindir.
+
+`ets()` **ETS(M,Ad,M)** modelini seçmiştir: çarpımsal hata, sönümlü trend, çarpımsal mevsim. `alpha = 0.758` düzeyin son gözlemleri yakından izlediğini, çok küçük `gamma` (0.0001) mevsim çarpanlarının neredeyse hiç güncellenmediğini, yani eğitimin başındaki mevsim deseninin sabit tutulduğunu, `phi = 0.98` ise trendin sönümlendiğini söyler (`beta` için 7.8.2'deki nota bakın).
+
+Python tarafında aynı üç yöntemi `statsmodels` ile kuruyoruz (`train_data`, `test_data` ve `predictions_arima` 7.7'de tanımlandı):
+
+```python
+from statsmodels.tsa.holtwinters import ExponentialSmoothing  # Holt-Winters
+from statsmodels.tsa.exponential_smoothing.ets import ETSModel  # ETS (durum uzayı)
+from statsmodels.tsa.forecasting.theta import ThetaModel  # Theta yöntemi
+
+h = len(test_data)
+
+# Holt-Winters: toplamsal trend, çarpımsal mevsimsellik
+hw_model = ExponentialSmoothing(train_data, trend="add", seasonal="mul",
+                                seasonal_periods=12).fit()
+pred_hw = hw_model.forecast(h)
+
+# ETS(M,Ad,M): çarpımsal hata, sönümlü trend, çarpımsal mevsimsellik
+ets_model = ETSModel(train_data, error="mul", trend="add", damped_trend=True,
+                     seasonal="mul", seasonal_periods=12).fit(disp=False)
+pred_ets = ets_model.forecast(h)
+
+# Theta: mevsimsellikten arındır, SES + sürüklenme uygula, mevsimselliği geri ekle
+theta_model = ThetaModel(train_data, period=12).fit()
+pred_theta = theta_model.forecast(h)
+```
+
+`ExponentialSmoothing` klasik Holt-Winters'tır ve katsayıları bir adım ileri hataların kareler toplamını en küçük yaparak kestirir. `ETSModel` 7.8.4'teki durum uzayı modelidir ve olabilirliği kullanır; otomatik seçim yapmadığı için model harflerini biz veriyoruz: R'ın `ets()` fonksiyonu bu 84 aylık eğitim setinde de ETS(M,Ad,M) seçer. `fit(disp=False)` optimizasyon mesajlarını gizler. `ThetaModel(train_data, period=12)` mevsim uzunluğunu alır, mevsimsellik testini ve arındırmayı kendisi yapar. Uygulama dosyası ayrıca mevsimsel naive tahmini (7.7.5'teki kutu) ve üç metriği hesaplayan küçük bir `metrikler()` fonksiyonu içerir.
+
+**Sonuçlar.** İlk üç sayı sütunu R'daki 1960 testine, son üçü Python'daki 1956–1960 testine aittir (MAPE yüzde olarak; her sütunun en iyisi kalın):
+
+| Model | 1960: MAE | RMSE | MAPE | 1956–60: MAE | RMSE | MAPE |
+| --- | --- | --- | --- | --- | --- | --- |
+| Mevsimsel naive | 47.83 | 50.71 | 9.99 | 112.43 | 126.01 | 27.05 |
+| SARIMA (R: havayolu modeli, log; Python: 7.7.5) | 13.26 | 18.59 | 2.90 | 35.55 | 47.87 | 7.95 |
+| ETS(M,Ad,M) | 22.80 | 27.40 | 4.66 | 40.80 | 55.34 | 9.14 |
+| Holt-Winters çarpımsal | **11.13** | **16.58** | **2.37** | **27.68** | **37.12** | **6.22** |
+| Theta | 26.33 | 30.72 | 5.33 | 58.86 | 72.98 | 13.53 |
+
+Python dosyasındaki ikinci hücre, hataları (gerçek − tahmin) yıllara göre ortalar; artı değer, modelin gerçeğin altında kaldığını gösterir:
+
+```text
+      ARIMA   ETS  Holt-Winters  Theta
+1956   17.5   8.2           8.8   16.3
+1957   33.1  25.3          23.2   43.5
+1958   19.7  19.7           9.9   43.2
+1959   41.1  52.8          31.4   77.7
+1960   62.9  89.4          53.4  112.6
+```
+
+**Çıktının yorumu:**
+
+- **Çarpımsal Holt-Winters iki testte de en iyisidir.** 1960'ta fark küçüktür (RMSE 16.58'e karşı SARIMA 18.59) ve en büyük hatası yine Mart'tadır (−43.3; SARIMA'da −47.6, Bölüm 8.3'teki Paskalya açıklaması). 60 aylık testte fark belirgindir (37.12'ye karşı 47.87).
+- **AICc'nin seçtiği model testte geride kalmıştır.** ETS(M,Ad,M) eğitim verisinde AICc'ye göre en iyi ETS modeliydi, ama iki testte de SARIMA'nın ve Holt-Winters'ın gerisindedir. 1960'taki hataları çoğunlukla artıdır ve en büyükleri yaz aylarındadır (Temmuz +52.1, Ağustos +38.4): Model özellikle yaz tepesini düşük tahmin etmiştir. İki neden vardır: $\gamma \approx 0$ mevsim desenini eğitimin başındaki hâliyle dondurmuştur; $\phi = 0.98$ ise trendi kısmıştır (7.8.2'deki hesapla 60 ayda trendin yaklaşık %43'ü kaybolur: $1 - 34.42/60 \approx 0.43$). Yıllık hata tablosunda bu açıkça görülür: ETS'nin ortalama hatası 1956'da 8.2 iken 1960'ta 89.4'e çıkar; Holt-Winters'ta 8.8'den 53.4'e. Ders, 7.7.5'teki alıştırmanınkiyle aynıdır: Bilgi kriteri eğitim verisine uyumu ölçer, test başarısını garanti etmez.
+- **Theta bu seride en zayıf modeldir** (yine de mevsimsel naive'in çok önündedir). R'da sürüklenme ayda yaklaşık 1.28 bin yolcudur (`fc_theta$model$drift`); oysa 1958 ve 1959 yıllık ortalamaları (381.0 ve 428.3) arasındaki fark ayda yaklaşık 3.94 bin yolcuya karşılık gelir. "Eğimin yarısı" kuralı ve doğrusal büyüme varsayımı, yüzde olarak büyüyen bu seride Theta'yı geride bırakır. Theta'yı log seride kurmak (7.6'daki dönüşüm) sorunu büyük ölçüde giderir: 1960 testinde RMSE 30.72'den 21.48'e iner (R dosyasında bu satır da vardır).
+- **60 ayda bütün modeller geride kalır.** Yıllık hata tablosunda dört modelin bütün yıllardaki ortalama hatası artıdır. 7.7.5'teki yorumda gördüğümüz gibi yıllık artış, yolcu cinsinden eğitim döneminde ortalama 26 dolayındayken test döneminde 38.4'tür; dört model de artışı yolcu cinsinden sabit (ya da sönümlü) bir eğimle sürdürdüğü için bu hızlanmayı eğitim verisinden göremez.
+- **Tek bir test dönemi küçük bir örneklemdir.** 12 aylık bir testte iki model arasındaki yaklaşık 2 bin yolculuk RMSE farkı şans eseri olabilir. Güvenilir bir karşılaştırma için modeller birden çok test döneminde denenmelidir (Bölüm 16). Genel ders: Hiçbir aile her seride kazanmaz; ETS'yi ve SARIMA'yı birlikte denemek ucuzdur ve çoğu zaman öğreticidir.
+
+> **Hemen deneyin 7.8.6 · Sönümlü mü, sönümsüz mü?** (R, ~4 dk)
+>
+> `ets()`'i sönümsüz trende zorlayıp aynı test yılında karşılaştıralım (yukarıdaki `egitim`, `test`, `h` ve `fit_ets` tanımlı olmalı):
+>
+> ```r
+> fit_nd <- ets(egitim, damped = FALSE)                 # sönümsüz trende zorla
+> print(fit_nd)
+> c(sonumlu = fit_ets$aicc, sonumsuz = fit_nd$aicc)
+> accuracy(forecast(fit_nd, h = h), test)[, c("MAE", "RMSE", "MAPE")]
+> ```
+>
+> `damped = FALSE` yalnızca sönümsüz trendli modellerin denenmesini sağlar; diğer harfleri yine `ets()` seçer. `accuracy(tahmin, test)` hata metriklerini eğitim ve test satırlarıyla verir (8.3'teki not); model orijinal ölçekte kurulduğu için sonuçlar doğrudan yolcu birimindedir.
+>
+> **Ne göreceksiniz:** `ETS(M,A,M)`; `alpha = 0.4415`, `beta = 4e-04`, `gamma = 0.4696`. AICc 1262.941'dir, yani sönümlü modelin 1250.511'inden kötüdür. Ama `Test set` satırı `10.808561 16.45869 2.345369`'dur: MAE 10.81, RMSE 16.46, MAPE 2.35 ile tablodaki bütün modellerden iyidir. Bu model sönümü bırakmakla kalmamış, mevsim desenini de güncellemeyi seçmiştir ($`\gamma \approx 0.47`$).
+>
+> **Şimdi siz:** Aynı denemeyi log ölçekte yapın: `fit_log <- ets(log(egitim))` hangi modeli seçer? Tahminleri `exp()` ile geri çevirip `metrikler()` ile ölçün. Bu modelin AICc'si `fit_ets`'inkiyle karşılaştırılabilir mi?
+>
+> <details><summary>Cevap</summary>
+>
+> `ETS(A,A,A)`; `alpha = 0.7468`, `beta` ve `gamma` 1e-04. Log ölçekte çarpımsal mevsim toplamsala dönüşür (Bölüm 2.4) ve sönüm seçilmez. `round(metrikler(a, as.numeric(exp(forecast(fit_log, h = h)$mean))), 2)` → MAE 16.11, RMSE 23.49, MAPE 3.57: otomatik ETS(M,Ad,M)'den (RMSE 27.40) iyi, Holt-Winters'tan ve SARIMA'dan kötü. AICc'ler karşılaştırılamaz: −204.35 log seriye, 1250.51 orijinal seriye aittir; bilgi kriterleri yalnızca aynı veri üzerinde karşılaştırılır (7.4).
+>
+> </details>
+
+**Kaynak:** Bu bölümdeki yöntemler için ücretsiz ve ayrıntılı bir başvuru kaynağı Hyndman, R. J. ve Athanasopoulos, G., *Forecasting: Principles and Practice*, 3. baskı, OTexts'tir (çevrim içi). Theta yöntemi: Assimakopoulos, V. ve Nikolopoulos, K. (2000), *International Journal of Forecasting*; Theta ile sürüklenmeli SES'in denkliği: Hyndman, R. J. ve Billah, B. (2003), aynı dergi.
+
+---
 
 Klasik modellerin gücü yorumlanabilirliklerindedir: Her katsayının açık bir anlamı vardır ve tahmin aralıkları kuramsal olarak hesaplanır. Ancak ARIMA ailesi doğrusal ilişkiler varsayar; karmaşık, doğrusal olmayan desenleri yakalamakta zorlanabilir. Bu tür durumlarda Bölüm 12'den itibaren ele alacağımız yapay zeka tabanlı yöntemler daha etkili olabilir. Ama önce, farklı modelleri adil biçimde karşılaştırabilmek için **model değerlendirme** araçlarını öğrenmemiz gerekiyor.
 

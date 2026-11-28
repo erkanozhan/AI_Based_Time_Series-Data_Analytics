@@ -264,7 +264,7 @@ Nokta tahminleri (ör. "Satışlar 105 adet olacak") neredeyse her zaman bir mik
 
 Bu cümlenin pratik anlamı şudur: Model bu biçimde 100 tahmin aralığı verirse, gerçekleşen değerin bunların yaklaşık 95'inde aralığın içine düşmesi beklenir. Aralığın genişliği belirsizliğin ölçüsüdür: "95–115" ile "60–150" aynı nokta tahminine (105) sahip olabilir, ama ikincisi karar verici için çok daha riskli bir duruma işaret eder. Depo planlayan biri, ilk durumda 115 adetlik stokla rahat ederken ikinci durumda çok daha temkinli davranmalıdır.
 
-Aralığın düzeyini de mutlaka belirtin: Örneğin Prophet'ın `yhat_lower`/`yhat_upper` sütunları varsayılan olarak %80'lik aralığı verir (Bölüm 9). ARIMA'nın tahmin aralıkları Bölüm 7'de ele alınmıştır.
+Aralığın düzeyini de mutlaka belirtin: Örneğin Prophet'ın `yhat_lower`/`yhat_upper` sütunları varsayılan olarak %80'lik aralığı verir (Bölüm 9). ARIMA'nın tahmin aralıkları Bölüm 7'de ele alınmıştır. XGBoost ve sinir ağları gibi modeller kendiliğinden aralık vermez; onlar için konformal tahmin ve kantil kaybıyla aralık kurmak, aralığın kapsamasını ölçmekle birlikte Bölüm 16.7'de anlatılır.
 
 > **Hemen deneyin 17.8 · Tahmin aralığı ufukla genişler** (R, ~3 dk)
 >
@@ -347,7 +347,7 @@ Bu metriklerin formülleri, karşılaştırması ve Python uygulaması Bölüm 8
 
 ### 17.10. Karmaşıklık ≠ Doğruluk (Complexity ≠ Accuracy)
 
-Her problem için en yeni Transformer veya derin öğrenme modelini kullanma eğilimi vardır. Oysa birçok gerçek dünya tek değişkenli (univariate) zaman serisinde üstel düzeltme (ETS) veya ARIMA gibi basit modeller, karmaşık sinir ağlarından daha iyi performans gösterir. Üstel düzeltme (İng. *exponential smoothing*; ETS: *Error, Trend, Seasonal*, yani hata, trend ve mevsimsellik bileşenleri), geçmiş değerlerin yakın geçmişe daha çok ağırlık veren ağırlıklı ortalamasıyla tahmin yapan klasik bir yöntem ailesidir.
+Her problem için en yeni Transformer veya derin öğrenme modelini kullanma eğilimi vardır. Oysa birçok gerçek dünya tek değişkenli (univariate) zaman serisinde üstel düzeltme (ETS) veya ARIMA gibi basit modeller, karmaşık sinir ağlarından daha iyi performans gösterir. Üstel düzeltme (İng. *exponential smoothing*; ETS: *Error, Trend, Seasonal*, yani hata, trend ve mevsimsellik bileşenleri), geçmiş değerlerin yakın geçmişe daha çok ağırlık veren ağırlıklı ortalamasıyla tahmin yapan klasik bir yöntem ailesidir (bkz. Bölüm 7.8).
 
 - Basit başlayın; karmaşıklığı ancak basit modeller yetersiz kaldığında artırın.
 

@@ -1,6 +1,6 @@
 # =============================================================================
 # Bölüm 7 — Klasik İstatistiksel Modeller: ARIMA ve SARIMA
-# Ders notu: notlar/07_klasik_istatistiksel_modeller_arima_ve_sarima.md, Bölüm 7.2 (karakteristik kökler) ve 7.6 (R Uygulaması: AirPassengers ile SARIMA)
+# Ders notu: notlar/07_klasik_istatistiksel_modeller_arima_ve_sarima.md, Bölüm 7.2 (karakteristik kökler), 7.6 (R Uygulaması: AirPassengers ile SARIMA) ve 7.8 (ETS ve Theta)
 #
 # Çalıştırma: depo kök dizininden  Rscript Codes/R/ch07_sarima_airpassengers.R
 #             ya da RStudio'da dosyayı açıp satır satır (Ctrl+Enter) çalıştırın.
@@ -94,3 +94,97 @@ grid()
 # Orijinal ölçeğe dönmek için exp() uygularız
 round(exp(fc$mean[c(1, 12, 24)]), 1)   # 1., 12. ve 24. ay tahminleri
 #> [1] 450.4 477.2 525.5
+
+# ---- 7.8.1 Basit üstel düzeltme (SES): elle hesap ----
+x <- c(40, 46, 43, 49)               # dört günlük satış
+alfa <- 0.3
+duzey <- x[1]                        # başlangıç düzeyi: ilk gözlem
+for (t in 2:4) {
+  duzey <- alfa * x[t] + (1 - alfa) * duzey   # yeni düzey = alfa * gözlem + (1 - alfa) * eski düzey
+  cat(t, round(duzey, 3), "\n")
+}
+#> 2 41.8
+#> 3 42.16
+#> 4 44.212
+round(alfa * (1 - alfa)^(0:5), 3)    # en yeni gözlemden geriye doğru ağırlıklar
+#> [1] 0.300 0.210 0.147 0.103 0.072 0.050
+
+# Aynı hesap forecast::ses() ile (alfa sabit, başlangıç düzeyi = ilk gözlem)
+ses(x, alpha = 0.3, initial = "simple", h = 2)$mean
+#> [1] 44.212 44.212
+
+# ---- 7.8.6 AirPassengers: ETS, Holt-Winters ve Theta ----
+# Test: 1960 (Bölüm 8.3 ile aynı ayrım). Modeller orijinal ölçekte, SARIMA log ölçekte kurulur.
+egitim <- window(AirPassengers, end = c(1959, 12))   # 1949-1959 (132 ay)
+test   <- window(AirPassengers, start = c(1960, 1))  # 1960 (12 ay)
+h <- length(test)
+
+fit_ets <- ets(egitim)               # E, T, S harflerini AICc ile kendisi seçer
+print(fit_ets)
+#> ETS(M,Ad,M)
+#>     alpha = 0.758   beta = 0.0213   gamma = 1e-04   phi = 0.98
+#>     AIC = 1244.458   AICc = 1250.511   BIC = 1296.348
+
+fc_ets    <- forecast(fit_ets, h = h)
+fc_hw     <- hw(egitim, seasonal = "multiplicative", h = h)   # Holt-Winters çarpımsal
+fc_theta  <- thetaf(egitim, h = h)                            # Theta yöntemi
+fc_sarima <- forecast(auto.arima(log(egitim)), h = h)         # havayolu modeli (log ölçek)
+fc_snaive <- snaive(egitim, h = h)                            # mevsimsel naive
+
+# Bölüm 8.3'teki metrik fonksiyonu
+metrikler <- function(a, p) c(MAE  = mean(abs(a - p)),
+                              RMSE = sqrt(mean((a - p)^2)),
+                              MAPE = mean(abs((a - p) / a)) * 100)
+a <- as.numeric(test)
+tablo <- rbind(`Mevsimsel naive`        = metrikler(a, as.numeric(fc_snaive$mean)),
+               `SARIMA (log)`           = metrikler(a, as.numeric(exp(fc_sarima$mean))),
+               `ETS(M,Ad,M)`            = metrikler(a, as.numeric(fc_ets$mean)),
+               `Holt-Winters çarpımsal` = metrikler(a, as.numeric(fc_hw$mean)),
+               Theta                    = metrikler(a, as.numeric(fc_theta$mean)))
+round(tablo, 2)
+#>                          MAE  RMSE MAPE
+#> Mevsimsel naive        47.83 50.71 9.99
+#> SARIMA (log)           13.26 18.59 2.90
+#> ETS(M,Ad,M)            22.80 27.40 4.66
+#> Holt-Winters çarpımsal 11.13 16.58 2.37
+#> Theta                  26.33 30.72 5.33
+
+# Aylık hatalar (gerçek - tahmin; sütunlar Ocak-Aralık 1960): artı değer = model geride kalmış
+round(rbind(ETS = a - as.numeric(fc_ets$mean),
+            HW  = a - as.numeric(fc_hw$mean)), 1)
+#> ETS  5.1 -16.0 -48.3 10.3 20.5 21.8 52.1  38.4  11.9  28.8  13.4   7.2
+#> HW   0.4  -2.7 -43.3 12.5 -0.2 -5.0 -3.6 -29.4 -12.6   5.8  -9.7  -8.3
+
+# Sönümlü trendin toplam katkısı (phi = 0.98): 12 ve 60 adımda, sonsuzda
+phi <- 0.98
+c(sum(phi^(1:12)), sum(phi^(1:60)), phi / (1 - phi))
+#> [1] 10.54888 34.41990 49.00000
+
+# Theta = SES + sürüklenme: aylık eğim ve SES katsayısı
+fc_theta$model$drift
+#> 1.276943
+round(fc_theta$model$alpha, 3)
+#> [1] 0.907
+
+# Theta'yı log ölçekte kurmak (Bölüm 7.6'daki log dönüşümü)
+round(metrikler(a, as.numeric(exp(thetaf(log(egitim), h = h)$mean))), 2)
+#>   MAE  RMSE  MAPE
+#> 14.94 21.48  3.24
+
+# ---- Hemen deneyin 7.8.6: sönümlü ve sönümsüz trend ----
+fit_nd <- ets(egitim, damped = FALSE)                 # sönümsüz trende zorla
+print(fit_nd)
+#> ETS(M,A,M)   alpha = 0.4415   beta = 4e-04   gamma = 0.4696
+c(sonumlu = fit_ets$aicc, sonumsuz = fit_nd$aicc)
+#>  sonumlu sonumsuz
+#> 1250.511 1262.941
+accuracy(forecast(fit_nd, h = h), test)[, c("MAE", "RMSE", "MAPE")]
+#> Test set     10.808561 16.45869 2.345369
+
+# Şimdi siz: log ölçekte ETS
+fit_log <- ets(log(egitim))
+print(fit_log)
+#> ETS(A,A,A)   alpha = 0.7468   beta = 1e-04   gamma = 1e-04
+round(metrikler(a, as.numeric(exp(forecast(fit_log, h = h)$mean))), 2)
+#>   MAE  RMSE  MAPE
+#> 16.11 23.49  3.57

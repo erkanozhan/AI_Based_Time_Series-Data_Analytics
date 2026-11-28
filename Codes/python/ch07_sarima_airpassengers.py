@@ -1,6 +1,6 @@
 # %% [markdown]
 # # Bölüm 7 — Python ile SARIMA: `AirPassengers`
-# Ders notu: notlar/07_klasik_istatistiksel_modeller_arima_ve_sarima.md, Bölüm 7.7 (Python ile Aynı Analiz). Bu dosya bölümdeki Python kodlarının tamamını içerir.
+# Ders notu: notlar/07_klasik_istatistiksel_modeller_arima_ve_sarima.md, Bölüm 7.7 (Python ile Aynı Analiz) ve 7.8.6 (ETS, Holt-Winters ve Theta). Bu dosya bölümdeki Python kodlarının tamamını içerir.
 # Çalıştırma: depo kök dizininden `python Codes/python/ch07_sarima_airpassengers.py`
 # veya VS Code'da hücre hücre (# %%) ya da Colab'da notebook sürümü.
 
@@ -144,3 +144,71 @@ print(f'ARIMA Modeli RMSE Değeri: {rmse_arima:.2f}')
 # orijinal ölçeğe döndürün ve RMSE'yi yeniden hesaplayın. Bizim denememizde log seride
 # ARIMA(2,0,0)(0,1,1)[12] seçildi ve RMSE yaklaşık 49.0 çıktı (log'suz model: 47.87).
 # Hataları yıllara göre inceleyin: log model 1956-1957'de çok isabetli, 1958 sonrasında fazla tahmin yapar.
+
+# %% [markdown]
+# ## 7.8.6 Üstel düzeltme (ETS), Holt-Winters ve Theta
+# Aynı ayrım (1949-1955 eğitim, 1956-1960 test) üzerinde üç yöntemi 7.7.5'teki ARIMA
+# ve mevsimsel naive ile karşılaştırıyoruz.
+
+# %%
+from statsmodels.tsa.holtwinters import ExponentialSmoothing  # Holt-Winters
+from statsmodels.tsa.exponential_smoothing.ets import ETSModel  # ETS (durum uzayı)
+from statsmodels.tsa.forecasting.theta import ThetaModel  # Theta yöntemi
+
+h = len(test_data)
+
+# Holt-Winters: toplamsal trend, çarpımsal mevsimsellik
+hw_model = ExponentialSmoothing(train_data, trend="add", seasonal="mul",
+                                seasonal_periods=12).fit()
+pred_hw = hw_model.forecast(h)
+
+# ETS(M,Ad,M): çarpımsal hata, sönümlü trend, çarpımsal mevsimsellik
+ets_model = ETSModel(train_data, error="mul", trend="add", damped_trend=True,
+                     seasonal="mul", seasonal_periods=12).fit(disp=False)
+pred_ets = ets_model.forecast(h)
+
+# Theta: mevsimsellikten arındır, SES + sürüklenme uygula, mevsimselliği geri ekle
+theta_model = ThetaModel(train_data, period=12).fit()
+pred_theta = theta_model.forecast(h)
+print(theta_model.params.round(3))  # b0: doğrunun eğimi, alpha: SES katsayısı
+
+# Mevsimsel naive: 1955'in 12 ayını 5 kez tekrarla
+pred_snaive = np.tile(train_data[-12:].values, h // 12)
+
+
+def metrikler(gercek, tahmin):
+    """MAE, RMSE ve MAPE (Bölüm 8.2) değerlerini sözlük olarak döndürür."""
+    gercek, tahmin = np.asarray(gercek), np.asarray(tahmin)
+    e = gercek - tahmin
+    return {"MAE": np.mean(np.abs(e)), "RMSE": np.sqrt(np.mean(e ** 2)),
+            "MAPE": np.mean(np.abs(e / gercek)) * 100}
+
+
+tablo = pd.DataFrame({"Mevsimsel naive": metrikler(test_data, pred_snaive),
+                      "ARIMA (7.7.5)": metrikler(test_data, predictions_arima),
+                      "ETS(M,Ad,M)": metrikler(test_data, pred_ets),
+                      "Holt-Winters çarpımsal": metrikler(test_data, pred_hw),
+                      "Theta": metrikler(test_data, pred_theta)}).T
+print(tablo.round(2))
+
+# %%
+# Yıllara göre ortalama hata (gerçek - tahmin); artı değer = model geride kalmış
+hatalar = pd.DataFrame({"ARIMA": test_data - predictions_arima,
+                        "ETS": test_data - pred_ets,
+                        "Holt-Winters": test_data - pred_hw,
+                        "Theta": test_data - pred_theta})
+print(hatalar.groupby(hatalar.index.year).mean().round(1))
+
+# Tahminleri test dönemiyle birlikte çizelim
+plt.figure(figsize=(12, 6))
+plt.plot(train_data, label='Eğitim Verisi', color='black')
+plt.plot(test_data, label='Gerçek Değerler (Test)', color='orange')
+plt.plot(predictions_arima, label='ARIMA', color='green')
+plt.plot(pred_ets, label='ETS(M,Ad,M)', linestyle='--')
+plt.plot(pred_hw, label='Holt-Winters çarpımsal')
+plt.plot(pred_theta, label='Theta', linestyle=':')
+plt.title('ARIMA, ETS, Holt-Winters ve Theta Tahminleri (Test: 1956-1960)')
+plt.xlabel('Yıl')
+plt.ylabel('Yolcu Sayısı')
+plt.legend()
+plt.show()

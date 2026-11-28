@@ -1,12 +1,14 @@
 # %% [markdown]
 # # Bölüm 16 — TimeSeriesSplit: Zaman Serisinde Çapraz Doğrulama
-# Ders notu: notlar/16_timeseriessplit_zaman_serisinde_capraz_dogrulama.md (16.3 parametre demosu, 16.4 fold içinde ön işleme, 16.5 kapsamlı örnek).
+# Ders notu: notlar/16_timeseriessplit_zaman_serisinde_capraz_dogrulama.md (16.3 parametre demosu, 16.4 fold içinde ön işleme,
+# 16.5 kapsamlı örnek, 16.6 tahminleri birleştirmek, 16.7 tahmin aralığı).
 # Bu dosya bölümdeki Python kodlarının tamamını içerir.
 # Çalıştırma: depo kök dizininden `python Codes/python/ch16_timeseriessplit.py`
 # veya VS Code'da hücre hücre (# %%) ya da Colab'da notebook sürümü.
 #
-# Gerekli paketler: numpy, pandas, matplotlib, scikit-learn, tensorflow, xgboost (Colab'da hepsi kurulu).
+# Gerekli paketler: numpy, pandas, matplotlib, scikit-learn, statsmodels, tensorflow, xgboost (Colab'da hepsi kurulu).
 # Not: 16.4 ve 16.5'te her biri 5 fold'luk GRU eğitimleri yapılır; CPU'da birkaç dakika sürebilir.
+# 16.6 ve 16.7 GRU sonuçlarını kullanmaz; 16.5'teki XGBoost ve mevsimsel naive tahminleri (6. adım) yeterlidir.
 
 # %%
 # Veri yükleme yardımcısı (tüm bölüm dosyalarında aynı)
@@ -420,3 +422,153 @@ plt.show()
 
 print("\nEn önemli 5 özellik:")
 print(feature_importance.iloc[::-1].head(5).to_string(index=False))  # en önemliden başlayarak
+
+# %% [markdown]
+# ## 16.6 Tahminleri Birleştirmek
+# XGBoost (yukarıdaki 6. adım), mevsimsel naive ve Holt-Winters aynı beş fold'da; ardından basit ortalama ve medyan birleşimleri.
+# GRU sonuçları kullanılmaz; 16.5'in 6. adımındaki xgb_pred ve naive_pred yeterlidir.
+
+# %%
+# =============================================================
+# 16.6 TAHMİNLERİ BİRLEŞTİRMEK
+# =============================================================
+from statsmodels.tsa.holtwinters import ExponentialSmoothing
+
+seri = df['Passengers'].values.astype(float)
+hw_pred = {}
+for k, (train_idx, val_idx) in enumerate(folds, 1):
+    # Holt-Winters (Bölüm 7.8): toplamsal trend, çarpımsal mevsimsellik.
+    # Parametreler YALNIZCA fold'un eğitim aylarıyla kestirilir; doğrulama yılı 12 adım ileri tahmin edilir.
+    hw = ExponentialSmoothing(seri[train_idx], trend='add', seasonal='mul', seasonal_periods=12,
+                              initialization_method='estimated').fit()
+    hw_pred[k] = hw.forecast(len(val_idx))
+
+birlesik = {}
+for k in hw_pred:
+    uc = np.vstack([xgb_pred[k], naive_pred[k], hw_pred[k]])   # 3 x 12: her satır bir model
+    birlesik[k] = {'XGBoost': xgb_pred[k], 'Mevs. naive': naive_pred[k], 'Holt-Winters': hw_pred[k],
+                   'Ort(XGB, HW)': (xgb_pred[k] + hw_pred[k]) / 2,      # basit ortalama
+                   'Ort(3 model)': uc.mean(axis=0),
+                   'Medyan(3 model)': np.median(uc, axis=0)}
+
+mae_rows = {}
+for k, (train_idx, val_idx) in enumerate(folds, 1):
+    y_true = values[val_idx].ravel()
+    mae_rows[df.index[val_idx[0]].year] = {ad: np.mean(np.abs(y_true - p)) for ad, p in birlesik[k].items()}
+mae_table = pd.DataFrame(mae_rows).T
+mae_table.loc['ortalama'] = mae_table.iloc[:5].mean()
+mae_table.loc['std'] = mae_table.iloc[:5].std(ddof=0)
+print("FOLD BAŞINA MAE")
+print(mae_table.round(2).to_string())
+
+# Hatalar ne kadar birbirini götürüyor? (ters işaretli aylar ve hata korelasyonu)
+e_xgb = np.concatenate([values[v].ravel() - xgb_pred[k] for k, (_, v) in enumerate(folds, 1)])
+e_hw = np.concatenate([values[v].ravel() - hw_pred[k] for k, (_, v) in enumerate(folds, 1)])
+print(f"\nXGBoost ve HW hatalarının ters işaretli olduğu ay: {np.sum(np.sign(e_xgb) != np.sign(e_hw))} / 60, "
+      f"hata korelasyonu: {np.corrcoef(e_xgb, e_hw)[0, 1]:.2f}")
+print(f"Ortalama hata (yanlılık): XGBoost {e_xgb.mean():.2f}, HW {e_hw.mean():.2f}")
+
+# %% [markdown]
+# ## 16.7 Makine Öğrenmesi Modellerinde Tahmin Aralığı
+# ### a) Bölünmüş konformal tahmin
+# Kalibrasyon kümesi: 1956-1959 fold'larının fold dışı hataları (her ay, onu görmemiş bir modelle tahmin edildi).
+# Test: 1960 (Fold 5'in modeli, eğitim 1950-02 - 1959-12).
+
+# %%
+# =============================================================
+# 16.7a BÖLÜNMÜŞ KONFORMAL TAHMİN
+# =============================================================
+y_val = {k: values[val_idx].ravel() for k, (_, val_idx) in enumerate(folds, 1)}
+
+def konformal_q(skor, alpha):
+    """Skorların ceil((n+1)(1-alpha)). en küçüğü; n yetmezse sonsuz."""
+    n = len(skor)
+    r = int(np.ceil((n + 1) * (1 - alpha)))
+    return np.sort(skor)[r - 1] if r <= n else np.inf
+
+def aralik_ozeti(y_true, alt, ust):
+    """Kapsama (aralığın içine düşen ay sayısı) ve ortalama genişlik."""
+    icinde = (y_true >= alt) & (y_true <= ust)
+    return int(icinde.sum()), float(np.mean(ust - alt))
+
+kal = np.concatenate([y_val[k] - xgb_pred[k] for k in range(1, 5)])   # 48 fold dışı hata
+print(f"Kalibrasyon: {len(kal)} hata (1956-1959)")
+for alpha in [0.2, 0.1, 0.05]:
+    q = konformal_q(np.abs(kal), alpha)
+    kap, gen = aralik_ozeti(y_val[5], xgb_pred[5] - q, xgb_pred[5] + q)
+    print(f"%{100 * (1 - alpha):.0f} aralık: q = {q:6.2f}  1960 kapsama {kap}/12  genişlik {gen:6.2f}")
+
+# Kayan kalibrasyon: 1959'u yalnızca 1956-1958 hatalarıyla kalibre et
+q59 = konformal_q(np.abs(np.concatenate([y_val[k] - xgb_pred[k] for k in range(1, 4)])), 0.2)
+kap, gen = aralik_ozeti(y_val[4], xgb_pred[4] - q59, xgb_pred[4] + q59)
+print(f"\n1959 (%80, kalibrasyon 1956-1958): q = {q59:.2f}  kapsama {kap}/12  genişlik {gen:.2f}")
+print("1959 hataları (gerçek - tahmin):", np.round(y_val[4] - xgb_pred[4], 1))
+
+# Göreli skor: |hata| / tahmin -> aralık tahminle orantılı genişler
+for test_k in [4, 5]:
+    rel = np.concatenate([np.abs(y_val[k] - xgb_pred[k]) / xgb_pred[k] for k in range(1, test_k)])
+    qr = konformal_q(rel, 0.2)
+    kap, gen = aralik_ozeti(y_val[test_k], xgb_pred[test_k] * (1 - qr), xgb_pred[test_k] * (1 + qr))
+    print(f"Göreli skor, %80, {1955 + test_k}: q = {qr:.4f}  kapsama {kap}/12  ortalama genişlik {gen:.2f}")
+
+# Yanlış kalibrasyon: eğitim (örneklem içi) artıkları
+train_end = df.index[folds[-1][0][-1]]                 # 1959-12
+model_son = xgb.XGBRegressor(n_estimators=500, learning_rate=0.05, max_depth=4, random_state=SEED)
+model_son.fit(X.loc[:train_end], y.loc[:train_end])
+ic_artik = np.abs(y.loc[:train_end].values - model_son.predict(X.loc[:train_end]))
+q_ic = konformal_q(ic_artik, 0.2)
+kap, gen = aralik_ozeti(y_val[5], xgb_pred[5] - q_ic, xgb_pred[5] + q_ic)
+print(f"\nEğitim artıklarıyla (YANLIŞ) %80: q = {q_ic:.2f}  1960 kapsama {kap}/12")
+
+# %% [markdown]
+# ### b) Kantil (pinball) kaybıyla aralık: %10 ve %90 kantilleri için iki ayrı model
+# scikit-learn `GradientBoostingRegressor(loss='quantile')`; ayarlar 16.5'teki XGBoost ile aynı. Eğitim 1950-02 - 1959-12, test 1960.
+
+# %%
+# =============================================================
+# 16.7b KANTİL REGRESYONU
+# =============================================================
+from sklearn.ensemble import GradientBoostingRegressor
+
+X_tr, y_tr = X.loc[:train_end], y.loc[:train_end]
+X_1960 = X.loc[df.index[folds[-1][1]]]
+kantil = {}
+for tau in [0.1, 0.9]:
+    m = GradientBoostingRegressor(loss='quantile', alpha=tau, n_estimators=500,
+                                  learning_rate=0.05, max_depth=4, random_state=SEED)
+    m.fit(X_tr, y_tr)
+    kantil[tau] = (m.predict(X_tr), m.predict(X_1960))      # (eğitim, 1960)
+
+kap_tr = np.mean((y_tr.values >= kantil[0.1][0]) & (y_tr.values <= kantil[0.9][0]))
+print(f"Eğitim döneminde kapsama: %{100 * kap_tr:.1f}  genişlik {np.mean(kantil[0.9][0] - kantil[0.1][0]):.2f}")
+kap, gen = aralik_ozeti(y_val[5], kantil[0.1][1], kantil[0.9][1])
+print(f"1960 kapsama: {kap}/12  ortalama genişlik {gen:.2f}  "
+      f"(altında kalan {np.sum(y_val[5] < kantil[0.1][1])}, üstüne çıkan {np.sum(y_val[5] > kantil[0.9][1])})")
+print("Alt sınır:", np.round(kantil[0.1][1], 1))
+print("Üst sınır:", np.round(kantil[0.9][1], 1))
+print("Gerçek   :", y_val[5])
+
+# Aynı deney XGBoost'un kantil amacıyla (aynı ayarlar, iki ayrı model)
+xq = {tau: xgb.XGBRegressor(objective='reg:quantileerror', quantile_alpha=tau, n_estimators=500,
+                            learning_rate=0.05, max_depth=4, random_state=SEED).fit(X_tr, y_tr).predict(X_1960)
+      for tau in [0.1, 0.9]}
+kap, gen = aralik_ozeti(y_val[5], xq[0.1], xq[0.9])
+print(f"\nXGBoost kantil: 1960 kapsama {kap}/12  ortalama genişlik {gen:.2f}  "
+      f"alt > üst olan ay (kantil çaprazlaması): {np.sum(xq[0.1] > xq[0.9])}")
+
+# %% [markdown]
+# ### c) 1960: iki aralık yan yana
+
+# %%
+q80 = konformal_q(np.abs(kal), 0.2)
+tarih = df.index[folds[-1][1]]
+plt.figure(figsize=(10, 4))
+plt.plot(tarih, y_val[5], 'k-o', label='Gerçek')
+plt.plot(tarih, xgb_pred[5], 'C0--', label='XGBoost tahmini')
+plt.fill_between(tarih, xgb_pred[5] - q80, xgb_pred[5] + q80, color='C0', alpha=0.2, label='Konformal %80')
+plt.plot(tarih, kantil[0.1][1], 'C3:', label='Kantil %10 / %90')
+plt.plot(tarih, kantil[0.9][1], 'C3:')
+plt.title('1960: konformal aralık ve kantil regresyonu')
+plt.ylabel('Yolcu Sayısı'); plt.legend(); plt.grid(True, alpha=0.3)
+plt.tight_layout()
+plt.show()

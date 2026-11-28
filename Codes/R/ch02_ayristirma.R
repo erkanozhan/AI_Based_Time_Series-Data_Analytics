@@ -25,3 +25,10 @@ plot(ayr_log)
 # 3) Daha modern ve sağlam bir yöntem: STL (Seasonal-Trend decomposition using Loess)
 ayr_stl <- stl(log(AirPassengers), s.window = "periodic")
 plot(ayr_stl)
+
+# Değişen mevsimsellik: s.window sayı verilince mevsimsel desen yıldan yıla değişebilir
+esnek  <- stl(log(AirPassengers), s.window = 13)
+temmuz <- cycle(AirPassengers) == 7
+round(ayr_stl$time.series[temmuz, "seasonal"], 3)   # her yıl 0.216
+round(esnek$time.series[temmuz, "seasonal"], 3)     # 0.190 (1949) -> 0.242 (1960)
+round(c(sd(ayr_stl$time.series[, "remainder"]), sd(esnek$time.series[, "remainder"])), 4)  # 0.0328 0.0257
